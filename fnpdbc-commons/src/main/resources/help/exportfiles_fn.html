@@ -1,0 +1,89 @@
+<html>
+<body>
+<h1>Export Files</h1>
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td> <img src="../images/Save.png"></td>
+<td>Saves the profile</td>
+</tr>
+<tr>
+<td> <img src="../images/Sort.png"></td>
+<td>Sets or clears the sort order</td>
+</tr>
+<tr>
+<td> <img src="../images/Filter.png"></td>
+<td>Apply or remove a filter to the exported records</td>
+</tr>
+<tr>
+<td> <img src="../images/Properties.png"></td>
+<td>Miscellaneous Settings</td>
+</tr>
+<tr>
+<td> <img src="../images/Help.png"></td>
+<td>Shows information about this screen</td>
+</tr>
+<tr>
+<td> <img src="../images/Exit.png"></td>
+<td>Exits the screen</td>
+</tr>
+</table>
+
+<h2>Export From</h2>
+<ul>
+<li><b>Combobox</b>
+</li>In the combobox you can select the format of the "Export From" file
+ (BookCAT, CATraxx, CATVids, SoftCAT or StampCAT).
+<li><b>Filename / Browse</b>
+</li>You can use the Browse button to select the database to be exported
+<li><b>PDA Database Name</b>
+</li>This field show the PDA database name associated to the "Export From" file.
+ If left unchanged, FNProg2PDA uses this as  default PDA database name for the
+ export file. Should your export file require another name then you could enter
+ the new name in this field.<br>	
+</ul>
+<hr WIDTH="50%" SIZE="3" NOSHADE>
+<h2>Export To</h2>
+<ul>
+<li><b>Combobox</b>
+</li>In the combobox you can select the format of the "Export To" file
+ (HanDBase, JFile, List, MobileDB, MS-Excel, Textfile, DBase3, DBase4, Dbase5,
+ FoxPro or Xml).
+<li><b>Filename / Open</b>
+</li>You can use the Open button to select the database to export to or type in
+ the name of the database directly in the text field.<br>
+<li><b>Create Backup</b>
+</li>Should the export file already exist then this option allows you to create
+ a backup copy of the previous export file.  If you deactivate the option then
+ the previous export file will be deleted.
+<li><b>Encoding</b>
+</li>Here you can override the default character set encoding for the "Export
+ To" file. This feature can be very useful if the file to be exported will be
+ used on another computer or OS that doesn't support the default characterset.
+<br><br>
+<b>Notes:</b> FNProg2PDA verifies whether the export file exists and
+ whether its format corresponds with the selected database format.
+ DBConvert/FNProg2PDA is not able to write encrypted databases<br>
+</ul>
+
+<br>
+<h3>
+<a href="export_handbase.html">Export To HanDBase</a></h3>
+<h3>
+<a href="export_palmdb.html">Export To JFile, MobileDB or PilotDB</a></h3>
+<h3>
+<a href="export_list.html">Export To List</a></h3>
+<h3>
+<a href="export_referencer.html">Export To P. Referencer</a></h3>
+<h3>
+<a href="export_excel.html">Export To MS-Excel</a></h3>
+<h3>
+<a href="export_textfile.html">Export To TextFile</a></h3>
+<h3>
+<a href="export_xbase.html">Export To DBase3, DBase4, DBase5 or FoxPro</a></h3>
+</body>
+</html>  

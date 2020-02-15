@@ -1,0 +1,45 @@
+<html>
+<body>
+<h1>Export To MS-Excel</h1>
+<h2>Convert</h2>
+<ul>
+<li><b>Booleans To Boolean Fields</b></li>
+Boolean values can be exported as Boolean Cells or as standard Text Cells. Should you leave this option 
+ deactivated then FNProg2PDA exports the text values entered in the "CheckBox Selected" and "CheckBox Unselected"
+ Settings of the General Configuration for selected or unselected checkboxes.
+<br>
+<li><b>Dates To Date Fields</b></li>
+DBConvert/FNProg2PDA converts by default dates to text, using the date format settings specified in the General Configuration.
+ If you activate this option then the dates are converted to MS-Excel Date Cells.
+<p><b>Note</b>: MS-Excel ONLY accept fully qualified dates in Date Cells. This means that if DBConvert or FNProg2PA
+ encounters an incomplete date then it will try to complete the date for you, by replacing a missing day or month
+ by "01" and a missing year by the current year.
+</p>
+<br>
+<li><b>Time To Time Fields</b></li>
+DBConvert/FNProg2PDA converts by default times to text, using the time format settings specified in the General Configuration.
+ If you activate this option then the time are converted to MS-Excel Time Cells.
+</ul>
+<h2>General Settings</h2>
+<ul>
+<li><b>Freeze first Column</b></li>
+This places a scroll-lock on the first table column
+<br>
+<li><b>Font</b></li>
+Here you can select the font and font size to be used in the Excel table
+<br>
+</ul>
+<h2>Header Settings</h2>
+<ul>
+<li><b>Include Headers</b></li>
+Defines whether the first row of the table should contain the database field headers
+<br>
+<li><b>Freeze Headers</b></li>
+This places a scroll-lock on the headers in the first row of the table
+<br>
+<li><b>Font = Bold</b></li>
+When activated it changes the font of the headers to bold
+<p><b>Note</b>: The "Freeze Headers" and "Font=bold" options can only be accessed if you've activated the "Include Headers" option
+</ul> 
+</body>
+</html>

@@ -1,0 +1,145 @@
+<html>
+<body>
+<h1>General Settings</h1>
+<h2>Date/Time</h2>
+<ul>
+<li><b>Date Format</b></li>
+Here you can select the date format to be used for the exported date fields. There are several formats
+ to choose from. To help you select a proper format, an example date is shown on the screen.
+ 
+<table border="1">
+<tr>
+<th>Letter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>d</td>
+<td>Day number without a leading zero, example: <b>9</b> May 2006</td>
+</tr>
+<tr>
+<td>dd</td>
+<td>Day number with a leading zero, example: <b>09</b> May 2006</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Month number without a leading zero, example: 21 <b>9</b> 2006</td>
+</tr>
+<tr>
+<td>MM</td>
+<td>Month number with a leading zero, example: 21 <b>09</b> 2006</td>
+</tr>
+<tr>
+<td>MMM</td>
+<td>Three letter (english) month name, example: 21 <b>Nov</b> 2006</td>
+</tr>
+<tr>
+<td>yy</td>
+<td>two digit year, example: 21 May <b>06</b></td>
+</tr>
+<tr>
+<td>yyyy</td>
+<td>four digit year, example: 21 May <b>2006</b></td>
+</tr>
+</table>
+<br>
+
+<li><b>Time Format</b></li>
+Here you can choose a 24 hours or AM/PM time format, with or without seconds,
+<ol>
+<li><b>hh:mm</b> (= hours:minutes in 24 hour format)</li>
+<b>Examples:</b> 12:34 or "00:43"
+<br>
+<li><b>hh:mm:ss</b> (= hours:minutes:seconds in 24 hour format)</li>
+<b>Examples:</b> 12:34:25 or "00:43:15"
+<br>
+<li><b>h:mm am/pm</b> (= hours:minutes in AM/PM hour format)</li>
+<b>Examples:</b> 12:34 pm, "00:43 am"
+<br>
+<li><b>hh:mm</b> (= hours:minutes:seconds in AM/PM hour format)</li>
+<b>Examples:</b> 12:34:25 pm, or "00:43:15 am"
+<br>
+</ol>
+  
+<br>
+<li><b>Duration Format</b></li>
+Here you can choose a time format to be used for the exported duration fields:
+<ol>
+<li><b>h:mm.ss</b> (= hours, minutes and seconds)</li>
+<b>Examples:</b> 12:34:52, "2:39:05", "08:25" or "00:43"
+<br>
+<li><b>mmm.ss</b> (= minutes and seconds)</li>
+<b>Examples:</b> "125:25", "95:24", "18:50 or "00:16"
+<br> 
+</ol>
+</ul>
+
+<h2>CheckBox</h2>
+<ul>
+<li><b>Selected</b></li>
+Specifies what value should be used for the activated checkbox (= <img src="../images/CheckboxSelected.gif">)
+ fields to be exported.<br>
+<li><b>Unselected</b></li> 
+The same as above but then for deactivated checkbox (= <img src="../images/CheckboxUnselected.gif">)
+ fields to be exported.
+</ul>
+
+<h2>Check for new version</h2>
+<ul>
+<li><b>Never</b></li>
+When selected, the program doesn't run a check for new versions automatically 
+<br>
+<li><b>Every x. Day(s)</b></li> 
+Here you enter the numbers of days that the program has to check for a new version. 
+</ul>
+
+<h2>Export image file names without the path.</h2>
+<ul>
+<li>When selected, it removes the path information from the file name</li>
+For example: image.jpeg instead of d:/data/images/image.jpeg
+</ul>
+
+<h2>Folders</h2>
+<ul>
+<li><b>File Folder</b></li>
+You can enter here the default folder for creating the DBConvert- or FNProg2PDA export files.
+<br>
+<li><b>Backup Folder</b></li>
+This folder is used as a default location for your DBConvert and FNProg2PDA backup files.
+<br>
+<li><b>Image Folder</b></li>
+Here you can specify the default folder in which FNProg2PDA should create the image (bmp, jpeg or png) files for HanDBase or
+ P. Referencer and CSV files on your PC
+<br> 
+<li><b>Mobile Device Image Folder</b></li>
+When used, the program still creates the image files in the Image Folder, but writes the 
+ Mobile device image foldername + image filename in the export file instead. After copying the files manually on the mobile device in
+ the folder (that is specified here), the database program on the mobile device should be able to retrieve the correct location
+ of the image files automatically.
+<br> 
+</ul>
+
+<p><b>Notes:</b>
+<p>
+FNProg2PDA uses two internal date types, namely  "incomplete" and "standard" dates. Incomplete dates are
+ dates in the FNProgramvare databases that don't need to be completely entered. For example: a published date,
+ that is entered without a day, like 05.2006 (May, 2006). Standard dates are dates that need to be entered
+ completely in the FNProgramvare database. For example: the due date of a reserved book.
+</p> 
+<p>
+"Incomplete" date fields are always exported as text. "Standard" date fields however can be exported as text
+ and (for some export file formats) also as date fields.
+</p> 
+<p>
+The difference between time and duration is that duration represents the length of time of a CD, track or video)
+ and time the time of a day. Duration fields are always exported as text. Time fields can either be exported to
+ text and (for some export file formats) also as time fields.<br>
+</p>
+<p>
+Some PDA databases accept "1" as a valid <img src="../images/CheckboxSelected.gif"> value  and "0" as
+ valid <img src="../images/CheckboxUnselected.gif"> value (example: HanDBase or SmartList To Go).
+ For others PDA databases, you could set the fields to a text value (like: "Yes" for
+ <img src="../images/CheckboxSelected.gif"> or "No" for <img src="../images/CheckboxUnselected.gif">.
+</p>
+</p>
+</body>
+</html>

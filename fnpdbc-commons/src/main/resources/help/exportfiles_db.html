@@ -1,0 +1,163 @@
+<html>
+<body>
+<h1>Export Files</h1>
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td> <img src="../images/Save.png"></td>
+<td>Saves the profile</td>
+</tr>
+<tr>
+<td> <img src="../images/Sort.png"></td>
+<td>Sets or clears the sort order</td>
+</tr>
+<tr>
+<td> <img src="../images/Filter.png"></td>
+<td>Apply or remove a filter to the exported records</td>
+</tr>
+<tr>
+<td> <img src="../images/Help.png"></td>
+<td>Shows information about this screen</td>
+</tr>
+<tr>
+<td> <img src="../images/Exit.png"></td>
+<td>Exits the screen</td>
+</tr>
+</table>
+	
+<h2>Export From</h2>
+<ul>
+<li><b>Combobox</b>
+</li>In the combobox you can select the format of the "Export From" file (JFile, 
+ List, MobileDB, MS-Access, MS-Excel, Textfile, DBase3, DBase4, DBase5, FoxPro
+ or XML).
+<li><b>Filename / Open</b>
+</li>You can use the Open button to select the database to be converted or type
+ in the name of the database directly in the text field.<br>
+<li><b>PDA Database Name</b>
+</li>This field identifies the "Export From" file. For PDA databases this is
+ the name of the database as it should appear on the PDA, for MS-Excel
+ spreadsheets it represents the tabsheet label and for XML files the root-
+element. If left unchanged, DBConvert uses this as default PDA database name for
+ the export file. Should your export file require another name then you could
+ enter the new name in this field.<br>	
+<li><b>Encoding</b>
+</li>Here you can override the default character set encoding of the "Export
+ From" file. This feature can be very useful if your file was created on a
+ computer that used a different character set encoding than your own. A good
+ example of this is when you try to read an old DBase3 file under MS-Windows
+ that was created under MS-DOS.
+
+<h3>Export From MS-Access</h3>
+<ul>
+<li><b>Password</b>
+</li>Should your MS-Access database be password protected then you should enter
+ the password in this field.
+<li><b>Tables</b>
+</li>If your MS-Access database has more than one table then you can select in
+ this comboxbox the table to be exported.
+</ul>
+
+<h3>Export From MS-Excel</h3>
+<ul>
+<li><b>Worksheet</b>
+</li>In case your MS-Excel spreadsheet has more than one worksheet then you can
+ select in this comboxbox the worksheet to be exported.
+</ul>
+
+<h3>Export From TextFile</h3>
+<ul>
+<li><b>Export Format</b>
+</li>The export format specifies the the textfile format you are exporting from.
+<br>
+<ul>
+<li><b>Standard CSV File</b>
+</li>Export from a standard CSV File, created for example by HanDBase, JFile,
+ SmartList to Go, MS-Excel or other program.<br>
+<li><b>MobileDB CSV File</b>
+</li>Exports from a CSV File that has been created by MobileDB<br>
+<li><b>Other</b>
+</li>Exports from a delimited text file according to your own requirements.<br>
+</ul>
+
+<li><b>Other</b>
+</li>The right part of the screen contains the options for exporting from
+ another textfile format It contains of the following parts:
+<ul>
+<li><b>Field Separator</b>
+</li> By selecting the field separator you can either export from a Comma-,
+ Tab-, Semi colon- or pipe delimited file<br>
+<li><b>Text Delimiter</b>
+</li> This specifies the text delimiter (to enclose all database fields).<br>
+</ul></ul>
+</ul>
+
+<p> 
+<b>Important:</b> DBConvert checks whether the database file truly exists and
+ whether its format corresponds with the selected database format. DBConvert is
+ not able to read encrypted databases. When DBConvert opens a DBase or FoxPro
+ database it tries to find the encoding that was used to create the database.
+ If found, the encoding field will be set accordingly. Encoding is deactivated
+ for XML files, because the XML Parser used by DBConvert recognizes the correct
+ encoding to be used automatically.
+ </p> 
+<p>
+Dbase or FoxPro Memo fields that contain binary data (like OLE-Objects or
+ pictures) are not supported, DBConvert can only read memo texts. DBConvert can
+ read Visual FoxPro files, but doesn't support the non-standard xBase
+ fieldtypes, like Currency, DateTime or Variant.
+</p>
+<p>
+MS-Access passwords will be stored in the DBConvert database for your
+ convenience. For security reasons the stored passworld will be encrypted. In
+ case you've already defined the MS-Access database with a valid password before
+ then DBConvert loads the password directly from the DBConvert database and
+ deactivates the password field because there is no need to re-enter the
+ password again.
+</p>
+
+<hr WIDTH="50%" SIZE="3" NOSHADE>
+<h2>Export To</h2>
+<ul>
+<li><b>Combobox</b>
+</li>In the combobox you can select the format of the "Export To" file
+ (HanDBase, JFile, List, MobileDB, MS-Excel, Textfile, DBase3, DBase4, Dbase5,
+ FoxPro or Xml).
+<li><b>Filename / Open</b>
+</li>You can use the Open button to select the database to export to or type in
+ the name of the database directly in the text field.<br>
+<li><b>Create Backup</b>
+</li>Should the export file already exist then this option allows you to create
+ a backup copy of the previous export file.  If you deactivate the option then
+ the previous export file will be deleted.
+<li><b>Encoding</b>
+</li>Here you can override the default character set encoding for the "Export
+ To" file. This feature can be very useful if the file to be exported will be
+ used on another computer or OS that doesn't support the default characterset.
+<br><br>
+<b>Notes:</b> DBConvert verifies whether the export file exists and
+ whether its format corresponds with the selected database format.
+ DBConvert/FNProg2PDA is not able to write encrypted databases<br>
+</ul>
+
+<br>
+<h3>
+<a href="export_handbase.html">Export To HanDBase</a></h3>
+<h3>
+<a href="export_palmdb.html">Export To JFile, MobileDB or PilotDB</a></h3>
+<h3>
+<a href="export_list.html">Export To List</a></h3>
+<h3>
+<a href="export_referencer.html">Export To P. Referencer</a></h3>
+<h3>
+<a href="export_excel.html">Export To MS-Excel</a></h3>
+<h3>
+<a href="export_textfile.html">Export To TextFile</a></h3>
+<h3>
+<a href="export_xbase.html">Export To DBase3, DBase4, DBase5 or FoxPro</a></h3>
+</body>
+</html>  

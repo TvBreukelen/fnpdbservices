@@ -1,0 +1,74 @@
+<html>
+<body>
+<h1>Export To HanDBase</h1>
+<h2>Export Data</h2>
+<ul>
+<li><b>Into New Database</b></li>
+This option creates a new database. Should a previous copy of the "Export To" database file already exist then
+ DBConvert/FNprog2PDA will overwrite it.
+<br>
+<li><b>Into Current Database, Replacing current records</b></li>
+Should the "Export To" HandBase database already exist then this option will keep the database structure of the
+ existing file intact, but replaces the already existing records in the database with the new records found in the
+ "Export From" Database".
+<br>
+<li><b>Into Current Database, Appending to existing records</b></li>
+Similar as the previous option, but in this case the new records are appended to the existing records in the 
+ database.
+<br>
+<li><b>Password</b></li>
+Optional password. If an existing HanDBase database has a password then you are no longer prompted for the password 
+ if you've entered it here.
+<br>
+</ul>
+<h2>Convert</h2>
+<ul>
+<li><b>Convert Images to Image files</b></li>
+By activating this checkbox all images to be exported are converted to image files. This allows you to import 
+ these images in your HanDBase database. To import the image filename (instead of the actual image), leave the 
+ checkbox deactivated.
+<ol>
+<li><i><b>To Bitmap Files</b></i></li>
+Exports the images to .bmp (bitmap) files. These files are directly imported in the HanDBase database and are
+  show there as "thumbnails".<br>
+<li><i><b>To Jpeg Files (160x160 pixels)</b></i></li>
+This option is only suitable in case you've got the HanDBase Image-Plugin installed. The Image-Plugin supports
+  .jpg (Jpeg) Files of 160 x 160 bytes or 320 x 320 bytes. This option creates the images files of max.160 x 160
+  pixel-size.<br>
+<li><i><b>To Jpeg Files (320x320 pixels)</b></i></li> 
+Same as above, but by selecing this option Jpeg files will be created that have a imagesize of max. 320 x 320 pixels.<br>
+</ol>
+<p><b>Important:</b> the image conversion process takes a huge amount of processing time!<br>
+When you export to Jpeg file, you have to keep in mind that you'd need to copy the files manually to your PDA in
+the folder specified under Config->General->Folders->PDA Image Folder.  
+</p>
+
+<br>
+</ul>
+<h2>HanDBase Import</h2>
+<ul>
+<li><b>Field Order of Fields</b></li>
+Import the new records based on the field order (as in the HanDBase 'Edit Field Order' screen.
+<br>
+<li><b>Physical Order of Fields</b></li>
+Import the new records data based on the field creation order, as in the HanDBase 'DB Properties' screen
+<p><b>Note</b>: The HanDBase Import options can only be used if you export to an existing database (= one
+ of the Export "InTo Current Database" options).</p>
+</ul> 
+     
+<h2>AutoInstall</h2>
+<ul>
+<li><b>All Users</b></li>
+Install database for all Palm users that are set up for Palm Hotsync<br>
+<li><b>Palm User</b></li>
+Here you enter the name of a Palm user that is set up for Palm Hotsync. The database is then installed
+ automatically for that particular user
+</ul>
+
+<br>
+<h2>handbasedesktop.exe</h2>
+Here you will need to specify the fully qualified filename of the HanDBase database conversion program
+ (handbasedesktop.exe). The Browse button allows you to find this program on your PC more easily.
+<br> 
+</body>
+</html>
