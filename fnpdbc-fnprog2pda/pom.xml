@@ -1,0 +1,95 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>Fnp-Dbc</groupId>
+		<artifactId>fnpdbcservices</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<name>FNProg2PDA</name>
+	<artifactId>fnpdbc-fnprog2pda</artifactId>
+	<description>FNProg2PDA</description>
+	<packaging>jar</packaging>
+
+	<properties>
+		<jdk.version>1.8</jdk.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>Fnp-Dbc</groupId>
+			<artifactId>fnpdbc-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>Fnp-Dbc</groupId>
+			<artifactId>fnpdbc-dbconvert</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<!-- Copy dependencies -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								${project.build.directory}/libs
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- Build an executable JAR -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>libs/</classpathPrefix>
+							<mainClass>fnprog2pda.FNProg2PDA</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- Builds a DMG file (works only on a Mac) Run clean package appbundle:bundle -->
+				<groupId>sh.tak.appbundler</groupId>
+				<artifactId>appbundle-maven-plugin</artifactId>
+				<version>1.2.0</version>
+				<configuration>
+					<mainClass>fnprog2pda.FNProg2PDA</mainClass>
+					<generateDiskImageFile>true</generateDiskImageFile>
+					<bundleName>FNProg2PDA</bundleName>
+					<iconFile>DBConvert.icns</iconFile>
+					<additionalClasspath>:$APP_ROOT/../libs/</additionalClasspath>
+					<additionalResources>
+						<fileSet>
+							<directory>${project.basedir}/dist</directory>
+						</fileSet>
+					</additionalResources>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

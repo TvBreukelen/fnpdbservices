@@ -1,0 +1,1014 @@
+package fnprog2pda.software;
+
+import java.awt.Component;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+
+import javax.imageio.ImageIO;
+
+import com.healthmarketscience.jackcess.Cursor;
+import com.healthmarketscience.jackcess.Row;
+
+import application.BasicSoft;
+import application.interfaces.ExportFile;
+import application.interfaces.FNPSoftware;
+import application.interfaces.FieldTypes;
+import application.interfaces.FilterOperator;
+import application.model.ViewerModel;
+import application.preferences.GeneralSettings;
+import application.utils.BasisField;
+import application.utils.FNProgException;
+import application.utils.FieldDefinition;
+import application.utils.GUIFactory;
+import application.utils.General;
+import application.utils.XComparator;
+import dbengine.GeneralDB;
+import dbengine.MSAccess;
+import dbengine.export.CsvFile;
+import dbengine.export.HanDBase;
+import dbengine.utils.DatabaseHelper;
+import dbengine.utils.MSTable;
+import dbengine.utils.SpecialFields;
+import fnprog2pda.preferences.DatabasesFNProg;
+import fnprog2pda.preferences.PrefFNProg;
+
+public abstract class FNProgramvare extends BasicSoft {
+	/**
+	 * Title: FNProgramvare Description: Abstract Class for FNProgramvare software
+	 * Copyright: (c) 2003-2012
+	 *
+	 * @author Tom van Breukelen
+	 * @version 8
+	 */
+	protected String mySoftwareVersion = "";
+	protected int myLastIndex = 0;
+
+	protected String myTable;
+	protected String myTableID;
+
+	private boolean useCategory;
+	private boolean exportImages;
+
+	private boolean isSkipFirstFilter;
+	private boolean isSkipLastFilter;
+	private boolean isNewModified;
+	private boolean isNewRecords;
+
+	protected boolean useRoles;
+	protected boolean useContents;
+
+	private MSTable msTable;
+	private Cursor cursor;
+	protected MSAccess msAccess;
+
+	private Map<String, FieldDefinition> dbInfoToExport = new HashMap<>(); // DB definitions of the fields to be
+																			// exported
+	private Map<String, FieldTypes> dbSortList = new LinkedHashMap<>(); // Sort by field -number and -type
+	private Predicate<FieldDefinition> floatFilter = field -> field.getFieldType() == FieldTypes.FLOAT;
+
+	private String myLastModified = "";
+	private String imageKey;
+
+	protected String[] personField = new String[] { "", "" };
+	private int fileCounter;
+	private int imageOption;
+
+	private GeneralDB dbOut;
+	private boolean createBackup;
+	private boolean isInputFileOpen = false;
+	private boolean isOutputFileOpen = false;
+	private boolean isNoImagePath = false;
+
+	private Set<FieldDefinition> hTextFields = new HashSet<>();
+	protected Map<String, Map<Integer, String>> myRoles = new HashMap<>(30);
+	protected static PrefFNProg pdaSettings = PrefFNProg.getInstance();
+
+	private DatabasesFNProg dbSettings = DatabasesFNProg.getInstance();
+	private GeneralSettings generalSettings = GeneralSettings.getInstance();
+	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
+
+	public FNProgramvare(Component parent) throws Exception {
+		super(pdaSettings);
+
+		isNoImagePath = generalSettings.isNoImagePath();
+		mySoftwareVersion = dbSettings.getDatabaseVersion();
+
+		// Initialize "Global" variables
+		exportImages = pdaSettings.isExportImages();
+		useRoles = pdaSettings.isUseRoles();
+		useCategory = !pdaSettings.getCategoryField().isEmpty();
+
+		imageKey = pdaSettings.getProfileID();
+		imageOption = pdaSettings.getImageOption();
+		fileCounter = 0;
+
+		myLastIndex = pdaSettings.getLastIndex();
+		myLastModified = pdaSettings.getLastModified();
+		myImportFile = ExportFile.ACCESS;
+	}
+
+	public void setupDBTranslation(boolean isNew) throws Exception {
+		boolean isUserListError = false;
+
+		msTable = dbFactory.getMSTable();
+		myTable = msTable.getName();
+		myTableID = msTable.getIndex();
+
+		dbFieldDefinition = dbFactory.getDbFieldDefinition();
+		dbInfoToExport.clear();
+		dbInfoToExport.put(myTableID, dbFieldDefinition.get(myTableID));
+
+		// Add the user's Export fields to the fields to export and to write
+		dbUserFields = isNew ? new ArrayList<>() : pdaSettings.getUserList();
+		List<String> usrList = new ArrayList<>();
+		dbTableModelFields.clear();
+		dbSortList.clear();
+		hTextFields.clear();
+
+		for (BasisField field : dbUserFields) {
+			FieldDefinition dbField = dbFieldDefinition.get(field.getFieldAlias());
+			if (dbField == null) {
+				isUserListError = true;
+				continue;
+			}
+
+			dbField = dbField.clone();
+			dbField.set(field);
+
+			if (field.getFieldType() == null) {
+				field.setFieldType(dbField.getFieldType());
+			}
+
+			dbTableModelFields.add(dbField);
+
+			usrList.add(dbField.getFieldAlias());
+			if (!dbInfoToExport.containsKey(dbField.getFieldAlias())) {
+				dbInfoToExport.put(dbField.getFieldAlias(), dbField);
+			}
+		}
+
+		if (isUserListError) {
+			// Correct the list of selected user fields because they don't match the
+			// database definition
+			validateUserFields(usrList, false);
+		}
+
+		// Add special fields for list, SmartList, Referencer or XML to the fields to
+		// export and to write
+		SpecialFields dbSpecialFields = pdaSettings.getSpecialFields();
+		for (String dbField : dbSpecialFields.getSpecialFields()) {
+			if (addField(dbField, usrList, false, false) == null) {
+				pdaSettings.removeSortField(dbField);
+			}
+		}
+
+		// Add the Contents specific fields to the fields to export. They will be merged
+		// in the "Contents Field", not individually exported
+		for (String dbField : getContentsFields(usrList)) {
+			addField(dbField, usrList, true, true);
+		}
+
+		// Add the System specific fields to the fields to export, but hide them in
+		// xViewer and don't export them
+		for (String dbField : getSystemFields(usrList)) {
+			addField(dbField, usrList, true, false);
+		}
+
+		// Add the sort fields to the fields to export
+		for (int i = 0; i < 4; i++) {
+			String dbField = pdaSettings.getSortField(i);
+			if (dbField.isEmpty()) {
+				break;
+			}
+
+			FieldDefinition field = dbFieldDefinition.get(dbField);
+			if (field != null) {
+				addField(dbField, usrList, true, false);
+				dbSortList.put(field.getFieldAlias(), field.getFieldType());
+			}
+		}
+	}
+
+	private FieldDefinition addField(String dbField, List<String> usrList, boolean isSystemField,
+			boolean isContentsField) {
+		FieldDefinition field = dbFieldDefinition.get(dbField);
+		if (field != null && !dbInfoToExport.containsKey(field.getFieldAlias())) {
+			usrList.add(dbField);
+			// Clone FieldDefiniton and set export flag to false for system fields (see
+			// getDataVector)
+			field = field.clone();
+			field.setExport(!isSystemField);
+			field.setContentsField(isContentsField);
+			dbInfoToExport.put(field.getFieldAlias(), field);
+			dbTableModelFields.add(field);
+		}
+		return field;
+	}
+
+	public void openToFile() throws Exception {
+		createBackup = pdaSettings.isCreateBackup();
+		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings, false);
+		dbOut.setSoftware(this);
+		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), createBackup, false);
+		isOutputFileOpen = true;
+	}
+
+	public GeneralDB getDbOut() {
+		return dbOut;
+	}
+
+	/* Method to connect to the FNProgramvare Access database */
+	public void openFile() throws Exception {
+		dbFactory.connect2DB(new DatabaseHelper(dbSettings.getDatabaseFile(), dbSettings.getDatabaseUser(),
+				dbSettings.getDatabasePassword()));
+		dbFactory.verifyDatabase(dbSettings.getDatabaseFile());
+		dbFactory.loadConfiguration(pdaSettings.getTableName());
+		isInputFileOpen = true;
+
+		// Get the total number of records to process
+		dbFactory.getMSAccess().verifyDatabase(null);
+		msAccess = dbFactory.getMSAccess();
+		msAccess.setSoftware(this);
+		myTotalRecord = msAccess.getTotalRecords();
+	}
+
+	public void close() {
+		if (isInputFileOpen) {
+			dbFactory.close();
+			isInputFileOpen = false;
+		}
+
+		if (isOutputFileOpen) {
+			dbOut.closeFile();
+			isOutputFileOpen = false;
+		}
+	}
+
+	public void closeFiles(boolean delete) {
+		if (!delete) {
+			close();
+			return;
+		}
+
+		if (isInputFileOpen) {
+			dbFactory.close();
+			isInputFileOpen = false;
+		}
+
+		if (isOutputFileOpen) {
+			dbOut.closeFile();
+			dbOut.deleteFile();
+			isOutputFileOpen = false;
+		}
+	}
+
+	public boolean isConnected() {
+		if (isInputFileOpen) {
+			if (!dbFactory.isConnected()) {
+				close();
+			}
+		}
+
+		return isInputFileOpen;
+	}
+
+	public void setCategories() throws Exception {
+		if (useRoles && !msAccess.isIndexedSupported()) {
+			useRoles = false;
+		}
+
+		final int MAX_CATEGORIES = LISTDB_MAX_CATEGORIES + 1;
+		myCategories.clear();
+		myCategories.add("Unfiled");
+
+		if (!useCategory) {
+			return;
+		}
+
+		List<Object> fieldData = dbFactory.getDbFieldValues(pdaSettings.getCategoryField());
+		final int MAX_RECORDS = fieldData.size();
+
+		int count = 1;
+		for (int i = 0; i < MAX_RECORDS && count < MAX_CATEGORIES; i++) {
+			String category = fieldData.get(i).toString();
+			if (category == null || category.isEmpty()) {
+				continue;
+			}
+
+			if (category.length() > LISTDB_MAX_CATEGORY_LENGTH) {
+				category = category.substring(0, LISTDB_MAX_CATEGORY_LENGTH);
+			}
+
+			myCategories.add(category);
+			count++;
+		}
+	}
+
+	@Override
+	protected List<Map<String, Object>> getDataVector() throws Exception {
+		List<Map<String, Object>> result = new ArrayList<>();
+		Map<String, List<Map<String, Object>>> hashTable = new HashMap<>();
+		Set<Object> keywordList = new HashSet<>();
+		Map<String, Object> hKeyword = new HashMap<>();
+		Map<Integer, FieldDefinition> hFilterTable = new LinkedHashMap<>();
+		final String separator = myTable.equals("BoxSet") ? "\n" : "; ";
+
+		cursor = null;
+		myCurrentRecord = 0;
+
+		prepareFilters(hFilterTable, keywordList);
+
+		Map<String, Object> map;
+		Iterator<Row> iter1 = null;
+		Iterator<Object> iter = null;
+
+		boolean isFilterSubset = !keywordList.isEmpty();
+
+		if (isFilterSubset) {
+			myTotalRecord = keywordList.size();
+			iter = keywordList.iterator();
+		} else {
+			if (cursor == null) {
+				cursor = msAccess.getCursor(msTable.getName(), null, null, FilterOperator.IsNotEqualTo);
+				if (cursor == null) {
+					return result;
+				}
+			}
+			iter1 = cursor.iterator();
+		}
+
+		while (true) {
+			myCurrentRecord++;
+
+			hashTable.clear();
+			Map<String, Object> dbRecord = new HashMap<>(); // stores a single record
+
+			if (isFilterSubset) {
+				if (!iter.hasNext()) {
+					break;
+				}
+				hKeyword.put(myTableID, iter.next());
+				map = msAccess.getSingleRecord(myTable, myTableID, hKeyword);
+			} else {
+				if (!iter1.hasNext()) {
+					break;
+				}
+				map = iter1.next();
+			}
+
+			if (isNewRecords) {
+				if (pdaSettings.getLastIndex() > ((Number) map.get(myTableID)).intValue()) {
+					continue;
+				}
+			} else if (isNewModified) {
+				boolean isOK = false;
+				if (pdaSettings.getLastIndex() > 0) {
+					isOK = pdaSettings.getLastIndex() < ((Number) map.get(myTableID)).intValue();
+				}
+
+				if (!isOK) {
+					if (!myLastModified.isEmpty() && map.containsKey("LastModified")) {
+						Object obj = map.get("LastModified");
+						if (obj == null || obj.equals("")) {
+							continue;
+						}
+
+						String compDate = obj instanceof Date ? General.convertTimestamp2DB((Date) obj)
+								: obj.toString();
+						if (compDate.compareTo(myLastModified) < 0) {
+							continue;
+						}
+					}
+				}
+			}
+
+			if (isFilterDefined) {
+				boolean[] isTrue = { true, true };
+
+				for (int i : hFilterTable.keySet()) {
+					FieldDefinition filterField = hFilterTable.get(i);
+					if (filterField.getTable().equals(myTable)) {
+						isTrue[i] = isIncludeRecord(map, filterField, pdaSettings.getFilterValue(i),
+								pdaSettings.getFilterOperator(i));
+					} else {
+						isTrue[i] = isIncludeRecord(getLinkedRecords(map, hashTable, filterField), filterField,
+								pdaSettings.getFilterValue(i), pdaSettings.getFilterOperator(i));
+					}
+				}
+
+				if (!(pdaSettings.getFilterCondition().equals("AND") ? isTrue[0] && isTrue[1]
+						: isTrue[0] || isTrue[1])) {
+					// Filter returned false
+					continue;
+				}
+			}
+
+			for (FieldDefinition field : dbInfoToExport.values()) {
+				if (field.getTable().equals(myTable)) {
+					dbRecord.put(field.getFieldAlias(), msAccess.convertObject(map, field));
+					continue;
+				}
+
+				dbRecord.put(field.getFieldAlias(), "");
+				boolean isPersonRoles = useRoles && field.isRoleField();
+
+				List<Map<String, Object>> list = getLinkedRecords(map, hashTable, field);
+				if (list.isEmpty()) {
+					continue;
+				}
+
+				if (field.getFieldType() == FieldTypes.IMAGE || field.getFieldType() == FieldTypes.THUMBNAIL) {
+					convertImage(field.getFieldAlias(), dbRecord, list);
+				} else if (field.isContentsField()) {
+					if (!field.getFieldAlias().equals(field.getFieldName())) {
+						for (Map<String, Object> lObj : list) {
+							lObj.put(field.getFieldAlias(), lObj.get(field.getFieldName()));
+						}
+					}
+				} else if (field.isRoleField() || list.size() > 1) {
+					StringBuilder buf = new StringBuilder(100);
+					ArrayList<String> aList = new ArrayList<>();
+					for (Map<String, Object> lObj : list) {
+						String s = msAccess.convertObject(lObj, field).toString();
+						if (!s.isEmpty() && !aList.contains(s)) {
+							if (isPersonRoles) {
+								buf.append(getPersonRole(field.getTable(), s, (Number) lObj.get("RoleID")));
+							} else {
+								buf.append(s);
+							}
+							buf.append(separator);
+							aList.add(s);
+						}
+					}
+					if (buf.toString().endsWith(separator)) {
+						buf.delete(buf.length() - 2, buf.length());
+					}
+
+					dbRecord.put(field.getFieldAlias(), buf.toString());
+					hTextFields.add(field);
+				} else {
+					dbRecord.put(field.getFieldAlias(), msAccess.convertObject(list.get(0), field));
+				}
+			}
+
+			setTableRecord(dbRecord, hashTable, result);
+			setChanged();
+		}
+
+		if (!hTextFields.isEmpty()) {
+			for (FieldDefinition field : hTextFields) {
+				field.setFieldType(FieldTypes.TEXT);
+			}
+		}
+
+		if (!dbSortList.isEmpty()) {
+			Collections.sort(result, new XComparator(dbSortList));
+		}
+		return result;
+	}
+
+	private List<Map<String, Object>> getLinkedRecords(Map<String, Object> map,
+			Map<String, List<Map<String, Object>>> hashTable, FieldDefinition field) throws Exception {
+		String key = field.getTable();
+		MSTable table = dbFactory.getMSTable(key);
+
+		boolean isPersonRoles = useRoles && field.isRoleField();
+
+		if (!field.getIndexField().isEmpty()) {
+			table.getColumnValues().put(field.getIndexField(), field.getIndexValue());
+			key += field.getIndexValue();
+		}
+
+		List<Map<String, Object>> result = getMainTableRecord(table, map, hashTable, key);
+		if (result != null) {
+			return result;
+		}
+
+		String linkKey = table.getFromTable();
+		MSTable link = dbFactory.getMSTable(linkKey);
+
+		List<Map<String, Object>> linkList = getMainTableRecord(link, map, hashTable, linkKey);
+
+		result = new ArrayList<>();
+		hashTable.put(key, result);
+
+		if (linkList == null) {
+			// Shit, now it gets really complicated since our linked table isn't directly
+			// linked to the main table
+			String linkedKey = link.getFromTable();
+			if (linkedKey.isEmpty()) {
+				// No link found
+				throw FNProgException.getException("noForeignKey", key);
+
+			}
+
+			linkList = new ArrayList<>();
+			MSTable linkedLink = dbFactory.getMSTable(linkedKey);
+			List<Map<String, Object>> linkedList = getMainTableRecord(linkedLink, map, hashTable, linkedKey);
+			if (linkedList != null) {
+				for (Map<String, Object> linkMap : linkedList) {
+					if (link.setColumnValues(linkMap)) {
+						Map<String, Object> lObj = msAccess.getSingleRecord(link.getName(), link.getIndex(),
+								link.getColumnValues());
+						if (lObj != null && !lObj.isEmpty()) {
+							linkList.add(lObj);
+						} else if (field.isRoleField()) {
+							lObj = new LinkedHashMap<>();
+							lObj.put("AtEnd", true);
+							linkList.add(lObj);
+						}
+					}
+				}
+			}
+		}
+
+		hashTable.put(linkKey, linkList);
+
+		for (Map<String, Object> linkMap : linkList) {
+			if (linkMap.get("AtEnd") != null) {
+				result.add(linkMap);
+				continue;
+			}
+
+			if (table.setColumnValues(linkMap)) {
+				List<Map<String, Object>> list = msAccess.getMultipleRecords(table.getName(), table.getIndex(),
+						table.getColumnValues());
+				if (list == null || list.isEmpty()) {
+					continue;
+				}
+
+				for (Map<String, Object> lObj : list) {
+					lObj.put("isAtEnd", false);
+					if (isPersonRoles) {
+						lObj.put("RoleID", linkMap.get("RoleID"));
+					}
+
+					if (link.isNoDupIndex()) {
+						// Verify if the "main table" doesn't have the same index value as the linked
+						// table
+						Object index1 = map.get(link.getIndex());
+						Object index2 = linkMap.get(table.getFromIndex());
+						if (index1.equals(index2)) {
+							continue;
+						}
+					}
+
+					result.add(lObj);
+				}
+
+				if (result.isEmpty()) {
+					continue;
+				}
+
+				result.get(result.size() - 1).put("isAtEnd",
+						linkMap.containsKey("isAtEnd") ? (Boolean) linkMap.get("isAtEnd") : true);
+			}
+		}
+		return result;
+	}
+
+	private List<Map<String, Object>> getMainTableRecord(MSTable table, Map<String, Object> map,
+			Map<String, List<Map<String, Object>>> hashTable, String tableKey) throws Exception {
+		if (table == null) {
+			throw FNProgException.getException("noTable", tableKey);
+		}
+
+		List<Map<String, Object>> result = hashTable.get(tableKey);
+		if (result != null) {
+			return result;
+		}
+
+		if (table.getFromTable().equals(myTable)) {
+			if (table.setColumnValues(map)) {
+				result = msAccess.getMultipleRecords(table.getName(), table.getIndex(), table.getColumnValues(),
+						table.isMultiColumnIndex());
+			} else {
+				result = new ArrayList<>();
+			}
+			hashTable.put(tableKey, result);
+			return result;
+		}
+		return null;
+	}
+
+	private void convertImage(String field, Map<String, Object> dbRecord, List<Map<String, Object>> list)
+			throws Exception {
+		if (list.isEmpty()) {
+			dbRecord.put(field, "");
+		}
+
+		Map<String, Object> map = list.get(0);
+		boolean result = false;
+
+		if (field.startsWith("Thumb") || !((Boolean) map.get("ImageExternal"))) {
+			result = check4InternalImage(field, dbRecord, map);
+		} else {
+			result = check4ExternalImage(field, dbRecord, map);
+		}
+
+		if (!result) {
+			dbRecord.put(field, "");
+		}
+	}
+
+	// If Cover field is selected check whether we have load the Image from an
+	// external file
+	private boolean check4ExternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
+			throws Exception {
+		String imageFilename = (String) map.get("ImageFilename");
+		if (imageFilename != null && !imageFilename.isEmpty()) {
+			// Return fully qualified external filename
+			if (exportImages) {
+				// Load image from external file (works with JPEG and GIF files only ?)
+				if (General.existFile(imageFilename)) {
+					try {
+						BufferedImage image = ImageIO.read(new File(imageFilename));
+						if (convertImage(field, image, dbRecord)) {
+							return true;
+						}
+					} catch (IllegalArgumentException e) {
+						// File format is invalid
+						return false;
+					}
+				} else {
+					return false;
+				}
+			} else {
+				dbRecord.put(field,
+						isNoImagePath ? imageFilename.substring(imageFilename.lastIndexOf("\\") + 1) : imageFilename);
+			}
+		}
+		return true;
+	}
+
+	private boolean check4InternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
+			throws Exception {
+		if (exportImages) {
+			Object obj = map.get(field.startsWith("Thumb") ? "ImageThumbnail" : "Image");
+			if (obj != null) {
+				try {
+					BufferedImage image = ImageIO.read(new ByteArrayInputStream((byte[]) obj));
+					if (convertImage(field, image, dbRecord)) {
+						return true;
+					}
+				} catch (IllegalArgumentException e) {
+					// Image format is not valid
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean convertImage(String field, BufferedImage image, Map<String, Object> dbRecord) throws Exception {
+		String[] types = { ".bmp", ".jpg", ".png" };
+
+		StringBuilder buf = new StringBuilder(100);
+		buf.append(generalSettings.getDefaultImageFolder());
+		buf.append("/");
+		buf.append(imageKey);
+		buf.append("_");
+		buf.append(field);
+		buf.append("_");
+		buf.append(fileCounter++);
+		buf.append(types[pdaSettings.getImageOption()]);
+
+		if (General.convertImage(image, myExportFile, pdaSettings, buf.toString(), field.startsWith("Thumb"))) {
+			if (imageOption != 0 && myExportFile == ExportFile.HANDBASE) {
+				buf.delete(0, generalSettings.getDefaultImageFolder().length());
+				buf.insert(0, generalSettings.getDefaultPdaFolder());
+			}
+			dbRecord.put(field, buf.toString());
+			return true;
+		}
+		return false;
+	}
+
+	private void prepareFilters(Map<Integer, FieldDefinition> hFilterTable, Set<Object> idSet) throws Exception {
+		isSkipFirstFilter = false;
+		isSkipLastFilter = numFilter == 1;
+		isNewRecords = generalSettings.isNewExport() && myLastIndex > 0;
+		isNewModified = generalSettings.isIncrementalExport() && (myLastIndex > 0 || !myLastModified.isEmpty());
+
+		if (generalSettings.isNoFilterExport()) {
+			if (isNewRecords) {
+				Object obj = myLastIndex;
+				try {
+					cursor = msAccess.getCursor(myTable, myTableID, Collections.singletonMap(myTableID, obj),
+							FilterOperator.IsGreaterThan);
+					isNewRecords = false;
+				} catch (Exception e) {
+				}
+			}
+		} else {
+			setContentsFilter();
+			setKeywordFilter(idSet);
+			if (idSet.isEmpty() && isFilterDefined) {
+				setStandardFilter(idSet);
+			}
+
+			if (isFilterDefined) {
+				ArrayList<Integer> hTemp = new ArrayList<>();
+				if (isSkipLastFilter) {
+					hTemp.add(0);
+				} else if (isSkipFirstFilter) {
+					hTemp.add(1);
+				} else {
+					hTemp.add(0);
+					hTemp.add(1);
+				}
+				for (int i : hTemp) {
+					hFilterTable.put(i, dbFactory.getDbFieldDefinition().get(pdaSettings.getFilterField(i)));
+				}
+			}
+		}
+	}
+
+	private void setContentsFilter() {
+		if (useContents && !pdaSettings.getContentsFilter().isEmpty()) {
+			Object filter = pdaSettings.getContentsFilter();
+
+			try {
+				Map<String, Object> map = msAccess.getSingleRecord("ContentsType", null,
+						Collections.singletonMap("ContentsType", filter));
+				if (!map.isEmpty()) {
+					MSTable table = dbFactory.getMSTable("Contents");
+					table.getColumnValues().put("TypeID", map.get("ContentsTypeID"));
+				}
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	private boolean setKeywordFilter(Set<Object> idSet) throws Exception {
+		idSet.clear();
+		if (!pdaSettings.getKeywordFilter().isEmpty()) {
+			Object filter = pdaSettings.getKeywordFilter();
+
+			MSTable table = dbFactory.getMSTable("Keyword");
+			Map<String, Object> map = msAccess.getSingleRecord("Keyword",
+					table.isIndexedColumn("Keyword") ? "Keyword" : null, Collections.singletonMap("Keyword", filter));
+			if (!map.isEmpty()) {
+				if (!setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), "KeywordID",
+						Collections.singletonMap("KeywordID", map.get("KeywordID"))))) {
+					pdaSettings.setKeywordFilter("");
+					return false;
+				}
+			}
+
+			return true;
+		}
+		return false;
+	}
+
+	private boolean setStandardFilter(Set<Object> idSet) throws Exception {
+		if (pdaSettings.getFilterCondition().equals("OR")) {
+			// This is a bit too complex to handle, we'll use the default filter method
+			// instead
+			return false;
+		}
+
+		FilterOperator[] oper = new FilterOperator[2];
+		oper[0] = pdaSettings.getFilterOperator(0);
+		oper[1] = pdaSettings.getFilterField(1).isEmpty() ? FilterOperator.IsNotEqualTo
+				: pdaSettings.getFilterOperator(1);
+
+		if (oper[0] == FilterOperator.IsNotEqualTo && oper[1] == FilterOperator.IsNotEqualTo) {
+			// a bit too complex, we'll use the default filter method instead
+			return false;
+		}
+
+		int index = oper[0] == FilterOperator.IsEqualTo ? 0 : oper[1] == FilterOperator.IsEqualTo ? 1 : 0;
+		FieldDefinition field = dbFieldDefinition.get(pdaSettings.getFilterField(index));
+		MSTable table = dbFactory.getMSTable(field.getTable());
+		boolean isIndexColumn = table.isIndexedColumn(field.getFieldName());
+
+		if (!isIndexColumn && table.getName().equals(myTable)) {
+			// Try the other filter
+			index = index == 0 ? 1 : 0;
+			if (oper[index] == FilterOperator.IsNotEqualTo) {
+				return false;
+			}
+
+			field = dbFieldDefinition.get(pdaSettings.getFilterField(index));
+			table = dbFactory.getMSTable(field.getTable());
+			isIndexColumn = table.isIndexedColumn(field.getFieldName());
+			if (!isIndexColumn && table.getName().equals(myTable)) {
+				return false;
+			}
+		}
+
+		Map<String, Object> hFilter = new HashMap<>();
+		Object filter = pdaSettings.getFilterValue(index);
+		hFilter.put(field.getFieldName(), filter);
+
+		if (field.getTable().equals(myTable)) {
+			cursor = msAccess.getCursor(myTable, field.getFieldName(), hFilter, oper[index]);
+			setFilterStatus(index);
+			return false;
+		}
+
+		MSTable link = dbFactory.getMSTable(table.getFromTable());
+		String indexName = table.getFromIndex().isEmpty() ? table.getIndex() : table.getFromIndex();
+		if (!link.isIndexedColumn(indexName)) {
+			return false;
+		}
+
+		if (oper[index] != FilterOperator.IsEqualTo) {
+			if (!isIndexColumn) {
+				return false;
+			}
+
+			List<Map<String, Object>> list1 = msAccess.getMultipleRecords(table.getName(), field.getFieldName(),
+					hFilter, false, oper[index]);
+
+			if (!list1.isEmpty()) {
+				setFilterStatus(index);
+				hFilter.clear();
+				for (Map<String, Object> map : list1) {
+					hFilter.put(table.getFromIndex(), map.get(table.getFromIndex()));
+					setIdFilter(idSet, msAccess.getMultipleRecords(link.getName(), table.getFromIndex(), hFilter));
+				}
+				return !idSet.isEmpty();
+			}
+
+			return false;
+		}
+
+		Map<String, Object> map = msAccess.getSingleRecord(table.getName(), isIndexColumn ? field.getFieldName() : null,
+				hFilter);
+		if (!map.isEmpty()) {
+			setFilterStatus(index);
+			hFilter.clear();
+			hFilter.put(indexName, map.get(table.getIndex()));
+
+			if (table.getFromTable().equals(myTable)) {
+				cursor = msAccess.getCursor(myTable, indexName, hFilter, FilterOperator.IsEqualTo);
+				// return false;
+			} else {
+				isFilterDefined = true;
+			}
+
+			// return setIdFilter(idSet, msAccess.getMultipleRecords(link.getName(),
+			// indexName, hFilter));
+		}
+		return false;
+	}
+
+	private void setFilterStatus(int index) {
+		if (numFilter == 1) {
+			isFilterDefined = false;
+		} else {
+			isSkipFirstFilter = index == 0;
+			isSkipLastFilter = !isSkipFirstFilter;
+		}
+	}
+
+	private boolean setIdFilter(Set<Object> idSet, List<Map<String, Object>> list) throws Exception {
+		if (list == null || list.isEmpty()) {
+			return false;
+		}
+
+		for (Map<String, Object> keyMap : list) {
+			Object obj = keyMap.get(myTableID);
+			if (obj != null) {
+				idSet.add(keyMap.get(myTableID));
+			}
+		}
+		return !idSet.isEmpty();
+	}
+
+	private void setTableRecord(Map<String, Object> pRead, Map<String, List<Map<String, Object>>> hashTable,
+			List<Map<String, Object>> pWrite) throws Exception {
+
+		// Additional formating for Contents, Tracks, Segments, Authors, etc.
+		setDatabaseData(pRead, hashTable);
+		pWrite.add(pRead);
+
+		dbTableModelFields.stream().filter(floatFilter).forEach(field -> {
+			field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""));
+		});
+	}
+
+	public void checkNumberOfFields(boolean isExport, ViewerModel model) throws Exception {
+		int userFields = !isExport ? model.getColumnCount() : dbInfoToWrite.size();
+
+		if (userFields == 0) {
+			throw FNProgException.getException("noFieldsDefined", myExportFile.getName());
+		}
+
+		if (isExport) {
+			myTotalRecord = model == null ? 0 : model.getRowCount();
+			if (userFields > myExportFile.getMaxFields()) {
+				throw FNProgException.getException("maxFieldsOverride", Integer.toString(userFields),
+						myExportFile.getName(), Integer.toString(myExportFile.getMaxFields()));
+			}
+		}
+
+		// Check if there are any records to process
+		if (myTotalRecord == 0) {
+			throw FNProgException.getException("noRecordsFound", pdaSettings.getProfileID());
+		}
+
+		verifyFilter();
+	}
+
+	public void runConversionProgram(Component parent) throws Exception {
+		if (myExportFile == ExportFile.HANDBASE) {
+			((HanDBase) dbOut).runConversionProgram(pdaSettings);
+		}
+
+		if (myExportFile == ExportFile.TEXTFILE) {
+			General.showMessage(parent,
+					GUIFactory.getMessage("createdFiles",
+							((CsvFile) dbOut).getExportFiles(GUIFactory.getText("file"), GUIFactory.getText("files"))),
+					GUIFactory.getTitle("information"), false);
+		} else {
+			General.showMessage(parent, GUIFactory.getMessage("createdFile", pdaSettings.getExportFile()),
+					GUIFactory.getTitle("information"), false);
+		}
+
+		// Save last export date and record
+		if (myLastIndex > 0) {
+			pdaSettings.setLastIndex(myLastIndex);
+			pdaSettings.setLastModified(General.convertTimestamp2DB(LocalDateTime.now()));
+		}
+	}
+
+	public DatabaseFactory getDatabaseFactory() {
+		return dbFactory;
+	}
+
+	protected void getRoles(String table, String roleTable, String roleID) throws Exception {
+		List<Map<String, Object>> list = msAccess.getMultipleRecords(roleTable, roleID);
+		Map<Integer, String> personMap = new HashMap<>();
+		myRoles.put(table, personMap);
+
+		if (!list.isEmpty()) {
+			for (Map<String, Object> map : list) {
+				personMap.put((Integer) map.get(roleID), map.get(roleTable).toString());
+			}
+		}
+	}
+
+	public String getPersonRole(String table, String person, Number pRoleID) {
+		if (pRoleID != null && pRoleID.intValue() > 0) {
+			Map<Integer, String> map = myRoles.get(table);
+			if (map != null) {
+				String role = map.get(pRoleID.intValue());
+				if (role != null) {
+					return table.equals("Artist") ? role + " " + person : person + " [" + role + "]";
+				}
+			}
+		}
+		return person;
+	}
+
+	public static FNProgramvare getSoftware(FNPSoftware soft, Component parent) {
+		try {
+			switch (soft) {
+			case ASSETCAT:
+				return new AssetCAT(parent);
+			case BOOKCAT:
+				return new BookCAT(parent);
+			case CATRAXX:
+				return new CATraxx(parent);
+			case CATVIDS:
+				return new CATVids(parent);
+			case SOFTCAT:
+				return new SoftCAT(parent);
+			case STAMPCAT:
+				return new StampCAT(parent);
+			default:
+				return null;
+			}
+		} catch (Exception e) {
+		}
+		return null;
+	}
+
+	protected List<String> getSystemFields(List<String> userFields) {
+		// Nothing to do on this level
+		return new ArrayList<>();
+	}
+
+	protected List<String> getContentsFields(List<String> userFields) {
+		// Nothing to do on this level
+		return new ArrayList<>();
+	}
+
+	abstract protected void setDatabaseData(Map<String, Object> dbDataRecord,
+			Map<String, List<Map<String, Object>>> hashTable) throws Exception;
+}

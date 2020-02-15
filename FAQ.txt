@@ -1,0 +1,130 @@
+FAQ - Frequently Asked Questions (in random order)
+
+1. Who are you?
+--------------
+I'm a Dutchman; born in Amsterdam in 1962. Grew up in a small village near
+Amsterdam. Studied marketing and economics, but found a job in IT instead. In
+1992 I left the Netherlands to work in France. 2,5 years later the company I
+worked for, moved to Switzerland, so I went there as well. In Switzerland I fell
+in love with my current wife. In 2001 we decided to move to Germany and got
+married there. Currently I'm working in Wiesbaden as a software engineer for
+an insurance company.
+
+
+2. Why do I need the Java run-time?
+----------------------------------
+FNProg2PDA and DBConvert are written in Java, which means that they need the
+Java run-time to execute the program code. Some technical information: all what
+FNProg2PDA.exe, DBConvert.exe, FNProg2PDA_NoGUI.exe or DBConvert_NoGUI.exe does
+is to execute the Java program Javaw with the FNProg2PDA.jar, DBConvert.jar,
+FNProg2PDA_NoGUI.jar or DBConvert_NoGUI.jar as parameter. 
+
+Note: Javaw is a program included in the Java run-time to run a Java application
+without a console window under MS-Windows, Linux or Apple OS. 
+
+
+3. Which JAVA run-time version do I need?
+----------------------------------------
+JAVA JRE 8.0 or higher.
+
+
+4. How do I install the program?
+--------------------------------
+On a Windows PC:
+- run the installation program and follow the instructions on screen.
+
+On a Mac:
+- open the installation DMG file and drag the opened folder in the Applications
+  Folder
+
+On a Linux PC
+- unzip the installation zip file into a directory of your liking.
+
+
+5. What is the main difference between the Windows and Mac/Linux versions?
+-------------------------------------------------------------------------
+Only the Windows versions are capable of creating a HanDBase database directly
+(with the help of the HanDBase Desktop companion program for Windows). 
+
+This means that if you'd want to export to HanDbase from your Mac or Linux PC,
+you'll have to export to a CSV file instead and manually import that CSV file
+in HanDBase.
+
+
+6. I have a database program that is not on the list of supported databases,
+   can I still use DBConvert or FNProg2PDA?
+---------------------------------------------------------------------------
+This depends on whether your database program has the option to import from
+a text file, an xBase database, a MS-Excel spreadsheet or XML File. If that is
+the case then you are in luck, because DBConvert and FNProg2PDA support many
+text formats, MS-Excel, XML, Dbase III, IV and IV as well as FoxPro.
+
+
+7. What is the difference between DBConvert standalone program and the DBConvert
+   Tool that is included FNProg2PDA?
+--------------------------------------------------------------------------------
+There is no difference. Both programs share the same code base. If you're happy
+to use DBConvert from within FNProg2PDA then there is no need to install
+DBConvert separately.
+
+
+8. Why don't you support my PDA database product X?
+--------------------------------------------------
+Due to the huge amount of database products that are available on the market it
+is practically impossible to support them all. For that reason I only intend to
+support the most common databases in the field.
+
+In some cases the structure of the PDA database is a trade secret and has
+therefore not been made available to the public. As long as the creators of that
+database don't provide their own means of importing data from external
+sources then there is nothing that I can do to support their product. 
+
+
+9. Where can I find more information about DBConvert or FNProg2PDA?
+------------------------------------------------------------------
+DBConvert and FNProg2PDA are hosted on SourceForge. For technical support
+check out:
+
+http://sourceforge.net/projects/dbconvert or 
+http://sourceforge.net/projects/fnprog2pda
+
+There you can also find information about forthcoming versions as well as the
+latest (pre)releases of the programs.
+
+
+10. What are your plans with DBConvert and FNProg2PDA for the future?
+--------------------------------------------------------------------
+This depends mainly on the feedback that I get back from you and other users as
+well as to the amount of spare time I can allocate to the projects in the future.
+You have to keep in mind that DBConvert and FNProg2PDA are currently
+maintained by me only and that I have a "real" job and a family too.
+
+
+11. Are you making money with DBConvert or FNProg2PDA?
+-----------------------------------------------------
+No, but it's always appreciated when someone send a simple note saying "thank
+you" (or any comments). It did take a huge amount of time to work on the
+DBConvert and FNProg2PDA programs, ironing out bugs and adding features.
+
+If you think that this effort has been worthwhile for you and perhaps consider
+to give something back then I would like to suggest that you donate that money
+to one of your own favorite charities.
+
+
+12. How can I contact you?
+-------------------------
+For all support questions that are related to FNProg2PDA or DBConvert, you could
+drop me a line at: http://sourceforge.net/projects/fnprog2pda or at
+http://sourceforge.net/projects/dbconvert
+
+
+13. How do I report a bug?
+--------------------------
+Whenever DBConvert or FNProg2PDA cannot handle a particular situation, it will
+pop-up an error message screen that offers the option to copy the error messages
+ to the clipboard. You could then post a support message on this forum with the
+pasted information from your clipboard (ctrl+v).
+  
+Best thing though is to keep your FNProg2PDA and DBConvert versions updated to
+the latest release, because occasionally you may stumble over a bug that has
+already been fixed before.
