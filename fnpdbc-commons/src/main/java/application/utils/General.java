@@ -72,7 +72,9 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.ini4j.Ini;
+import org.dtools.ini.AdvancedIniFile;
+import org.dtools.ini.IniFile;
+import org.dtools.ini.IniFileReader;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.MattePainter;
@@ -85,8 +87,8 @@ import application.utils.gui.XGridBagConstraints;
 
 public final class General {
 	/**
-	 * Title: General Description: General UtilitiesClass
-	 * Copyright (c) 2003-2020
+	 * Title: General Description: General UtilitiesClass Copyright (c)
+	 * 2003-2020
 	 *
 	 * @author Tom van Breukelen
 	 * @version 8+
@@ -207,10 +209,10 @@ public final class General {
 	}
 
 	/**
-	 * Sets the preferred width of the visible columns in a JTable. The columns will
-	 * be just wide enough to show the column head and the widest cell in the
-	 * column. Margin pixels are added to the left and right (resulting in an
-	 * additional width of 4 pixels).
+	 * Sets the preferred width of the visible columns in a JTable. The columns
+	 * will be just wide enough to show the column head and the widest cell in
+	 * the column. Margin pixels are added to the left and right (resulting in
+	 * an additional width of 4 pixels).
 	 */
 	public static void packColumns(JTable table) {
 		final int MAXWIDTH = 300;
@@ -330,9 +332,11 @@ public final class General {
 	/**
 	 * Executes another program within the current one
 	 *
-	 * @param pCmd array containing the program file and (optional) command line
-	 *             parameters
-	 * @throws an exception when the program returned any output message
+	 * @param pCmd
+	 *            array containing the program file and (optional) command line
+	 *            parameters
+	 * @throws an
+	 *             exception when the program returned any output message
 	 */
 	public static void executeProgram(String[] pCmd) throws FNProgException {
 		boolean isError = false;
@@ -381,7 +385,7 @@ public final class General {
 	}
 
 	public static Map<String, String> getLookAndFeels() {
-		LinkedHashMap<String, String> map = new LinkedHashMap<>();
+		Map<String, String> map = new LinkedHashMap<>();
 		map.put("Java", UIManager.getCrossPlatformLookAndFeelClassName());
 		map.put("System", UIManager.getSystemLookAndFeelClassName());
 
@@ -402,11 +406,13 @@ public final class General {
 		return getPropertyFile(nodeName, true);
 	}
 
-	public static Ini getIniFile(String file) {
-		Ini result;
+	public static IniFile getIniFile(String file) {
+		IniFile result = new AdvancedIniFile();
+		
 		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
-			result = new Ini(reader);
-		} catch (IOException e) {
+			IniFileReader iniReader = new IniFileReader(result, reader);
+			iniReader.read();
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		return result;
@@ -528,7 +534,8 @@ public final class General {
 	}
 
 	/**
-	 * Returns the SimpleDateFormat used to convert a date in a 'readable' format
+	 * Returns the SimpleDateFormat used to convert a date in a 'readable'
+	 * format
 	 */
 	public static DateTimeFormatter getSimpleDateFormat() {
 		return DateTimeFormatter.ofPattern(getDateFormat());
@@ -550,7 +557,8 @@ public final class General {
 	}
 
 	/**
-	 * Returns the SimpleDateFormat used to convert a time in a 'readable' format
+	 * Returns the SimpleDateFormat used to convert a time in a 'readable'
+	 * format
 	 */
 	public static DateTimeFormatter getSimpleTimeFormat() {
 		return DateTimeFormatter.ofPattern(getTimeFormat().replaceAll("am/pm", "aa"));
@@ -563,7 +571,8 @@ public final class General {
 	/**
 	 * Converts a database date to a 'readable' format
 	 *
-	 * @param pDate the date in the database table to be converted
+	 * @param pDate
+	 *            the date in the database table to be converted
 	 */
 	public static String convertDate(String pDate) {
 		LocalDate date = convertDB2Date(pDate);
@@ -577,7 +586,8 @@ public final class General {
 	/**
 	 * Converts a database time stamp to a 'readable' format
 	 *
-	 * @param pDate the date in the database table to be converted
+	 * @param pDate
+	 *            the date in the database table to be converted
 	 */
 	public static String convertTimestamp(String pDate) {
 		LocalDateTime date = convertDB2Timestamp(pDate);
@@ -591,7 +601,8 @@ public final class General {
 	/**
 	 * Converts a date with a missing year, month or day to a 'readable' format
 	 *
-	 * @param pDate the date in the database table to be converted
+	 * @param pDate
+	 *            the date in the database table to be converted
 	 */
 	public static String convertFussyDate(String pDate) {
 		if (pDate == null || pDate.isEmpty()) {
@@ -651,7 +662,8 @@ public final class General {
 	 * Converts 'readable' date created by convertDate back to a database date
 	 * format
 	 *
-	 * @param pDate : the date in the database table to be converted
+	 * @param pDate
+	 *            : the date in the database table to be converted
 	 */
 	public static String convertDate2DB(String pDate) {
 		if (pDate == null || pDate.isEmpty()) {
@@ -667,8 +679,8 @@ public final class General {
 	}
 
 	/**
-	 * Converts 'readable' time stamp created by convertTimetamp back to a database
-	 * date format
+	 * Converts 'readable' time stamp created by convertTimetamp back to a
+	 * database date format
 	 */
 	public static String convertTimestamp2DB(String pDate) {
 		if (pDate == null || pDate.isEmpty()) {
@@ -735,7 +747,8 @@ public final class General {
 	/**
 	 * Converts a internal database date to a JAVA date
 	 *
-	 * @param pDate the date in the database table to be converted
+	 * @param pDate
+	 *            the date in the database table to be converted
 	 */
 	public static LocalDate convertDB2Date(String pDate) {
 		if (pDate == null || pDate.isEmpty()) {
@@ -880,8 +893,8 @@ public final class General {
 	}
 
 	/**
-	 * Method to convert a 'readable' time created by convertTime back to a database
-	 * date format
+	 * Method to convert a 'readable' time created by convertTime back to a
+	 * database date format
 	 */
 	public static String convertTime2DB(String pTime) {
 		if (pTime == null || pTime.isEmpty()) {
@@ -927,8 +940,8 @@ public final class General {
 	}
 
 	/**
-	 * Method to convert a 'readable' duration created by convertDuration back to a
-	 * database date format
+	 * Method to convert a 'readable' duration created by convertDuration back
+	 * to a database date format
 	 */
 	public static String convertDuration2DB(String pTime) {
 		if (pTime == null || pTime.isEmpty()) {

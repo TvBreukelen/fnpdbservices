@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.ini4j.Profile.Section;
+import org.dtools.ini.IniItem;
+import org.dtools.ini.IniSection;
 
 import com.healthmarketscience.jackcess.Index;
 
@@ -21,7 +22,7 @@ public class MSTable {
 	private String fromIndex = "";
 	private String fromTable = "";
 
-	private HashMap<String, FieldDefinition> dbFieldsHash;
+	private Map<String, FieldDefinition> dbFieldsHash;
 	private List<FieldDefinition> dbFields;
 	private Map<String, Object> columnValues = new HashMap<>();
 	private HashSet<String> hIndex = new HashSet<>();
@@ -166,7 +167,7 @@ public class MSTable {
 		fromTable = table;
 	}
 
-	public void renameFields(Section renameSection) {
+	public void renameFields(IniSection renameSection) {
 		if (renameSection == null || renameSection.isEmpty()) {
 			return;
 		}
@@ -175,14 +176,16 @@ public class MSTable {
 
 		for (FieldDefinition field : dbFields) {
 			String fieldAlias = field.getFieldAlias();
-			String newAlias = renameSection.get(fieldAlias);
+			IniItem iniAlias = renameSection.getItem(fieldAlias);
+			String newAlias = iniAlias == null ? null : iniAlias.getValue();
+			
 			if (newAlias != null) {
 				field.setFieldAlias(newAlias);
 				field.setFieldHeader(newAlias);
 			} else {
-				for (String key : renameSection.keySet()) {
+				for (String key : renameSection.getItemNames()) {
 					if (key.startsWith(".")) {
-						newAlias = field.getTable() + renameSection.get(key);
+						newAlias = field.getTable() + renameSection.getItem(key).getValue();
 						key = key.substring(1);
 						if (fieldAlias.equals(key)) {
 							field.setFieldAlias(newAlias);
@@ -281,7 +284,7 @@ public class MSTable {
 		return result;
 	}
 
-	public HashMap<String, FieldDefinition> getDbFieldsHash() {
+	public Map<String, FieldDefinition> getDbFieldsHash() {
 		return dbFieldsHash;
 	}
 

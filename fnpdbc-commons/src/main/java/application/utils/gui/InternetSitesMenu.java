@@ -5,8 +5,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.ini4j.Ini;
-import org.ini4j.Profile.Section;
+import org.dtools.ini.IniFile;
+import org.dtools.ini.IniItem;
+import org.dtools.ini.IniSection;
 
 import application.interfaces.TvBSoftware;
 import application.utils.GUIFactory;
@@ -23,11 +24,12 @@ public class InternetSitesMenu {
 		_software = software;
 	}
 
-	private void createSiteMenuItem(Section section) {
+	private void createSiteMenuItem(IniSection section) {
 		JMenu result = new JMenu(section.getName());
-		for (String name : section.keySet()) {
+		for (IniItem iniItem : section.getItems()) {
+			String name = iniItem.getName();
+			String value = iniItem.getValue();
 			JMenuItem item = new JMenuItem(name);
-			String value = section.get(name);
 			item.setActionCommand(value);
 			item.setToolTipText(value);
 			item.addActionListener(_listener);
@@ -45,9 +47,9 @@ public class InternetSitesMenu {
 	public JMenu getInternetSitesMenu() {
 		boolean isDBConvert = _software == TvBSoftware.DBCONVERT;
 		try {
-			Ini ini = General.getIniFile("config/InternetSites.ini");
+			IniFile ini = General.getIniFile("config/InternetSites.ini");
 
-			for (Section section : ini.values()) {
+			for (IniSection section : ini.getSections()) {
 				if (isDBConvert) {
 					if (section.getName().startsWith("FNProg") || section.getName().startsWith("Fans")) {
 						continue;

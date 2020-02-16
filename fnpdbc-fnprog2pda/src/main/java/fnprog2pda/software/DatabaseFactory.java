@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.ini4j.Ini;
-import org.ini4j.Profile.Section;
+import org.dtools.ini.IniFile;
+import org.dtools.ini.IniItem;
+import org.dtools.ini.IniSection;
 
 import com.healthmarketscience.jackcess.Cursor;
 
@@ -51,7 +52,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private String pdaDatabase;
 	private String currentTable;
 	private String contentsColumn;
-	private Section renameSection;
+	private IniSection renameSection;
 
 	private LinkedHashMap<String, MSTable> dbTables = new LinkedHashMap<>();
 	private HashSet<String> hShowFields = new HashSet<>();
@@ -60,7 +61,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private List<String> dbFilterFields = new ArrayList<>();
 	private List<BasisField> dbSelectFields = new ArrayList<>();
 
-	private Ini ini;
+	private IniFile ini;
 
 	private DatabaseHelper dbHelper;
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
@@ -152,12 +153,12 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		boolean isVersionNotFound = true;
 
 		// Load FNProg2PDA properties
-		Ini properties = General.getIniFile("config/FNProg2PDA.ini");
-		Section section = properties.get("Software");
+		IniFile properties = General.getIniFile("config/FNProg2PDA.ini");
+		IniSection section = properties.getSection("Software");
 
 		// Check with which software we are dealing with
 		for (FNPSoftware soft : FNPSoftware.values()) {
-			if (msAccess.tableColumnExists(section.get(soft.getName()))) {
+			if (msAccess.tableColumnExists(section.getItem(soft.getName()).getValue())) {
 				databaseType = soft;
 				break;
 			}
@@ -168,12 +169,12 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			throw FNProgException.getException("noFNprogramwareDB", pDatabase, "FNProgramvare");
 		}
 
-		section = properties.get(databaseType.getName());
-		versions = section.get("versions").split(",");
+		section = properties.getSection(databaseType.getName());
+		versions = section.getItem("versions").getValue().split(",");
 		maxVersions = versions.length;
 
 		for (int i = 0; i < maxVersions; i++) {
-			String verify = section.get("version" + versions[i] + ".exists");
+			String verify = section.getItem("version" + versions[i] + ".exists").getValue();
 			if (verify != null && msAccess.tableColumnExists(verify.split(","))) {
 				databaseVersion = i;
 				versions2Test = maxVersions - i;
@@ -187,8 +188,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			throw FNProgException.getException("noFNprogramwareDB", pDatabase, databaseType.getName());
 		}
 
-		pdaDatabase = section.get("pda.database.name");
-		renameSection = properties.get("FieldRename");
+		pdaDatabase = section.getItem("pda.database.name").getValue();
+		renameSection = properties.getSection("FieldRename");
 	}
 
 	public void loadConfiguration(String view) throws Exception {
@@ -204,7 +205,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 		MSTable table = msAccess.getMSTable(currentTable);
 		if (table == null) {
-			HashMap<String, String> tableHash = getSectionHash("table");
+			Map<String, String> tableHash = getSectionHash("table");
 			if (tableHash.containsKey("Name")) {
 				table = msAccess.getMSTable(tableHash.get("Name"));
 			}
@@ -232,18 +233,18 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		dbFilterFields = dbFilterFields.stream().sorted().collect(Collectors.toList());
 	}
 
-	private List<Section> getSections(String key) {
-		List<Section> result = new ArrayList<>();
+	private List<IniSection> getSections(String key) {
+		List<IniSection> result = new ArrayList<>();
 		int index = maxVersions - versions2Test;
 
 		for (int i = index; i < maxVersions; i++) {
-			Section section = ini.get(key + versions[i]);
+			IniSection section = ini.getSection(key + versions[i]);
 			if (section != null) {
 				result.add(section);
 			}
 		}
 
-		Section main = ini.get(key);
+		IniSection main = ini.getSection(key);
 		if (main != null) {
 			result.add(main);
 		}
@@ -252,7 +253,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	private void setContentsDefinition() {
-		HashMap<String, String> tableHash = getSectionHash("table");
+		Map<String, String> tableHash = getSectionHash("table");
 		contentsColumn = tableHash.get("Contents");
 		if (contentsColumn == null) {
 			return;
@@ -266,7 +267,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	private void setRoleFieldDefinitions() {
-		HashMap<String, String> personHash = getSectionHash("personColumns");
+		Map<String, String> personHash = getSectionHash("personColumns");
 		if (!personHash.isEmpty()) {
 			for (String key : personHash.keySet()) {
 				List<FieldDefinition> list = null;
@@ -292,7 +293,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private void setTableDefinitions() {
 		HashSet<String> hMainLine = getSectionHash("mainLineTables", "tables");
 
-		HashMap<String, String> tableHash = getSectionHash("tables");
+		Map<String, String> tableHash = getSectionHash("tables");
 		for (String key : tableHash.keySet()) {
 			if (dbTables.containsKey(key)) {
 				continue;
@@ -328,7 +329,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	private void setUserFieldDefinitions() {
-		LinkedHashMap<String, String> fieldHash = getSectionHash("userfields");
+		Map<String, String> fieldHash = getSectionHash("userfields");
 		String imageField = null;
 
 		for (String newAlias : fieldHash.keySet()) {
@@ -422,30 +423,30 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 	private HashSet<String> getSectionHash(String sectionName, String key) {
 		HashSet<String> result = new HashSet<>();
-		Section section = ini.get(sectionName);
+		IniSection section = ini.getSection(sectionName);
 		if (section == null || section.isEmpty()) {
 			return result;
 		}
 
-		String value = section.get(key);
-		if (value == null) {
+		IniItem item = section.getItem(key);
+		if (item == null) {
 			return result;
 		}
 
-		String[] values = value.split(",");
+		String[] values = item.getValue().split(",");
 		for (String s : values) {
 			result.add(s);
 		}
 		return result;
 	}
 
-	private LinkedHashMap<String, String> getSectionHash(String sectionName) {
-		LinkedHashMap<String, String> result = new LinkedHashMap<>();
-		List<Section> list = getSections(sectionName);
-		for (Section section : list) {
-			for (String name : section.keySet()) {
+	private Map<String, String> getSectionHash(String sectionName) {
+		Map<String, String> result = new LinkedHashMap<>();
+		List<IniSection> list = getSections(sectionName);
+		for (IniSection section : list) {
+			for (String name : section.getItemNames()) {
 				if (!result.containsKey(name)) {
-					result.put(name, section.get(name));
+					result.put(name, section.getItem(name).getValue());
 				}
 			}
 		}
