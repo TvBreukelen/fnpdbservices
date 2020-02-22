@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.dtools.ini.IniItem;
-import org.dtools.ini.IniSection;
-
 import com.healthmarketscience.jackcess.Index;
 
 import application.interfaces.FieldTypes;
 import application.utils.FieldDefinition;
+import application.utils.ini.IniItem;
+import application.utils.ini.IniSection;
 
 public class MSTable {
 	private String alias = "";

@@ -32,7 +32,7 @@ public class BookCAT extends FNProgramvare {
 	private String myPerson = "[None]";
 	private String myTitle = "";
 
-	private LinkedHashMap<String, FieldTypes> sortList = new LinkedHashMap<>();
+	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
 	public BookCAT(Component myParent) throws Exception {

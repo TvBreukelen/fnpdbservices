@@ -5,13 +5,12 @@ import java.awt.event.ActionListener;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import org.dtools.ini.IniFile;
-import org.dtools.ini.IniItem;
-import org.dtools.ini.IniSection;
-
 import application.interfaces.TvBSoftware;
 import application.utils.GUIFactory;
 import application.utils.General;
+import application.utils.ini.IniFile;
+import application.utils.ini.IniItem;
+import application.utils.ini.IniSection;
 
 public class InternetSitesMenu {
 	private ActionListener _listener;

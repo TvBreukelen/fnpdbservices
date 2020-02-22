@@ -23,7 +23,7 @@ public class CATVids extends FNProgramvare {
 	private boolean useContentsIndex = true;
 	private boolean useContentsItemTitle = true;
 
-	private LinkedHashMap<String, FieldTypes> sortList = new LinkedHashMap<>();
+	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
 	private int myVideoID = 0;

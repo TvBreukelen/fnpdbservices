@@ -16,7 +16,7 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dtools.ini;
+package application.utils.ini;
 
 /**
  * <p>
@@ -35,7 +35,7 @@ package org.dtools.ini;
  * @version 1.1.0
  * @since 0.1.10
  */
-public class IniItem implements Commentable, Cloneable {
+public class IniItem implements Cloneable {
 
 	/**
 	 * The name of this item
@@ -46,21 +46,6 @@ public class IniItem implements Commentable, Cloneable {
 	 * The value of this item
 	 */
 	private String value;
-
-	/**
-	 * The comment that comes before the item
-	 */
-	private String preComment;
-
-	/**
-	 * The comment that comes after the item, but on the same line
-	 */
-	private String endLineComment;
-
-	/**
-	 * The comment that comes after the item.
-	 */
-	private String postComment;
 
 	/**
 	 * Predicate that is true if this <code>IniItem</code> is case sensitive, or
@@ -106,9 +91,6 @@ public class IniItem implements Commentable, Cloneable {
 		this.name = name;
 
 		setValue("");
-		setPreComment("");
-		setEndLineComment("");
-		setPostComment("");
 	}
 
 	/**
@@ -184,36 +166,6 @@ public class IniItem implements Commentable, Cloneable {
 		}
 
 		/***********************************************************************
-		 * check that the two items have the same pre comments
-		 **********************************************************************/
-		String thisComment = this.getPreComment();
-		String otherComment = otherItem.getPreComment();
-
-		if (!testStrings(thisComment, otherComment)) {
-			return false;
-		}
-
-		/***********************************************************************
-		 * check that the two items have the same end-line comments
-		 **********************************************************************/
-		thisComment = this.getEndLineComment();
-		otherComment = otherItem.getEndLineComment();
-
-		if (!testStrings(thisComment, otherComment)) {
-			return false;
-		}
-
-		/***********************************************************************
-		 * check that the two items have the same post comments
-		 **********************************************************************/
-		thisComment = this.getPostComment();
-		otherComment = otherItem.getPostComment();
-
-		if (!testStrings(thisComment, otherComment)) {
-			return false;
-		}
-
-		/***********************************************************************
 		 * otherwise compare the values of the two items
 		 **********************************************************************/
 		String thisValue = this.getValue();
@@ -226,11 +178,6 @@ public class IniItem implements Commentable, Cloneable {
 		}
 	}
 
-	@Override
-	public String getEndLineComment() {
-		return endLineComment;
-	}
-
 	/**
 	 * Returns the name of this item, note that the item cannot change its name
 	 * and one would need to create a new item to do so.
@@ -239,16 +186,6 @@ public class IniItem implements Commentable, Cloneable {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	@Override
-	public String getPostComment() {
-		return postComment;
-	}
-
-	@Override
-	public String getPreComment() {
-		return preComment;
 	}
 
 	/**
@@ -292,111 +229,6 @@ public class IniItem implements Commentable, Cloneable {
 	 */
 	public boolean isCaseSensitive() {
 		return caseSensitive;
-	}
-
-	@Override
-	public void removeEndLineComment() {
-		setEndLineComment("");
-	}
-
-	@Override
-	public void removePostComment() {
-		setPostComment("");
-	}
-
-	@Override
-	public void removePreComment() {
-		setPreComment("");
-	}
-
-	@Override
-	public void setEndLineComment(String comment) {
-
-		if (comment == null) {
-			comment = "";
-		}
-
-		if (comment.contains("\n")) {
-			throw new IllegalArgumentException("The string given contains a "
-					+ "new line symbol. End line comments cannot contain new " + "line symbol.");
-		}
-
-		endLineComment = comment;
-	}
-
-	@Override
-	public void setPostComment(String comment) {
-
-		if (comment == null) {
-			comment = "";
-		}
-
-		postComment = comment;
-	}
-
-	@Override
-	public void setPreComment(String comment) {
-
-		if (comment == null) {
-			comment = "";
-		}
-
-		preComment = comment;
-	}
-
-	/**
-	 * Set the value as a boolean value
-	 *
-	 * @param value
-	 *            The value to set.
-	 */
-	public void setValue(boolean value) {
-		setValue(String.valueOf(value));
-	}
-
-	/**
-	 * Set the value as a character value
-	 *
-	 * @param value
-	 *            The value to set.
-	 */
-	public void setValue(char value) {
-		setValue(String.valueOf(value));
-	}
-
-	/**
-	 * Set the value as a double value
-	 *
-	 * @param value
-	 *            The value to set.
-	 */
-	public void setValue(double value) {
-		this.value = Double.toString(value);
-	}
-
-	/**
-	 * Set the value as a float value
-	 *
-	 * @param value
-	 *            the value to set
-	 */
-	public void setValue(long value) {
-		this.value = Long.toString(value);
-	}
-
-	/**
-	 * This set the value to an Object when it has been converted to a String.
-	 *
-	 * @param value
-	 *            the value to set
-	 */
-	public void setValue(Object value) {
-
-		if (value == null) {
-			this.value = "";
-		} else {
-			setValue(value.toString());
-		}
 	}
 
 	/**
@@ -448,18 +280,13 @@ public class IniItem implements Commentable, Cloneable {
 
 	@Override
 	public String toString() {
-		return "org.dtools.ini.IniItem \"" + getName() + "\": (Value: \"" + getValue() + "\")";
+		return "IniItem \"" + getName() + "\": (Value: \"" + getValue() + "\")";
 	}
 
 	@Override
 	public Object clone() {
-
 		IniItem clone = new IniItem(name, caseSensitive);
 		clone.setValue(value);
-		clone.setPreComment(preComment);
-		clone.setPostComment(postComment);
-		clone.setEndLineComment(endLineComment);
-
 		return clone;
 	}
 }

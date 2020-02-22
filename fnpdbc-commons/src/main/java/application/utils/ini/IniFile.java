@@ -16,10 +16,14 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.dtools.ini;
+package application.utils.ini;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * <p>
@@ -33,7 +37,23 @@ import java.util.Collection;
  * @version 1.1.0
  * @since 0.1.10
  */
-public abstract class IniFile implements Cloneable, Iterable<IniSection> {
+public class IniFile implements Cloneable, Iterable<IniSection> {
+
+	/**
+	 * A Map of all the sections within this IniFile, with the IniSections
+	 * indexed by their names.
+	 *
+	 * @since 0.1.27
+	 */
+	private Map<String, IniSection> sections;
+
+	/**
+	 * A List of the order that the sections will be outputted.
+	 *
+	 * @since 0.1.27
+	 */
+	private List<IniSection> sectionOrder;
+
 
 	/**
 	 * <p>
@@ -65,6 +85,8 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 */
 	public IniFile(boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
+		sections = new TreeMap<>();
+		sectionOrder = new ArrayList<>();
 	}
 
 	/**
@@ -144,7 +166,35 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 * @throws IndexOutOfBoundsException
 	 *             if the value of <code>index</code> is less than 0.
 	 */
-	public abstract boolean addSection(IniSection section, int index);
+	public boolean addSection(IniSection section, int index) {
+
+		if (section == null) {
+			return false;
+		}
+
+		String sectionName = section.getName();
+
+		// **********************************************************************
+		// check that section is compatible
+		// **********************************************************************
+
+		if (this.isCaseSensitive() != section.isCaseSensitive()) {
+			return false;
+		}
+
+		// **********************************************************************
+		// add section
+		// **********************************************************************
+
+		// add section only if it doesn't already exists
+		if (hasSection(section)) {
+			return false;
+		} else {
+			sections.put(sectionName, section);
+			sectionOrder.add(index, section);
+			return true;
+		}
+	}
 
 	/**
 	 * Adds a section to this INI file.
@@ -226,7 +276,9 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 * @return A new instance of an <code>IniSection</code> with the same
 	 *         <code>IniValidator</code> and case sensitivity as this object.
 	 */
-	protected abstract IniSection createSection(String name);
+	protected IniSection createSection(String name) {
+		return new IniSection(name, isCaseSensitive());
+	}
 
 	/**
 	 * <p>
@@ -338,7 +390,9 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 *             number of sections in this INI file (i.e.
 	 *             <code>&gt; getNumberOfSections()-1</code>.
 	 */
-	public abstract IniSection getSection(int index);
+	public IniSection getSection(int index) {
+		return sectionOrder.get(index);
+	}
 
 	/**
 	 * Returns the section that is called <code>name</code>, or null if no such
@@ -372,7 +426,7 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 		Collection<String> sectionNames = null;
 		sectionNames = new ArrayList<>(getNumberOfSections());
 
-		for (IniSection section : getSections()) {
+		for (IniSection section : sectionOrder) {
 			sectionNames.add(section.getName());
 		}
 
@@ -384,14 +438,16 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 *
 	 * @return A collection of all the Sections.
 	 */
-	public abstract Collection<IniSection> getSections();
+	public Collection<IniSection> getSections() {
+		return new ArrayList<>(sectionOrder);
+	}
 
 	@Override
 	public int hashCode() {
 
 		int total = 0;
 
-		for (IniSection section : getSections()) {
+		for (IniSection section : sectionOrder) {
 			total = (total + section.hashCode()) % Integer.MAX_VALUE;
 		}
 
@@ -411,7 +467,7 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 * @return True if this IniFile has the section, false otherwise
 	 */
 	public boolean hasSection(IniSection section) {
-		return getSections().contains(section);
+		return sectionOrder.contains(section);
 	}
 
 	/**
@@ -423,7 +479,7 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 * @return True if this IniFile has the section, false otherwise
 	 */
 	public boolean hasSection(String name) {
-		return getSectionNames().contains(name);
+		return sections.containsKey(name);
 	}
 
 	/**
@@ -435,7 +491,9 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	 *            The section whose index will be retured
 	 * @return The index of the section, or -1 is no such section exists.
 	 */
-	public abstract int indexOf(IniSection section);
+	public int indexOf(IniSection section) {
+		return sectionOrder.indexOf(section);
+	}
 
 	/**
 	 * Get the index of the section whose name is given, where 0 is the index is
@@ -480,7 +538,7 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 		int noSections = getNumberOfSections();
 		int noItems = getNumberOfItems();
 
-		sb.append("org.dtools.ini.IniFile: (Sections: ");
+		sb.append("IniFile: (Sections: ");
 		sb.append(noSections + ", Items: " + noItems + ")");
 
 		for (IniSection section : getSections()) {
@@ -492,5 +550,12 @@ public abstract class IniFile implements Cloneable, Iterable<IniSection> {
 	}
 
 	@Override
-	public abstract Object clone();
+	public Object clone() {
+		return new IniFile();
+	}
+
+	@Override
+	public Iterator<IniSection> iterator() {
+		return sectionOrder.iterator();
+	}
 }

@@ -30,7 +30,7 @@ public class CATraxx extends FNProgramvare {
 	private boolean isPlaylist = false;
 
 	private int myAlbumID = 0;
-	private LinkedHashMap<String, FieldTypes> sortList = new LinkedHashMap<>();
+	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
 	public CATraxx(Component myParent) throws Exception {
@@ -98,7 +98,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	private void getProductionRoles() {
-		HashMap<Integer, String> personMap = new HashMap<>();
+		Map<Integer, String> personMap = new HashMap<>();
 		myRoles.put("ProductionPerson", personMap);
 		personMap.put(1, "Assistent Engineer");
 		personMap.put(2, "Associate Producer");
@@ -111,7 +111,7 @@ public class CATraxx extends FNProgramvare {
 		personMap.put(9, "Programming");
 		personMap.put(10, "Remixing");
 
-		HashMap<Integer, String> studioMap = new HashMap<>();
+		Map<Integer, String> studioMap = new HashMap<>();
 		myRoles.put("Studio", studioMap);
 
 		studioMap.put(1, "Mastering Location");
@@ -129,7 +129,7 @@ public class CATraxx extends FNProgramvare {
 		int index2 = data.indexOf("ArtistCustom1") - 1;
 		data = data.substring(index1, index2);
 
-		HashMap<Integer, String> personMap = new HashMap<>();
+		Map<Integer, String> personMap = new HashMap<>();
 		myRoles.put("µ", personMap);
 
 		for (String s : data.split("\0\0\7")) {

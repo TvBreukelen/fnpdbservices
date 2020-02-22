@@ -72,9 +72,6 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.dtools.ini.AdvancedIniFile;
-import org.dtools.ini.IniFile;
-import org.dtools.ini.IniFileReader;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.MattePainter;
@@ -84,6 +81,8 @@ import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.table.BooleanRenderer;
 import application.utils.gui.XGridBagConstraints;
+import application.utils.ini.IniFile;
+import application.utils.ini.IniFileReader;
 
 public final class General {
 	/**
@@ -407,7 +406,7 @@ public final class General {
 	}
 
 	public static IniFile getIniFile(String file) {
-		IniFile result = new AdvancedIniFile();
+		IniFile result = new IniFile();
 		
 		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
 			IniFileReader iniReader = new IniFileReader(result, reader);

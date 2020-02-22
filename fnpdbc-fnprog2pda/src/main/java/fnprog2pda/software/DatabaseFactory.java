@@ -9,11 +9,8 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.dtools.ini.IniFile;
-import org.dtools.ini.IniItem;
-import org.dtools.ini.IniSection;
 
 import com.healthmarketscience.jackcess.Cursor;
 
@@ -28,6 +25,9 @@ import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import application.utils.XComparator;
+import application.utils.ini.IniFile;
+import application.utils.ini.IniItem;
+import application.utils.ini.IniSection;
 import dbengine.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
@@ -54,10 +54,10 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private String contentsColumn;
 	private IniSection renameSection;
 
-	private LinkedHashMap<String, MSTable> dbTables = new LinkedHashMap<>();
-	private HashSet<String> hShowFields = new HashSet<>();
+	private Map<String, MSTable> dbTables = new LinkedHashMap<>();
+	private Set<String> hShowFields = new HashSet<>();
 
-	private HashMap<String, FieldDefinition> dbFieldDefinition = new HashMap<>();
+	private Map<String, FieldDefinition> dbFieldDefinition = new HashMap<>();
 	private List<String> dbFilterFields = new ArrayList<>();
 	private List<BasisField> dbSelectFields = new ArrayList<>();
 
@@ -130,7 +130,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	@Override
-	public HashMap<String, FieldDefinition> getDbFieldDefinition() {
+	public Map<String, FieldDefinition> getDbFieldDefinition() {
 		return dbFieldDefinition;
 	}
 
@@ -291,9 +291,9 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	private void setTableDefinitions() {
-		HashSet<String> hMainLine = getSectionHash("mainLineTables", "tables");
-
+		Set<String> hMainLine = getSectionHash("mainLineTables", "tables");
 		Map<String, String> tableHash = getSectionHash("tables");
+
 		for (String key : tableHash.keySet()) {
 			if (dbTables.containsKey(key)) {
 				continue;
