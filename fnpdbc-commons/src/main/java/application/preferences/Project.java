@@ -11,16 +11,16 @@ public class Project {
 	private Preferences gParent;
 	private Preferences parent;
 
-	private Databases _dbSettings;
 	private TvBSoftware _software;
+	private Databases _dbSettings;
 
 	private String lastProject = "";
 	private String lastProfile = "";
 	private String projectID = "";
 
-	public Project(TvBSoftware software, Databases dbSettings) {
+	public Project(TvBSoftware software) {
 		_software = software;
-		_dbSettings = dbSettings;
+		_dbSettings = Databases.getInstance(software);
 
 		root = Preferences.userRoot().node(software.getName().toLowerCase());
 		gParent = root.node("projects");
@@ -51,7 +51,7 @@ public class Project {
 	}
 
 	public List<String> getProjects() {
-		ArrayList<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<>();
 		try {
 			for (String project : gParent.childrenNames()) {
 				if (getProfiles(project).isEmpty()) {

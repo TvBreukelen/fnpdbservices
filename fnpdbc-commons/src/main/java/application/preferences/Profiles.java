@@ -83,8 +83,8 @@ public abstract class Profiles extends Project implements IEncoding {
 	private Preferences child;
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 
-	public Profiles(TvBSoftware software, Databases database) {
-		super(software, database);
+	public Profiles(TvBSoftware software) {
+		super(software);
 	}
 
 	@SuppressWarnings("unchecked")

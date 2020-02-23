@@ -58,6 +58,8 @@ import application.model.ProjectModel;
 import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
+import application.table.ButtonRenderer;
+import application.table.ButtonTableCellEditor;
 import application.table.DateTimeRenderer;
 import application.table.ETable;
 import application.table.ExportToTableCellEditor;
@@ -87,6 +89,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	private JCheckBox bNewRecords;
 	private JCheckBox bNoFilter;
 	private ActionListener funcNew;
+	private ActionListener funcEdit;
 
 	protected IExportProcess exportProcess;
 	protected IDatabaseFactory dbFactory;
@@ -124,6 +127,15 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			}
 		};
 
+		funcEdit = e -> {
+			try {
+				IConfigSoft config = getConfigSoft(ProgramDialog.this, _model, false);
+				config.setVisible(true);
+			} catch (Exception ex) {
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
+			}
+		};
+		
 		pdaSettings = profile;
 		dbSettings = profile.getDbSettings();
 		_model = new ProjectModel(pdaSettings);
@@ -181,15 +193,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	@Override
 	protected JComponent createToolBar() {
 		btNew = General.createToolBarButton(GUIFactory.getToolTip("funcNew"), "New.png", funcNew);
-
-		btEdit = General.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", e -> {
-			try {
-				IConfigSoft config = getConfigSoft(ProgramDialog.this, _model, false);
-				config.setVisible(true);
-			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
-			}
-		});
+		btEdit = General.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
 
 		btClone = General.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
 			try {
@@ -421,7 +425,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	private Component getTabComponent(String project) {
 		TableRowSorter<TableModel> sortModel = new TableRowSorter<>(_model);
-		sortModel.setRowFilter(RowFilter.regexFilter(project, 0));
+		sortModel.setRowFilter(RowFilter.regexFilter(project, ProjectModel.HEADER_PROJECT));
 
 		JTable table = new ETable(_model);
 		_model.setParent(_tabPane);
@@ -440,6 +444,12 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.getSelectionModel().addListSelectionListener(new MainTableSelectionListener(table, this));
+
+		TableColumn editProfile = table.getColumnModel().getColumn(ProjectModel.HEADER_EDIT);
+		ButtonTableCellEditor btEditor = new ButtonTableCellEditor();
+		btEditor.getButton().addActionListener(funcEdit);
+		editProfile.setCellEditor(btEditor);
+		editProfile.setCellRenderer(new ButtonRenderer());
 
 		TableColumn importFile = table.getColumnModel().getColumn(ProjectModel.HEADER_IMPORTFILE);
 		importFile.setCellRenderer(new FilenameRenderer());

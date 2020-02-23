@@ -13,14 +13,15 @@ import application.utils.General;
 public class ProjectModel extends AbstractTableModel {
 	private static final long serialVersionUID = -540575298352100318L;
 
-	public static final int HEADER_PROJECT = 0;
-	public static final int HEADER_PROFILE = 1;
-	public static final int HEADER_IMPORTFILEPROGRAM = 2;
-	public static final int HEADER_TABLENAME = 3;
-	public static final int HEADER_IMPORTFILE = 4;
-	public static final int HEADER_EXPORTFILE = 5;
-	public static final int HEADER_LASTEXPORT = 6;
-	public static final int HEADER_NOTES = 7;
+	public static final int HEADER_EDIT = 0;
+	public static final int HEADER_PROJECT = 1;
+	public static final int HEADER_PROFILE = 2;
+	public static final int HEADER_IMPORTFILEPROGRAM = 3;
+	public static final int HEADER_TABLENAME = 4;
+	public static final int HEADER_IMPORTFILE = 5;
+	public static final int HEADER_EXPORTFILE = 6;
+	public static final int HEADER_LASTEXPORT = 7;
+	public static final int HEADER_NOTES = 8;
 
 	private Vector<ProfileObject> _tableData = new Vector<>();
 
@@ -30,7 +31,7 @@ public class ProjectModel extends AbstractTableModel {
 
 	private String[] columnNames = GUIFactory.getArray("mainTableHeaders");
 
-	private boolean[] editable = { false, true, false, false, false, true, true, true };
+	private boolean[] editable = { true, false, true, false, false, false, true, true, true };
 
 	public ProjectModel(Profiles data) {
 		_objectData = data;
@@ -90,6 +91,8 @@ public class ProjectModel extends AbstractTableModel {
 	public Object getValueAt(int row, int col) {
 		_profile = _tableData.get(row);
 		switch (col) {
+		case HEADER_EDIT:
+			return "...";
 		case HEADER_PROJECT:
 			return _profile.getProjectID();
 		case HEADER_PROFILE:
@@ -111,7 +114,7 @@ public class ProjectModel extends AbstractTableModel {
 	}
 
 	public ProfileObject getProfileObject(int row) {
-		getValueAt(row, 1);
+		_profile = _tableData.get(row);
 		return _profile;
 	}
 
