@@ -34,13 +34,13 @@ import application.model.FilterData;
 import application.model.ProfileObject;
 import application.model.ProjectModel;
 import application.model.SortData;
+import application.preferences.Databases;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 import dbengine.utils.DatabaseHelper;
 import fnprog2pda.model.MiscellaneousData;
-import fnprog2pda.preferences.DatabasesFNProg;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
 import fnprog2pda.software.FNProgramvare;
@@ -75,7 +75,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private ScFieldSelect fieldSelect;
 	private ScConfigDb configDb;
 
-	private DatabasesFNProg dbSettings = DatabasesFNProg.getInstance();
+	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
 	private DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 	private ExportFile myExportFile;

@@ -1,12 +1,13 @@
 package application.preferences;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import application.interfaces.IEncoding;
 import application.interfaces.TvBSoftware;
 
-public abstract class Databases implements IEncoding {
+public class Databases implements IEncoding {
 	private String databaseID = "";
 	private String databaseFile = "";
 	private String databasePassword = "";
@@ -26,8 +27,14 @@ public abstract class Databases implements IEncoding {
 
 	protected Preferences myPref;
 	private Preferences parent;
-
-	public Databases(TvBSoftware software) {
+	
+	private static Map<TvBSoftware, Databases> mapDB = new HashMap<>();
+	
+	public static Databases getInstance(TvBSoftware software) {
+		return mapDB.computeIfAbsent(software, k -> new Databases(k));
+	}
+	
+	private Databases(TvBSoftware software) {
 		mySoftware = software;
 		parent = Preferences.userRoot().node(mySoftware.getName().toLowerCase());
 		parent = parent.node("databases");

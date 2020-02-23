@@ -24,7 +24,7 @@ public class ConvertOldVersion {
 		}
 		
 		convertDateFields();
-		myGeneralSettings.setFnpVersion(version);
+		myGeneralSettings.setFnpVersion(TvBSoftware.FNPROG2PDA.getVersion());
 	}
 
 	private static void convertDateFields() {

@@ -24,7 +24,7 @@ public class ConvertOldVersion {
 		}
 
 		convertDateFields();
-		myGeneralSettings.setDbcVersion(version);
+		myGeneralSettings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
 	}
 
 	private static void convertDateFields() {

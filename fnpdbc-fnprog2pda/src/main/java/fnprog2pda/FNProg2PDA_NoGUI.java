@@ -7,9 +7,9 @@ import application.interfaces.ExportFile;
 import application.interfaces.FNPSoftware;
 import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
+import application.preferences.Databases;
 import application.utils.GUIFactory;
 import application.utils.General;
-import fnprog2pda.preferences.DatabasesFNProg;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.FNProgramvare;
 import fnprog2pda.utils.ConvertOldVersion;
@@ -21,7 +21,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 	private int recordsRead;
 
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
-	private DatabasesFNProg dbSettings = DatabasesFNProg.getInstance();
+	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 
 	private FNProgramvare mySoftware;
 	private ViewerModel tabModel;

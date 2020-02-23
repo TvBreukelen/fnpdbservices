@@ -7,10 +7,10 @@ import application.interfaces.FNPSoftware;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
+import application.preferences.Databases;
 import application.utils.GUIFactory;
 import dbconvert.dialog.ConfigDBConvert;
 import fnprog2pda.FNProg2PDA;
-import fnprog2pda.preferences.DatabasesFNProg;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
 
@@ -23,7 +23,7 @@ public class ConfigFNProg extends ProgramDialog {
 	 * @version 4.5
 	 */
 	private static final long serialVersionUID = -9109798108105347350L;
-	private DatabasesFNProg dbSettings = DatabasesFNProg.getInstance();
+	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 	private DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 
 	protected FNPSoftware myFnSoftware = FNPSoftware.UNDEFINED;

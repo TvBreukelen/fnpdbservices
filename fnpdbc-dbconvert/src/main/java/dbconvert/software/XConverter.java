@@ -18,7 +18,9 @@ import application.BasicSoft;
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.interfaces.IDatabaseFactory;
+import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
+import application.preferences.Databases;
 import application.preferences.Profiles;
 import application.utils.BasisField;
 import application.utils.FNProgException;
@@ -26,7 +28,6 @@ import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
-import dbconvert.preferences.DatabasesDBConvert;
 import dbconvert.preferences.PrefDBConvert;
 import dbengine.ExcelFile;
 import dbengine.GeneralDB;
@@ -69,7 +70,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	 */
 	public XConverter(Component parent) {
 		super(pdaSettings);
-		DatabasesDBConvert dbSettings = DatabasesDBConvert.getInstance();
+		Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
 		dbInHelper = new DatabaseHelper(dbSettings.getDatabaseFile(), dbSettings.getDatabaseUser(),
 				dbSettings.getDatabasePassword());
 

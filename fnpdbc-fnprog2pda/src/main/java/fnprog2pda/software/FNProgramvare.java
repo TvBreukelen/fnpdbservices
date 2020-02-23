@@ -27,7 +27,9 @@ import application.interfaces.ExportFile;
 import application.interfaces.FNPSoftware;
 import application.interfaces.FieldTypes;
 import application.interfaces.FilterOperator;
+import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
+import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 import application.utils.BasisField;
 import application.utils.FNProgException;
@@ -42,7 +44,6 @@ import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
 import dbengine.utils.SpecialFields;
-import fnprog2pda.preferences.DatabasesFNProg;
 import fnprog2pda.preferences.PrefFNProg;
 
 public abstract class FNProgramvare extends BasicSoft {
@@ -96,7 +97,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	protected Map<String, Map<Integer, String>> myRoles = new HashMap<>(30);
 	protected static PrefFNProg pdaSettings = PrefFNProg.getInstance();
 
-	private DatabasesFNProg dbSettings = DatabasesFNProg.getInstance();
+	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 

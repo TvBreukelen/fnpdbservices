@@ -1,6 +1,7 @@
 package fnprog2pda.preferences;
 
 import application.interfaces.TvBSoftware;
+import application.preferences.Databases;
 import application.preferences.PrefUtils;
 import application.preferences.Profiles;
 
@@ -17,7 +18,7 @@ public class PrefFNProg extends Profiles {
 	private boolean useRoles;
 
 	private PrefFNProg() {
-		super(TvBSoftware.FNPROG2PDA, DatabasesFNProg.getInstance());
+		super(TvBSoftware.FNPROG2PDA, Databases.getInstance(TvBSoftware.DBCONVERT));
 	}
 
 	public static PrefFNProg getInstance() {

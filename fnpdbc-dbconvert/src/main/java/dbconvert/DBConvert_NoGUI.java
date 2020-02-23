@@ -6,9 +6,9 @@ import java.util.Observer;
 import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
+import application.preferences.Databases;
 import application.utils.GUIFactory;
 import application.utils.General;
-import dbconvert.preferences.DatabasesDBConvert;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
 
@@ -18,7 +18,7 @@ public class DBConvert_NoGUI implements Observer {
 	private int recordsRead;
 
 	private PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
-	private DatabasesDBConvert dbSettings = DatabasesDBConvert.getInstance();
+	private Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
 
 	private XConverter mySoftware;
 	private ViewerModel tabModel;

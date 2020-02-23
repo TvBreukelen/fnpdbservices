@@ -56,7 +56,7 @@ public class FNProg2PDA {
 	public static void main(String[] args) {
 		GUIFactory.refresh();
 
-		   // Check if we are running in batch mode
+		// Check if we are running in batch mode
 		if (args.length > 0) {
 			new FNProg2PDA_NoGUI(args);
 			System.exit(0);
