@@ -61,7 +61,7 @@ public enum ExportFile {
 				return exp;
 			}
 		}
-		return JFILE5;
+		return TEXTFILE;
 	}
 
 	public static Vector<String> getExportFilenames(boolean isImport) {
@@ -78,8 +78,8 @@ public enum ExportFile {
 			result.remove(REFERENCER.name);
 		} else {
 			// TODO To add in a later version
-			result.remove(ACCESS.name);
 			result.remove(SQLite.name);
+			result.remove(ACCESS.name);
 		}
 
 		return result;
@@ -193,6 +193,7 @@ public enum ExportFile {
 		switch (this) {
 		case LIST:
 		case REFERENCER:
+		case SQLite:
 		case XML:
 			return true;
 		default:

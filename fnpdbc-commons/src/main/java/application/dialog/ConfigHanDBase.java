@@ -3,7 +3,6 @@ package application.dialog;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -40,8 +39,6 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 
 	private JLabel userLabel;
 	private IConfigSoft _dialog;
-	private ActionListener funcActivate;
-	private ActionListener funcSelectProgram;
 	private boolean isImportEnabled;
 
 	private Profiles pdaSettings;
@@ -50,12 +47,6 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 	public ConfigHanDBase(IConfigSoft dialog, Profiles pref) {
 		_dialog = dialog;
 		pdaSettings = pref;
-
-		funcActivate = e -> activateComponents();
-
-		funcSelectProgram = e -> General.getSelectedFile((JDialog) _dialog, selectFile, "Windows program (*.exe)", "",
-				true, "exe");
-
 		buildDialog();
 		activateComponents();
 	}
@@ -102,7 +93,7 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 				c.gridCell(0, 0, 0, 0));
 
 		autoInstallAllUsers = GUIFactory.getJCheckBox("autoInstallAllUsers",
-				pdaSettings.getAutoInstUser().equals("ALL USERS"), funcActivate);
+				pdaSettings.getAutoInstUser().equals("ALL USERS"), e -> activateComponents());
 
 		autoInstallUser = GUIFactory.getJTextField("autoInstallUser", "");
 		autoInstallUser.setPreferredSize(new Dimension(70, 20));
@@ -122,7 +113,8 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		selectFile = GUIFactory.getJTextField("selectFile", generalSettings.getHandbaseConversionProgram());
 		p2 = new JPanel(new GridBagLayout());
 		p2.add(selectFile, c.gridCell(0, 0, 2, 0));
-		p2.add(GUIFactory.getJButton("browse", funcSelectProgram), c.gridCell(1, 0, 0, 0));
+		p2.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile((JDialog) _dialog, selectFile, "Windows program (*.exe)", "",
+				true, "exe")), c.gridCell(1, 0, 0, 0));
 		p2.setBorder(BorderFactory.createTitledBorder("handbasedesktop.exe"));
 		add(p2);
 	}

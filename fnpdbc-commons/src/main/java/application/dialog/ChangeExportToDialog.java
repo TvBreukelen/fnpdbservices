@@ -3,7 +3,6 @@ package application.dialog;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -22,7 +21,6 @@ import application.utils.gui.XGridBagConstraints;
 
 public class ChangeExportToDialog extends BasicDialog {
 	private static final long serialVersionUID = 7463448287153606221L;
-	private ActionListener funcSelectFile;
 	private JTextField exportTo;
 	private JPasswordField password;
 
@@ -46,8 +44,6 @@ public class ChangeExportToDialog extends BasicDialog {
 		exportFilename = _project.getExportFile();
 		exportFile = _project.getExportFileEnum();
 
-		funcSelectFile = e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, "", false);
-
 		buildDialog();
 		pack();
 		activateComponents();
@@ -65,7 +61,7 @@ public class ChangeExportToDialog extends BasicDialog {
 		dim.setSize(dim.getWidth() < 300 ? 300 : dim.getWidth(), dim.getHeight());
 		exportTo.setPreferredSize(dim);
 
-		JButton button = GUIFactory.getJButton("browseFile", funcSelectFile);
+		JButton button = GUIFactory.getJButton("browseFile", e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, "", false));
 
 		password = new JPasswordField(_project.getExportPassword());
 		JLabel lPass = GUIFactory.getJLabel("password");

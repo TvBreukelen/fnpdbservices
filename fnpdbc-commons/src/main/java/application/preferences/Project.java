@@ -14,8 +14,8 @@ public class Project {
 	private TvBSoftware _software;
 	private Databases _dbSettings;
 
-	private String lastProject = "";
-	private String lastProfile = "";
+	private String lastProject;
+	private String lastProfile;
 	private String projectID = "";
 
 	public Project(TvBSoftware software) {
@@ -170,10 +170,12 @@ public class Project {
 		} catch (Exception e) {
 		}
 
-		if (projectID.equals(projectID)) {
-			lastProject = "";
-			lastProfile = "";
+		if (project.equals(projectID)) {
 			projectID = "";
+			if (project.equals(lastProject)) {
+				lastProject = "";
+				lastProfile = "";
+			}
 		}
 	}
 

@@ -11,7 +11,6 @@ import javax.swing.Box;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.event.ListSelectionListener;
 
 import application.interfaces.IEncoding;
 import application.preferences.GeneralSettings;
@@ -60,7 +59,8 @@ public class ConfigCharset extends BasicDialog {
 		Box result = Box.createHorizontalBox();
 
 		charSets = new JList<>(new Vector<>(General.getCharacterSets()));
-		ListSelectionListener listener = e -> {
+
+		charSets.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
 				String key = charSets.getSelectedValue().toString();
 				StringBuilder aliases = new StringBuilder();
@@ -82,8 +82,7 @@ public class ConfigCharset extends BasicDialog {
 				aliases.delete(len - 2, len);
 				description.setText(charset.getProperty(key, "Same as: " + aliases.toString()));
 			}
-		};
-		charSets.addListSelectionListener(listener);
+		});
 		JScrollPane sc1 = new JScrollPane(charSets);
 
 		description = new JTextPane();

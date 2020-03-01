@@ -97,6 +97,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		funcSelectDb = e -> {
 			myExportFile = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
+			
 			pdaSettings.setProject(myExportFile.getName());
 			fdPDA.setToolTipText(myExportFile.getFileType());
 			fdPDA.setText(getDatabaseName(true));

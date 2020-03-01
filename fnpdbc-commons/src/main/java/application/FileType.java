@@ -2,7 +2,7 @@ package application;
 
 public enum FileType {
 	PDB(" Palm or Pocket PC database (*.pdb)"), TXT(" textfile (*.csv, *.txt)"), XLS(" MS-Excel file (*.xls)"),
-	XLSX(" MS-Excel file (*.xls, *.xlsx)"), DB(" SQLite (*.db, *.sqlite, *.*)"), DBF(" Dbase or FoxPro file (*.dbf)"),
+	XLSX(" MS-Excel file (*.xls, *.xlsx)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"), DBF(" Dbase or FoxPro file (*.dbf)"),
 	XML(" XML File (*.xml)"), MDB(" MS Access Database (*.mdb, *.accdb)");
 
 	private String name;
@@ -22,7 +22,7 @@ public enum FileType {
 		case XLSX:
 			return new String[] { "xls", "xlsx" };
 		case DB:
-			return new String[] { "*" };
+			return new String[] { "db", "db3", "sqlite", "sqlite3", "*" };
 		case DBF:
 			return new String[] { "dbf" };
 		case XML:

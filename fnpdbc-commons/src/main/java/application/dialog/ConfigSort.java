@@ -2,7 +2,6 @@ package application.dialog;
 
 import java.awt.Component;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Vector;
 
@@ -34,7 +33,6 @@ public class ConfigSort extends BasicDialog {
 	private JLabel lbCategory;
 	private JLabel[] lbSortField;
 	private JCheckBox ckSort;
-	private ActionListener funcSelectSort;
 	private final int NUM_SORT;
 
 	private boolean isDbConvert;
@@ -73,8 +71,6 @@ public class ConfigSort extends BasicDialog {
 		default:
 			setHelpFile("sort_order");
 		}
-
-		funcSelectSort = e -> activateComponents();
 
 		buildDialog();
 		activateComponents();
@@ -121,7 +117,7 @@ public class ConfigSort extends BasicDialog {
 			lbSortField[i] = GUIFactory.getJLabel(guiText + i);
 			cbSortField[i] = new JComboBox<>(dbFilterFields);
 			cbSortField[i].setSelectedItem(getSortedField(i));
-			cbSortField[i].addActionListener(funcSelectSort);
+			cbSortField[i].addActionListener(e -> activateComponents());
 
 			index++;
 			result.add(lbSortField[i], c.gridCell(0, index, 0, 0));
