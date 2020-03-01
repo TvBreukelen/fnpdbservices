@@ -59,6 +59,10 @@ public class FieldDefinition extends BasisField {
 		String s = obj.toString();
 		size = Math.max(size, s.length());
 
+		if (getFieldType() != FieldTypes.FLOAT) {
+			return;
+		}
+		
 		int index = s.lastIndexOf(".");
 		if (index++ != -1) {
 			if (s.endsWith("0")) {

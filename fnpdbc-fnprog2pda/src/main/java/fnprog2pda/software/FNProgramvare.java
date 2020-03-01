@@ -78,7 +78,8 @@ public abstract class FNProgramvare extends BasicSoft {
 	private Map<String, FieldDefinition> dbInfoToExport = new HashMap<>(); // DB definitions of the fields to be
 																			// exported
 	private Map<String, FieldTypes> dbSortList = new LinkedHashMap<>(); // Sort by field -number and -type
-	private Predicate<FieldDefinition> floatFilter = field -> field.getFieldType() == FieldTypes.FLOAT;
+	private Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
+			|| field.getFieldType() == FieldTypes.FLOAT;
 
 	private String myLastModified = "";
 	private String imageKey;
@@ -898,7 +899,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		setDatabaseData(pRead, hashTable);
 		pWrite.add(pRead);
 
-		dbTableModelFields.stream().filter(floatFilter).forEach(field -> {
+		dbTableModelFields.stream().filter(filter).forEach(field -> {
 			field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""));
 		});
 	}

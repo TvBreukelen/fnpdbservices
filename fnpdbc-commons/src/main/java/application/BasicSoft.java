@@ -86,7 +86,7 @@ public abstract class BasicSoft extends Observable {
 
 		myCurrentRecord = 0;
 		myTotalRecord = table.size();
-
+		
 		dbOut.createDbHeader();
 		for (Map<String, Object> rowData : table) {
 			dbOut.processData(dbTableModelFields.stream().collect(
