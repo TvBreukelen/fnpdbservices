@@ -226,11 +226,8 @@ public abstract class GeneralDB {
 		case TEXTFILE:
 			return new CsvFile(profile);
 		case DBASE3:
-			return new DBaseFile(profile);
 		case DBASE4:
-			return new DBaseFile(profile);
 		case DBASE5:
-			return new DBaseFile(profile);
 		case FOXPRO:
 			return new DBaseFile(profile);
 		case XML:

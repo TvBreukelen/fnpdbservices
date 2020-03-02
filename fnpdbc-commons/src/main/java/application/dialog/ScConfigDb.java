@@ -352,7 +352,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		}
 
 		pExport.setVisible(myExportFile.isAppend());
-		rExists[1].setVisible(myExportFile != ExportFile.REFERENCER);
+		rExists[1].setVisible(myExportFile == ExportFile.HANDBASE);
 		passwordBox.setVisible(myExportFile.isPasswordSupported());
 
 		cConvert[0].setVisible(myExportFile.isBooleanExport());
