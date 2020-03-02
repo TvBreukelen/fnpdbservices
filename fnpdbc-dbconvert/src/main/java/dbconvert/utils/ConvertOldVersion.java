@@ -23,7 +23,10 @@ public class ConvertOldVersion {
 			myGeneralSettings.setCheckVersionDate();
 		}
 
-		convertDateFields();
+		if (!version.startsWith("8.6")) {
+			convertDateFields();
+		}
+
 		myGeneralSettings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
 	}
 

@@ -23,7 +23,10 @@ public class ConvertOldVersion {
 			myGeneralSettings.setCheckVersionDate();
 		}
 		
-		convertDateFields();
+		if (!version.startsWith("6.2")) {
+			convertDateFields();
+		}
+		
 		myGeneralSettings.setFnpVersion(TvBSoftware.FNPROG2PDA.getVersion());
 	}
 

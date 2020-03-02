@@ -10,7 +10,7 @@ public enum TvBSoftware {
 	 * @author Tom van Breukelen
 	 */
 
-	DBCONVERT("DBConvert", "6.2.0"), FNPROG2PDA("FNProg2PDA", "8.6.0");
+	DBCONVERT("DBConvert", "6.2.1"), FNPROG2PDA("FNProg2PDA", "8.6.1");
 
 	private String version;
 	private String name;
