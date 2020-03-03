@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\van_b\OneDrive\Documents\workspace\fnpdbcservices\fnpdbc-dbconvert\target\fnpdbc-dbconvert-0.0.1-SNAPSHOT.jar</jar>
-  <outfile>C:\Users\van_b\OneDrive\Documents\workspace\fnpdbcservices\fnpdbc-dbconvert\release\DBConvert.exe</outfile>
+  <jar>C:\Users\van_b\eclipse-workspace\fnpdbservices\fnpdbc-dbconvert\target\fnpdbc-dbconvert-0.0.1-SNAPSHOT.jar</jar>
+  <outfile>C:\Users\van_b\eclipse-workspace\fnpdbservices\fnpdbc-dbconvert\release\DBConvert.exe</outfile>
   <errTitle>DBConvert Program Error</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\Users\van_b\OneDrive\Documents\workspace\fnpdbcservices\fnpdbc-commons\src\main\resources\icons\Tools.ico</icon>
+  <icon>C:\Users\van_b\eclipse-workspace\fnpdbservices\fnpdbc-commons\src\main\resources\icons\Tools.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
