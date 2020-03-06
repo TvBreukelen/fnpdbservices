@@ -79,7 +79,7 @@ public abstract class FNProgramvare extends BasicSoft {
 																			// exported
 	private Map<String, FieldTypes> dbSortList = new LinkedHashMap<>(); // Sort by field -number and -type
 	private Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
-			|| field.getFieldType() == FieldTypes.FLOAT;
+			|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
 	private String myLastModified = "";
 	private String imageKey;

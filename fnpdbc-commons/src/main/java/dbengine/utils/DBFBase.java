@@ -38,4 +38,9 @@ public abstract class DBFBase {
 	public int getFieldCount() throws Exception {
 		return header.fieldArray.length;
 	}
+	
+	public DBFField getFields(int i) {
+		return header.fieldArray[i];
+	}
+	
 }

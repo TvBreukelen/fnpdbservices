@@ -104,7 +104,6 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
 						Integer.toString(writer.getFieldCount()));
 			}
-			return;
 		}
 
 		DBFField[] fields = new DBFField[numFields];
@@ -176,7 +175,36 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				}
 			}
 		}
-		writer.setFields(fields, getDBaseSignature());
+
+		if (useAppend) {
+			// Verify if fields match in type and size
+			for (int i = 0; i < numFields; i++) {
+				DBFField field1 = writer.getFields(i);
+				DBFField field2 = fields[i];
+
+				if (!field1.getName().equals(field2.getName())) {
+					throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getName(),
+							field2.getName());
+				}
+
+				if (field1.getDataType() != field2.getDataType()) {
+					if (field1.getDataType() == DBFField.FIELD_TYPE_M) {
+						field2.setDataType(DBFField.FIELD_TYPE_M);
+						FieldDefinition field = dbInfo2Write.get(i);
+						field.setFieldType(FieldTypes.MEMO);
+					} else {
+						throw FNProgException.getException("noMatchFieldType", field1.getName(), field2.getName());
+					}
+				}
+
+				if (field1.getFieldLength() < field2.getFieldLength()) {
+					throw FNProgException.getException("noMatchFieldLength", field1.getName(),
+							Integer.toString(field1.getFieldLength()), Integer.toString(field2.getFieldLength()));
+				}
+			}
+		} else {
+			writer.setFields(fields, getDBaseSignature());
+		}
 	}
 
 	private byte getDBaseSignature() {

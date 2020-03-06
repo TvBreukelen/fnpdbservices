@@ -292,6 +292,9 @@ noImagePath.tooltip=z.B. "bild.gif" anstatt von "d:\\data\\images\\bild.gif"
 noLimit.text=Kein Limit
 noMatchFieldsDatabase.mesg=Die Anzahl der Exportfelder (%0) stimmt nicht überein mit der Felderanzahl in der Datenbank (%1).
 noMatchFieldsDBHeader.mesg=Die Anzahl der Datensätze in der Datei '%0' überschreitet die Datensatz-Anzahl des Dateivorsatzes. Die interne Struktur der Datei konnte beschädigt sein. Aktuele Datensatz = %1 Dateivorsatz Datens‰tze = %2.;
+noMatchFieldLength.mesg=Das Feld '%0' auf der Databank ist kleiner (%1) als die zu importierenden Daten (%2).   
+noMatchFieldName.mesg=Feldnummer %0. '%1' auf der Datenbank, hat einen anderen Name als Feld '%2'.   
+noMatchFieldType.mesg=Das Feld '%0' auf der Datenbank, hat einen anderen Fieldtyp als das Importfeld.   
 noOfRecords.title=Anzahl Datensätze:
 noRecords.mesg=Datei '%0' enth‰lt keine Datensätze.
 noRecordsFound.mesg=Es gab keine zu exportierende '%0' Datens‰tze.

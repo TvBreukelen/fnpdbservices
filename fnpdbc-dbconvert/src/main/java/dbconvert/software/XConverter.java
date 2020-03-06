@@ -272,7 +272,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		List<Map<String, Object>> result = new Vector<>();
 		Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
-				|| field.getFieldType() == FieldTypes.FLOAT;
+				|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
 		// Write all records into the table model
 		for (int i = 0; i < myTotalRecord; i++) {

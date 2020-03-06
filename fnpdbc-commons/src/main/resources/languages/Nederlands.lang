@@ -291,6 +291,9 @@ noImagePath.tooltip=bijv. "beeld.gif" instead of "d:\\data\\images\\beeld.gif"
 noLimit.text=Geen limiet
 noMatchFieldsDatabase.mesg=Het aantal velden dat geëxporteert moet worden (%0) komt niet overeen met het aantal velden dat zich al de database bevind (%1).
 noMatchFieldsDBHeader.mesg=Het aantal gegevens in bestand '%0' overschrijdt het in de PDA database-header gedefinieerde aantal gegevens. De interne struktuur van het bestand kan beschadigd zijn. Gelezen record = %1 Totaal aantal records = %2.;
+noMatchFieldLength.mesg=Veld '%0' in de database is kleiner (%1) dan de te importerende data (%2).   
+noMatchFieldName.mesg=Veld nummer %0. '%1' in de database heeft een andere naam dan veld '%2'.   
+noMatchFieldType.mesg=Veld '%0' in de database, is van een andere type dan het te importerende veld.   
 noOfRecords.title=Aantal records:
 noRecords.mesg=Bestand '%0' bevat geen gegevens.
 noRecordsFound.mesg=Er zijn geen '%0' database gegevens voorhanden voor de export.

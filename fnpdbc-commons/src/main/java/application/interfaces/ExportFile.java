@@ -164,6 +164,20 @@ public enum ExportFile {
 		}
 	}
 
+	public boolean isFixedFieldLength() {
+		switch(this) {
+		case DBASE3:
+		case DBASE4:
+		case DBASE5:
+		case FOXPRO:
+		case ACCESS:
+		case SQLite:
+			return true;
+		default:
+			return false;
+		}
+	}
+	
 	public boolean isAppend() {
 		switch (this) {
 		case HANDBASE:
@@ -193,7 +207,6 @@ public enum ExportFile {
 		switch (this) {
 		case LIST:
 		case REFERENCER:
-		case SQLite:
 		case XML:
 			return true;
 		default:
