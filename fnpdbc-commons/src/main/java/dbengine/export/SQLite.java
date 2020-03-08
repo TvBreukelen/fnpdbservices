@@ -1,4 +1,4 @@
-package dbengine;
+package dbengine.export;
 
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
+import dbengine.IConvert;
+import dbengine.SqlDB;
 
 public class SQLite extends SqlDB implements IConvert {
 

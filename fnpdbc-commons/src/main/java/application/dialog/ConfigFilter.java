@@ -293,6 +293,16 @@ public class ConfigFilter extends BasicDialog {
 		pack();
 	}
 
+	@Override
+	protected void buildDialog() {
+		btSave.setVisible(false);
+		getContentPane().add(createToolBar(), BorderLayout.NORTH);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.EAST);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
+		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
+		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
+	}
+	
 	private void refreshList(List<Object> values, BasisField field, int index) {
 		final int idx = index;
 		list[index] = new JList<>(values.toArray());
@@ -377,6 +387,12 @@ public class ConfigFilter extends BasicDialog {
 		return result;
 	}
 
+	protected Component createBottomPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel.add(GUIFactory.getJButton("apply", funcSave));
+		return panel;
+	}
+	
 	private void refreshFilter() {
 		boolean isValid = true;
 

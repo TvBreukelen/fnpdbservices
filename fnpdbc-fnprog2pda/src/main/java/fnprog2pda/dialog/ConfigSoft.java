@@ -63,7 +63,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private JTextField profile;
 	private JTextField fdDatabase;
-	private JTextField dbPDAFileName;
 
 	private ActionListener funcSelectDbFile;
 	private ActionListener funcSelectView;
@@ -200,18 +199,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		fdView.addActionListener(funcSelectView);
 		fdDatabase = GUIFactory.getJTextField("fnpDatabase", isNewProfile ? "" : dbSettings.getDatabaseFile());
 		fdDatabase.getDocument().addDocumentListener(funcDocumentChange);
-		dbPDAFileName = GUIFactory.getJTextField("pdaDatabase", isNewProfile ? "" : pdaSettings.getPdaDatabaseName());
 		JButton bt1 = GUIFactory.getJButton("browseDatabase", funcSelectDbFile);
-
-		Box box = new Box(BoxLayout.X_AXIS);
-		box.add(dbPDAFileName);
-		box.add(Box.createHorizontalStrut(270));
 
 		gPanel.add(fdView, c.gridCell(0, 0, 0, 0));
 		gPanel.add(fdDatabase, c.gridCell(1, 0, 2, 0));
 		gPanel.add(bt1, c.gridCell(2, 0, 0, 0));
-		gPanel.add(GUIFactory.getJLabel("pdaDatabase"), c.gridCell(0, 1, 0, 0));
-		gPanel.add(box, c.gridCell(1, 1, 0, 0));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
 		if (isNewProfile) {
@@ -301,12 +293,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		pdaSettings.setUserList(fieldSelect.getFieldList());
 		pdaSettings.setDatabaseFromFile(node);
-		pdaSettings.setPdaDatabaseName(dbPDAFileName.getText().trim());
-
-		if (pdaSettings.getPdaDatabaseName().isEmpty()) {
-			pdaSettings.setPdaDatabaseName(dbFactory.getPdaDatabase());
-		}
-
 		pdaSettings.setLastIndex(0);
 		pdaSettings.setLastModified("");
 		configDb.setProperties();
@@ -369,10 +355,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		FNProgramvare mySoft = FNProgramvare.getSoftware(myImportFile, this);
 		mySoft.setupDBTranslation(isNewProfile); // Load user fields
 		fieldSelect.loadFieldPanel(mySoft.getDbUserFields());
-
-		if (dbPDAFileName != null && dbPDAFileName.getText().isEmpty()) {
-			dbPDAFileName.setText(dbFactory.getPdaDatabase());
-		}
 	}
 
 	@Override

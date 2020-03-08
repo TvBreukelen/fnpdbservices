@@ -39,6 +39,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private static final long serialVersionUID = 8000165106403251367L;
 
 	private JTextField fdPDA;
+	private JTextField dbFileName;
+	private JLabel dbFileNameLabel = new JLabel();
 	private JTextField fdEncoding;
 	private JPasswordField fdPassword;
 	private JButton btEncoding;
@@ -106,6 +108,23 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			fdEncoding.setVisible(myExportFile.isEncodingSupported());
 			btEncoding.setVisible(fdEncoding.isVisible());
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
+			dbFileName.setText(pdaSettings.getPdaDatabaseName());
+			
+			String resourceID = "database";
+			switch(myExportFile) {
+			case ACCESS:
+			case SQLite:
+				resourceID = "table";
+				break;
+			case EXCEL:
+				resourceID = "sheet";
+			case XML:
+				resourceID = "xmlRoot";
+			default:
+				break;
+			}
+			
+			dbFileNameLabel.setText(GUIFactory.getText(resourceID));
 
 			if (myExportFile.isPasswordSupported()) {
 				fdPassword.setText(pdaSettings.getExportPassword());
@@ -188,12 +207,17 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(false));
 		bDatabase.setToolTipText(GUIFactory.getToolTip("pcToFile"));
 		bDatabase.addActionListener(funcSelectDb);
+		dbFileName = GUIFactory.getJTextField("database", "");
 		fdPassword = new JPasswordField(8);
-
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
-
 		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
 
+		Box dbNameBox = Box.createHorizontalBox();
+		dbNameBox.add(dbFileNameLabel);
+		dbNameBox.add(Box.createHorizontalStrut(5));
+		dbNameBox.add(Box.createHorizontalGlue());
+		dbNameBox.add(dbFileName);
+		
 		fdEncoding = new JTextField();
 		fdEncoding.setEditable(false);
 
@@ -239,7 +263,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		passwordBox.add(fdPassword);
 
 		pExport = General.addVerticalButtons(GUIFactory.getTitle("exportData"), funcSelectExport, rExists);
-		pExport.add(passwordBox, c.gridCell(1, 4, 0, 0));
+		pExport.add(dbNameBox, c.gridCell(1, 4, 0, 0));
+		pExport.add(passwordBox, c.gridCell(1, 5, 0, 0));
 
 		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), funcSelectConvert, cConvert);
 		pConvert.add(General.addVerticalButtons(null, null, rImages[0], rImages[1], rImages[2]),
@@ -256,9 +281,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pTopContainer = new JPanel(new GridLayout(1, 2));
 
 		JPanel p1 = new JPanel(new GridBagLayout());
-		p1.add(btBackup, c.gridCell(0, 0, 2, 0));
-		p1.add(btEncoding, c.gridCell(1, 0, 0, 0));
-		p1.add(fdEncoding, c.gridCell(2, 0, 2, 0));
+		p1.add(dbNameBox, c.gridCell(0, 0, 0, 0));
+		p1.add(btBackup, c.gridCell(1, 0, 2, 0));
+		p1.add(btEncoding, c.gridCell(2, 0, 0, 0));
+		p1.add(fdEncoding, c.gridCell(3, 0, 2, 0));
 
 		add(bDatabase, c.gridCell(0, 0, 0, 0));
 		add(fdPDA, c.gridCell(1, 0, 2, 0));
@@ -311,6 +337,14 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pdaSettings.setImageHeight(cConvert[3].isVisible() ? hModel.getNumber().intValue() : 0);
 		pdaSettings.setImageWidth(cConvert[3].isVisible() ? wModel.getNumber().intValue() : 0);
 		pdaSettings.setExportPassword(fdPassword.getPassword());
+		
+		String dbFile = dbFileName.getText().trim();
+		if (dbFile.isEmpty()) {
+			dbFile = pdaSettings.getProfileID();
+			dbFileName.setText(dbFile);
+		}
+		
+		pdaSettings.setPdaDatabaseName(dbFile);
 
 		if (pOtherOptions.isVisible()) {
 			IConfigDb myDialog = (IConfigDb) pOtherOptions.getComponent(0);
@@ -379,6 +413,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				|| cConvert[3].isVisible());
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
 
+		dbFileName.setVisible(myExportFile != ExportFile.TEXTFILE);
+		dbFileNameLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
+		
 		if (pTopContainer.isVisible() && myExportFile != ExportFile.LIST && myExportFile != ExportFile.XML) {
 			pTopContainer.setBorder(BorderFactory.createRaisedBevelBorder());
 		} else {

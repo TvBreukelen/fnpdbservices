@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -33,6 +34,7 @@ public abstract class BasicDialog extends JDialog {
 	protected JButton btSave;
 
 	protected DocumentListener funcDocumentChange;
+	protected ActionListener funcSave;
 
 	protected GeneralSettings generalSettings = GeneralSettings.getInstance();
 
@@ -76,7 +78,7 @@ public abstract class BasicDialog extends JDialog {
 			}
 		};
 
-		btSave = General.createToolBarButton(GUIFactory.getToolTip("menuSave"), "Save.png", e -> {
+		funcSave = e -> {
 			try {
 				save();
 				close();
@@ -86,8 +88,9 @@ public abstract class BasicDialog extends JDialog {
 					close();
 				}
 			}
-		});
-
+		}; 
+		
+		btSave = General.createToolBarButton(GUIFactory.getToolTip("menuSave"), "Save.png", funcSave);
 		btHelp = General.createToolBarButton(GUIFactory.getToolTip("menuHelp"), "Help.png", e -> showHelp());
 		btExit = General.createToolBarButton(GUIFactory.getToolTip("menuExitScr"), "Exit.png", e -> close());
 	}

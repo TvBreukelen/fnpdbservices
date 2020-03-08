@@ -1,6 +1,8 @@
 package application.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.HashSet;
 import java.util.Vector;
@@ -78,6 +80,16 @@ public class ConfigSort extends BasicDialog {
 	}
 
 	@Override
+	protected void buildDialog() {
+		btSave.setVisible(false);
+		getContentPane().add(createToolBar(), BorderLayout.NORTH);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.EAST);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
+		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
+		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
+	}
+	
+	@Override
 	protected Component createCenterPanel() {
 		JPanel result = new JPanel(new GridBagLayout());
 		int index = 0;
@@ -130,6 +142,12 @@ public class ConfigSort extends BasicDialog {
 		result.setBorder(BorderFactory.createTitledBorder(myExportFile.getName() + " "
 				+ GUIFactory.getTitle(myExportFile.isSpecialFieldSort() ? "fieldDefinition" : "sortOrder")));
 		return result;
+	}
+
+	protected Component createBottomPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel.add(GUIFactory.getJButton("apply", funcSave));
+		return panel;
 	}
 
 	private String getCategoryField() {

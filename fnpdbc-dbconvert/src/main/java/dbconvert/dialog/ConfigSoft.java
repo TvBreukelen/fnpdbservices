@@ -58,7 +58,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 	private JTextField profile;
 	private JTextField fdDatabase;
-	private JTextField dbPDAFileName;
 	private JTextField fdEncoding;
 	
 	private JButton btEncoding;
@@ -186,9 +185,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		fdDatabase = new JTextField(isNewProfile ? "" : dbSettings.getDatabaseFile());
 		fdDatabase.getDocument().addDocumentListener(funcDocumentChange);
 
-		dbPDAFileName = GUIFactory.getJTextField("pdaDatabase", isNewProfile ? "" : pdaSettings.getPdaDatabaseName());
-		dbPDAFileName.setPreferredSize(configDb.getCheckBoxSize());
-
 		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
 			General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, "", true);
 			verifyDatabase(false);
@@ -217,7 +213,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		XGridBagConstraints c = new XGridBagConstraints();
 
 		JPanel p2 = new JPanel(new GridBagLayout());
-		p2.add(dbPDAFileName, c.gridCell(0, 0, 2, 0));
 		p2.add(btEncoding, c.gridCell(1, 0, 0, 0));
 		p2.add(fdEncoding, c.gridCell(2, 0, 2, 0));
 
@@ -230,7 +225,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		gPanel.add(bTables, c.gridCell(1, 1, 0, 0));
 		gPanel.add(lWorksheet, c.gridCell(0, 1, 0, 0));
 		gPanel.add(bWorkSheets, c.gridCell(1, 1, 0, 0));
-		gPanel.add(GUIFactory.getJLabel("pdaDatabase"), c.gridCell(0, 3, 0, 0));
 		gPanel.add(p2, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
 		gPanel.add(textImport, c.gridmultipleCell(1, 4, 2, 0, 4, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
@@ -272,21 +266,18 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		}
 
 		myImportFile = software;
-		dbPDAFileName.setText("");
 		dbVerified.setDatabase("");
 		verifyDatabase(false);
 	}
 
 	private void worksheetChanged() {
 		pdaSettings.setTableName(bWorkSheets.getSelectedItem().toString(), false);
-		dbPDAFileName.setText("");
 		dbVerified.setDatabase("");
 		verifyDatabase(false);
 	}
 
 	private void tableChanged() {
 		pdaSettings.setTableName(bTables.getSelectedItem().toString(), false);
-		dbPDAFileName.setText("");
 		dbVerified.setDatabase("");
 		verifyDatabase(false);
 	}
@@ -435,11 +426,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 		pdaSettings.setUserList(fieldSelect.getFieldList());
 		pdaSettings.setDatabaseFromFile(node);
-		pdaSettings.setPdaDatabaseName(dbPDAFileName.getText().trim());
-
-		if (pdaSettings.getPdaDatabaseName().isEmpty()) {
-			pdaSettings.setPdaDatabaseName(dbFactory.getPdaDatabase());
-		}
 
 		switch (myImportFile) {
 		case TEXTFILE:
@@ -532,13 +518,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			lWorksheet.setVisible(bWorkSheets.isVisible());
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
-			btEncoding.setEnabled(isEncoding);
-			fdEncoding.setEnabled(isEncoding);
-
-			if (dbPDAFileName.getText().isEmpty()) {
-				dbPDAFileName.setText(dbFactory.getPdaDatabase());
-			}
-
+			btEncoding.setVisible(isEncoding);
+			fdEncoding.setVisible(isEncoding);
 			setEncodingText();
 		}
 	}
