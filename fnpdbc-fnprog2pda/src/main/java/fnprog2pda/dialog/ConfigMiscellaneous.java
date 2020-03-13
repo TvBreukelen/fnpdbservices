@@ -1,9 +1,12 @@
 package fnprog2pda.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
@@ -40,6 +43,15 @@ public class ConfigMiscellaneous extends BasicDialog {
 		setHelpFile("miscellaneous_settings");
 		buildDialog();
 		pack();
+	}
+	@Override
+	protected void buildDialog() {
+		btSave.setVisible(false);
+		getContentPane().add(createToolBar(), BorderLayout.NORTH);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.EAST);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
+		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
+		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
 	}
 
 	@Override
@@ -101,6 +113,12 @@ public class ConfigMiscellaneous extends BasicDialog {
 		}
 
 		return result;
+	}
+
+	protected Component createBottomPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel.add(GUIFactory.getJButton("apply", funcSave));
+		return panel;
 	}
 
 	@Override

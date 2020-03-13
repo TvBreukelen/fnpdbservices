@@ -124,6 +124,19 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+Version 8.6.2
+-------------
+Removed "Replace Records in Database" feature for non HanDBase exports
+Added field name, type and size checks for DBase and Foxpro exports
+Replaced "Save" by "Apply" button in the sort, filter and miscellaneous dialogs. 
+Added an application icon
+
+
+Version 8.6.1
+-------------
+Fixed a DBase/Foxpro export error
+
+
 Version 8.6
 -----------
 Removed deprecated Apple Java extensions

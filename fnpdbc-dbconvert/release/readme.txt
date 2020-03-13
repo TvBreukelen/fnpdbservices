@@ -141,6 +141,18 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 6.2.2
+-------------
+Removed "Replace Records in Database" feature for non HanDBase exports
+Added field name, type and size checks for DBase and Foxpro exports
+Replaced "Save" by "Apply" button in the sort and filter dialogs. 
+Added an application icon
+
+
+Version 6.2.1
+-------------
+Fixed a DBase/Foxpro export error
+
 
 Version 6.2
 -----------
