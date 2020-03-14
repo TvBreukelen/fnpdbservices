@@ -161,7 +161,7 @@ public abstract class BasicSoft extends Observable {
 						pdaSettings.setFilterCondition("AND");
 						pdaSettings.setFilterField(i, "");
 						pdaSettings.setFilterValue(i, "");
-						pdaSettings.setFilterOperator(i, FilterOperator.IsEqualTo);
+						pdaSettings.setFilterOperator(i, FilterOperator.ISEQUALTO);
 
 						isFirst = i == 0;
 					}
@@ -175,7 +175,7 @@ public abstract class BasicSoft extends Observable {
 			pdaSettings.setFilterOperator(0, pdaSettings.getFilterOperator(1));
 			pdaSettings.setFilterField(1, "");
 			pdaSettings.setFilterValue(1, "");
-			pdaSettings.setFilterOperator(1, FilterOperator.IsEqualTo);
+			pdaSettings.setFilterOperator(1, FilterOperator.ISEQUALTO);
 		}
 
 		isFilterDefined = pdaSettings.isFilterDefined() && !GeneralSettings.getInstance().isNoFilterExport();
@@ -249,17 +249,17 @@ public abstract class BasicSoft extends Observable {
 		}
 
 		switch (operator) {
-		case IsEqualTo:
+		case ISEQUALTO:
 			return idx == 0;
-		case IsNotEqualTo:
+		case ISNOTEQUALTO:
 			return idx != 0;
-		case IsGreaterThan:
+		case ISGREATERTHAN:
 			return idx > 0;
-		case IsGreaterThanOrEqualTo:
+		case ISGREATERTHANOREQUALTO:
 			return idx > -1;
-		case IsLessThan:
+		case ISLESSTHAN:
 			return idx < 0;
-		case IsLessThanOrEqualTo:
+		case ISLESSTHANOREQULALTO:
 			return idx < 1;
 		}
 
@@ -272,7 +272,7 @@ public abstract class BasicSoft extends Observable {
 			return true;
 		}
 
-		if (dbRecord.isEmpty() && filterValue.isEmpty() && operator == FilterOperator.IsEqualTo) {
+		if (dbRecord.isEmpty() && filterValue.isEmpty() && operator == FilterOperator.ISEQUALTO) {
 			return true;
 		}
 

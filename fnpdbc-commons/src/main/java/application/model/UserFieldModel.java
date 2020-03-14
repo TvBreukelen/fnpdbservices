@@ -12,12 +12,12 @@ import application.utils.GUIFactory;
 public class UserFieldModel extends AbstractTableModel {
 	private static final long serialVersionUID = -3745524495569802922L;
 
-	private Vector<BasisField> _tableData = new Vector<>();
+	private Vector<BasisField> tableData = new Vector<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
 
 	public void setTableData(Vector<BasisField> tableData) {
 		if (tableData != null) {
-			_tableData = tableData;
+			this.tableData = tableData;
 			fireTableDataChanged();
 		}
 	}
@@ -39,32 +39,31 @@ public class UserFieldModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return _tableData.size();
+		return tableData.size();
 	}
 
 	public void removeRecords(int[] rows) {
 		List<BasisField> vDelete = new ArrayList<>();
 		for (int i : rows) {
-			vDelete.add(_tableData.get(i));
+			vDelete.add(tableData.get(i));
 
 		}
-		_tableData.removeAll(vDelete);
+		tableData.removeAll(vDelete);
 		fireTableDataChanged();
 	}
 
 	public void addRecord(BasisField field, int row) {
 		BasisField obj = new BasisField(field);
-		_tableData.add(row, obj);
+		tableData.add(row, obj);
 		fireTableDataChanged();
 	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		BasisField field = _tableData.get(row);
-		switch (col) {
-		case 0:
+		BasisField field = tableData.get(row);
+		if (col == 0) {
 			return field.getFieldAlias();
-		case 1:
+		} else if (col == 1) {
 			return field.getFieldHeader();
 		}
 		return null;
@@ -77,25 +76,25 @@ public class UserFieldModel extends AbstractTableModel {
 			return;
 		}
 
-		BasisField field = _tableData.get(row);
+		BasisField field = tableData.get(row);
 		field.setFieldHeader(s);
 		fireTableCellUpdated(row, col);
 	}
 
 	public Vector<BasisField> getUserFields() {
-		return _tableData;
+		return tableData;
 	}
 
 	public void clear() {
-		_tableData.clear();
+		tableData.clear();
 		fireTableDataChanged();
 	}
 
 	public boolean moveRowDown(int row) {
 		if (row < getRowCount() - 1) {
-			BasisField field = _tableData.get(row);
-			_tableData.remove(field);
-			_tableData.insertElementAt(field, ++row);
+			BasisField field = tableData.get(row);
+			tableData.remove(field);
+			tableData.insertElementAt(field, ++row);
 			fireTableDataChanged();
 			return true;
 		}
@@ -104,9 +103,9 @@ public class UserFieldModel extends AbstractTableModel {
 
 	public boolean moveRowUp(int row) {
 		if (row > 0) {
-			BasisField field = _tableData.get(row);
-			_tableData.remove(field);
-			_tableData.insertElementAt(field, --row);
+			BasisField field = tableData.get(row);
+			tableData.remove(field);
+			tableData.insertElementAt(field, --row);
 			fireTableDataChanged();
 			return true;
 		}

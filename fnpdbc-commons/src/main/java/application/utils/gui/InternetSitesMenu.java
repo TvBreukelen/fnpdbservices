@@ -1,6 +1,7 @@
 package application.utils.gui;
 
 import java.awt.event.ActionListener;
+import java.util.function.Predicate;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -13,14 +14,14 @@ import application.utils.ini.IniItem;
 import application.utils.ini.IniSection;
 
 public class InternetSitesMenu {
-	private ActionListener _listener;
-	private JMenu _menu;
-	private TvBSoftware _software;
+	private ActionListener listener;
+	private JMenu menu;
+	private TvBSoftware software;
 
 	public InternetSitesMenu(ActionListener listener, TvBSoftware software) {
-		_menu = GUIFactory.getJMenu("menuSites");
-		_listener = listener;
-		_software = software;
+		menu = GUIFactory.getJMenu("menuSites");
+		this.listener = listener;
+		this.software = software;
 	}
 
 	private void createSiteMenuItem(IniSection section) {
@@ -31,36 +32,30 @@ public class InternetSitesMenu {
 			JMenuItem item = new JMenuItem(name);
 			item.setActionCommand(value);
 			item.setToolTipText(value);
-			item.addActionListener(_listener);
+			item.addActionListener(listener);
 			result.add(item);
 
 			if (name.toLowerCase().startsWith("support")) {
-				_software.setSupport(value);
+				software.setSupport(value);
 			} else if (name.toLowerCase().startsWith("download")) {
-				_software.setDownload(value);
+				software.setDownload(value);
 			}
 		}
-		_menu.add(result);
+		menu.add(result);
 	}
 
 	public JMenu getInternetSitesMenu() {
-		boolean isDBConvert = _software == TvBSoftware.DBCONVERT;
+		boolean isDBConvert = software == TvBSoftware.DBCONVERT;
 		try {
 			IniFile ini = General.getIniFile("config/InternetSites.ini");
+			Predicate<IniSection> filter = isDBConvert
+					? f -> f.getName().startsWith("FNProg") || f.getName().startsWith("Fans")
+					: f -> f.getName().equals("DBConvert");
 
-			for (IniSection section : ini.getSections()) {
-				if (isDBConvert) {
-					if (section.getName().startsWith("FNProg") || section.getName().startsWith("Fans")) {
-						continue;
-					}
-				} else if (section.getName().equals("DBConvert")) {
-					continue;
-				}
-				createSiteMenuItem(section);
-			}
+			ini.getSections().stream().filter(filter.negate()).forEach(this::createSiteMenuItem);
 		} catch (Exception e) {
 			// Should not have happened
 		}
-		return _menu;
+		return menu;
 	}
 }

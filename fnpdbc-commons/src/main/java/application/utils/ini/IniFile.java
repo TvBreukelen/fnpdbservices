@@ -37,7 +37,7 @@ import java.util.TreeMap;
  * @version 1.1.0
  * @since 0.1.10
  */
-public class IniFile implements Cloneable, Iterable<IniSection> {
+public class IniFile implements Iterable<IniSection> {
 
 	/**
 	 * A Map of all the sections within this IniFile, with the IniSections
@@ -547,11 +547,6 @@ public class IniFile implements Cloneable, Iterable<IniSection> {
 		}
 
 		return sb.toString();
-	}
-
-	@Override
-	public Object clone() {
-		return new IniFile();
 	}
 
 	@Override

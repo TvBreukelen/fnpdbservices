@@ -20,7 +20,7 @@ public enum ExportFile {
 	MOBILEDB("MobileDB", "Mdb1", "Mdb1", "true", "false", FileType.PDB, 256, 1000, 20),
 	PILOTDB("Pilot-DB", "DB00", "DBOS", "1", "0", FileType.PDB, 256, 3000, 256),
 	REFERENCER("P. Referencer", "", "", "true", "false", FileType.XLS, 256, 32767, 32767),
-	SQLite("SQLite", "SQLite", "", "true", "false", FileType.DB, 255, 255, 255),
+	SQLITE("SQLite", "SQLite", "", "true", "false", FileType.DB, 255, 255, 255),
 	ACCESS("MS-Access", "", "", "true", "false", FileType.MDB, 255, 255, 255),
 	EXCEL("MS-Excel", "", "", "true", "false", FileType.XLSX, 256, 32767, 32767),
 	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
@@ -55,9 +55,9 @@ public enum ExportFile {
 		this.maxFields = maxFields;
 	}
 
-	public static ExportFile getExportFile(String ID) {
+	public static ExportFile getExportFile(String id) {
 		for (ExportFile exp : values()) {
-			if (exp.name.equals(ID)) {
+			if (exp.name.equals(id)) {
 				return exp;
 			}
 		}
@@ -78,7 +78,7 @@ public enum ExportFile {
 			result.remove(REFERENCER.name);
 		} else {
 			// TODO To add in a later version
-			result.remove(SQLite.name);
+			result.remove(SQLITE.name);
 			result.remove(ACCESS.name);
 		}
 
@@ -99,7 +99,7 @@ public enum ExportFile {
 		case DBASE5:
 		case FOXPRO:
 		case ACCESS:
-		case SQLite:
+		case SQLITE:
 			return true;
 		default:
 			return false;
@@ -119,7 +119,7 @@ public enum ExportFile {
 		case DBASE5:
 		case FOXPRO:
 		case ACCESS:
-		case SQLite:
+		case SQLITE:
 			return true;
 		default:
 			return false;
@@ -147,7 +147,7 @@ public enum ExportFile {
 		case PILOTDB:
 		case EXCEL:
 		case ACCESS:
-		case SQLite:
+		case SQLITE:
 			return true;
 		default:
 			return false;
@@ -171,7 +171,7 @@ public enum ExportFile {
 		case DBASE5:
 		case FOXPRO:
 		case ACCESS:
-		case SQLite:
+		case SQLITE:
 			return true;
 		default:
 			return false;
@@ -192,7 +192,7 @@ public enum ExportFile {
 		case MOBILEDB:
 		case PILOTDB:
 		case ACCESS:
-		case SQLite:
+		case SQLITE:
 			return true;
 		default:
 			return false;
@@ -215,12 +215,7 @@ public enum ExportFile {
 	}
 
 	public boolean hasCategories() {
-		switch (this) {
-		case LIST:
-			return true;
-		default:
-			return false;
-		}
+		return this == LIST;
 	}
 
 	public String getCreator() {

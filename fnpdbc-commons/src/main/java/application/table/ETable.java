@@ -25,8 +25,9 @@ public class ETable extends JTable {
 		Component c = super.prepareRenderer(renderer, row, column);
 
 		if (c.getBackground() == null || !c.getBackground().equals(backgroundColor)) {
+			Color secondRow = row % 2 == 0 ? alternateColor : super.getBackground();
 			c.setBackground(getModel().isCellEditable(convertRowIndexToModel(row), convertColumnIndexToModel(column))
-					? row % 2 == 0 ? alternateColor : super.getBackground()
+					? secondRow
 					: disabledcolor);
 		}
 		return c;

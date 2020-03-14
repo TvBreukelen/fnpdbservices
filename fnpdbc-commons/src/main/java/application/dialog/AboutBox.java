@@ -24,15 +24,15 @@ public class AboutBox extends JDialog {
 	 * About Box
 	 */
 	private static final long serialVersionUID = -1678574636675915817L;
-	private TvBSoftware _software;
-	private String _support;
+	private TvBSoftware software;
+	private String support;
 
 	public AboutBox(TvBSoftware software, Component parent) {
 		setModal(true);
 		setTitle("About " + software.getName());
 
-		_software = software;
-		_support = software.getSupport();
+		this.software = software;
+		support = software.getSupport();
 
 		add(buildDialog());
 		setLocationRelativeTo(parent);
@@ -41,19 +41,19 @@ public class AboutBox extends JDialog {
 
 	private JPanel buildDialog() {
 		JPanel result = new JPanel(new BorderLayout());
-		JLabel label = new JLabel(_software.getName());
+		JLabel label = new JLabel(software.getName());
 		label.setFont(new Font("serif", Font.BOLD, 24));
 		label.setIcon(General.createImageIcon("PDA.png"));
 		label.setHorizontalTextPosition(SwingConstants.LEFT);
 
 		Box box = Box.createHorizontalBox();
 		box.add(new JLabel("Support: "));
-		box.add(GUIFactory.getJHyperLink(_support, e -> {
+		box.add(GUIFactory.getJHyperLink(support, e -> {
 			try {
-				General.gotoWebsite(_support);
+				General.gotoWebsite(support);
 			} catch (Exception ex) {
 				General.errorMessage(AboutBox.this, ex, GUIFactory.getTitle("connectionError"),
-						GUIFactory.getMessage("connectionError", _support));
+						GUIFactory.getMessage("connectionError", support));
 			}
 		}));
 
@@ -61,8 +61,8 @@ public class AboutBox extends JDialog {
 		XGridBagConstraints c = new XGridBagConstraints();
 
 		panel.add(label, c.gridCell(0, 0, 0, 0));
-		panel.add(new JLabel("Version: " + _software.getVersion()), c.gridCell(0, 1, 0, 0));
-		panel.add(new JLabel(_software.getCopyright()), c.gridCell(0, 2, 0, 0));
+		panel.add(new JLabel("Version: " + software.getVersion()), c.gridCell(0, 1, 0, 0));
+		panel.add(new JLabel(software.getCopyright()), c.gridCell(0, 2, 0, 0));
 		panel.add(Box.createVerticalStrut(5), c.gridCell(0, 3, 0, 0));
 		panel.add(new JLabel("Java version: " + System.getProperty("java.version", "")
 				+ (General.IS_X64 ? " (64 bit)" : " (32 bit)")), c.gridCell(0, 4, 0, 0));

@@ -35,7 +35,7 @@ package application.utils.ini;
  * @version 1.1.0
  * @since 0.1.10
  */
-public class IniItem implements Cloneable {
+public class IniItem {
 
 	/**
 	 * The name of this item
@@ -81,15 +81,7 @@ public class IniItem implements Cloneable {
 	 */
 	public IniItem(String name, boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
-
-		/*
-		 * UNSURE IF THERE IS A NEED TO CONVERT THE ITEM NAME TO LOWER CASE...
-		 * // set the name if( !isCaseSensitive() ) { name = name.toLowerCase();
-		 * }
-		 */
-
 		this.name = name;
-
 		setValue("");
 	}
 
@@ -281,12 +273,5 @@ public class IniItem implements Cloneable {
 	@Override
 	public String toString() {
 		return "IniItem \"" + getName() + "\": (Value: \"" + getValue() + "\")";
-	}
-
-	@Override
-	public Object clone() {
-		IniItem clone = new IniItem(name, caseSensitive);
-		clone.setValue(value);
-		return clone;
 	}
 }

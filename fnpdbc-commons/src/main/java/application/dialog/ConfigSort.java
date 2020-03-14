@@ -32,10 +32,9 @@ public class ConfigSort extends BasicDialog {
 
 	private JComboBox<String> cbCategoryField;
 	private JComboBox<String>[] cbSortField;
-	private JLabel lbCategory;
 	private JLabel[] lbSortField;
 	private JCheckBox ckSort;
-	private final int NUM_SORT;
+	private final int numSort;
 
 	private boolean isDbConvert;
 
@@ -50,9 +49,9 @@ public class ConfigSort extends BasicDialog {
 		myExportFile = dbFactory.getExportFile();
 		pdaSettings = data;
 		dbFilterFields = new Vector<>(dbFactory.getDbFilterFields());
-		NUM_SORT = myExportFile.getMaxSortFields();
-		lbSortField = new JLabel[NUM_SORT];
-		cbSortField = new JComboBox[NUM_SORT];
+		numSort = myExportFile.getMaxSortFields();
+		lbSortField = new JLabel[numSort];
+		cbSortField = new JComboBox[numSort];
 		init();
 	}
 
@@ -96,7 +95,7 @@ public class ConfigSort extends BasicDialog {
 
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		lbCategory = GUIFactory.getJLabel("category");
+		JLabel lbCategory = GUIFactory.getJLabel("category");
 		String guiText = "sortField";
 
 		switch (myExportFile) {
@@ -125,7 +124,7 @@ public class ConfigSort extends BasicDialog {
 		result.add(lbCategory, c.gridCell(0, index, 0, 0));
 		result.add(cbCategoryField, c.gridCell(1, index, 2, 0));
 
-		for (int i = 0; i < NUM_SORT; i++) {
+		for (int i = 0; i < numSort; i++) {
 			lbSortField[i] = GUIFactory.getJLabel(guiText + i);
 			cbSortField[i] = new JComboBox<>(dbFilterFields);
 			cbSortField[i].setSelectedItem(getSortedField(i));
@@ -168,7 +167,7 @@ public class ConfigSort extends BasicDialog {
 
 		pdaSettings.clearSortFields();
 
-		for (int i = 0; i < NUM_SORT; i++) {
+		for (int i = 0; i < numSort; i++) {
 			if (cbSortField[i].getSelectedIndex() > 0) {
 				String sortValue = cbSortField[i].getSelectedItem().toString();
 				if (!map.contains(sortValue)) {
@@ -194,7 +193,7 @@ public class ConfigSort extends BasicDialog {
 			return;
 		}
 
-		for (int i = 0; i < NUM_SORT; i++) {
+		for (int i = 0; i < numSort; i++) {
 			if (cbSortField[i].getSelectedIndex() > 0) {
 				ckSort.setEnabled(true);
 				return;

@@ -16,9 +16,9 @@ public enum FieldTypes {
 		typeID = type;
 	}
 
-	public static FieldTypes getField(char ID) {
+	public static FieldTypes getField(char id) {
 		for (FieldTypes field : values()) {
-			if (field.typeID == ID) {
+			if (field.typeID == id) {
 				return field;
 			}
 		}

@@ -233,7 +233,7 @@ public abstract class GeneralDB {
 			return new DBaseFile(profile);
 		case XML:
 			return new XmlFile(profile);
-		case SQLite:
+		case SQLITE:
 			return new SQLite(profile);
 		}
 		return null;

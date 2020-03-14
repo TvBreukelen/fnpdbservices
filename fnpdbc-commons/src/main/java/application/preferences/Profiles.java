@@ -107,9 +107,9 @@ public abstract class Profiles extends Project implements IEncoding {
 		filterField[0] = child.get("filter0.field", "");
 		filterField[1] = child.get("filter1.field", "");
 		filterOperator[0] = FilterOperator
-				.getFilterOperator(child.get("filter0.operator", FilterOperator.IsEqualTo.getValue()));
+				.getFilterOperator(child.get("filter0.operator", FilterOperator.ISEQUALTO.getValue()));
 		filterOperator[1] = FilterOperator
-				.getFilterOperator(child.get("filter1.operator", FilterOperator.IsEqualTo.getValue()));
+				.getFilterOperator(child.get("filter1.operator", FilterOperator.ISEQUALTO.getValue()));
 		filterValue[0] = child.get("filter0.value", "");
 		filterValue[1] = child.get("filter1.value", "");
 
@@ -241,7 +241,7 @@ public abstract class Profiles extends Project implements IEncoding {
 
 	public void setFilterOperator(int index, FilterOperator filterOperator) {
 		PrefUtils.writePref(child, "filter" + index + ".operator", filterOperator.getValue(),
-				this.filterOperator[index].getValue(), FilterOperator.IsEqualTo.getValue());
+				this.filterOperator[index].getValue(), FilterOperator.ISEQUALTO.getValue());
 		this.filterOperator[index] = filterOperator;
 	}
 
@@ -738,9 +738,9 @@ public abstract class Profiles extends Project implements IEncoding {
 
 	public SpecialFields getSpecialFields() {
 		SpecialFields result = new SpecialFields();
-		ExportFile exportFile = ExportFile.getExportFile(getProjectID());
+		ExportFile exp = ExportFile.getExportFile(getProjectID());
 
-		if (userList.isEmpty() || !exportFile.isSpecialFieldSort()) {
+		if (userList.isEmpty() || !exp.isSpecialFieldSort()) {
 			return result;
 		}
 

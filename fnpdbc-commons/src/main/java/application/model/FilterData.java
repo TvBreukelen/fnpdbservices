@@ -11,8 +11,8 @@ public class FilterData {
 	private String filterCondition = "AND";
 
 	private String[] filterField = new String[] { "", "" };
-	private FilterOperator[] filterOperator = new FilterOperator[] { FilterOperator.IsEqualTo,
-			FilterOperator.IsEqualTo };
+	private FilterOperator[] filterOperator = new FilterOperator[] { FilterOperator.ISEQUALTO,
+			FilterOperator.ISEQUALTO };
 	private String[] filterValue = new String[] { "", "" };
 
 	private String profileID;
@@ -121,7 +121,7 @@ public class FilterData {
 	public void clearFilterFields() {
 		for (int i = 0; i < 2; i++) {
 			setFilterField(i, "");
-			setFilterOperator(i, FilterOperator.IsEqualTo);
+			setFilterOperator(i, FilterOperator.ISEQUALTO);
 			setFilterValue(i, "");
 		}
 

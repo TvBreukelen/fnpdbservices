@@ -23,24 +23,24 @@ public class ProjectModel extends AbstractTableModel {
 	public static final int HEADER_LASTEXPORT = 7;
 	public static final int HEADER_NOTES = 8;
 
-	private Vector<ProfileObject> _tableData = new Vector<>();
+	private Vector<ProfileObject> tableData = new Vector<>();
 
-	private JComponent _parent;
-	private Profiles _objectData;
-	private ProfileObject _profile;
+	private JComponent parent;
+	private Profiles objectData;
+	private ProfileObject profile;
 
 	private String[] columnNames = GUIFactory.getArray("mainTableHeaders");
 
 	private boolean[] editable = { true, false, true, false, false, false, true, true, true };
 
 	public ProjectModel(Profiles data) {
-		_objectData = data;
+		objectData = data;
 
-		for (String projectID : _objectData.getProjects()) {
-			_objectData.setProject(projectID);
-			for (String profileID : _objectData.getProfiles(projectID)) {
-				_objectData.setProfile(profileID);
-				_tableData.add(new ProfileObject(projectID, profileID, data));
+		for (String projectID : objectData.getProjects()) {
+			objectData.setProject(projectID);
+			for (String profileID : objectData.getProfiles(projectID)) {
+				objectData.setProfile(profileID);
+				tableData.add(new ProfileObject(projectID, profileID, data));
 			}
 		}
 	}
@@ -62,69 +62,70 @@ public class ProjectModel extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return _tableData.size();
+		return tableData.size();
 	}
 
 	public void setParent(JComponent parent) {
-		_parent = parent;
+		this.parent = parent;
 	}
 
 	public void removeRecord(int row) {
-		if (row != -1 && _tableData.size() > row) {
-			_tableData.remove(row);
+		if (row != -1 && tableData.size() > row) {
+			tableData.remove(row);
 			fireTableRowsDeleted(row, row);
 		}
 	}
 
 	public void removeRecord(ProfileObject obj) {
-		_tableData.remove(obj);
+		tableData.remove(obj);
 		fireTableDataChanged();
 	}
 
 	public void addRecord(String projectID, String profileID) {
-		ProfileObject obj = new ProfileObject(projectID, profileID, _objectData);
-		_tableData.add(obj);
+		ProfileObject obj = new ProfileObject(projectID, profileID, objectData);
+		tableData.add(obj);
 		fireTableDataChanged();
 	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		_profile = _tableData.get(row);
+		profile = tableData.get(row);
 		switch (col) {
 		case HEADER_EDIT:
 			return "...";
 		case HEADER_PROJECT:
-			return _profile.getProjectID();
+			return profile.getProjectID();
 		case HEADER_PROFILE:
-			return _profile.getProfileID();
+			return profile.getProfileID();
 		case HEADER_IMPORTFILEPROGRAM:
-			return _profile.getImportFileProgram();
+			return profile.getImportFileProgram();
 		case HEADER_TABLENAME:
-			return _profile.getTableName();
+			return profile.getTableName();
 		case HEADER_IMPORTFILE:
-			return _profile.getImportFile();
+			return profile.getImportFile();
 		case HEADER_EXPORTFILE:
-			return _profile.getExportFile();
+			return profile.getExportFile();
 		case HEADER_LASTEXPORT:
-			return General.convertDB2Timestamp(_profile.getLastModified());
+			return General.convertDB2Timestamp(profile.getLastModified());
 		case HEADER_NOTES:
-			return _profile.getNotes();
+			return profile.getNotes();
+		default:
+			return "";
 		}
-		return "";
 	}
 
 	public ProfileObject getProfileObject(int row) {
-		_profile = _tableData.get(row);
-		return _profile;
+		profile = tableData.get(row);
+		return profile;
 	}
 
 	public ProfileObject getProfileObject() {
-		return _profile;
+		return profile;
 	}
 
 	public int getProfileIndex(String projectID, String profileID) {
 		int result = 0;
-		for (ProfileObject obj : _tableData) {
+		for (ProfileObject obj : tableData) {
 			if (obj.getProjectID().equals(projectID) && obj.getProfileID().equals(profileID)) {
 				return result;
 			}
@@ -135,30 +136,32 @@ public class ProjectModel extends AbstractTableModel {
 
 	@Override
 	public void setValueAt(Object object, int row, int col) {
-		_profile = _tableData.get(row);
-		_profile.alignProfiles();
+		profile = tableData.get(row);
+		profile.alignProfiles();
 
 		String s = object == null ? "" : object.toString();
 		switch (col) {
 		case HEADER_PROFILE:
-			if (!s.isEmpty() && !s.equals(_objectData.getProfileID())) {
+			if (!s.isEmpty() && !s.equals(objectData.getProfileID())) {
 				try {
-					_objectData.renameCurrentNode(s);
-					_profile.setProfileID(s);
+					objectData.renameCurrentNode(s);
+					profile.setProfileID(s);
 				} catch (Exception e) {
-					General.errorMessage(_parent, e, GUIFactory.getTitle("profileError"), null);
+					General.errorMessage(parent, e, GUIFactory.getTitle("profileError"), null);
 				}
 				return;
 			}
 			break;
 		case HEADER_LASTEXPORT:
-			_objectData.setLastModified(s.isEmpty() ? "" : General.convertTimestamp2DB((LocalDateTime) object));
+			objectData.setLastModified(s.isEmpty() ? "" : General.convertTimestamp2DB((LocalDateTime) object));
 			break;
 		case HEADER_NOTES:
-			_objectData.setNotes(s);
+			objectData.setNotes(s);
+			break;
+		default:
 			break;
 		}
 
-		_profile.alignTable();
+		profile.alignTable();
 	}
 }

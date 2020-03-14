@@ -38,14 +38,14 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 	private JTextField selectFile;
 
 	private JLabel userLabel;
-	private IConfigSoft _dialog;
+	private IConfigSoft dialog;
 	private boolean isImportEnabled;
 
 	private Profiles pdaSettings;
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 
 	public ConfigHanDBase(IConfigSoft dialog, Profiles pref) {
-		_dialog = dialog;
+		this.dialog = dialog;
 		pdaSettings = pref;
 		buildDialog();
 		activateComponents();
@@ -113,7 +113,7 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		selectFile = GUIFactory.getJTextField("selectFile", generalSettings.getHandbaseConversionProgram());
 		p2 = new JPanel(new GridBagLayout());
 		p2.add(selectFile, c.gridCell(0, 0, 2, 0));
-		p2.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile((JDialog) _dialog, selectFile, "Windows program (*.exe)", "",
+		p2.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile((JDialog) dialog, selectFile, "Windows program (*.exe)", "",
 				true, "exe")), c.gridCell(1, 0, 0, 0));
 		p2.setBorder(BorderFactory.createTitledBorder("handbasedesktop.exe"));
 		add(p2);

@@ -1,9 +1,9 @@
 package application.interfaces;
 
 public enum FilterOperator {
-	IsEqualTo("Is equal to"), IsNotEqualTo("Is not equal to"), IsGreaterThan("Is greater than"),
-	IsGreaterThanOrEqualTo("Is greater than or equal to"), IsLessThan("Is less than"),
-	IsLessThanOrEqualTo("Is less than or equal to");
+	ISEQUALTO("Is equal to"), ISNOTEQUALTO("Is not equal to"), ISGREATERTHAN("Is greater than"),
+	ISGREATERTHANOREQUALTO("Is greater than or equal to"), ISLESSTHAN("Is less than"),
+	ISLESSTHANOREQULALTO("Is less than or equal to");
 
 	private String value;
 
@@ -30,6 +30,6 @@ public enum FilterOperator {
 				return result;
 			}
 		}
-		return FilterOperator.IsEqualTo;
+		return FilterOperator.ISEQUALTO;
 	}
 }

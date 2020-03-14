@@ -56,6 +56,9 @@ public class ConfigFilter extends BasicDialog {
 	 * @version 8.0
 	 */
 	private static final long serialVersionUID = 5688764743046506542L;
+	private static final String FALSE = "false";
+	private static final String TRUE = "true";
+	private static final String INDEX = "index";
 
 	@SuppressWarnings("unchecked")
 	private JComboBox<String>[] cbFilter = new JComboBox[2];
@@ -84,10 +87,9 @@ public class ConfigFilter extends BasicDialog {
 	private ActionListener funcSubSelectPressed;
 
 	private JRadioButton btFilterAnd = GUIFactory.getJRadioButton("and");
-	private JButton btErase[] = new JButton[2];
+	private JButton[] btErase = new JButton[2];
 
 	private Box contentsPanel;
-	private Box keywordPanel;
 	private Map<String, FieldDefinition> dbFieldDefinition;
 
 	private boolean isKeywordFilter = false;
@@ -123,7 +125,7 @@ public class ConfigFilter extends BasicDialog {
 
 		funcRemoveFilter = e -> {
 			if (!e.getActionCommand().isEmpty()) {
-				int i = Integer.valueOf(e.getActionCommand());
+				int i = Integer.parseInt(e.getActionCommand());
 				filterValue[i] = "";
 				cbFilterField[i].setSelectedItem("");
 				return;
@@ -139,16 +141,18 @@ public class ConfigFilter extends BasicDialog {
 		funcBoolFilter = e -> {
 			switch (Integer.parseInt(e.getActionCommand())) {
 			case 0:
-				filterValue[0] = "true";
+				filterValue[0] = TRUE;
 				break;
 			case 1:
-				filterValue[0] = "false";
+				filterValue[0] = FALSE;
 				break;
 			case 2:
-				filterValue[1] = "true";
+				filterValue[1] = TRUE;
 				break;
 			case 3:
-				filterValue[1] = "false";
+				filterValue[1] = FALSE;
+				break;
+			default:
 				break;
 			}
 		};
@@ -185,6 +189,7 @@ public class ConfigFilter extends BasicDialog {
 					break;
 				case TIMESTAMP:
 					dateTimePicker.setDateTimeStrict(General.convertDB2Timestamp(filterValue[index]));
+					break;
 				default:
 					break;
 				}
@@ -255,12 +260,11 @@ public class ConfigFilter extends BasicDialog {
 			isContentsFilter = dbFieldDefinition.containsKey("ContentsType");
 		}
 
-		Vector<String> filterList = new Vector<>(dbFactory.getDbFilterFields());
 		for (int i = 0; i < 2; i++) {
 			filterPanel[i] = Box.createHorizontalBox();
 			filterPanel[i].setToolTipText(GUIFactory.getToolTip("databaseFieldValue"));
 
-			cbFilterField[i] = new JComboBox<>(new DefaultComboBoxModel<>(filterList));
+			cbFilterField[i] = new JComboBox<>(new DefaultComboBoxModel<>(new Vector<>(dbFactory.getDbFilterFields())));
 			cbFilterField[i].setToolTipText(GUIFactory.getToolTip("databaseFields"));
 			cbFilterField[i].setActionCommand(String.valueOf(i));
 
@@ -278,15 +282,13 @@ public class ConfigFilter extends BasicDialog {
 		time.setFormatForMenuTimes(General.sdInternalTime);
 
 		dateTimePicker = new DateTimePicker(date1, time);
-		dateTimePicker.addDateTimeChangeListener(e -> {
-			filterValue[(Integer) dateTimePicker.getClientProperty("index")] = General
-					.convertTimestamp2DB(dateTimePicker.getDateTimePermissive());
-		});
+		dateTimePicker.addDateTimeChangeListener(
+				e -> filterValue[(Integer) dateTimePicker.getClientProperty(INDEX)] = General
+						.convertTimestamp2DB(dateTimePicker.getDateTimePermissive()));
 
 		datePicker = new DatePicker(date2);
-		datePicker.addDateChangeListener(e -> {
-			filterValue[(Integer) datePicker.getClientProperty("index")] = General.convertDate2DB(datePicker.getDate());
-		});
+		datePicker.addDateChangeListener(e -> filterValue[(Integer) datePicker.getClientProperty(INDEX)] = General
+				.convertDate2DB(datePicker.getDate()));
 
 		buildDialog();
 		activateComponents();
@@ -302,7 +304,7 @@ public class ConfigFilter extends BasicDialog {
 		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
 		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
 	}
-	
+
 	private void refreshList(List<Object> values, BasisField field, int index) {
 		final int idx = index;
 		list[index] = new JList<>(values.toArray());
@@ -344,7 +346,7 @@ public class ConfigFilter extends BasicDialog {
 		radioPanel.add(btFilterOr);
 
 		// Create Keyword panel
-		keywordPanel = Box.createHorizontalBox();
+		Box keywordPanel = Box.createHorizontalBox();
 		keywordPanel.add(cbKeywordFilter);
 		keywordPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("keywordFilter")));
 		keywordPanel.setVisible(pdaSettings.getTvBSoftware() == TvBSoftware.FNPROG2PDA);
@@ -392,7 +394,7 @@ public class ConfigFilter extends BasicDialog {
 		panel.add(GUIFactory.getJButton("apply", funcSave));
 		return panel;
 	}
-	
+
 	private void refreshFilter() {
 		boolean isValid = true;
 
@@ -492,9 +494,9 @@ public class ConfigFilter extends BasicDialog {
 
 			button1.addActionListener(funcBoolFilter);
 			button2.addActionListener(funcBoolFilter);
-			button2.setSelected(filterValue[index].equals("false"));
+			button2.setSelected(filterValue[index].equals(FALSE));
 			button1.setSelected(!button2.isSelected());
-			filterValue[index] = button1.isSelected() ? "true" : "false";
+			filterValue[index] = button1.isSelected() ? TRUE : FALSE;
 
 			box.add(button1);
 			box.add(button2);
@@ -519,14 +521,14 @@ public class ConfigFilter extends BasicDialog {
 			comp.add(button);
 			break;
 		case TIMESTAMP:
-			dateTimePicker.putClientProperty("index", index);
+			dateTimePicker.putClientProperty(INDEX, index);
 			dateTimePicker.setDateTimePermissive(General.convertDB2Timestamp(filterValue[index]));
 			comp.add(dateTimePicker);
 			comp.add(Box.createHorizontalStrut(10));
 			comp.add(button);
 			break;
 		case DATE:
-			datePicker.putClientProperty("index", index);
+			datePicker.putClientProperty(INDEX, index);
 			datePicker.setDate(General.convertDB2Date(filterValue[index]));
 			comp.add(datePicker);
 			comp.add(Box.createHorizontalStrut(10));

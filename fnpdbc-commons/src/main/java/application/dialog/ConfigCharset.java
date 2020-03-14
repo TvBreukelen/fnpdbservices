@@ -62,7 +62,7 @@ public class ConfigCharset extends BasicDialog {
 
 		charSets.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
-				String key = charSets.getSelectedValue().toString();
+				String key = charSets.getSelectedValue();
 				StringBuilder aliases = new StringBuilder();
 				Charset set;
 
@@ -106,7 +106,7 @@ public class ConfigCharset extends BasicDialog {
 
 	@Override
 	protected void save() throws Exception {
-		encodingPref.setEncoding(charSets.getSelectedValue().toString().trim());
+		encodingPref.setEncoding(charSets.getSelectedValue().trim());
 	}
 
 	private void loadCharsetProperties() {

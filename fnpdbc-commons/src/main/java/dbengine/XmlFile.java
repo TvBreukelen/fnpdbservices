@@ -194,7 +194,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 		for (FieldDefinition field : dbInfo2Write) {
 			// Clone FieldDefinition Field and remove all illegal XML characters from the
 			// header
-			FieldDefinition fld = field.clone();
+			FieldDefinition fld = field.copy();
 			fld.setFieldHeader(eliminateIllegalXmlCharacters(field.getFieldHeader()));
 
 			// Split DbInfoToWrite in "sort" and "normal" elements

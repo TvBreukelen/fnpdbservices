@@ -9,7 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -34,7 +35,7 @@ public class HelpDialog extends JDialog {
 	private ActionListener funcBack;
 	private ActionListener funcExit;
 	private JEditorPane helpInfo;
-	private Stack<URL> urlList;
+	private Deque<URL> urlList;
 	private JButton btBack;
 
 	public HelpDialog(String title, String topic) {
@@ -43,7 +44,7 @@ public class HelpDialog extends JDialog {
 	}
 
 	private void init(String title, String topic) {
-		urlList = new Stack<>();
+		urlList = new ArrayDeque<>();
 
 		final String HELPFILE = "/help/" + topic + ".html";
 		URL url;

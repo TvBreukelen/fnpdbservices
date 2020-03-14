@@ -27,13 +27,13 @@ public class ChangeExportToDialog extends BasicDialog {
 	private String exportFilename;
 	private ExportFile exportFile;
 
-	private Profiles _project;
-	private ExportToTableCellEditor _editor;
+	private Profiles project;
+	private ExportToTableCellEditor editor;
 
 	public ChangeExportToDialog(ProfileObject project, ExportToTableCellEditor editor) {
 		super();
-		_project = project.getProfiles();
-		_editor = editor;
+		this.project = project.getProfiles();
+		this.editor = editor;
 		init();
 	}
 
@@ -41,8 +41,8 @@ public class ChangeExportToDialog extends BasicDialog {
 	protected void init() {
 		init(GUIFactory.getTitle("changeExportFileDialog"));
 		setHelpFile("changeExportFile");
-		exportFilename = _project.getExportFile();
-		exportFile = _project.getExportFileEnum();
+		exportFilename = project.getExportFile();
+		exportFile = project.getExportFileEnum();
 
 		buildDialog();
 		pack();
@@ -63,7 +63,7 @@ public class ChangeExportToDialog extends BasicDialog {
 
 		JButton button = GUIFactory.getJButton("browseFile", e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, "", false));
 
-		password = new JPasswordField(_project.getExportPassword());
+		password = new JPasswordField(project.getExportPassword());
 		JLabel lPass = GUIFactory.getJLabel("password");
 
 		result.add(GUIFactory.getJLabel("fileName"), c.gridCell(0, 1, 0, 0));
@@ -82,10 +82,9 @@ public class ChangeExportToDialog extends BasicDialog {
 	protected void save() throws Exception {
 		String exportToFile = exportTo.getText().trim();
 		if (!General.isFileExtensionOk(exportToFile, exportFile)) {
-			exportToFile += exportFile.getFileExtention()[0];
+			exportToFile = General.getBaseName(exportToFile, exportFile);
 		}
-
-		_editor.setSavedValues(exportTo.getText(), password.getPassword());
+		editor.setSavedValues(exportToFile, password.getPassword());
 		setVisible(false);
 		dispose();
 	}

@@ -23,8 +23,8 @@ public class ViewerModel extends AbstractTableModel {
 	 * @version 8.2
 	 */
 	private static final long serialVersionUID = -4971384644052737284L;
-	private List<FieldDefinition> _fieldList;
-	private List<Map<String, Object>> _tableData = new Vector<>();
+	private List<FieldDefinition> fieldList;
+	private List<Map<String, Object>> tableData = new Vector<>();
 
 	private Font font;
 	private boolean[] columnsVisible;
@@ -32,12 +32,12 @@ public class ViewerModel extends AbstractTableModel {
 	private int visibleColumns;
 
 	public ViewerModel(List<FieldDefinition> dbFields) {
-		_fieldList = dbFields;
+		fieldList = dbFields;
 		init();
 	}
 
 	private void init() {
-		totalColumns = _fieldList.size();
+		totalColumns = fieldList.size();
 		font = new JLabel().getFont();
 		columnsVisible = new boolean[totalColumns];
 		visibleColumns = totalColumns;
@@ -45,18 +45,18 @@ public class ViewerModel extends AbstractTableModel {
 	}
 
 	public List<Map<String, Object>> getDataVector() {
-		return _tableData;
+		return tableData;
 	}
 
 	public void setDataVector(List<Map<String, Object>> data) {
-		_tableData = data;
+		tableData = data;
 	}
 
 	public void resetColumnVisibility() {
 		boolean isColumnChange = false;
 
 		for (int i = 0; i < totalColumns; i++) {
-			FieldDefinition field = _fieldList.get(i);
+			FieldDefinition field = fieldList.get(i);
 			boolean show = field.isExport();
 			if (columnsVisible[i] != show) {
 				columnsVisible[i] = show;
@@ -102,12 +102,12 @@ public class ViewerModel extends AbstractTableModel {
 
 	@Override
 	public String getColumnName(int col) {
-		return _fieldList.get(getNumber(col)).getFieldHeader();
+		return fieldList.get(getNumber(col)).getFieldHeader();
 	}
 
 	@Override
 	public int getRowCount() {
-		return _tableData.size();
+		return tableData.size();
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class ViewerModel extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int row, int col) {
 		int realCol = getNumber(col);
-		switch (_fieldList.get(realCol).getFieldType()) {
+		switch (fieldList.get(realCol).getFieldType()) {
 		case IMAGE:
 		case LIST:
 			return false;
@@ -129,8 +129,8 @@ public class ViewerModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		FieldDefinition field = _fieldList.get(getNumber(col));
-		Object obj = _tableData.get(row).get(field.getFieldAlias());
+		FieldDefinition field = fieldList.get(getNumber(col));
+		Object obj = tableData.get(row).get(field.getFieldAlias());
 
 		if (obj == null || obj.equals("")) {
 			return "";
@@ -163,7 +163,7 @@ public class ViewerModel extends AbstractTableModel {
 		}
 
 		String s = obj.toString();
-		if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN || s.indexOf("\n") > -1) {
+		if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN || s.indexOf('\n') > -1) {
 			return createMemoField(s);
 		}
 		return s;
@@ -171,8 +171,8 @@ public class ViewerModel extends AbstractTableModel {
 
 	@Override
 	public void setValueAt(Object aValue, int row, int col) {
-		Map<String, Object> map = _tableData.get(row);
-		FieldDefinition field = _fieldList.get(getNumber(col));
+		Map<String, Object> map = tableData.get(row);
+		FieldDefinition field = fieldList.get(getNumber(col));
 		map.put(field.getFieldAlias(), aValue);
 	}
 

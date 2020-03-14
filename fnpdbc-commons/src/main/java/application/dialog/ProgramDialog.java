@@ -151,7 +151,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 					throw FNProgException.getException("noSortfieldDefined", myExportFile.getName());
 				}
 				enableForm(false);
-				exportProcess.init(ProgramDialog.this, ExportStatus.Export);
+				exportProcess.init(ProgramDialog.this, ExportStatus.EXPORT);
 			} catch (Exception ex) {
 				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("configError"), null);
 			}
@@ -216,7 +216,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 		btView = General.createToolBarButton(GUIFactory.getToolTip("funcViewer"), "Viewer.png", e -> {
 			enableForm(false);
-			exportProcess.init(ProgramDialog.this, ExportStatus.ShowViewer);
+			exportProcess.init(ProgramDialog.this, ExportStatus.SHOWVIEWER);
 		});
 
 		Box result = Box.createHorizontalBox();
@@ -307,7 +307,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	}
 
 	private void checkVersion(boolean isSilent) throws FNProgException {
-		String url = _software.getDownload();
+		String url = software.getDownload();
 		boolean isOpenSite = false;
 
 		try {
@@ -317,7 +317,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				line = line.trim();
 				if (line.startsWith("<tr title=")) {
 					int i = line.indexOf(" class") - 1;
-					isOpenSite = line.substring(11, i).compareTo(_software.getVersion()) > 0;
+					isOpenSite = line.substring(11, i).compareTo(software.getVersion()) > 0;
 					break;
 				}
 				line = reader.readLine();

@@ -30,7 +30,6 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	 */
 	private static final long serialVersionUID = 8006516257526651336L;
 	private JRadioButton standardCsv;
-	private JRadioButton otherCsv;
 
 	private JCheckBox inclHeaders;
 	private JCheckBox inclLinebreaks;
@@ -43,7 +42,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private boolean isExport;
 
 	private Profiles pdaSettings;
-	private IConfigSoft _dialog;
+	private IConfigSoft dialog;
 
 	public ConfigTextFile(Profiles pref, boolean isExport) {
 		pdaSettings = pref;
@@ -56,7 +55,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	// For imports only
 	public ConfigTextFile(IConfigSoft configSoft, Profiles prefText) {
 		this(prefText, false);
-		_dialog = configSoft;
+		dialog = configSoft;
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		if (!isExport) {
 			JButton button = GUIFactory.getJButton("apply", e -> {
 				setProperties();
-				_dialog.verifyDatabase(false);
+				dialog.verifyDatabase(false);
 			});
 
 			JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -106,7 +105,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
 		standardCsv = GUIFactory.getJRadioButton("standardCsv");
-		otherCsv = GUIFactory.getJRadioButton("otherCsv");
+		JRadioButton otherCsv = GUIFactory.getJRadioButton("otherCsv");
 
 		panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), e -> {
 			exportFile = ExportFile.getExportFile(e.getActionCommand());
@@ -118,11 +117,10 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 		exportFile = ExportFile
 				.getExportFile(isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat());
-		switch (exportFile) {
-		case TEXTFILE:
+
+		if (exportFile == ExportFile.TEXTFILE) {
 			otherCsv.setSelected(true);
-			break;
-		default:
+		} else {
 			standardCsv.setSelected(true);
 		}
 

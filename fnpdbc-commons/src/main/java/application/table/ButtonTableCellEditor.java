@@ -17,6 +17,7 @@ public class ButtonTableCellEditor extends ActionTableCellEditor {
 	
 	@Override
 	protected void editCell(JTable table, int row, int column) {
+		// No editing here since we're using a button
 	}
 
 }

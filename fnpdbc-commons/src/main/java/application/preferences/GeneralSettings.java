@@ -12,6 +12,8 @@ import application.utils.General;
  *
  */
 public final class GeneralSettings implements IEncoding {
+	private final String userHome = System.getProperty("user.home", "");
+
 	private String checkBoxChecked;
 	private String checkBoxUnchecked;
 	private String dateDelimiter;
@@ -52,10 +54,10 @@ public final class GeneralSettings implements IEncoding {
 		dateDelimiter = myPref.get("date.delimiter", "/");
 		dateFormat = myPref.get("date.format", "dd MM yyyy");
 		dbcVersion = myPref.get("dbconvert.version", "");
-		defaultBackupFolder = myPref.get("default.backup.folder", System.getProperty("user.home"));
-		defaultFileFolder = myPref.get("default.file.folder", System.getProperty("user.home"));
-		defaultImageFolder = myPref.get("default.image.folder", System.getProperty("user.home"));
-		defaultPdaFolder = myPref.get("default.pda.folder", System.getProperty("user.home"));
+		defaultBackupFolder = myPref.get("default.backup.folder", userHome);
+		defaultFileFolder = myPref.get("default.file.folder", userHome);
+		defaultImageFolder = myPref.get("default.image.folder", userHome);
+		defaultPdaFolder = myPref.get("default.pda.folder", userHome);
 		durationFormat = myPref.get("duration.format", "h:mm:ss");
 		encoding = myPref.get("encoding.charset", "");
 		fnpVersion = myPref.get("fnprog2pda.version", "");
@@ -131,7 +133,7 @@ public final class GeneralSettings implements IEncoding {
 
 	public void setDefaultBackupFolder(String defaultBackupFolder) {
 		PrefUtils.writePref(myPref, "default.backup.folder", defaultBackupFolder, this.defaultBackupFolder,
-				System.getProperty("user.home"));
+				userHome);
 		this.defaultBackupFolder = defaultBackupFolder;
 	}
 
@@ -141,7 +143,7 @@ public final class GeneralSettings implements IEncoding {
 
 	public void setDefaultFileFolder(String defaultFileFolder) {
 		PrefUtils.writePref(myPref, "default.file.folder", defaultFileFolder, this.defaultFileFolder,
-				System.getProperty("user.home"));
+				userHome);
 		this.defaultFileFolder = defaultFileFolder;
 	}
 
@@ -151,7 +153,7 @@ public final class GeneralSettings implements IEncoding {
 
 	public void setDefaultImageFolder(String defaultImageFolder) {
 		PrefUtils.writePref(myPref, "default.image.folder", defaultImageFolder, this.defaultImageFolder,
-				System.getProperty("user.home"));
+				userHome);
 		this.defaultImageFolder = defaultImageFolder;
 	}
 

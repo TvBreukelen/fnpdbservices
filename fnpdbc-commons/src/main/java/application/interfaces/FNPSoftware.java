@@ -24,9 +24,9 @@ public enum FNPSoftware {
 		this.views = Arrays.asList(views);
 	}
 
-	public static FNPSoftware getSoftware(String ID) {
+	public static FNPSoftware getSoftware(String id) {
 		for (FNPSoftware exp : values()) {
-			if (exp.name.equals(ID)) {
+			if (exp.name.equals(id)) {
 				return exp;
 			}
 		}
@@ -49,7 +49,7 @@ public enum FNPSoftware {
 		case STAMPCAT:
 			break;
 		default:
-			enabled = true && "AlbumBookContentsTrackVideoPlaylist".indexOf(view) != -1;
+			enabled = "AlbumBookContentsTrackVideoPlaylist".indexOf(view) != -1;
 		}
 		return enabled;
 	}

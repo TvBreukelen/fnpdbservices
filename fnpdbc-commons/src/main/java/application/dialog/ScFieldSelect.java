@@ -46,17 +46,13 @@ public class ScFieldSelect {
 	private JScrollPane scSelectedFields;
 
 	private ActionListener funcAddFields;
-	private ActionListener funcRemoveFields;
-	private ActionListener funcMoveFieldsUp;
-	private ActionListener funcMoveFieldsDown;
-	private ActionListener funcClearFields;
 
 	private DefaultListModel<BasisField> availableModel;
 	private UserFieldModel tabModel;
-	private IDatabaseFactory _factory;
+	private IDatabaseFactory factory;
 
 	public ScFieldSelect(IDatabaseFactory factory) {
-		_factory = factory;
+		this.factory = factory;
 		init();
 	}
 
@@ -84,7 +80,7 @@ public class ScFieldSelect {
 			activateComponents();
 		};
 
-		funcRemoveFields = e -> {
+		ActionListener funcRemoveFields = e -> {
 			int selectedRow = tbSelectedFields.getSelectedRow();
 			tabModel.removeRecords(tbSelectedFields.getSelectedRows());
 			if (selectedRow > tabModel.getRowCount() - 1) {
@@ -97,21 +93,21 @@ public class ScFieldSelect {
 			activateComponents();
 		};
 
-		funcMoveFieldsUp = e -> {
+		ActionListener funcMoveFieldsUp = e -> {
 			int selectedRow = tbSelectedFields.getSelectedRow();
 			if (tabModel.moveRowUp(selectedRow)) {
 				tbSelectedFields.setRowSelectionInterval(--selectedRow, selectedRow);
 			}
 		};
 
-		funcMoveFieldsDown = e -> {
+		ActionListener funcMoveFieldsDown = e -> {
 			int selectedRow = tbSelectedFields.getSelectedRow();
 			if (tabModel.moveRowDown(selectedRow)) {
 				tbSelectedFields.setRowSelectionInterval(++selectedRow, selectedRow);
 			}
 		};
 
-		funcClearFields = e -> {
+		ActionListener funcClearFields = e -> {
 			tabModel.clear();
 			activateComponents();
 		};
@@ -125,7 +121,7 @@ public class ScFieldSelect {
 	public void loadFieldPanel(Vector<BasisField> userFields) {
 		availableModel.removeAllElements();
 
-		for (BasisField field : _factory.getDbSelectFields()) {
+		for (BasisField field : factory.getDbSelectFields()) {
 			availableModel.addElement(field);
 		}
 

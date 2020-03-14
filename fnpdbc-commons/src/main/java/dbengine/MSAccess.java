@@ -142,7 +142,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	public Map<String, Object> getSingleRecord(String tableName, String indexName, Map<String, Object> colValue)
 			throws Exception {
 		Map<String, Object> result = new HashMap<>();
-		Cursor cursor = getCursor(tableName, indexName, colValue, FilterOperator.IsEqualTo);
+		Cursor cursor = getCursor(tableName, indexName, colValue, FilterOperator.ISEQUALTO);
 
 		if (cursor != null) {
 			Iterator<Row> iter = cursor.iterator();
@@ -161,21 +161,21 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	public List<Map<String, Object>> getMultipleRecords(String tableName) throws Exception {
-		return getMultipleRecords(tableName, null, null, false, FilterOperator.IsEqualTo);
+		return getMultipleRecords(tableName, null, null, false, FilterOperator.ISEQUALTO);
 	}
 
 	public List<Map<String, Object>> getMultipleRecords(String tableName, String indexName) throws Exception {
-		return getMultipleRecords(tableName, indexName, null, false, FilterOperator.IsEqualTo);
+		return getMultipleRecords(tableName, indexName, null, false, FilterOperator.ISEQUALTO);
 	}
 
 	public List<Map<String, Object>> getMultipleRecords(String tableName, String indexName,
 			Map<String, Object> colValue) throws Exception {
-		return getMultipleRecords(tableName, indexName, colValue, false, FilterOperator.IsEqualTo);
+		return getMultipleRecords(tableName, indexName, colValue, false, FilterOperator.ISEQUALTO);
 	}
 
 	public List<Map<String, Object>> getMultipleRecords(String tableName, String indexName,
 			Map<String, Object> colValue, boolean isOverride) throws Exception {
-		return getMultipleRecords(tableName, indexName, colValue, isOverride, FilterOperator.IsEqualTo);
+		return getMultipleRecords(tableName, indexName, colValue, isOverride, FilterOperator.ISEQUALTO);
 	}
 
 	public List<Map<String, Object>> getMultipleRecords(String tableName, String indexName,
@@ -184,7 +184,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 		Cursor cursor = getCursor(tableName, indexName, colValue, operator);
 
 		if (!isOverride) {
-			isOverride = operator != FilterOperator.IsEqualTo;
+			isOverride = operator != FilterOperator.ISEQUALTO;
 		}
 
 		if (cursor != null) {
@@ -215,7 +215,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 		String key = tableName + "." + indexName;
 
 		String[] cols = hTableIndexes.get(key);
-		if (operator != FilterOperator.IsNotEqualTo && colValue != null && cols != null) {
+		if (operator != FilterOperator.ISNOTEQUALTO && colValue != null && cols != null) {
 			// Read via the Index
 			Object[] objs = new Object[cols.length];
 			for (int i = 0; i < cols.length; i++) {
@@ -225,18 +225,18 @@ public class MSAccess extends GeneralDB implements IConvert {
 			boolean inclusiv = true;
 
 			switch (operator) {
-			case IsEqualTo:
+			case ISEQUALTO:
 				cb.setSpecificEntry(objs);
 				break;
-			case IsGreaterThan:
+			case ISGREATERTHAN:
 				inclusiv = false;
-			case IsGreaterThanOrEqualTo:
+			case ISGREATERTHANOREQUALTO:
 				cb.setStartEntry(objs);
 				cb.setStartRowInclusive(inclusiv);
 				break;
-			case IsLessThan:
+			case ISLESSTHAN:
 				inclusiv = false;
-			case IsLessThanOrEqualTo:
+			case ISLESSTHANOREQULALTO:
 				cb.setEndEntry(objs);
 				cb.setEndRowInclusive(inclusiv);
 				break;

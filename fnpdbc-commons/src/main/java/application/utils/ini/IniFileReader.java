@@ -151,7 +151,7 @@ public class IniFileReader {
 		}
 
 		int pos = line.indexOf('=');
-		return pos != -1 ? !line.substring(0, pos).trim().isEmpty() : false;
+		return pos != -1 && !line.substring(0, pos).trim().isEmpty();
 	}
 
 	/**
@@ -276,16 +276,9 @@ public class IniFileReader {
 			line = line.trim();
 
 			// ******************************************************************
-			// If the line is empty, go to the next line
-			// ******************************************************************
-			if (line.isEmpty()) {
-				continue;
-			}
-
-			// ******************************************************************
 			// if the line is a section, then process it
 			// ******************************************************************
-			else if (isSection(line)) {
+			if (isSection(line)) {
 
 				// get the name of the section from the line
 				String sectionName = getSectionName(line);

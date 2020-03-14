@@ -483,7 +483,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 							try {
 								linkMap.put(table.getFromIndex(), map.get(table.getIndex()));
 								Cursor cursor = msAccess.getCursor(table.getFromTable(), table.getFromIndex(), linkMap,
-										FilterOperator.IsEqualTo);
+										FilterOperator.ISEQUALTO);
 								if (cursor.getNextRow() != null) {
 									result.add(obj);
 								}

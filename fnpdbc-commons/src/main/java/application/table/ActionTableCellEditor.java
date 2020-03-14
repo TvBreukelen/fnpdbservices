@@ -46,11 +46,6 @@ public abstract class ActionTableCellEditor extends DefaultCellEditor {
 	}
 
 	@Override
-	public boolean stopCellEditing() {
-		return super.stopCellEditing();
-	}
-
-	@Override
 	protected void fireEditingStopped() {
 		editCell(table, row, column);
 		super.fireEditingStopped();

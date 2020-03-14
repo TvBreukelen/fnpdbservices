@@ -79,7 +79,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 	}
 
 	private void exportFromTableModel() {
-		if (status != ExportStatus.Export || isAborted) {
+		if (status != ExportStatus.EXPORT || isAborted) {
 			return;
 		}
 
@@ -99,7 +99,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 	}
 
 	private void finished() {
-		if (!isAborted && status == ExportStatus.ShowViewer) {
+		if (!isAborted && status == ExportStatus.SHOWVIEWER) {
 			try {
 				mySoftware.checkNumberOfFields(false, xView.getTableModel());
 				xView.setVisible(true);

@@ -113,7 +113,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			String resourceID = "database";
 			switch(myExportFile) {
 			case ACCESS:
-			case SQLite:
+			case SQLITE:
 				resourceID = "table";
 				break;
 			case EXCEL:
@@ -194,7 +194,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		if (result.isEmpty()) {
 			result = General.getDefaultPDADatabase(myExportFile);
 		} else if (!General.isFileExtensionOk(result, myExportFile)) {
-			result += "." + myExportFile.getFileExtention()[0];
+			result = General.getBaseName(result, myExportFile);
 		}
 		return result;
 	}

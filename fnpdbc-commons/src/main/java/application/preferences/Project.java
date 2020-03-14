@@ -11,16 +11,16 @@ public class Project {
 	private Preferences gParent;
 	private Preferences parent;
 
-	private TvBSoftware _software;
-	private Databases _dbSettings;
+	private TvBSoftware software;
+	private Databases dbSettings;
 
 	private String lastProject;
 	private String lastProfile;
 	private String projectID = "";
 
 	public Project(TvBSoftware software) {
-		_software = software;
-		_dbSettings = Databases.getInstance(software);
+		this.software = software;
+		dbSettings = Databases.getInstance(software);
 
 		root = Preferences.userRoot().node(software.getName().toLowerCase());
 		gParent = root.node("projects");
@@ -31,11 +31,11 @@ public class Project {
 	}
 
 	public Databases getDbSettings() {
-		return _dbSettings;
+		return dbSettings;
 	}
 
 	public TvBSoftware getTvBSoftware() {
-		return _software;
+		return software;
 	}
 
 	public String getProjectID() {
@@ -102,8 +102,8 @@ public class Project {
 				return false;
 			}
 
-			Preferences parent = gParent.node(project);
-			return parent.nodeExists(profile);
+			Preferences p = gParent.node(project);
+			return p.nodeExists(profile);
 		} catch (Exception e) {
 		}
 		return false;
@@ -116,8 +116,8 @@ public class Project {
 	}
 
 	protected void copyProfile(Preferences child, String project, String profile) throws Exception {
-		Preferences parent = gParent.node(project);
-		PrefUtils.copyNode(child, parent, profile, true);
+		Preferences p = gParent.node(project);
+		PrefUtils.copyNode(child, p, profile, true);
 	}
 
 	public void removeDatabase(String database) {

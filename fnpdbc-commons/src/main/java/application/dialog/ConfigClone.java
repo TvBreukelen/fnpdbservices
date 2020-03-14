@@ -93,7 +93,7 @@ public class ConfigClone extends BasicDialog {
 		if (copyToFile.isEmpty()) {
 			copyToFile = General.getDefaultPDADatabase(exp);
 		} else if (!General.isFileExtensionOk(copyToFile, exp)) {
-			copyToFile = copyToFile + "." + exp.getFileExtention()[0];
+			copyToFile = General.getBaseName(copyToFile, exp);
 		}
 
 		_project.cloneCurrentProfile(projectCopyTo, profileID);

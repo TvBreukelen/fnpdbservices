@@ -48,7 +48,7 @@ public abstract class BasicFrame extends JFrame {
 
 	private String myHelpFile;
 	private boolean isMainScreen = false;
-	protected TvBSoftware _software;
+	protected TvBSoftware software;
 	private Component centerScreen;
 
 	private static final long serialVersionUID = -4427269633857070104L;
@@ -58,7 +58,7 @@ public abstract class BasicFrame extends JFrame {
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		System.setProperty("apple.awt.fileDialogForDirectories", "false");
 
-		_software = software;
+		this.software = software;
 		isMainScreen = mainScreen;
 	}
 
@@ -145,11 +145,11 @@ public abstract class BasicFrame extends JFrame {
 			try {
 				save();
 				close();
+			} catch (FNProgException ex) {
+				General.errorMessage(BasicFrame.this, ex, GUIFactory.getTitle("configError"), null);
+				close();
 			} catch (Exception ex) {
 				General.errorMessage(BasicFrame.this, ex, GUIFactory.getTitle("configError"), null);
-				if (!(ex instanceof FNProgException)) {
-					close();
-				}
 			}
 		};
 
@@ -197,7 +197,7 @@ public abstract class BasicFrame extends JFrame {
 	}
 
 	protected boolean isDBConvert() {
-		return _software == TvBSoftware.DBCONVERT;
+		return software == TvBSoftware.DBCONVERT;
 	}
 
 	protected JMenu createConfigMenu() {
@@ -262,7 +262,7 @@ public abstract class BasicFrame extends JFrame {
 	}
 
 	protected JMenu createSitesMenu() {
-		InternetSitesMenu handler = new InternetSitesMenu(funcSites, _software);
+		InternetSitesMenu handler = new InternetSitesMenu(funcSites, software);
 		return handler.getInternetSitesMenu();
 	}
 

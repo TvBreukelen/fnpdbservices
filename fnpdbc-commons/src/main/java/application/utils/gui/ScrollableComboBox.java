@@ -22,7 +22,7 @@ public abstract class ScrollableComboBox extends JComboBox<String> {
 		if (General.IS_MAC_OSX) {
 			return;
 		}
-		setUI(new myComboUI());
+		setUI(new ScrollableComboUI());
 	}
 
 	public ScrollableComboBox(Vector<String> vec) {
@@ -30,18 +30,18 @@ public abstract class ScrollableComboBox extends JComboBox<String> {
 		if (General.IS_MAC_OSX) {
 			return;
 		}
-		setUI(new myComboUI());
+		setUI(new ScrollableComboUI());
 	}
 
 	public ScrollableComboBox(String[] objects) {
 		super(objects);
-		setUI(new myComboUI());
+		setUI(new ScrollableComboUI());
 	}
 
-	public class myComboUI extends BasicComboBoxUI {
+	public class ScrollableComboUI extends BasicComboBoxUI {
 		@Override
 		protected ComboPopup createPopup() {
-			BasicComboPopup popup = new BasicComboPopup(comboBox) {
+			return new BasicComboPopup(comboBox) {
 				private static final long serialVersionUID = 5353990132838871794L;
 
 				@Override
@@ -50,7 +50,6 @@ public abstract class ScrollableComboBox extends JComboBox<String> {
 							ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 				}
 			};
-			return popup;
 		}
 	}
 }

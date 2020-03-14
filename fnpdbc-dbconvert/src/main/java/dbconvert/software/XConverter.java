@@ -143,7 +143,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 					fieldName = buf.toString();
 
 					if (!dbFieldDefinition.containsKey(fieldName)) {
-						fieldDef = fieldDef.clone();
+						fieldDef = fieldDef.copy();
 						fieldDef.setFieldAlias(fieldName);
 						dbFields.set(i, fieldDef);
 						break;

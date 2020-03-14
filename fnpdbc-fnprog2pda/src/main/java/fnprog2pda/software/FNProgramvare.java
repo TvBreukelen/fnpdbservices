@@ -147,7 +147,7 @@ public abstract class FNProgramvare extends BasicSoft {
 				continue;
 			}
 
-			dbField = dbField.clone();
+			dbField = dbField.copy();
 			dbField.set(field);
 
 			if (field.getFieldType() == null) {
@@ -211,7 +211,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			usrList.add(dbField);
 			// Clone FieldDefiniton and set export flag to false for system fields (see
 			// getDataVector)
-			field = field.clone();
+			field = field.copy();
 			field.setExport(!isSystemField);
 			field.setContentsField(isContentsField);
 			dbInfoToExport.put(field.getFieldAlias(), field);
@@ -344,7 +344,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			iter = keywordList.iterator();
 		} else {
 			if (cursor == null) {
-				cursor = msAccess.getCursor(msTable.getName(), null, null, FilterOperator.IsNotEqualTo);
+				cursor = msAccess.getCursor(msTable.getName(), null, null, FilterOperator.ISNOTEQUALTO);
 				if (cursor == null) {
 					return result;
 				}
@@ -709,7 +709,7 @@ public abstract class FNProgramvare extends BasicSoft {
 				Object obj = myLastIndex;
 				try {
 					cursor = msAccess.getCursor(myTable, myTableID, Collections.singletonMap(myTableID, obj),
-							FilterOperator.IsGreaterThan);
+							FilterOperator.ISGREATERTHAN);
 					isNewRecords = false;
 				} catch (Exception e) {
 				}
@@ -784,15 +784,15 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		FilterOperator[] oper = new FilterOperator[2];
 		oper[0] = pdaSettings.getFilterOperator(0);
-		oper[1] = pdaSettings.getFilterField(1).isEmpty() ? FilterOperator.IsNotEqualTo
+		oper[1] = pdaSettings.getFilterField(1).isEmpty() ? FilterOperator.ISNOTEQUALTO
 				: pdaSettings.getFilterOperator(1);
 
-		if (oper[0] == FilterOperator.IsNotEqualTo && oper[1] == FilterOperator.IsNotEqualTo) {
+		if (oper[0] == FilterOperator.ISNOTEQUALTO && oper[1] == FilterOperator.ISNOTEQUALTO) {
 			// a bit too complex, we'll use the default filter method instead
 			return false;
 		}
 
-		int index = oper[0] == FilterOperator.IsEqualTo ? 0 : oper[1] == FilterOperator.IsEqualTo ? 1 : 0;
+		int index = oper[0] == FilterOperator.ISEQUALTO ? 0 : oper[1] == FilterOperator.ISEQUALTO ? 1 : 0;
 		FieldDefinition field = dbFieldDefinition.get(pdaSettings.getFilterField(index));
 		MSTable table = dbFactory.getMSTable(field.getTable());
 		boolean isIndexColumn = table.isIndexedColumn(field.getFieldName());
@@ -800,7 +800,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		if (!isIndexColumn && table.getName().equals(myTable)) {
 			// Try the other filter
 			index = index == 0 ? 1 : 0;
-			if (oper[index] == FilterOperator.IsNotEqualTo) {
+			if (oper[index] == FilterOperator.ISNOTEQUALTO) {
 				return false;
 			}
 
@@ -828,7 +828,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			return false;
 		}
 
-		if (oper[index] != FilterOperator.IsEqualTo) {
+		if (oper[index] != FilterOperator.ISEQUALTO) {
 			if (!isIndexColumn) {
 				return false;
 			}
@@ -857,7 +857,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			hFilter.put(indexName, map.get(table.getIndex()));
 
 			if (table.getFromTable().equals(myTable)) {
-				cursor = msAccess.getCursor(myTable, indexName, hFilter, FilterOperator.IsEqualTo);
+				cursor = msAccess.getCursor(myTable, indexName, hFilter, FilterOperator.ISEQUALTO);
 				// return false;
 			} else {
 				isFilterDefined = true;

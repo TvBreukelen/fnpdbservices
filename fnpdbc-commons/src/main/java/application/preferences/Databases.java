@@ -23,7 +23,7 @@ public class Databases implements IEncoding {
 
 	private TvBSoftware mySoftware;
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
-	private HashMap<String, String> nodes = new HashMap<>();
+	private Map<String, String> nodes = new HashMap<>();
 
 	protected Preferences myPref;
 	private Preferences parent;
@@ -31,7 +31,7 @@ public class Databases implements IEncoding {
 	private static Map<TvBSoftware, Databases> mapDB = new HashMap<>();
 	
 	public static Databases getInstance(TvBSoftware software) {
-		return mapDB.computeIfAbsent(software, k -> new Databases(k));
+		return mapDB.computeIfAbsent(software, Databases::new);
 	}
 	
 	private Databases(TvBSoftware software) {

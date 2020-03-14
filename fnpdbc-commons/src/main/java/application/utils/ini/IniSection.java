@@ -37,7 +37,7 @@ import java.util.TreeMap;
  * @version 1.1.0
  * @since 0.1.10
  */
-public class IniSection implements Cloneable, Iterable<IniItem> {
+public class IniSection implements Iterable<IniItem> {
 
 	/**
 	 * A Map of all the IniItems within this section, index by the item's name.

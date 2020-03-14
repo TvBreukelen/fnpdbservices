@@ -63,7 +63,7 @@ public class FieldDefinition extends BasisField {
 			return;
 		}
 		
-		int index = s.lastIndexOf(".");
+		int index = s.lastIndexOf('.');
 		if (index++ != -1) {
 			if (s.endsWith("0")) {
 				index++;
@@ -148,8 +148,7 @@ public class FieldDefinition extends BasisField {
 		isComposed = isContentsField;
 	}
 
-	@Override
-	public FieldDefinition clone() {
+	public FieldDefinition copy() {
 		FieldDefinition result = new FieldDefinition();
 		result.setDecimalFormat(decimalFormat);
 		result.setDecimalPoint(decimalPoint);

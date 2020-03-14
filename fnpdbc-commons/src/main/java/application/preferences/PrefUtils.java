@@ -5,6 +5,11 @@ import java.io.FileOutputStream;
 import java.util.prefs.Preferences;
 
 public class PrefUtils {
+	
+	private PrefUtils() {
+		// Hide constructor
+	}
+	
 	public static void writePref(Preferences pref, String key, boolean newValue, boolean oldValue,
 			boolean defaultValue) {
 		if (newValue != oldValue) {

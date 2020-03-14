@@ -10,18 +10,19 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.JLabel;
 
 public class JHyperLink extends JLabel {
 	private static final long serialVersionUID = 1413934641540367114L;
 
-	private final Color LINK_COLOR = Color.blue;
-	private LinkedList<ActionListener> actionListenerList = new LinkedList<>();
+	private static final Color LINKCOLOR = Color.blue;
+	transient List<ActionListener> actionListenerList = new LinkedList<>();
 	private boolean underline;
 	private String actionCommand;
 
-	protected MouseListener mouseListener = new MouseAdapter() {
+	transient MouseListener listener = new MouseAdapter() {
 		@Override
 		public void mouseEntered(MouseEvent me) {
 			if (isEnabled()) {
@@ -57,8 +58,8 @@ public class JHyperLink extends JLabel {
 	public JHyperLink(String text) {
 		super(text);
 		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		setForeground(LINK_COLOR);
-		addMouseListener(mouseListener);
+		setForeground(LINKCOLOR);
+		addMouseListener(listener);
 	}
 
 	public void addActionListener(ActionListener l) {

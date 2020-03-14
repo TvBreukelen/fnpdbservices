@@ -68,7 +68,7 @@ public class MSTable {
 		dbFields = new ArrayList<>();
 
 		for (FieldDefinition field : fields) {
-			FieldDefinition clone = field.clone();
+			FieldDefinition clone = field.copy();
 			clone.setTable(alias);
 			dbFields.add(clone);
 			dbFieldsHash.put(field.getFieldAlias(), field);
@@ -252,7 +252,7 @@ public class MSTable {
 		if (field == null) {
 			field = dbFieldsHash.get(oldAlias);
 			if (field != null) {
-				field = field.clone();
+				field = field.copy();
 				field.setFieldAlias(newAlias);
 				field.setFieldHeader(newAlias);
 				dbFieldsHash.put(newAlias, field);
@@ -271,7 +271,7 @@ public class MSTable {
 			result.addAll(dbFieldsHash.values());
 		} else {
 			for (FieldDefinition field : dbFieldsHash.values()) {
-				FieldDefinition clone = field.clone();
+				FieldDefinition clone = field.copy();
 				if (!clone.isHideTable()) {
 					clone.setFieldAlias(alias
 							+ (clone.getTable().equals(clone.getFieldAlias()) ? "" : "." + clone.getFieldAlias()));

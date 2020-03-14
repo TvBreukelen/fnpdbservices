@@ -60,12 +60,12 @@ public abstract class BasicDialog extends JDialog {
 		funcDocumentChange = new DocumentListener() {
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				updateDocument(e);
+				updateDocument();
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				updateDocument(e);
+				updateDocument();
 			}
 
 			@Override
@@ -73,7 +73,7 @@ public abstract class BasicDialog extends JDialog {
 				// not fired by PlainDocument
 			}
 
-			public void updateDocument(DocumentEvent e) {
+			public void updateDocument() {
 				activateComponents();
 			}
 		};
@@ -82,11 +82,11 @@ public abstract class BasicDialog extends JDialog {
 			try {
 				save();
 				close();
+			} catch (FNProgException ex) {
+				General.errorMessage(BasicDialog.this, ex, GUIFactory.getTitle("configError"), null);
+				close();
 			} catch (Exception ex) {
 				General.errorMessage(BasicDialog.this, ex, GUIFactory.getTitle("configError"), null);
-				if (!(ex instanceof FNProgException)) {
-					close();
-				}
 			}
 		}; 
 		

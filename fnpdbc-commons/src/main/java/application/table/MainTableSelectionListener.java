@@ -9,12 +9,12 @@ import application.model.ProfileObject;
 import application.model.ProjectModel;
 
 public class MainTableSelectionListener implements ListSelectionListener {
-	private JTable _table;
-	private ProgramDialog _dialog;
+	private JTable table;
+	private ProgramDialog dialog;
 
 	public MainTableSelectionListener(JTable table, ProgramDialog dialog) {
-		_table = table;
-		_dialog = dialog;
+		this.table = table;
+		this.dialog = dialog;
 	}
 
 	@Override
@@ -23,15 +23,15 @@ public class MainTableSelectionListener implements ListSelectionListener {
 			return;
 		}
 
-		switch (_table.getSelectedRowCount()) {
+		switch (table.getSelectedRowCount()) {
 		case 0:
 			break;
 		case 1:
-			int modelIndex = _table.convertRowIndexToModel(_table.getSelectedRow());
-			ProfileObject obj = ((ProjectModel) _table.getModel()).getProfileObject(modelIndex);
+			int modelIndex = table.convertRowIndexToModel(table.getSelectedRow());
+			ProfileObject obj = ((ProjectModel) table.getModel()).getProfileObject(modelIndex);
 			obj.alignProfiles();
 			obj.alignTable();
-			_dialog.activateComponents();
+			dialog.activateComponents();
 			break;
 		default:
 		}

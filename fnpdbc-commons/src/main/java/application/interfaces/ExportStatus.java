@@ -7,5 +7,5 @@ public enum ExportStatus {
 	 * @author Tom van Breukelen
 	 */
 
-	LoadTableModel, ShowViewer, Export;
+	LOADTABLEMODEL, SHOWVIEWER, EXPORT;
 }

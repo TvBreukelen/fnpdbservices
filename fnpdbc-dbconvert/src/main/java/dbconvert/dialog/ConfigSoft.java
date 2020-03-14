@@ -437,7 +437,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			}
 			break;
 		case ACCESS:
-		case SQLite:
+		case SQLITE:
 			if (lTable != null) {
 				pdaSettings.setTableName(bTables.getSelectedItem().toString(), true);
 			}
