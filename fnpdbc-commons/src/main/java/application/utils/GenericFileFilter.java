@@ -18,11 +18,9 @@ public class GenericFileFilter extends FileFilter implements FilenameFilter {
 	private List<String> myExt = new ArrayList<>();
 	private String description;
 
-	public GenericFileFilter(String[] fileExt, String descr) {
+	public GenericFileFilter(List<String> fileExt, String descr) {
 		description = descr;
-		for (String ext : fileExt) {
-			myExt.add("." + ext.toLowerCase());
-		}
+		myExt = fileExt;
 	}
 
 	@Override

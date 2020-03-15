@@ -96,7 +96,7 @@ public final class General {
 	public static final DateTimeFormatter sdInternalDate = DateTimeFormatter.BASIC_ISO_DATE;
 	public static final DateTimeFormatter sdInternalTime = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter sdInternalTimestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	private static final String tempDir = System.getProperty("java.io.tmpdir", "");
+	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir", "");
 
 	private static MattePainter painter;
 
@@ -105,7 +105,7 @@ public final class General {
 	public static final boolean IS_X64 = System.getProperty("sun.arch.data.model", "32").equals("64");
 	public static final boolean IS_GTK = UIManager.getLookAndFeel().getClass().getName().contains("GTK");
 
-	public static boolean isQuietMode = false;
+	private static boolean isQuietMode = false;
 
 	private General() {
 		// Hidden constructor
@@ -176,7 +176,7 @@ public final class General {
 			}
 
 			s = new String(field);
-			int index = s.indexOf("\0");
+			int index = s.indexOf('\0');
 			result.add(index != -1 ? s.substring(0, index) : s);
 		}
 
@@ -196,7 +196,7 @@ public final class General {
 		// Check for instance of container.
 		if (component instanceof Container) {
 			// Continue setEnabled if there are more components.
-			Component components[] = ((Container) component).getComponents();
+			Component[] components = ((Container) component).getComponents();
 			for (Component element : components) {
 				if (element != null) {
 					setEnabled(element, enable); // <- Here is the recursive
@@ -349,7 +349,7 @@ public final class General {
 				errors.append("\n" + s);
 			}
 			p.waitFor();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			isError = true;
 			errors.append("\n" + e.getMessage());
 		}
@@ -472,7 +472,7 @@ public final class General {
 			return false;
 		}
 
-		String type = fileName.substring(fileName.lastIndexOf(".") + 1);
+		String type = fileName.substring(fileName.lastIndexOf('.') + 1);
 		int scaledWidth = pdaSetting.getImageWidth();
 		int scaledHeight = pdaSetting.getImageHeight();
 
@@ -526,7 +526,7 @@ public final class General {
 	 * Returns the DateFormat used to convert a date in a 'readable' format
 	 */
 	public static String getDateFormat() {
-		return mySettings.getDateFormat().replaceAll(" ", mySettings.getDateDelimiter());
+		return mySettings.getDateFormat().replace(" ", mySettings.getDateDelimiter());
 	}
 
 	/**
@@ -555,7 +555,7 @@ public final class General {
 	 * Returns the SimpleDateFormat used to convert a time in a 'readable' format
 	 */
 	public static DateTimeFormatter getSimpleTimeFormat() {
-		return DateTimeFormatter.ofPattern(getTimeFormat().replaceAll("am/pm", "aa"));
+		return DateTimeFormatter.ofPattern(getTimeFormat().replace("am/pm", "aa"));
 	}
 
 	public static Date convertLocalDateToDate(LocalDate date) {
@@ -637,15 +637,15 @@ public final class General {
 
 		String dateFormat = mySettings.getDateFormat();
 		if (isNoDay) {
-			dateFormat = dateFormat.replaceAll("d", "");
+			dateFormat = dateFormat.replace("d", "");
 		}
 
 		if (isNoMonth) {
-			dateFormat = dateFormat.replaceAll("M", "");
+			dateFormat = dateFormat.replace("M", "");
 		}
 
-		dateFormat = dateFormat.replaceAll("  ", " ").trim();
-		DateTimeFormatter sd = DateTimeFormatter.ofPattern(dateFormat.replaceAll(" ", mySettings.getDateDelimiter()));
+		dateFormat = dateFormat.replace("  ", " ").trim();
+		DateTimeFormatter sd = DateTimeFormatter.ofPattern(dateFormat.replace(" ", mySettings.getDateDelimiter()));
 		return sd.format(date);
 	}
 
@@ -698,18 +698,18 @@ public final class General {
 		String[] dBDate = new String[3];
 
 		int[] dateOrder = new int[3];
-		String dateFormat = mySettings.getDateFormat().replaceAll(" ", "");
-		dateFormat = dateFormat.replaceAll("MM", "M");
-		dateFormat = dateFormat.replaceAll("yyyy", "y");
-		dateFormat = dateFormat.replaceAll("yy", "y");
-		dateFormat = dateFormat.replaceAll("dd", "d");
+		String dateFormat = mySettings.getDateFormat().replace(" ", "");
+		dateFormat = dateFormat.replace("MM", "M");
+		dateFormat = dateFormat.replace("yyyy", "y");
+		dateFormat = dateFormat.replace("yy", "y");
+		dateFormat = dateFormat.replace("dd", "d");
 
-		dateOrder[0] = dateFormat.indexOf("d");
-		dateOrder[1] = dateFormat.indexOf("M");
-		dateOrder[2] = dateFormat.indexOf("y");
+		dateOrder[0] = dateFormat.indexOf('d');
+		dateOrder[1] = dateFormat.indexOf('M');
+		dateOrder[2] = dateFormat.indexOf('y');
 
 		final int index = displayDate.length;
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < index; i++) {
 			dBDate[dateOrder[i]] = displayDate[i];
 		}
@@ -903,10 +903,10 @@ public final class General {
 		String[] displayTime = pTime.split(":");
 		int index = displayTime.length - 1;
 
-		boolean AMTime = displayTime[index].endsWith("AM");
-		boolean PMTime = displayTime[index].endsWith("PM");
+		boolean amTime = displayTime[index].endsWith("AM");
+		boolean pmTime = displayTime[index].endsWith("PM");
 
-		if (AMTime || PMTime) {
+		if (amTime || pmTime) {
 			displayTime[index] = displayTime[index].substring(0, displayTime[index].length() - 2).trim();
 		}
 
@@ -917,7 +917,7 @@ public final class General {
 			sec = Integer.parseInt(displayTime[2]);
 		}
 
-		if (PMTime) {
+		if (pmTime) {
 			hrs += 12;
 			if (hrs == 24) {
 				hrs = 0;
@@ -1035,7 +1035,10 @@ public final class General {
 
 	public static void showMessage(Component parent, String mesg, String title, boolean isError) {
 		if (isQuietMode) {
-			System.out.println(title + ":" + mesg == null ? GUIFactory.getText("internalProgramError") : mesg);
+			if (mesg == null) {
+				mesg = GUIFactory.getText("internalProgramError");
+			}
+			System.out.println(title + ":" + mesg);
 			return;
 		}
 		JOptionPane.showMessageDialog(parent, setDialogText(mesg), title,
@@ -1061,21 +1064,21 @@ public final class General {
 		if (text.length() > maxLen) {
 			mesg = new StringBuilder();
 			int start = 0;
-			int end = text.indexOf(" ", maxLen);
+			int end = text.indexOf(' ', maxLen);
 			int index = 0;
 
 			while (end != -1) {
 				s = text.substring(start, ++end);
-				index = s.indexOf("\n");
+				index = s.indexOf('\n');
 				if (index == -1) {
-					mesg.append(s + "\n");
+					mesg.append(s + '\n');
 				} else {
 					mesg.append(s.substring(0, ++index));
 					end -= s.length() - index;
 				}
 
 				start = end;
-				end = text.indexOf(" ", end + maxLen);
+				end = text.indexOf(' ', end + maxLen);
 			}
 			mesg.append(text.substring(start, text.length()));
 		}
@@ -1093,13 +1096,13 @@ public final class General {
 		if (!isMustExist) {
 			String filename = component.getText();
 			if (!filename.isEmpty() && !isFileExtensionOk(filename, file)) {
-				component.setText(filename + "." + file.getFileExtention()[0]);
+				component.setText(filename + "." + file.getFileExtention().get(0));
 			}
 		}
 	}
 
 	public static void getSelectedFile(JDialog dialog, JTextField component, String dir, String fileType,
-			boolean isMustExist, String... fileExt) {
+			boolean isMustExist, List<String> fileExt) {
 		GenericFileFilter filter = new GenericFileFilter(fileExt, fileType);
 		String location = component.getText();
 
@@ -1175,22 +1178,22 @@ public final class General {
 		int index = dbFile.lastIndexOf('.');
 
 		if (index == -1) {
-			return dbFile + "." + exp.getFileExtention()[0];
+			return dbFile + exp.getFileExtention().get(0);
 		}
-		return dbFile.substring(0, index - 1) + exp.getFileExtention()[0];
+		return dbFile.substring(0, index) + exp.getFileExtention().get(0);
 	}
 
 	public static boolean isFileExtensionOk(String dbFile, ExportFile exp) {
 		boolean isExtOK = false;
 
-		int index = dbFile.lastIndexOf(".");
+		int index = dbFile.lastIndexOf('.');
 		String ext = "csv";
 		if (index != -1) {
-			ext = dbFile.substring(dbFile.lastIndexOf(".") + 1).toLowerCase();
+			ext = dbFile.substring(dbFile.lastIndexOf('.')).toLowerCase();
 		}
 
 		for (String element : exp.getFileExtention()) {
-			if (element.equals("*") || ext.equals(element)) {
+			if (element.equals(".*") || ext.equals(element)) {
 				isExtOK = true;
 				break;
 			}
@@ -1199,16 +1202,10 @@ public final class General {
 	}
 
 	public static boolean writeObjectToDisk(Object myObject) {
-		try {
-			// Write to disk with FileOutputStream
-			FileOutputStream f_out = new FileOutputStream(tempDir + File.separator + "myobject.data");
-
-			// Write object with ObjectOutputStream
-			ObjectOutputStream obj_out = new ObjectOutputStream(f_out);
-
-			// Write object out to disk
-			obj_out.writeObject(myObject);
-			obj_out.close();
+		// Write to disk with FileOutputStream
+		try (FileOutputStream fOut = new FileOutputStream(TEMP_DIR + File.separator + "myobject.data");
+				ObjectOutputStream oOut = new ObjectOutputStream(fOut)) {
+			oOut.writeObject(myObject);
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -1217,16 +1214,10 @@ public final class General {
 
 	public static Object readObjectFromDisk() {
 		Object result = null;
-		try {
-			// Read from disk using FileInputStream
-			FileInputStream f_in = new FileInputStream(tempDir + File.separator + "myobject.data");
-
-			// Read object using ObjectInputStream
-			ObjectInputStream obj_in = new ObjectInputStream(f_in);
-
-			// Read an object
-			result = obj_in.readObject();
-			obj_in.close();
+		// Read from disk using FileInputStream
+		try (FileInputStream fIn = new FileInputStream(TEMP_DIR + File.separator + "myobject.data");
+				ObjectInputStream oIn = new ObjectInputStream(fIn)) {
+			result = oIn.readObject();
 		} catch (Exception e) {
 			return null;
 		}
@@ -1234,7 +1225,7 @@ public final class General {
 	}
 
 	public static String getDefaultPDADatabase(ExportFile db) {
-		return mySettings.getDefaultFileFolder() + File.separator + db.getName() + "." + db.getFileExtention()[0];
+		return mySettings.getDefaultFileFolder() + File.separator + db.getName() + db.getFileExtention().get(0);
 	}
 
 	public static String getSoftwareTypeVersion(String software, String softwareVersion) {

@@ -11,7 +11,11 @@ import fnprog2pda.preferences.PrefFNProg;
 public class ConvertOldVersion {
 	private static Profiles pdaSettings = PrefFNProg.getInstance();
 
-	public static void convert() throws Exception {
+	private ConvertOldVersion() {
+		// Hide constructor
+	}
+	
+	public static void convert() {
 		GeneralSettings myGeneralSettings = GeneralSettings.getInstance();
 		String version = myGeneralSettings.getFnpVersion();
 

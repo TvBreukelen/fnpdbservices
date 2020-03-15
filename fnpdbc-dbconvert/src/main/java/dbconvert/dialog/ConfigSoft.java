@@ -59,7 +59,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	private JTextField profile;
 	private JTextField fdDatabase;
 	private JTextField fdEncoding;
-	
+
 	private JButton btEncoding;
 	private JButton btFilter;
 	private JButton btSortOrder;
@@ -70,53 +70,54 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	private JLabel lWorksheet;
 	private JLabel lTable;
 
-	private ActionListener funcSelectWorksheet;
-	private ActionListener funcSelectTable;
+	transient ActionListener funcSelectWorksheet;
+	transient ActionListener funcSelectTable;
 
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
 
-	private DatabaseHelper dbVerified = new DatabaseHelper("");
+	transient DatabaseHelper dbVerified = new DatabaseHelper("");
 
-	private ScFieldSelect fieldSelect;
-	private ScConfigDb configDb;
+	transient ScFieldSelect fieldSelect;
+	transient ScConfigDb configDb;
 
 	private ConfigTextFile textImport;
 	private boolean isNewProfile = false;
 	private String encoding;
 	private String myView;
+	private static final String FUNC_NEW = "funcNew";
 
-	private XConverter dbFactory;
-	private PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
-	private Databases dbSettings = pdaSettings.getDbSettings();
-	private Map<String, FilterData> filterDataMap = new HashMap<>();
-	private Map<String, SortData> sortDataMap = new HashMap<>();
+	transient XConverter dbFactory;
+	transient PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
+	transient Databases dbSettings = pdaSettings.getDbSettings();
+	transient Map<String, FilterData> filterDataMap = new HashMap<>();
+	transient Map<String, SortData> sortDataMap = new HashMap<>();
 
-	private ProgramDialog _dialog;
-	private ProjectModel _model;
+	private ProgramDialog dialog;
+	private ProjectModel model;
 
 	public ConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNew) {
-		_dialog = dialog;
-		_model = model;
+		this.dialog = dialog;
+		this.model = model;
 		isNewProfile = isNew;
 		init();
 	}
 
 	@Override
 	protected void init() {
-		init(isNewProfile ? GUIFactory.getTitle("funcNew")
+		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
 		btSortOrder = General.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
 			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.get(myView));
 			sort.setVisible(true);
 		});
-		
+
 		btFilter = General.createToolBarButton(GUIFactory.getTitle("filter"), "Filter.png", e -> {
 			ConfigFilter filter = new ConfigFilter(dbFactory, filterDataMap.get(myView));
 			filter.setVisible(true);
 		});
-		
+
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		myImportFile = isNewProfile ? ExportFile.JFILE5 : ExportFile.getExportFile(dbSettings.getDatabaseType());
 		dbFactory = new XConverter(this);
@@ -124,7 +125,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		funcSelectWorksheet = e -> worksheetChanged();
 		funcSelectTable = e -> tableChanged();
 
-		profile = GUIFactory.getJTextField("funcNew", isNewProfile ? "" : pdaSettings.getProfileID());
+		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 		profile.setPreferredSize(new Dimension(100, 25));
 
@@ -142,6 +143,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		dbFactory.close();
 		super.close();
 	}
+
 	@Override
 	protected Component createToolBar() {
 		Box result = Box.createHorizontalBox();
@@ -233,7 +235,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			p1.setBorder(BorderFactory.createEtchedBorder());
 			p1.add(Box.createVerticalStrut(40));
-			p1.add(GUIFactory.getJLabel("funcNew"));
+			p1.add(GUIFactory.getJLabel(FUNC_NEW));
 			p1.add(Box.createHorizontalStrut(10));
 			p1.add(profile);
 			panel.add(p1);
@@ -254,15 +256,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 	private void importFileChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-		if (software != myImportFile && !dbSettings.getDatabaseFile().isEmpty()) {
-			if (!isNewProfile) {
-				if (!General.showConfirmMessage(this,
+		if (software != myImportFile && !dbSettings.getDatabaseFile().isEmpty()
+				&& !(isNewProfile && General.showConfirmMessage(this,
 						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
-						GUIFactory.getTitle("warning"))) {
-					bDatabase.setSelectedItem(myImportFile.getName());
-					return;
-				}
-			}
+						GUIFactory.getTitle("warning")))) {
+
+			bDatabase.setSelectedItem(myImportFile.getName());
+			return;
 		}
 
 		myImportFile = software;
@@ -380,13 +380,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 	@Override
 	protected void showHelp() {
-		switch (tabPane.getSelectedIndex()) {
-		case 0:
+		if (tabPane.getSelectedIndex() == 0) {
 			setHelpFile("exportfiles_db");
-			break;
-		case 1:
+		} else if (tabPane.getSelectedIndex() == 1) {
 			setHelpFile("exportfields");
-			break;
 		}
 		super.showHelp();
 	}
@@ -398,14 +395,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		String profileID = profile.getText().trim();
 
 		if (!isNewProfile) {
-			ProfileObject obj = _model.getProfileObject();
+			ProfileObject obj = model.getProfileObject();
 			if (!obj.getProjectID().equals(projectID)) {
 				if (pdaSettings.profileExists(projectID, profileID)) {
 					throw FNProgException.getException("profileExists", profileID, projectID);
 				}
 
 				pdaSettings.deleteNode(obj.getProjectID(), profileID);
-				_model.removeRecord(obj);
+				model.removeRecord(obj);
 				isNewProfile = true;
 			}
 		}
@@ -456,7 +453,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
 		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
 
-		_dialog.updateProfile(isNewProfile ? Action.Add : Action.Edit);
+		dialog.updateProfile(isNewProfile ? Action.Add : Action.Edit);
 	}
 
 	@Override
@@ -496,7 +493,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		btFilter.setEnabled(isFileValid);
 		btSortOrder.setEnabled(isFileValid);
 		myView = docValue;
-		
+
 		if (btFilter.isEnabled()) {
 			FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
 			data.setTvBSoftware(TvBSoftware.DBCONVERT);

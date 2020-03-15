@@ -3,6 +3,8 @@ package application.dialog;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -38,11 +40,11 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 	private JTextField selectFile;
 
 	private JLabel userLabel;
-	private IConfigSoft dialog;
+	transient IConfigSoft dialog;
 	private boolean isImportEnabled;
 
-	private Profiles pdaSettings;
-	private GeneralSettings generalSettings = GeneralSettings.getInstance();
+	transient Profiles pdaSettings;
+	transient GeneralSettings generalSettings = GeneralSettings.getInstance();
 
 	public ConfigHanDBase(IConfigSoft dialog, Profiles pref) {
 		this.dialog = dialog;
@@ -113,8 +115,11 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		selectFile = GUIFactory.getJTextField("selectFile", generalSettings.getHandbaseConversionProgram());
 		p2 = new JPanel(new GridBagLayout());
 		p2.add(selectFile, c.gridCell(0, 0, 2, 0));
+		
+		List<String> ext = new ArrayList<>();
+		ext.add(".exe");
 		p2.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile((JDialog) dialog, selectFile, "Windows program (*.exe)", "",
-				true, "exe")), c.gridCell(1, 0, 0, 0));
+				true, ext)), c.gridCell(1, 0, 0, 0));
 		p2.setBorder(BorderFactory.createTitledBorder("handbasedesktop.exe"));
 		add(p2);
 	}

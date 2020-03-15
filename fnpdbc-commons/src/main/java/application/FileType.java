@@ -1,9 +1,12 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public enum FileType {
 	PDB(" Palm or Pocket PC database (*.pdb)"), TXT(" textfile (*.csv, *.txt)"), XLS(" MS-Excel file (*.xls)"),
-	XLSX(" MS-Excel file (*.xls, *.xlsx)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"), DBF(" Dbase or FoxPro file (*.dbf)"),
-	XML(" XML File (*.xml)"), MDB(" MS Access Database (*.mdb, *.accdb)");
+	XLSX(" MS-Excel file (*.xls, *.xlsx)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
+	DBF(" Dbase or FoxPro file (*.dbf)"), XML(" XML File (*.xml)"), MDB(" MS Access Database (*.mdb, *.accdb)");
 
 	private String name;
 
@@ -11,26 +14,41 @@ public enum FileType {
 		this.name = name;
 	}
 
-	public String[] getExtention() {
+	public List<String> getExtention() {
+		List<String> result = new ArrayList<>();
 		switch (this) {
 		case PDB:
-			return new String[] { "pdb" };
+			result.add(".pdb");
+			break;
 		case TXT:
-			return new String[] { "csv", "txt" };
+			result.add(".csv");
+			result.add(".txt");
+			break;
 		case XLS:
-			return new String[] { "xls" };
+			result.add(".xls");
+			break;
 		case XLSX:
-			return new String[] { "xls", "xlsx" };
+			result.add(".xls");
+			result.add(".xlsx");
+			break;
 		case DB:
-			return new String[] { "db", "db3", "sqlite", "sqlite3", "*" };
+			result.add(".db");
+			result.add(".db3");
+			result.add(".sqlite");
+			result.add(".sqlist3");
+			break;
 		case DBF:
-			return new String[] { "dbf" };
+			result.add(".dbf");
+			break;
 		case XML:
-			return new String[] { "xml" };
+			result.add(".xml");
+			break;
 		case MDB:
-			return new String[] { "mdb", "accdb" };
+			result.add(".mdb");
+			result.add(".accdb");
+			break;
 		}
-		return null;
+		return result;
 	}
 
 	public String getType() {

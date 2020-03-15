@@ -1,5 +1,6 @@
 package application.interfaces;
 
+import java.util.List;
 import java.util.Vector;
 
 import application.FileType;
@@ -35,7 +36,7 @@ public enum ExportFile {
 	private String creator;
 	private String trueValue;
 	private String falseValue;
-	private String[] fileExtention;
+	private List<String> fileExtention;
 	private String fileType;
 	private int maxTextSize;
 	private int maxMemoSize;
@@ -230,7 +231,7 @@ public enum ExportFile {
 		return falseValue;
 	}
 
-	public String[] getFileExtention() {
+	public List<String> getFileExtention() {
 		return fileExtention;
 	}
 

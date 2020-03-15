@@ -11,7 +11,11 @@ import dbconvert.preferences.PrefDBConvert;
 public class ConvertOldVersion {
 	private static Profiles pdaSettings = PrefDBConvert.getInstance();
 
-	public static void convert() throws Exception {
+	private ConvertOldVersion() {
+		// Hide constructor
+	}
+	
+	public static void convert() {
 		GeneralSettings myGeneralSettings = GeneralSettings.getInstance();
 		String version = myGeneralSettings.getDbcVersion();
 
