@@ -1,6 +1,5 @@
 package fnprog2pda.software;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,10 +25,8 @@ public class CATVids extends FNProgramvare {
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
-	private int myVideoID = 0;
-
-	public CATVids(Component myParent) throws Exception {
-		super(myParent);
+	public CATVids() {
+		super();
 		useContentsLength = pdaSettings.isUseContentsLength();
 		useContentsSide = pdaSettings.isUseContentsSide();
 		useContentsIndex = pdaSettings.isUseContentsIndex();
@@ -55,7 +52,7 @@ public class CATVids extends FNProgramvare {
 	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
-		myVideoID = (Integer) dbDataRecord.get(myTableID);
+		int myVideoID = (Integer) dbDataRecord.get(myTableID);
 		myLastIndex = Math.max(myLastIndex, myVideoID);
 
 		if (useContents) {
@@ -67,7 +64,7 @@ public class CATVids extends FNProgramvare {
 	}
 
 	// method that returns the Video Contents as String
-	private String getVideoContents(int itemLength, Map<String, List<Map<String, Object>>> hashTable) throws Exception {
+	private String getVideoContents(int itemLength, Map<String, List<Map<String, Object>>> hashTable) {
 		StringBuilder result = new StringBuilder();
 
 		String side = null;
@@ -116,7 +113,6 @@ public class CATVids extends FNProgramvare {
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
 
-					sidePlaytime = (Number) mapItem.get("Length");
 					sideAPlaytime = (Number) mapItem.get("SideALength");
 					sideBPlaytime = (Number) mapItem.get("SideBLength");
 
@@ -139,8 +135,7 @@ public class CATVids extends FNProgramvare {
 					}
 				}
 
-				if (isDoubleSided && useContentsSide) {
-					if (!side.equals(oldSide)) {
+				if (isDoubleSided && useContentsSide&& !side.equals(oldSide)) {
 						sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
 						sideTitle = side.equals("A") ? sideATitle : sideBTitle;
 						if (sideTitle == null) {
@@ -157,7 +152,6 @@ public class CATVids extends FNProgramvare {
 								result.append(side + "\n");
 							}
 						}
-					}
 				}
 			}
 

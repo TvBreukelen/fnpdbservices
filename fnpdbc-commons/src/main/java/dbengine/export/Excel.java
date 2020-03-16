@@ -28,24 +28,17 @@ public class Excel extends ExcelFile {
 	private CellStyle formatDate;
 	private CellStyle formatTime;
 
-	private boolean useHeader = true;
-	private boolean lockHeader = true;
-	private boolean lock1stCol = true;
-	private String font = "Arial";
-
-	private int fontSize = 8;
-
 	public Excel(Profiles pref) {
 		super(pref);
 	}
 
 	@Override
 	public void createDbHeader() throws Exception {
-		font = myPref.getFont();
-		fontSize = myPref.getFontSize();
-		useHeader = myPref.isUseHeader();
-		lockHeader = myPref.isLockHeader();
-		lock1stCol = myPref.isLock1stColumn();
+		String font = myPref.getFont();
+		int fontSize = myPref.getFontSize();
+		boolean useHeader = myPref.isUseHeader();
+		boolean lockHeader = myPref.isLockHeader();
+		boolean lock1stCol = myPref.isLock1stColumn();
 
 		Font normal = wb.createFont();
 		normal.setFontName(font);

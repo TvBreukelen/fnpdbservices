@@ -37,7 +37,6 @@ public class CsvFile extends GeneralDB implements IConvert {
 	private boolean useCategory = false;
 
 	private int myCurrentRecord = 0;
-	private int numFields = 0;
 	private int maxSize = 0;
 	private int fileCounter = 1;
 
@@ -88,7 +87,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 			dbFieldNames.clear();
 			dbFieldTypes.clear();
 
-			numFields = reader.getHeaderCount();
+			int numFields = reader.getHeaderCount();
 			for (int i = 0; i < numFields; i++) {
 				dbFieldNames.add(reader.getHeader(i));
 				dbFieldTypes.add(FieldTypes.TEXT);
@@ -159,12 +158,10 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void closeFile() {
-		if (isInputFile) {
-			if (reader != null) {
+		if (isInputFile && reader != null) {
 				reader.close();
 				reader = null;
 				return;
-			}
 		}
 		closeOutputFile();
 	}
@@ -179,15 +176,15 @@ public class CsvFile extends GeneralDB implements IConvert {
 	@Override
 	public void deleteFile() {
 		closeFile();
-		File outFile = new File(myFilename);
+		File oFile = new File(myFilename);
 
-		if (outFile.exists()) {
-			outFile.delete();
+		if (oFile.exists()) {
+			oFile.delete();
 		}
 
 		if (hasBackup) {
 			File backupFile = new File(myFilename + ".bak");
-			backupFile.renameTo(outFile);
+			backupFile.renameTo(oFile);
 		}
 	}
 
@@ -235,22 +232,20 @@ public class CsvFile extends GeneralDB implements IConvert {
 		}
 		writer.endRecord();
 
-		if (maxSize != 0) {
-			// Check if we have to create a new output file
-			if (maxSize - writer.getMaxLineSize() < writer.getSize()) {
+		// Check if we have to create a new output file
+		if (maxSize != 0  && maxSize - writer.getMaxLineSize() < writer.getSize()) {
 				closeOutputFile();
 				StringBuilder buf = new StringBuilder();
-				buf.append(myFilename.substring(0, myFilename.lastIndexOf(".")));
+				buf.append(myFilename.substring(0, myFilename.lastIndexOf('.')));
 				buf.append("_");
 				buf.append(fileCounter++);
-				buf.append(myFilename.substring(myFilename.lastIndexOf(".")));
+				buf.append(myFilename.substring(myFilename.lastIndexOf('.')));
 
 				outFile = new File(buf.toString());
 				exportFiles.add(buf.toString());
 
 				outFile.delete();
 				writer = new CsvWriter(outFile, encoding);
-			}
 		}
 	}
 }

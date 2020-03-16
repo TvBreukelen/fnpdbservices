@@ -24,11 +24,10 @@ public class ListDB extends PalmDB {
 	 */
 	private String[] listFields;
 	private List<String> catList;
-	private int catSize;
 	private boolean useCategory;
 	private int maxFields;
 	private int[] fieldNum;
-	private final String DIVIDER = "\n----------------------------------------\n";
+	private static final String DIVIDER = "\n----------------------------------------\n";
 
 	public ListDB(Profiles pref) {
 		super(pref);
@@ -37,17 +36,14 @@ public class ListDB extends PalmDB {
 	@Override
 	public void createDbHeader() throws Exception {
 		int totalRecords = mySoft.getTotalRecords();
-		String header[] = new String[3];
+		String[] header;
 
 		listFields = new String[3];
 		listFields[0] = myPref.getSortField(0);
 		listFields[1] = myPref.getSortField(1);
 		listFields[2] = myPref.getCategoryField();
 
-		for (int i = 0; i < 3; i++) {
-			header[i] = listFields[i];
-		}
-
+		header = listFields.clone();
 		useCategory = !listFields[2].equals("");
 		maxFields = dbInfo2Write.size();
 
@@ -99,7 +95,7 @@ public class ListDB extends PalmDB {
 
 		// Category List
 		catList = mySoft.getCategories();
-		catSize = catList.size();
+		int catSize = catList.size();
 		for (int i = 0; i < catSize; i++) {
 			pdbRaf.write(General.getNullTerminatedString(catList.get(i), 16, encoding));
 		}
@@ -129,7 +125,7 @@ public class ListDB extends PalmDB {
 		int[] recordID = setPointer2NextRecord();
 		int recordLength = recordID[2] - recordID[0];
 
-		byte[] record = new byte[recordLength--];
+		byte[] record = new byte[recordLength];
 		int categoryID = recordID[1] >> 24;
 		if (categoryID > 63) {
 			categoryID -= 64;
@@ -142,7 +138,7 @@ public class ListDB extends PalmDB {
 		Arrays.fill(rec, "");
 
 		for (int i = 0; i < 3; i++) {
-			int index = s.indexOf("\0");
+			int index = s.indexOf('\0');
 			if (index == -1) {
 				break;
 			}
@@ -229,7 +225,7 @@ public class ListDB extends PalmDB {
 		List<String> tmp = General.splitNullTerminatedString(fld, 16);
 
 		dbFieldNames.clear();
-		dbFieldNames.add(tmp.size() > 0 ? tmp.get(0) : ""); // Field 1
+		dbFieldNames.add(tmp.isEmpty() ? tmp.get(0) : ""); // Field 1
 		dbFieldNames.add(tmp.size() > 1 ? tmp.get(1) : ""); // Field 2
 		dbFieldNames.add("Notes"); // Notes
 

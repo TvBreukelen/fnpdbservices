@@ -146,13 +146,9 @@ public class CsvWriter {
 			try {
 				csvRaf.close();
 			} catch (Exception e) {
+				// Nothing to to here
 			}
 			csvRaf = null;
 		}
-	}
-
-	@Override
-	protected void finalize() {
-		close();
 	}
 }

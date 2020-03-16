@@ -237,13 +237,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	@Override
 	protected void showHelp() {
-		switch (tabPane.getSelectedIndex()) {
-		case 0:
+		if (tabPane.getSelectedIndex() == 0) {
 			setHelpFile("exportfiles_fn");
-			break;
-		case 1:
+		} else if (tabPane.getSelectedIndex() == 1) {
 			setHelpFile("exportfields");
-			break;
 		}
 		super.showHelp();
 	}
@@ -352,7 +349,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void reloadFieldSelect(String view) throws Exception {
 		dbFactory.loadConfiguration(view);
-		FNProgramvare mySoft = FNProgramvare.getSoftware(myImportFile, this);
+		FNProgramvare mySoft = FNProgramvare.getSoftware(myImportFile);
 		mySoft.setupDBTranslation(isNewProfile); // Load user fields
 		fieldSelect.loadFieldPanel(mySoft.getDbUserFields());
 	}

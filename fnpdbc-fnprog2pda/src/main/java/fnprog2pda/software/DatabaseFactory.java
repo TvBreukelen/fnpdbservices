@@ -1,6 +1,7 @@
 package fnprog2pda.software;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -9,6 +10,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -229,7 +231,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		setUserFieldDefinitions();
 		setDBFieldDefinitions();
 
-		dbSelectFields = dbSelectFields.stream().sorted(Comparator.comparing(BasisField::getFieldAlias)).collect(Collectors.toList());
+		dbSelectFields = dbSelectFields.stream().sorted(Comparator.comparing(BasisField::getFieldAlias))
+				.collect(Collectors.toList());
 		dbFilterFields = dbFilterFields.stream().sorted().collect(Collectors.toList());
 	}
 
@@ -269,15 +272,15 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private void setRoleFieldDefinitions() {
 		Map<String, String> personHash = getSectionHash("personColumns");
 		if (!personHash.isEmpty()) {
-			for (String key : personHash.keySet()) {
+			for (Entry<String, String> entry : personHash.entrySet()) {
 				List<FieldDefinition> list = null;
 				try {
-					list = msAccess.getTableModelFields(key);
+					list = msAccess.getTableModelFields(entry.getKey());
 				} catch (Exception e) {
 					continue;
 				}
 
-				String[] personFields = personHash.get(key).split(",");
+				String[] personFields = entry.getValue().split(",");
 				for (String s : personFields) {
 					for (FieldDefinition field : list) {
 						if (field.getFieldName().equals(s)) {
@@ -294,12 +297,12 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		Set<String> hMainLine = getSectionHash("mainLineTables", "tables");
 		Map<String, String> tableHash = getSectionHash("tables");
 
-		for (String key : tableHash.keySet()) {
-			if (dbTables.containsKey(key)) {
+		for (Entry<String, String> entry : tableHash.entrySet()) {
+			if (dbTables.containsKey(entry.getKey())) {
 				continue;
 			}
 
-			String[] init = tableHash.get(key).split(",");
+			String[] init = entry.getValue().split(",");
 			String[] info = init[0].split(";");
 			String origTable = info[0];
 
@@ -308,19 +311,19 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				continue;
 			}
 
-			if (!key.equals(origTable)) {
-				table = table.clone(key);
+			if (!entry.getKey().equals(origTable)) {
+				table = table.clone(entry.getKey());
 			}
 
 			// Update from table -name and -index
 			table.init(init);
-			table.setMainLine(hMainLine.contains(key));
+			table.setMainLine(hMainLine.contains(entry.getKey()));
 
 			if (table.getFromTable().isEmpty()) {
 				table.setFromTable(currentTable);
 			}
 
-			dbTables.put(key, table);
+			dbTables.put(entry.getKey(), table);
 		}
 
 		for (MSTable table : dbTables.values()) {
@@ -332,22 +335,24 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		Map<String, String> fieldHash = getSectionHash("userfields");
 		String imageField = null;
 
-		for (String newAlias : fieldHash.keySet()) {
-			String field = newAlias;
-			hShowFields.add(newAlias);
+		for (Entry<String, String> entry : fieldHash.entrySet()) {
+			String field = entry.getKey();
+			hShowFields.add(field);
 
-			String oldAlias = fieldHash.get(newAlias);
+			String oldAlias = entry.getValue();
+			String newAlias = entry.getKey();
+
 			String type = null;
 			String table = currentTable;
 			String indexField = null;
 			int indexValue = 0;
 
-			int index = oldAlias.indexOf(",");
+			int index = oldAlias.indexOf(',');
 			if (index != -1) {
 				type = oldAlias.substring(index + 1);
 				oldAlias = oldAlias.substring(0, index);
 
-				index = type.indexOf(";");
+				index = type.indexOf(';');
 				if (index != -1) {
 					// Image Field
 					String[] split = type.substring(index + 1).split("=");
@@ -357,13 +362,13 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				}
 			}
 
-			index = newAlias.indexOf(".");
+			index = field.indexOf('.');
 			if (index != -1) {
-				table = newAlias.substring(0, index);
+				table = field.substring(0, index);
 				newAlias = newAlias.substring(index + 1);
 			}
 
-			index = oldAlias.indexOf(".");
+			index = oldAlias.indexOf('.');
 			if (index != -1) {
 				table = oldAlias.substring(0, index);
 				oldAlias = oldAlias.substring(index + 1);
@@ -392,9 +397,9 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	private void setDBFieldDefinitions() {
-		HashSet<String> hHidden = getSectionHash("hideColumns", "columns");
+		Set<String> hHidden = getSectionHash("hideColumns", "columns");
 		for (MSTable table : dbTables.values()) {
-			HashSet<String> hHiddenColumns = getSectionHash("hideColumns", table.getName());
+			Set<String> hHiddenColumns = getSectionHash("hideColumns", table.getName());
 			for (FieldDefinition field : table.getFields()) {
 				String alias = field.getFieldAlias();
 
@@ -403,14 +408,11 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				}
 
 				dbFieldDefinition.put(alias, field);
-				if (!hShowFields.contains(alias)) {
-					if (!table.isVisible()
-							|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
-									|| alias.equals(field.getTable()))
-							|| hHidden.contains(field.getFieldName())
-							|| hHiddenColumns.contains(field.getFieldName())) {
-						continue;
-					}
+				if (!hShowFields.contains(alias) && !table.isVisible()
+						|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
+								|| alias.equals(field.getTable()))
+						|| hHidden.contains(field.getFieldName()) || hHiddenColumns.contains(field.getFieldName())) {
+					continue;
 				}
 
 				dbSelectFields.add(field);
@@ -421,8 +423,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 	}
 
-	private HashSet<String> getSectionHash(String sectionName, String key) {
-		HashSet<String> result = new HashSet<>();
+	private Set<String> getSectionHash(String sectionName, String key) {
+		Set<String> result = new HashSet<>();
 		IniSection section = ini.getSection(sectionName);
 		if (section == null || section.isEmpty()) {
 			return result;
@@ -434,9 +436,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 
 		String[] values = item.getValue().split(",");
-		for (String s : values) {
-			result.add(s);
-		}
+		result.addAll(Arrays.asList(values));
 		return result;
 	}
 
@@ -488,6 +488,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 									result.add(obj);
 								}
 							} catch (Exception ex) {
+								// Should be logged
 							}
 						} else {
 							result.add(obj);

@@ -89,6 +89,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				writer.closeDBFFile();
 			}
 		} catch (Exception e) {
+			// Log the error
 		}
 
 		reader = null;
@@ -99,11 +100,9 @@ public class DBaseFile extends GeneralDB implements IConvert {
 	@Override
 	public void createDbHeader() throws Exception {
 		numFields = dbInfo2Write.size();
-		if (useAppend) {
-			if (numFields != writer.getFieldCount()) {
-				throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
-						Integer.toString(writer.getFieldCount()));
-			}
+		if (useAppend && numFields != writer.getFieldCount()) {
+			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
+					Integer.toString(writer.getFieldCount()));
 		}
 
 		DBFField[] fields = new DBFField[numFields];
@@ -245,7 +244,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		Object rowData[] = new Object[numFields];
+		Object[] rowData = new Object[numFields];
 
 		// Read the user defined list of DB fields
 		for (int i = 0; i < numFields; i++) {
@@ -259,7 +258,11 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				boolean b = (Boolean) dbField;
-				rowData[i] = useBoolean ? b : b ? getBooleanTrue() : getBooleanFalse();
+				if (useBoolean) {
+					rowData[i] = b;
+				} else {
+					rowData[i] = b ? getBooleanTrue() : getBooleanFalse();
+				}
 				break;
 			case DATE:
 				rowData[i] = useDate ? General.convertDB2Date(dbField.toString())
@@ -349,7 +352,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		}
 	}
 
-	private void getOEMEncoding() throws Exception {
+	private void getOEMEncoding() {
 		byte languageDriver = reader.getDBFHeader().getLanguageDriver();
 		Properties properties = General.getProperties(myImportFile == ExportFile.FOXPRO ? "foxpro" : "dBase");
 		String result = properties.getProperty(Byte.toString(languageDriver), "");

@@ -11,15 +11,13 @@ import application.utils.General;
 
 public class DBFMemo extends DBFBase {
 	private File memoFile;
-	private DBFHeader header;
 	private RandomAccessFile memoRaf;
 	private ByteArrayOutputStream memoBaos = new ByteArrayOutputStream();
 	private DataOutputStream memoDas = new DataOutputStream(memoBaos);
 	private int memoBlockSize = 512;
-	private int foxproBlockSize = 64;
 	private int nextMemoIndex = 1;
 
-	public DBFMemo(File memoFile, DBFHeader header) throws Exception {
+	public DBFMemo(File memoFile, DBFHeader header) {
 		this.memoFile = memoFile;
 		this.header = header;
 	}
@@ -38,6 +36,7 @@ public class DBFMemo extends DBFBase {
 			try {
 				memoRaf.close();
 			} catch (Exception e) {
+				// Nothing to do
 			}
 			memoRaf = null;
 		}
@@ -45,7 +44,7 @@ public class DBFMemo extends DBFBase {
 
 	private void checkMemoFileFormat() throws Exception {
 		String ext = memoFile.getName().toUpperCase();
-		ext = ext.substring(ext.lastIndexOf(".") + 1);
+		ext = ext.substring(ext.lastIndexOf('.') + 1);
 		StringBuilder buf = new StringBuilder(memoFile.getAbsolutePath());
 		buf.delete(buf.lastIndexOf("."), buf.length());
 		buf.append(".dbf");
@@ -84,7 +83,7 @@ public class DBFMemo extends DBFBase {
 		case DBFHeader.SIG_FOXPRO_WITH_MEMO:
 		case DBFHeader.SIG_VISUAL_FOXPRO_WITH_MEMO:
 			memoRaf.seek(6);
-			foxproBlockSize = memoRaf.readShort();
+			int foxproBlockSize = memoRaf.readShort();
 
 			if (foxproBlockSize == 0) {
 				memoBlockSize = 1;
@@ -95,6 +94,8 @@ public class DBFMemo extends DBFBase {
 					memoBlockSize = foxproBlockSize;
 				}
 			}
+		default:
+			break;
 		}
 	}
 
@@ -107,7 +108,7 @@ public class DBFMemo extends DBFBase {
 			return null;
 		}
 
-		memoRaf.seek(number * memoBlockSize);
+		memoRaf.seek((long)number * memoBlockSize);
 		ByteArrayOutputStream mBaos = new ByteArrayOutputStream();
 		byte[] buf = new byte[4];
 		int len = 0;
@@ -135,6 +136,7 @@ public class DBFMemo extends DBFBase {
 				return null; // Memo doesn't contain texts
 			}
 			len = memoRaf.readInt();
+		default:
 			break;
 		}
 
@@ -160,18 +162,6 @@ public class DBFMemo extends DBFBase {
 		case DBFHeader.SIG_DBASE_IV_WITH_MEMO:
 		case DBFHeader.SIG_DBASE_V_WITH_MEMO:
 			memoRaf.writeInt(Integer.reverseBytes(nextMemoIndex));
-			break;
-		case DBFHeader.SIG_FOXPRO_WITH_MEMO:
-		case DBFHeader.SIG_VISUAL_FOXPRO_WITH_MEMO:
-			memoBlockSize = 64;
-			nextMemoIndex = 8;
-			memoRaf.writeInt(nextMemoIndex);
-		}
-
-		switch (header.signature) {
-		case DBFHeader.SIG_DBASE_III_WITH_MEMO:
-		case DBFHeader.SIG_DBASE_IV_WITH_MEMO:
-		case DBFHeader.SIG_DBASE_V_WITH_MEMO:
 			memoRaf.seek(16);
 			memoRaf.writeByte(header.signature == DBFHeader.SIG_DBASE_III_WITH_MEMO ? 3 : 4);
 			memoRaf.seek(20);
@@ -183,13 +173,18 @@ public class DBFMemo extends DBFBase {
 			}
 
 			String dbFile = memoFile.getName().toUpperCase();
-			dbFile = dbFile.substring(0, dbFile.lastIndexOf("."));
+			dbFile = dbFile.substring(0, dbFile.lastIndexOf('.'));
 			memoRaf.seek(8);
 			memoRaf.writeBytes(dbFile);
+			break;
 		case DBFHeader.SIG_FOXPRO_WITH_MEMO:
 		case DBFHeader.SIG_VISUAL_FOXPRO_WITH_MEMO:
+			memoBlockSize = 64;
+			nextMemoIndex = 8;
+			memoRaf.writeInt(nextMemoIndex);
 			memoRaf.seek(6);
 			memoRaf.writeShort(64);
+		default:
 			break;
 		}
 	}
@@ -234,7 +229,7 @@ public class DBFMemo extends DBFBase {
 		memoRaf.writeInt(Integer.reverseBytes(offset));
 
 		// Write memo
-		memoRaf.seek(nextMemoIndex * memoBlockSize);
+		memoRaf.seek((long)nextMemoIndex * memoBlockSize);
 		memoRaf.write(memoBaos.toByteArray());
 		memoBaos.reset();
 	}

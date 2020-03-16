@@ -14,7 +14,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBFHeader {
 
@@ -77,18 +78,16 @@ public class DBFHeader {
 		languageDriver = in.readByte(); /* 29 */
 		reserv4 = Short.reverseBytes(in.readShort()); /* 30-31 */
 
-		Vector<DBFField> v_fields = new Vector<>();
+		List<DBFField> vFields = new ArrayList<>();
 
 		DBFField field = DBFField.createField(in); /* 32 each */
 		while (field != null) {
-			v_fields.addElement(field);
+			vFields.add(field);
 			field = DBFField.createField(in);
 		}
 
-		fieldArray = new DBFField[v_fields.size()];
-		for (int i = 0; i < fieldArray.length; i++) {
-			fieldArray[i] = v_fields.elementAt(i);
-		}
+		fieldArray = new DBFField[vFields.size()];
+		vFields.toArray(fieldArray);
 
 		switch (signature) {
 		case SIG_DBASE_III_WITH_MEMO:
@@ -147,11 +146,11 @@ public class DBFHeader {
 	}
 
 	private short findRecordLength() {
-		int recordLength = 0;
+		int recordLen = 0;
 		for (DBFField element : fieldArray) {
-			recordLength += element.getFieldLength();
+			recordLen += element.getFieldLength();
 		}
-		return (short) (recordLength + 1);
+		return (short) (recordLen + 1);
 	}
 
 	public byte getSignature() {
@@ -172,6 +171,7 @@ public class DBFHeader {
 				break;
 			case SIG_FOXPRO:
 				signature = SIG_FOXPRO_WITH_MEMO;
+			default:
 				break;
 			}
 		}

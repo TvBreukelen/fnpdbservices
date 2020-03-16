@@ -26,22 +26,23 @@ public class SQLite extends SqlDB implements IConvert {
 
 	private void verifyHeader() throws Exception {
 		String header = null;
-		RandomAccessFile raf = new RandomAccessFile(myFilename, "r");
-		FileChannel channel = raf.getChannel();
-		int len = myImportFile.getDbType().length();
 
-		if (channel.size() > len) {
-			byte[] byteArray = new byte[len];
-			raf.read(byteArray);
-			header = new String(byteArray);
-		}
+		try (RandomAccessFile raf = new RandomAccessFile(myFilename, "r")) {
+			FileChannel channel = raf.getChannel();
+			int len = myImportFile.getDbType().length();
 
-		channel.close();
-		raf.close();
+			if (channel.size() > len) {
+				byte[] byteArray = new byte[len];
+				raf.read(byteArray);
+				header = new String(byteArray);
+			}
 
-		if (header == null || !header.equals(myImportFile.getDbType())) {
-			throw FNProgException.getException("invalidDatabaseID", myFilename, myImportFile.getName(),
-					myImportFile.getDbType(), header);
+			channel.close();
+
+			if (header == null || !header.equals(myImportFile.getDbType())) {
+				throw FNProgException.getException("invalidDatabaseID", myFilename, myImportFile.getName(),
+						myImportFile.getDbType(), header);
+			}
 		}
 	}
 

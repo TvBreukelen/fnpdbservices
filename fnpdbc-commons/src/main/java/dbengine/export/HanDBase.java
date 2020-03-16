@@ -15,7 +15,7 @@ public class HanDBase extends CsvFile {
 	 * @author Tom van Breukelen
 	 * @version 8.2
 	 */
-	final private String exportFile = System.getProperty("java.io.tmpdir") + "\\" + "handbase.csv";
+	private final String exportFile = System.getProperty("java.io.tmpdir") + "\\" + "handbase.csv";
 	private String pdbFile;
 
 	public HanDBase(Profiles pref) {
@@ -64,15 +64,13 @@ public class HanDBase extends CsvFile {
 			cmd.add("AUTOINSTALL:{" + s + "}");
 		}
 
-		if (exportOption > 0) {
-			if (General.existFile(outFile)) {
-				cmd.add("USEEXISTING:{" + outFile + "}");
-				if (exportOption == 2) {
-					cmd.add("PDB:APPEND");
-				}
-				if (importOption == 1) {
-					cmd.add("PHYSICALORDER");
-				}
+		if (exportOption > 0 && General.existFile(outFile)) {
+			cmd.add("USEEXISTING:{" + outFile + "}");
+			if (exportOption == 2) {
+				cmd.add("PDB:APPEND");
+			}
+			if (importOption == 1) {
+				cmd.add("PHYSICALORDER");
 			}
 		}
 

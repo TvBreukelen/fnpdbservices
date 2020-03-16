@@ -1,6 +1,5 @@
 package fnprog2pda.software;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ public class BookCAT extends FNProgramvare {
 	private boolean useOriginalReleaseNo;
 	private boolean useReleaseNo;
 
-	private int myBookID = 0;
 	private int myItemCount = 0;
 	private String myPerson = "[None]";
 	private String myTitle = "";
@@ -35,8 +33,8 @@ public class BookCAT extends FNProgramvare {
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
-	public BookCAT(Component myParent) throws Exception {
-		super(myParent);
+	public BookCAT() {
+		super();
 		useContentsAuthor = pdaSettings.isUseContentsPerson();
 		useContentsOrigTitle = pdaSettings.isUseContentsOrigTitle();
 		useContentsItemTitle = pdaSettings.isUseContentsItemTitle();
@@ -181,7 +179,7 @@ public class BookCAT extends FNProgramvare {
 	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
-		myBookID = (Integer) dbDataRecord.get(myTableID);
+		int myBookID = (Integer) dbDataRecord.get(myTableID);
 		myLastIndex = Math.max(myLastIndex, myBookID);
 
 		if (useContents) {
@@ -209,7 +207,7 @@ public class BookCAT extends FNProgramvare {
 		}
 	}
 
-	private String getBookContents(Map<String, List<Map<String, Object>>> hashTable) throws Exception {
+	private String getBookContents(Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get("Contents");
 
@@ -241,18 +239,16 @@ public class BookCAT extends FNProgramvare {
 			String contTitle = (String) map.get("Title");
 			String origTitle = (String) map.get("OriginalTitle");
 
-			if (useContentsItemTitle) {
-				if (mediaList != null) {
-					item = ((Number) map.get("Contents.Item")).intValue();
-					if (item != oldItem) {
-						Map<String, Object> mapItem = mediaList.get(item - 1);
-						String itemTitle = (String) mapItem.get("Title");
-						if (myItemCount > 1 || myItemCount == 1 && !itemTitle.toUpperCase().equals(title)) {
-							if (item > 1) {
-								result.append("  \n");
-							}
-							result.append(item + " - " + itemTitle + "\n");
+			if (useContentsItemTitle && mediaList != null) {
+				item = ((Number) map.get("Contents.Item")).intValue();
+				if (item != oldItem) {
+					Map<String, Object> mapItem = mediaList.get(item - 1);
+					String itemTitle = (String) mapItem.get("Title");
+					if (myItemCount > 1 || myItemCount == 1 && !itemTitle.equalsIgnoreCase(title)) {
+						if (item > 1) {
+							result.append("  \n");
 						}
+						result.append(item + " - " + itemTitle + "\n");
 					}
 				}
 			}
@@ -289,7 +285,7 @@ public class BookCAT extends FNProgramvare {
 						break;
 					}
 
-					if ((Boolean) mapPerson.get("isAtEnd")) {
+					if ((boolean) mapPerson.get("isAtEnd")) {
 						break;
 					}
 

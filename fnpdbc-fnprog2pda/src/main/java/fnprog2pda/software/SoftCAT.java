@@ -1,6 +1,5 @@
 package fnprog2pda.software;
 
-import java.awt.Component;
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +10,6 @@ public class SoftCAT extends FNProgramvare {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	public SoftCAT(Component myParent) throws Exception {
-		super(myParent);
-	}
 
 	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)

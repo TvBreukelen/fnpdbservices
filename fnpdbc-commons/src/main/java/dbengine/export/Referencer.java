@@ -27,8 +27,6 @@ public class Referencer extends ExcelFile {
 	private String oldChapter;
 	private String oldParagraph;
 
-	private boolean isOldChapter = true;
-	private boolean isOldParagraph = true;
 	private boolean isMoreThanOneLine = false;
 	private boolean isTitlePrinted = false;
 
@@ -112,6 +110,7 @@ public class Referencer extends ExcelFile {
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
 		getChapterParagraphAndTitle(dbRecord);
+		final String DOTS = "------------------------------";
 
 		// Read the user defined list of DB fields
 		Row row = sheet.createRow(excelRow++);
@@ -156,7 +155,7 @@ public class Referencer extends ExcelFile {
 					excelCell--;
 					row = sheet.createRow(excelRow++);
 					cell = row.createCell(excelCell);
-					cell.setCellValue("------------------------------");
+					cell.setCellValue(DOTS);
 					cell.setCellStyle(memoFormat);
 					row = sheet.createRow(excelRow++);
 					cell = row.createCell(excelCell);
@@ -164,7 +163,7 @@ public class Referencer extends ExcelFile {
 					cell.setCellStyle(memoFormat);
 					row = sheet.createRow(excelRow++);
 					cell = row.createCell(excelCell);
-					cell.setCellValue("------------------------------");
+					cell.setCellValue(DOTS);
 					cell.setCellStyle(memoFormat);
 					for (int j = 0; j < count; j++) {
 						row = sheet.createRow(excelRow++);
@@ -190,7 +189,7 @@ public class Referencer extends ExcelFile {
 		}
 	}
 
-	private void getChapterParagraphAndTitle(Map<String, Object> dbRecord) throws Exception {
+	private void getChapterParagraphAndTitle(Map<String, Object> dbRecord) {
 		String chapter = dbRecord.containsKey(refFields[0]) ? dbRecord.get(refFields[0]).toString() : "";
 		String paragraph = dbRecord.containsKey(refFields[1]) ? dbRecord.get(refFields[1]).toString() : "";
 		String title1 = dbRecord.containsKey(refFields[2]) ? dbRecord.get(refFields[2]).toString() : "";
@@ -201,7 +200,7 @@ public class Referencer extends ExcelFile {
 		}
 
 		Row row = sheet.createRow(excelRow++);
-		isOldChapter = chapter.equals(oldChapter);
+		boolean isOldChapter = chapter.equals(oldChapter);
 		if (isOldChapter) {
 			if (isMoreThanOneLine) {
 				// Skip one row
@@ -215,7 +214,7 @@ public class Referencer extends ExcelFile {
 			oldChapter = chapter;
 		}
 
-		isOldParagraph = paragraph == null || paragraph.equals(oldParagraph);
+		boolean isOldParagraph = paragraph == null || paragraph.equals(oldParagraph);
 
 		if (!isOldParagraph && !paragraph.isEmpty()) {
 			if (isOldChapter && !isMoreThanOneLine) {

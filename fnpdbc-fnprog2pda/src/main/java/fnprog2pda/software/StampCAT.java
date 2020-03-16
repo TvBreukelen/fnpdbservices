@@ -1,6 +1,5 @@
 package fnprog2pda.software;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +12,6 @@ public class StampCAT extends FNProgramvare {
 	 * @version 4.5
 	 */
 	private boolean useCatalogNo = false;
-
-	public StampCAT(Component myParent) throws Exception {
-		super(myParent);
-	}
 
 	@Override
 	protected List<String> getSystemFields(List<String> userFields) {

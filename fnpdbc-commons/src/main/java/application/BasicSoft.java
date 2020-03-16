@@ -37,14 +37,15 @@ public abstract class BasicSoft extends Observable {
 	protected int firstRecord = 0;
 	protected int myCurrentRecord = 0;
 
-	protected final int LISTDB_MAX_CATEGORIES = 15;
-	protected final int LISTDB_MAX_CATEGORY_LENGTH = 15;
+	protected static final int LISTDB_MAX_CATEGORIES = 15;
+	protected static final int LISTDB_MAX_CATEGORY_LENGTH = 15;
 
 	protected List<String> myCategories = new ArrayList<>(); // Stores the List and SmartList categories
 	protected List<FieldDefinition> dbTableModelFields = new ArrayList<>(); // All fields loaded in the TableModel
 	protected List<FieldDefinition> dbInfoToWrite = new ArrayList<>(); // Export fields for the export file
 	protected Map<String, FieldDefinition> dbFieldDefinition; // Definition of all fields in the database
-	protected List<BasisField> dbUserFields = new ArrayList<>(); // User defined fields (note: userFields + dbSpecialFields = dbInfoToWrite)
+	protected List<BasisField> dbUserFields = new ArrayList<>(); // User defined fields (note: userFields +
+																	// dbSpecialFields = dbInfoToWrite)
 
 	protected boolean isFilterDefined;
 	protected ExportFile myExportFile = ExportFile.EXCEL;
@@ -86,7 +87,7 @@ public abstract class BasicSoft extends Observable {
 
 		myCurrentRecord = 0;
 		myTotalRecord = table.size();
-		
+
 		dbOut.createDbHeader();
 		for (Map<String, Object> rowData : table) {
 			dbOut.processData(dbTableModelFields.stream().collect(
@@ -155,16 +156,14 @@ public abstract class BasicSoft extends Observable {
 		if (pdaSettings.isFilterDefined()) {
 			for (int i = 0; i < 2; i++) {
 				String filterField = pdaSettings.getFilterField(i);
-				if (!filterField.isEmpty()) {
-					if (dbFieldDefinition.get(filterField) == null) {
-						// Filter field doesn't exist
-						pdaSettings.setFilterCondition("AND");
-						pdaSettings.setFilterField(i, "");
-						pdaSettings.setFilterValue(i, "");
-						pdaSettings.setFilterOperator(i, FilterOperator.IS_EQUAL_TO);
+				if (!filterField.isEmpty() && dbFieldDefinition.get(filterField) == null) {
+					// Filter field doesn't exist
+					pdaSettings.setFilterCondition("AND");
+					pdaSettings.setFilterField(i, "");
+					pdaSettings.setFilterValue(i, "");
+					pdaSettings.setFilterOperator(i, FilterOperator.IS_EQUAL_TO);
 
-						isFirst = i == 0;
-					}
+					isFirst = i == 0;
 				}
 			}
 		}

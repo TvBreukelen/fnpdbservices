@@ -61,14 +61,14 @@ public class DBFField {
 	 */
 	protected static DBFField createField(DataInput in) throws IOException {
 		DBFField field = new DBFField();
-		byte t_byte = in.readByte(); /* 0 */
+		byte tByte = in.readByte(); /* 0 */
 
-		if (t_byte == 10 || t_byte == 13) {
+		if (tByte == 10 || tByte == 13) {
 			return null;
 		}
 
 		in.readFully(field.fieldName, 1, 10); /* 1-10 */
-		field.fieldName[0] = t_byte;
+		field.fieldName[0] = tByte;
 
 		for (int i = 0; i < field.fieldName.length; i++) {
 			if (field.fieldName[i] == (byte) 0) {

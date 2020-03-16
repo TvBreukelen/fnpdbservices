@@ -1,6 +1,5 @@
 package fnprog2pda.software;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ public class CATraxx extends FNProgramvare {
 	 * @version 8
 	 */
 	private String myPerson = "[None]";
-	private boolean useArtist;
 	private boolean useArtistSort;
 	private boolean useTrackArtist = true;
 	private boolean useTrackLength = true;
@@ -29,12 +27,11 @@ public class CATraxx extends FNProgramvare {
 	private boolean useTrackItemTitle = true;
 	private boolean isPlaylist = false;
 
-	private int myAlbumID = 0;
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
-	public CATraxx(Component myParent) throws Exception {
-		super(myParent);
+	public CATraxx() {
+		super();
 		useTrackArtist = pdaSettings.isUseContentsPerson();
 		useTrackLength = pdaSettings.isUseContentsLength();
 		useTrackSide = pdaSettings.isUseContentsSide();
@@ -48,7 +45,7 @@ public class CATraxx extends FNProgramvare {
 
 	@Override
 	protected List<String> getContentsFields(List<String> userFields) {
-		useArtist = userFields.contains(personField[0]);
+		boolean useArtist = userFields.contains(personField[0]);
 		useArtistSort = userFields.contains(personField[1]);
 		useContents = userFields.contains("Tracks");
 		isPlaylist = myTable.equals("Playlist");
@@ -160,7 +157,7 @@ public class CATraxx extends FNProgramvare {
 	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
-		myAlbumID = (Integer) dbDataRecord.get(myTableID);
+		int myAlbumID = (Integer) dbDataRecord.get(myTableID);
 		myLastIndex = Math.max(myLastIndex, myAlbumID);
 
 		if (useContents) {
@@ -177,7 +174,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	// method that returns the Album Tracks as String
-	private String getAlbumTracks(int itemLength, Map<String, List<Map<String, Object>>> hashTable) throws Exception {
+	private String getAlbumTracks(int itemLength, Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get("Tracks");
 
@@ -235,7 +232,6 @@ public class CATraxx extends FNProgramvare {
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
 
-					sidePlaytime = (Number) mapItem.get("PlayingTime");
 					sideAPlaytime = (Number) mapItem.get("SideAPlayingTime");
 					sideBPlaytime = (Number) mapItem.get("SideBPlayingTime");
 
@@ -254,8 +250,7 @@ public class CATraxx extends FNProgramvare {
 					}
 				}
 
-				if (isDoubleSided && useTrackSide) {
-					if (!side.equals(oldSide)) {
+				if (isDoubleSided && useTrackSide && !side.equals(oldSide)) {
 						sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
 						sideTitle = side.equals("A") ? sideATitle : sideBTitle;
 						if (sideTitle == null) {
@@ -273,7 +268,6 @@ public class CATraxx extends FNProgramvare {
 							}
 						}
 					}
-				}
 			}
 
 			if (useTrackIndex) {
@@ -290,11 +284,11 @@ public class CATraxx extends FNProgramvare {
 
 			result.append(title);
 
-			if ((Boolean) map.get("Live")) {
+			if ((boolean) map.get("Live")) {
 				result.append(" [Live]");
 			}
 
-			if (useTrackArtist && !personList.isEmpty() && personIndex < maxPersons) {
+			if (useTrackArtist && maxPersons > 0 && personIndex < maxPersons) {
 				Map<String, Object> mapPerson = personList.get(personIndex);
 				boolean isPersonSet = false;
 				StringBuilder buf = new StringBuilder();
@@ -304,10 +298,8 @@ public class CATraxx extends FNProgramvare {
 					if (persons != null && !persons.isEmpty()) {
 						int roleID = useRoles ? ((Number) mapPerson.get("RoleID")).intValue() : 0;
 
-						if (isPersonSet) {
-							if (roleID < 1) {
+						if (isPersonSet && roleID < 1) {
 								buf.append(" & ");
-							}
 						}
 
 						buf.append(roleID > 0 ? getPersonRole("Artist", persons, roleID) : persons);
@@ -316,7 +308,7 @@ public class CATraxx extends FNProgramvare {
 						break;
 					}
 
-					if ((Boolean) mapPerson.get("isAtEnd")) {
+					if ((boolean) mapPerson.get("isAtEnd")) {
 						break;
 					}
 

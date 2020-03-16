@@ -24,7 +24,6 @@ public class FNProg2PDA_NoGUI implements Observer {
 	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 
 	private FNProgramvare mySoftware;
-	private ViewerModel tabModel;
 
 	public FNProg2PDA_NoGUI(String... args) {
 		TvBSoftware software = TvBSoftware.FNPROG2PDA;
@@ -82,6 +81,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 			pdaSettings.setExportFile(General.getDefaultPDADatabase(databaseType));
 		}
 
+		ViewerModel tabModel;
 		String[] guiText = new String[5];
 		guiText[0] = GUIFactory.getText("profile");
 		guiText[1] = GUIFactory.getText("exportFrom");
@@ -119,7 +119,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 		System.out.println("--------------------------------------------------------\n");
 
 		FNPSoftware soft = FNPSoftware.getSoftware(dbSettings.getDatabaseType());
-		mySoftware = FNProgramvare.getSoftware(soft, null);
+		mySoftware = FNProgramvare.getSoftware(soft);
 		if (pdaSettings.getTableName().isEmpty()) {
 			pdaSettings.setTableName(soft.getViews().get(0), true);
 		}

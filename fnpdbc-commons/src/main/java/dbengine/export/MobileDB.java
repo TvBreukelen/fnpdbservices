@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import application.BasicSoft;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
@@ -25,18 +24,13 @@ public class MobileDB extends PalmDB {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	private final byte[] RECORD_HEADER = new byte[] { -1, -1, -1, 1, -1, 0 };
-	private final byte[] RECORD_FOOTER = new byte[] { 0, -1 };
+	private static final byte[] RECORD_HEADER = new byte[] { -1, -1, -1, 1, -1, 0 };
+	private static final byte[] RECORD_FOOTER = new byte[] { 0, -1 };
 
 	private int numFields;
 
 	public MobileDB(Profiles pref) {
 		super(pref);
-	}
-
-	@Override
-	public void setSoftware(BasicSoft pSoft) {
-		super.setSoftware(pSoft);
 	}
 
 	@Override
@@ -277,7 +271,7 @@ public class MobileDB extends PalmDB {
 
 		while (index[1] < MAX) {
 			index[0] = index[1];
-			index[1] = s.indexOf("\0", index[0]);
+			index[1] = s.indexOf('\0', index[0]);
 			result.add(s.substring(index[0], index[1]));
 			index[1] += 2;
 		}

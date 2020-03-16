@@ -120,7 +120,7 @@ public class JFile5 extends PalmDB {
 		readLn(record);
 		String s = General.convertBytes2String(record, encoding);
 		int[] index = new int[3];
-		index[2] = s.indexOf("\0", index[0]);
+		index[2] = s.indexOf('\0', index[0]);
 
 		while (index[2] != -1 && index[0] < numFields) {
 			FieldDefinition field = dbDef.get(index[0]++);
@@ -157,7 +157,7 @@ public class JFile5 extends PalmDB {
 			}
 			result.put(field.getFieldAlias(), dbValue);
 			index[1] = index[2] + 1;
-			index[2] = s.indexOf("\0", index[1]);
+			index[2] = s.indexOf('\0', index[1]);
 		}
 		return result;
 	}

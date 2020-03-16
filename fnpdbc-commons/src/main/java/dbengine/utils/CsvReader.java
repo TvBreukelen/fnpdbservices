@@ -27,16 +27,16 @@ public class CsvReader {
 	private char comment = '#';
 	private char lastLetter = '\0';
 	private int escapeMode = 1;
-	private String headers[] = new String[0];
+	private String[] headers = new String[0];
 	private int headersCount;
 
 	private Hashtable<String, Integer> headerIndexByName = new Hashtable<>();
-	private char columnBuffer[] = new char[100];
+	private char[] columnBuffer = new char[100];
 	private int columnBufferSize = 100;
 	private int maxColumnCount = 10;
-	private int columnStarts[] = new int[10];
-	private int columnLengths[] = new int[10];
-	private char dataBuffer[] = new char[1024];
+	private int[] columnStarts = new int[10];
+	private int[] columnLengths = new int[10];
+	private char[] dataBuffer = new char[1024];
 
 	private int usedColumnLength;
 	private int columnStart;
@@ -269,7 +269,6 @@ public class CsvReader {
 												} else {
 													flag2 = true;
 												}
-												flag = false;
 											} else {
 												addLetter(c);
 											}
@@ -790,8 +789,8 @@ public class CsvReader {
 			}
 			if (columnsCount == maxColumnCount) {
 				int i = maxColumnCount + Math.max(1, (int) (maxColumnCount * 1.0D / 2D));
-				int ai[] = new int[i];
-				int ai1[] = new int[i];
+				int[] ai = new int[i];
+				int[] ai1 = new int[i];
 				System.arraycopy(columnStarts, 0, ai, 0, maxColumnCount);
 				System.arraycopy(columnLengths, 0, ai1, 0, maxColumnCount);
 				columnStarts = ai;
@@ -857,7 +856,7 @@ public class CsvReader {
 			}
 			if (usedColumnLength == columnBufferSize) {
 				int i = columnBufferSize + Math.max(1, (int) (columnBufferSize * 1.0D / 2D));
-				char ac[] = new char[i];
+				char[] ac = new char[i];
 				System.arraycopy(columnBuffer, 0, ac, 0, columnBufferSize);
 				columnBuffer = ac;
 				columnBufferSize = i;

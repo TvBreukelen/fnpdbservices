@@ -53,7 +53,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 		if (isRefresh || !mySoftware.isConnected()) {
 			isNotLoaded = true;
 			try {
-				mySoftware = FNProgramvare.getSoftware(myProgram.myFnSoftware, myProgram);
+				mySoftware = FNProgramvare.getSoftware(myProgram.myFnSoftware);
 				mySoftware.openFile(); // Connect to the FNProgramvare Access database
 				mySoftware.setupDBTranslation(false);
 				xView = new Viewer(mySoftware.getTableModelFields());

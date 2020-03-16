@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class PilotDB extends PalmDB {
 	 * @author Tom van Breukelen
 	 * @version 5.0
 	 */
-	private HashMap<Short, ArrayList<String>> dbList = new HashMap<>();
+	private Map<Short, List<String>> dbList = new HashMap<>();
 
 	private int numFields;
 	private int offSet;
@@ -212,32 +213,29 @@ public class PilotDB extends PalmDB {
 			case 1: // Field Types
 				parseFieldTypesChunk(fieldData);
 				break;
-			case 2: // Field Data
+			default: // Field Data
 				parseFieldDataChunk(fieldData);
 			}
 			pos += dataSize;
 		}
 	}
 
-	private void parseFieldNamesChunk(byte[] data) throws Exception {
+	private void parseFieldNamesChunk(byte[] data) {
 		String fieldData = new String(data);
 		String[] fields = fieldData.split("\0");
 
 		numFields = fields.length;
 		dbFieldNames.clear();
-
-		for (int i = 0; i < numFields; i++) {
-			dbFieldNames.add(fields[i]);
-		}
+		dbFieldNames.addAll(Arrays.asList(fields));
 	}
 
 	private void parseFieldTypesChunk(byte[] data) throws Exception {
 		dbFieldTypes.clear();
-		ByteArrayInputStream byte_in = new ByteArrayInputStream(data);
-		DataInputStream data_in = new DataInputStream(byte_in);
+		ByteArrayInputStream bIn = new ByteArrayInputStream(data);
+		DataInputStream dIn = new DataInputStream(bIn);
 
 		for (int i = 0; i < numFields; i++) {
-			short type = data_in.readShort();
+			short type = dIn.readShort();
 			switch (type) {
 			case 0:
 				dbFieldTypes.add(FieldTypes.TEXT);
@@ -293,12 +291,8 @@ public class PilotDB extends PalmDB {
 			String[] fields = fldData.split("\0");
 
 			int maxFields = fields.length;
-			ArrayList<String> dbListValues = new ArrayList<>(maxFields);
-
-			for (int i = 0; i < maxFields; i++) {
-				dbListValues.add(fields[i]);
-			}
-
+			List<String> dbListValues = new ArrayList<>(maxFields);
+			dbListValues.addAll(Arrays.asList(fields));
 			dbList.put(fieldNum, dbListValues);
 		}
 	}
@@ -311,12 +305,12 @@ public class PilotDB extends PalmDB {
 		byte[] data = new byte[recordID[2] - recordID[0]];
 		readLn(data);
 
-		ByteArrayInputStream byte_in = new ByteArrayInputStream(data);
-		DataInputStream data_in = new DataInputStream(byte_in);
+		ByteArrayInputStream bIn = new ByteArrayInputStream(data);
+		DataInputStream dIn = new DataInputStream(bIn);
 
 		int[] fieldLen = new int[numFields + 1];
 		for (int i = 0; i < numFields; i++) {
-			fieldLen[i] = data_in.readShort(); // get position of each field in the data byte array
+			fieldLen[i] = dIn.readShort(); // get position of each field in the data byte array
 		}
 		fieldLen[numFields] = data.length;
 
@@ -372,7 +366,7 @@ public class PilotDB extends PalmDB {
 	 */
 	private String convertText2DB(byte[] data) {
 		String result = General.convertBytes2String(data, encoding) + "\0";
-		return result.substring(0, result.indexOf("\0"));
+		return result.substring(0, result.indexOf('\0'));
 	}
 
 	/**
@@ -383,16 +377,16 @@ public class PilotDB extends PalmDB {
 			return "";
 		}
 
-		ByteArrayInputStream byte_in = new ByteArrayInputStream(data);
-		DataInputStream data_in = new DataInputStream(byte_in);
+		ByteArrayInputStream bIn = new ByteArrayInputStream(data);
+		DataInputStream dIn = new DataInputStream(bIn);
 
-		short year = data_in.readShort();
+		short year = dIn.readShort();
 		if (year == 0) {
 			return "";
 		}
 
-		byte month = data_in.readByte();
-		byte day = data_in.readByte();
+		byte month = dIn.readByte();
+		byte day = dIn.readByte();
 
 		StringBuilder result = new StringBuilder();
 		result.append(year);
@@ -425,7 +419,7 @@ public class PilotDB extends PalmDB {
 		return result;
 	}
 
-	private String convertTime2DB(byte[] data) throws Exception {
+	private String convertTime2DB(byte[] data) {
 		if (data == null || data[0] == 24) {
 			return "";
 		}
@@ -455,16 +449,16 @@ public class PilotDB extends PalmDB {
 		return result;
 	}
 
-	private String convertListField2DB(byte[] data, int i) throws Exception {
+	private String convertListField2DB(byte[] data, int i) {
 		if (dbList.isEmpty() || data[0] < 0) {
 			return "";
 		}
 
-		ArrayList<String> dbFieldValues = dbList.get((short) i);
+		List<String> dbFieldValues = dbList.get((short) i);
 		return dbFieldValues.get(data[0]);
 	}
 
-	private String convertLinkedField2DB(byte[] data) throws Exception {
+	private String convertLinkedField2DB(byte[] data) {
 		if (data == null || data.length < 5) {
 			return "";
 		}
@@ -475,14 +469,13 @@ public class PilotDB extends PalmDB {
 		return General.convertBytes2String(dataField, "");
 	}
 
-	private String convertMemo2DB(byte[] fieldData, byte[] data, ArrayList<int[]> fieldLen, int fieldNum)
-			throws Exception {
+	private String convertMemo2DB(byte[] fieldData, byte[] data, ArrayList<int[]> fieldLen, int fieldNum) {
 		if (fieldData == null) {
 			return "";
 		}
 
 		String s = General.convertBytes2String(fieldData, encoding);
-		int index0 = s.indexOf("\0");
+		int index0 = s.indexOf('\0');
 		String header = s.substring(0, index0);
 
 		if (fieldData.length < index0 + 2) {
@@ -530,9 +523,9 @@ public class PilotDB extends PalmDB {
 		}
 
 		// Check for carriage return or next line (for memo header)
-		int textLen = pMemo.indexOf("\r");
+		int textLen = pMemo.indexOf('\r');
 		if (textLen == -1) {
-			textLen = pMemo.indexOf("\n");
+			textLen = pMemo.indexOf('\n');
 			if (textLen == -1) {
 				textLen = pMemo.length();
 			}
@@ -553,18 +546,19 @@ public class PilotDB extends PalmDB {
 			out.writeByte(0);
 			return result.toByteArray();
 		} catch (Exception e) {
+			// Log error
 		}
 		return new byte[4];
 	}
 
-	private Double convertFloat2DB(byte[] data) throws Exception {
+	private Double convertFloat2DB(byte[] data) {
 		if (data == null || data.length < 4) {
 			return 0D;
 		}
 		return DOUBLE(data);
 	}
 
-	private Integer convertNumeric2DB(byte[] data) throws Exception {
+	private Integer convertNumeric2DB(byte[] data) {
 		if (data == null || data.length < 4) {
 			return 0;
 		}

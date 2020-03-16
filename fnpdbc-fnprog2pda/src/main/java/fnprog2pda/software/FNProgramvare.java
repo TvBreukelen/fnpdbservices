@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -89,7 +90,6 @@ public abstract class FNProgramvare extends BasicSoft {
 	private int imageOption;
 
 	private GeneralDB dbOut;
-	private boolean createBackup;
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
 	private boolean isNoImagePath = false;
@@ -102,7 +102,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 
-	public FNProgramvare(Component parent) throws Exception {
+	public FNProgramvare() {
 		super(pdaSettings);
 
 		isNoImagePath = generalSettings.isNoImagePath();
@@ -122,7 +122,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		myImportFile = ExportFile.ACCESS;
 	}
 
-	public void setupDBTranslation(boolean isNew) throws Exception {
+	public void setupDBTranslation(boolean isNew) {
 		boolean isUserListError = false;
 
 		msTable = dbFactory.getMSTable();
@@ -221,10 +221,9 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	public void openToFile() throws Exception {
-		createBackup = pdaSettings.isCreateBackup();
 		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings, false);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), createBackup, false);
+		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), pdaSettings.isCreateBackup(), false);
 		isOutputFileOpen = true;
 	}
 
@@ -278,10 +277,8 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	public boolean isConnected() {
-		if (isInputFileOpen) {
-			if (!dbFactory.isConnected()) {
-				close();
-			}
+		if (isInputFileOpen && !dbFactory.isConnected()) {
+			close();
 		}
 
 		return isInputFileOpen;
@@ -304,7 +301,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		final int MAX_RECORDS = fieldData.size();
 
 		int count = 1;
-		for (int i = 0; i < MAX_RECORDS && count < MAX_CATEGORIES; i++) {
+		for (int i = 0; i < MAX_RECORDS && count < MAX_CATEGORIES; i++, count++) {
 			String category = fieldData.get(i).toString();
 			if (category == null || category.isEmpty()) {
 				continue;
@@ -315,7 +312,6 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 
 			myCategories.add(category);
-			count++;
 		}
 	}
 
@@ -381,18 +377,15 @@ public abstract class FNProgramvare extends BasicSoft {
 					isOK = pdaSettings.getLastIndex() < ((Number) map.get(myTableID)).intValue();
 				}
 
-				if (!isOK) {
-					if (!myLastModified.isEmpty() && map.containsKey("LastModified")) {
-						Object obj = map.get("LastModified");
-						if (obj == null || obj.equals("")) {
-							continue;
-						}
+				if (!isOK && !myLastModified.isEmpty() && map.containsKey("LastModified")) {
+					Object obj = map.get("LastModified");
+					if (obj == null || obj.equals("")) {
+						continue;
+					}
 
-						String compDate = obj instanceof Date ? General.convertTimestamp2DB((Date) obj)
-								: obj.toString();
-						if (compDate.compareTo(myLastModified) < 0) {
-							continue;
-						}
+					String compDate = obj instanceof Date ? General.convertTimestamp2DB((Date) obj) : obj.toString();
+					if (compDate.compareTo(myLastModified) < 0) {
+						continue;
 					}
 				}
 			}
@@ -400,14 +393,15 @@ public abstract class FNProgramvare extends BasicSoft {
 			if (isFilterDefined) {
 				boolean[] isTrue = { true, true };
 
-				for (int i : hFilterTable.keySet()) {
-					FieldDefinition filterField = hFilterTable.get(i);
-					if (filterField.getTable().equals(myTable)) {
-						isTrue[i] = isIncludeRecord(map, filterField, pdaSettings.getFilterValue(i),
-								pdaSettings.getFilterOperator(i));
+				for (Entry<Integer, FieldDefinition> entry : hFilterTable.entrySet()) {
+					if (entry.getValue().getTable().equals(myTable)) {
+						isTrue[entry.getKey()] = isIncludeRecord(map, entry.getValue(),
+								pdaSettings.getFilterValue(entry.getKey()),
+								pdaSettings.getFilterOperator(entry.getKey()));
 					} else {
-						isTrue[i] = isIncludeRecord(getLinkedRecords(map, hashTable, filterField), filterField,
-								pdaSettings.getFilterValue(i), pdaSettings.getFilterOperator(i));
+						isTrue[entry.getKey()] = isIncludeRecord(getLinkedRecords(map, hashTable, entry.getValue()),
+								entry.getValue(), pdaSettings.getFilterValue(entry.getKey()),
+								pdaSettings.getFilterOperator(entry.getKey()));
 					}
 				}
 
@@ -495,7 +489,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		List<Map<String, Object>> result = getMainTableRecord(table, map, hashTable, key);
-		if (result != null) {
+		if (!result.isEmpty()) {
 			return result;
 		}
 
@@ -503,8 +497,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		MSTable link = dbFactory.getMSTable(linkKey);
 
 		List<Map<String, Object>> linkList = getMainTableRecord(link, map, hashTable, linkKey);
-
-		result = new ArrayList<>();
 		hashTable.put(key, result);
 
 		if (linkList == null) {
@@ -575,8 +567,7 @@ public abstract class FNProgramvare extends BasicSoft {
 					continue;
 				}
 
-				result.get(result.size() - 1).put("isAtEnd",
-						linkMap.containsKey("isAtEnd") ? (Boolean) linkMap.get("isAtEnd") : true);
+				result.get(result.size() - 1).put("isAtEnd", linkMap.getOrDefault("isAtEnd", true));
 			}
 		}
 		return result;
@@ -603,7 +594,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			hashTable.put(tableKey, result);
 			return result;
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	private void convertImage(String field, Map<String, Object> dbRecord, List<Map<String, Object>> list)
@@ -615,7 +606,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		Map<String, Object> map = list.get(0);
 		boolean result = false;
 
-		if (field.startsWith("Thumb") || !((Boolean) map.get("ImageExternal"))) {
+		if (field.startsWith("Thumb") || !((boolean) map.get("ImageExternal"))) {
 			result = check4InternalImage(field, dbRecord, map);
 		} else {
 			result = check4ExternalImage(field, dbRecord, map);
@@ -650,7 +641,7 @@ public abstract class FNProgramvare extends BasicSoft {
 				}
 			} else {
 				dbRecord.put(field,
-						isNoImagePath ? imageFilename.substring(imageFilename.lastIndexOf("\\") + 1) : imageFilename);
+						isNoImagePath ? imageFilename.substring(imageFilename.lastIndexOf('\\') + 1) : imageFilename);
 			}
 		}
 		return true;
@@ -712,6 +703,7 @@ public abstract class FNProgramvare extends BasicSoft {
 							FilterOperator.IS_GREATER_THAN);
 					isNewRecords = false;
 				} catch (Exception e) {
+					// Log the error
 				}
 			}
 		} else {
@@ -740,16 +732,15 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	private void setContentsFilter() {
 		if (useContents && !pdaSettings.getContentsFilter().isEmpty()) {
-			Object filter = pdaSettings.getContentsFilter();
-
 			try {
 				Map<String, Object> map = msAccess.getSingleRecord("ContentsType", null,
-						Collections.singletonMap("ContentsType", filter));
+						Collections.singletonMap("ContentsType", pdaSettings.getContentsFilter()));
 				if (!map.isEmpty()) {
 					MSTable table = dbFactory.getMSTable("Contents");
 					table.getColumnValues().put("TypeID", map.get("ContentsTypeID"));
 				}
 			} catch (Exception e) {
+				// Log error
 			}
 		}
 	}
@@ -757,17 +748,15 @@ public abstract class FNProgramvare extends BasicSoft {
 	private boolean setKeywordFilter(Set<Object> idSet) throws Exception {
 		idSet.clear();
 		if (!pdaSettings.getKeywordFilter().isEmpty()) {
-			Object filter = pdaSettings.getKeywordFilter();
+			Object kwFilter = pdaSettings.getKeywordFilter();
 
 			MSTable table = dbFactory.getMSTable("Keyword");
 			Map<String, Object> map = msAccess.getSingleRecord("Keyword",
-					table.isIndexedColumn("Keyword") ? "Keyword" : null, Collections.singletonMap("Keyword", filter));
-			if (!map.isEmpty()) {
-				if (!setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), "KeywordID",
-						Collections.singletonMap("KeywordID", map.get("KeywordID"))))) {
-					pdaSettings.setKeywordFilter("");
-					return false;
-				}
+					table.isIndexedColumn("Keyword") ? "Keyword" : null, Collections.singletonMap("Keyword", kwFilter));
+			if (!map.isEmpty() && !setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), "KeywordID",
+					Collections.singletonMap("KeywordID", map.get("KeywordID"))))) {
+				pdaSettings.setKeywordFilter("");
+				return false;
 			}
 
 			return true;
@@ -792,7 +781,8 @@ public abstract class FNProgramvare extends BasicSoft {
 			return false;
 		}
 
-		int index = oper[0] == FilterOperator.IS_EQUAL_TO ? 0 : oper[1] == FilterOperator.IS_EQUAL_TO ? 1 : 0;
+		int idx = oper[1] == FilterOperator.IS_EQUAL_TO ? 1 : 0;
+		int index = oper[0] == FilterOperator.IS_EQUAL_TO ? 0 : idx;
 		FieldDefinition field = dbFieldDefinition.get(pdaSettings.getFilterField(index));
 		MSTable table = dbFactory.getMSTable(field.getTable());
 		boolean isIndexColumn = table.isIndexedColumn(field.getFieldName());
@@ -813,8 +803,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		Map<String, Object> hFilter = new HashMap<>();
-		Object filter = pdaSettings.getFilterValue(index);
-		hFilter.put(field.getFieldName(), filter);
+		hFilter.put(field.getFieldName(), pdaSettings.getFilterValue(index));
 
 		if (field.getTable().equals(myTable)) {
 			cursor = msAccess.getCursor(myTable, field.getFieldName(), hFilter, oper[index]);
@@ -858,13 +847,9 @@ public abstract class FNProgramvare extends BasicSoft {
 
 			if (table.getFromTable().equals(myTable)) {
 				cursor = msAccess.getCursor(myTable, indexName, hFilter, FilterOperator.IS_EQUAL_TO);
-				// return false;
 			} else {
 				isFilterDefined = true;
 			}
-
-			// return setIdFilter(idSet, msAccess.getMultipleRecords(link.getName(),
-			// indexName, hFilter));
 		}
 		return false;
 	}
@@ -878,7 +863,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 	}
 
-	private boolean setIdFilter(Set<Object> idSet, List<Map<String, Object>> list) throws Exception {
+	private boolean setIdFilter(Set<Object> idSet, List<Map<String, Object>> list) {
 		if (list == null || list.isEmpty()) {
 			return false;
 		}
@@ -899,9 +884,8 @@ public abstract class FNProgramvare extends BasicSoft {
 		setDatabaseData(pRead, hashTable);
 		pWrite.add(pRead);
 
-		dbTableModelFields.stream().filter(filter).forEach(field -> {
-			field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""));
-		});
+		dbTableModelFields.stream().filter(filter)
+				.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 	}
 
 	public void checkNumberOfFields(boolean isExport, ViewerModel model) throws Exception {
@@ -978,39 +962,35 @@ public abstract class FNProgramvare extends BasicSoft {
 		return person;
 	}
 
-	public static FNProgramvare getSoftware(FNPSoftware soft, Component parent) {
-		try {
-			switch (soft) {
-			case ASSETCAT:
-				return new AssetCAT(parent);
-			case BOOKCAT:
-				return new BookCAT(parent);
-			case CATRAXX:
-				return new CATraxx(parent);
-			case CATVIDS:
-				return new CATVids(parent);
-			case SOFTCAT:
-				return new SoftCAT(parent);
-			case STAMPCAT:
-				return new StampCAT(parent);
-			default:
-				return null;
-			}
-		} catch (Exception e) {
+	public static FNProgramvare getSoftware(FNPSoftware soft) {
+		switch (soft) {
+		case ASSETCAT:
+			return new AssetCAT();
+		case BOOKCAT:
+			return new BookCAT();
+		case CATRAXX:
+			return new CATraxx();
+		case CATVIDS:
+			return new CATVids();
+		case SOFTCAT:
+			return new SoftCAT();
+		case STAMPCAT:
+			return new StampCAT();
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	protected List<String> getSystemFields(List<String> userFields) {
 		// Nothing to do on this level
-		return new ArrayList<>();
+		return new ArrayList<>(userFields);
 	}
 
 	protected List<String> getContentsFields(List<String> userFields) {
 		// Nothing to do on this level
-		return new ArrayList<>();
+		return new ArrayList<>(userFields);
 	}
 
-	abstract protected void setDatabaseData(Map<String, Object> dbDataRecord,
+	protected abstract void setDatabaseData(Map<String, Object> dbDataRecord,
 			Map<String, List<Map<String, Object>>> hashTable) throws Exception;
 }
