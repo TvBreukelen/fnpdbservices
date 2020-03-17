@@ -22,6 +22,9 @@ public class CATVids extends FNProgramvare {
 	private boolean useContentsIndex = true;
 	private boolean useContentsItemTitle = true;
 
+	private static final String CONTENTS = "Contents";
+	private static final String CONTENTS_ITEM = "Contents.Item";
+
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
@@ -32,17 +35,17 @@ public class CATVids extends FNProgramvare {
 		useContentsIndex = pdaSettings.isUseContentsIndex();
 		useContentsItemTitle = pdaSettings.isUseContentsItemTitle();
 
-		sortList.put("Contents.Item", FieldTypes.NUMBER);
+		sortList.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortList.put("Index", FieldTypes.NUMBER);
 	}
 
 	@Override
 	protected List<String> getContentsFields(List<String> userFields) {
 		List<String> result = new ArrayList<>();
-		useContents = userFields.contains("Contents");
+		useContents = userFields.contains(CONTENTS);
 
 		if (useContents) {
-			result.add("Contents.Item");
+			result.add(CONTENTS_ITEM);
 			result.add("Media.Item");
 			result.add("NumberOfSegments");
 		}
@@ -58,7 +61,7 @@ public class CATVids extends FNProgramvare {
 		if (useContents) {
 			String s = dbDataRecord.get("NumberOfSegments").toString();
 			if (Integer.parseInt(s) > 1) {
-				dbDataRecord.put("Contents", getVideoContents(s.length(), hashTable));
+				dbDataRecord.put(CONTENTS, getVideoContents(s.length(), hashTable));
 			}
 		}
 	}
@@ -85,7 +88,7 @@ public class CATVids extends FNProgramvare {
 		List<Map<String, Object>> mediaList = hashTable.get("Media");
 
 		// Get Contents
-		List<Map<String, Object>> contentsList = hashTable.get("Contents");
+		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
 
 		if (contentsList == null || contentsList.isEmpty()) {
 			return "";
@@ -101,7 +104,7 @@ public class CATVids extends FNProgramvare {
 			side = (String) map.get("Side");
 
 			if (mediaList != null) {
-				item = ((Number) map.get("Contents.Item")).intValue();
+				item = ((Number) map.get(CONTENTS_ITEM)).intValue();
 				Map<String, Object> mapItem = mediaList.get(item - 1);
 
 				if (item != oldItem) {

@@ -75,7 +75,6 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		Add, Edit, Clone, Delete, TabChange
 	}
 
-	private JButton btNew;
 	private JButton btClone;
 	private JButton btEdit;
 	private JButton btRemove;
@@ -105,10 +104,10 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	protected boolean isProfileSet = true;
 	private boolean isInit = true;
 
-	private JTabbedPane _tabPane;
-	private ProjectModel _model;
+	private JTabbedPane tabPane;
+	private ProjectModel model;
 
-	private Map<String, JTable> _projects = new HashMap<>();
+	private Map<String, JTable> projects = new HashMap<>();
 
 	protected Profiles pdaSettings;
 	protected Databases dbSettings;
@@ -120,7 +119,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 		funcNew = e -> {
 			try {
-				IConfigSoft configSoft = getConfigSoft(ProgramDialog.this, _model, true);
+				IConfigSoft configSoft = getConfigSoft(ProgramDialog.this, model, true);
 				configSoft.setVisible(true);
 			} catch (Exception ex) {
 				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
@@ -129,16 +128,16 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 		funcEdit = e -> {
 			try {
-				IConfigSoft config = getConfigSoft(ProgramDialog.this, _model, false);
+				IConfigSoft config = getConfigSoft(ProgramDialog.this, model, false);
 				config.setVisible(true);
 			} catch (Exception ex) {
 				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
 			}
 		};
-		
+
 		pdaSettings = profile;
 		dbSettings = profile.getDbSettings();
-		_model = new ProjectModel(pdaSettings);
+		model = new ProjectModel(pdaSettings);
 	}
 
 	@Override
@@ -192,7 +191,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	@Override
 	protected JComponent createToolBar() {
-		btNew = General.createToolBarButton(GUIFactory.getToolTip("funcNew"), "New.png", funcNew);
+		JButton btNew = General.createToolBarButton(GUIFactory.getToolTip("funcNew"), "New.png", funcNew);
 		btEdit = General.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
 
 		btClone = General.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
@@ -244,13 +243,13 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		JPanel result = new JPanel();
 		result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
 
-		_tabPane = new JTabbedPane();
+		tabPane = new JTabbedPane();
 		for (String project : proj) {
-			_tabPane.addTab(project, getTabComponent(project));
+			tabPane.addTab(project, getTabComponent(project));
 		}
 
-		_tabPane.addChangeListener(e -> {
-			int index = _tabPane.getSelectedIndex();
+		tabPane.addChangeListener(e -> {
+			int index = tabPane.getSelectedIndex();
 			if (index == -1) {
 				replaceCenterScreen(createWelcomeScreen());
 				isProfileSet = false;
@@ -262,7 +261,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			}
 		});
 
-		result.add(_tabPane);
+		result.add(tabPane);
 
 		JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEFT));
 		panel.setBackgroundPainter(General.getPainter());
@@ -282,12 +281,11 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			String initProject = pdaSettings.getInitialProject();
 			String initProfile = pdaSettings.getInitialProfile();
 
-			if (!initProfile.isEmpty() && !initProject.isEmpty()) {
-				if (pdaSettings.profileExists(initProject, initProfile)) {
-					pdaSettings.setProject(initProject);
-					pdaSettings.setProfile(initProfile);
-					updateProfile(Action.Edit);
-				}
+			if (!initProfile.isEmpty() && !initProject.isEmpty()
+					&& pdaSettings.profileExists(initProject, initProfile)) {
+				pdaSettings.setProject(initProject);
+				pdaSettings.setProfile(initProfile);
+				updateProfile(Action.Edit);
 			}
 		}
 
@@ -310,8 +308,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		String url = software.getDownload();
 		boolean isOpenSite = false;
 
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()));
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
 			String line = reader.readLine().trim();
 			while (line != null) {
 				line = line.trim();
@@ -335,13 +332,13 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	}
 
 	private boolean isProjectOnTabPane(String projectID) {
-		if (_tabPane == null) {
+		if (tabPane == null) {
 			return false;
 		}
 
-		for (int i = 0; i < _tabPane.getComponentCount(); i++) {
-			if (_tabPane.getTitleAt(i).equals(projectID)) {
-				_tabPane.setSelectedIndex(i);
+		for (int i = 0; i < tabPane.getComponentCount(); i++) {
+			if (tabPane.getTitleAt(i).equals(projectID)) {
+				tabPane.setSelectedIndex(i);
 				return true;
 			}
 		}
@@ -355,10 +352,10 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		switch (action) {
 		case Add:
 		case Clone:
-			_model.addRecord(projectID, profileID);
+			model.addRecord(projectID, profileID);
 			break;
 		case TabChange:
-			projectID = _tabPane.getTitleAt(_tabPane.getSelectedIndex());
+			projectID = tabPane.getTitleAt(tabPane.getSelectedIndex());
 		default:
 			break;
 		}
@@ -372,7 +369,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		}
 
 		try {
-			JTable table = _projects.get(projectID);
+			JTable table = projects.get(projectID);
 			int row = table.getSelectedRow();
 			int modelIndex = -1;
 
@@ -380,7 +377,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			case Delete:
 				pdaSettings.deleteNode(pdaSettings.getProfileID());
 				modelIndex = table.convertRowIndexToModel(row);
-				_model.removeRecord(modelIndex);
+				model.removeRecord(modelIndex);
 
 				if (row == table.getRowCount()) {
 					row--;
@@ -391,8 +388,8 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				}
 
 				if (pdaSettings.getProfiles(projectID).isEmpty()) {
-					_tabPane.remove(_tabPane.getSelectedIndex());
-					_projects.remove(projectID);
+					tabPane.remove(tabPane.getSelectedIndex());
+					projects.remove(projectID);
 					pdaSettings.removeProject(projectID);
 					return;
 				}
@@ -400,7 +397,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			case Clone:
 			case Add:
 			case Edit:
-				modelIndex = _model.getProfileIndex(projectID, profileID);
+				modelIndex = model.getProfileIndex(projectID, profileID);
 			default:
 				break;
 			}
@@ -424,12 +421,12 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	}
 
 	private Component getTabComponent(String project) {
-		TableRowSorter<TableModel> sortModel = new TableRowSorter<>(_model);
+		TableRowSorter<TableModel> sortModel = new TableRowSorter<>(model);
 		sortModel.setRowFilter(RowFilter.regexFilter(project, ProjectModel.HEADER_PROJECT));
 
-		JTable table = new ETable(_model);
-		_model.setParent(_tabPane);
-		_projects.put(project, table);
+		JTable table = new ETable(model);
+		model.setParent(tabPane);
+		projects.put(project, table);
 
 		table.addMouseListener(new MouseAdapter() {
 			@Override
@@ -473,6 +470,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 			@Override
 			public void editingCanceled(ChangeEvent arg0) {
+				// Nothing to do
 			}
 		});
 
@@ -488,8 +486,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		TableColumn header = table.getColumnModel().getColumn(ProjectModel.HEADER_PROJECT);
 		table.removeColumn(header);
 
-		JScrollPane scrollPane = new JScrollPane(table);
-		return scrollPane;
+		return new JScrollPane(table);
 	}
 
 	protected void backupRestore(boolean isBackup) {
@@ -607,20 +604,16 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	@Override
 	protected void close() {
-		if (isMainScreen()) {
-			// Check if automated version check has been enabled
-			if (!generalSettings.isNoVersionCheck()) {
-				// Check whether it is time to check for a new version
-				if (generalSettings.getCheckVersionDate().isBefore(LocalDate.now())) {
-					try {
-						// Make a "silent" check
-						checkVersion(true);
-						generalSettings.setCheckVersionDate();
-					} catch (FNProgException ex) {
-						General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("configError"), null);
-					}
+		// Check if automated version check has been enabled
+		if (isMainScreen() && !generalSettings.isNoVersionCheck()
+					&& generalSettings.getCheckVersionDate().isBefore(LocalDate.now())) {
+				try {
+					// Make a "silent" check
+					checkVersion(true);
+					generalSettings.setCheckVersionDate();
+				} catch (FNProgException ex) {
+					General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("configError"), null);
 				}
-			}
 		}
 
 		generalSettings.setWidth(getWidth());

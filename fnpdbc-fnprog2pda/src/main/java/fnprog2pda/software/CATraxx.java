@@ -26,6 +26,11 @@ public class CATraxx extends FNProgramvare {
 	private boolean useTrackIndex = true;
 	private boolean useTrackItemTitle = true;
 	private boolean isPlaylist = false;
+	
+	private static final String ARTIST = "Artist";
+	private static final String CONTENTS_PERSON = "Artist";
+	private static final String TRACKS = "Tracks";
+	private static final String TRACKS_ITEM = "Tracks.Item";
 
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
@@ -38,8 +43,8 @@ public class CATraxx extends FNProgramvare {
 		useTrackIndex = pdaSettings.isUseContentsIndex();
 		useTrackItemTitle = pdaSettings.isUseContentsItemTitle();
 
-		personField = new String[] { "Artist", "ArtistSort" };
-		sortList.put("Tracks.Item", FieldTypes.NUMBER);
+		personField = new String[] { ARTIST, "ArtistSort" };
+		sortList.put(TRACKS_ITEM, FieldTypes.NUMBER);
 		sortList.put("Index", FieldTypes.NUMBER);
 	}
 
@@ -47,14 +52,14 @@ public class CATraxx extends FNProgramvare {
 	protected List<String> getContentsFields(List<String> userFields) {
 		boolean useArtist = userFields.contains(personField[0]);
 		useArtistSort = userFields.contains(personField[1]);
-		useContents = userFields.contains("Tracks");
+		useContents = userFields.contains(TRACKS);
 		isPlaylist = myTable.equals("Playlist");
 
 		List<String> result = new ArrayList<>(15);
 		if (useContents) {
 			result.add("NumberOfTracks");
 			result.add("ContentsLink.TrackID");
-			result.add("Tracks.Item");
+			result.add(TRACKS_ITEM);
 
 			if (!isPlaylist) {
 				result.add("Media.Item");
@@ -62,9 +67,9 @@ public class CATraxx extends FNProgramvare {
 
 			if (useTrackArtist) {
 				if (useArtist || useArtistSort) {
-					result.add(useArtist ? "ContentsPerson" : "ContentsPersonSort");
+					result.add(useArtist ? CONTENTS_PERSON : "ContentsPersonSort");
 				} else {
-					result.add("ContentsPerson");
+					result.add(CONTENTS_PERSON);
 				}
 			}
 		}
@@ -78,7 +83,7 @@ public class CATraxx extends FNProgramvare {
 			switch ((int) Math.floor(Double.parseDouble(mySoftwareVersion))) {
 			case 5:
 				HashMap<Integer, String> personMap = new HashMap<>();
-				myRoles.put("Artist", personMap);
+				myRoles.put(ARTIST, personMap);
 				personMap.put(1, "feat.");
 				personMap.put(2, "vs.");
 				personMap.put(3, "with");
@@ -149,7 +154,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	private void getVersion7Roles() throws Exception {
-		getRoles("Artist", "ArtistRole", "ArtistRoleID");
+		getRoles(ARTIST, "ArtistRole", "ArtistRoleID");
 		getRoles("ProductionPerson", "ProductionRole", "ProductionRoleID");
 		getRoles("Studio", "StudioRole", "StudioRoleID");
 	}
@@ -168,7 +173,7 @@ public class CATraxx extends FNProgramvare {
 				} catch (Exception e) {
 					myPerson = "[None]";
 				}
-				dbDataRecord.put("Tracks", getAlbumTracks(s.length(), hashTable));
+				dbDataRecord.put(TRACKS, getAlbumTracks(s.length(), hashTable));
 			}
 		}
 	}
@@ -176,7 +181,7 @@ public class CATraxx extends FNProgramvare {
 	// method that returns the Album Tracks as String
 	private String getAlbumTracks(int itemLength, Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
-		List<Map<String, Object>> contentsList = hashTable.get("Tracks");
+		List<Map<String, Object>> contentsList = hashTable.get(TRACKS);
 
 		if (contentsList.isEmpty()) {
 			return "";
@@ -217,7 +222,7 @@ public class CATraxx extends FNProgramvare {
 			side = (String) map.get("Side");
 
 			if (mediaList != null) {
-				item = ((Number) map.get("Tracks.Item")).intValue();
+				item = ((Number) map.get(TRACKS_ITEM)).intValue();
 				if (item != oldItem) {
 					if (item > 1) {
 						result.append("\n");
@@ -302,7 +307,7 @@ public class CATraxx extends FNProgramvare {
 								buf.append(" & ");
 						}
 
-						buf.append(roleID > 0 ? getPersonRole("Artist", persons, roleID) : persons);
+						buf.append(roleID > 0 ? getPersonRole(ARTIST, persons, roleID) : persons);
 						isPersonSet = true;
 					} else {
 						break;

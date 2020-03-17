@@ -64,33 +64,33 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private JTextField profile;
 	private JTextField fdDatabase;
 
-	private ActionListener funcSelectDbFile;
-	private ActionListener funcSelectView;
+	transient ActionListener funcSelectDbFile;
+	transient ActionListener funcSelectView;
 
 	private FNPSoftware myImportFile;
 	private String dbVerified = "";
 	private String myView;
 
-	private ScFieldSelect fieldSelect;
+	transient ScFieldSelect fieldSelect;
 	private ScConfigDb configDb;
 
-	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
-	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
-	private DatabaseFactory dbFactory = DatabaseFactory.getInstance();
+	transient Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
+	transient PrefFNProg pdaSettings = PrefFNProg.getInstance();
+	transient DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 	private ExportFile myExportFile;
 	private ConfigMiscellaneous miscDialog;
 
-	private Map<String, MiscellaneousData> miscDataMap = new HashMap<>();
-	private Map<String, FilterData> filterDataMap = new HashMap<>();
-	private Map<String, SortData> sortDataMap = new HashMap<>();
+	transient Map<String, MiscellaneousData> miscDataMap = new HashMap<>();
+	transient Map<String, FilterData> filterDataMap = new HashMap<>();
+	transient Map<String, SortData> sortDataMap = new HashMap<>();
 
 	private boolean isNewProfile = false;
-	private ProgramDialog _dialog;
-	private ProjectModel _model;
+	private ProgramDialog dialog;
+	private ProjectModel model;
 
 	public ConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNew) {
-		_dialog = dialog;
-		_model = model;
+		this.dialog = dialog;
+		this.model = model;
 
 		isNewProfile = isNew;
 		init();
@@ -258,14 +258,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		String profileID = profile.getText().trim();
 
 		if (!isNewProfile) {
-			ProfileObject obj = _model.getProfileObject();
+			ProfileObject obj = model.getProfileObject();
 			if (!obj.getProjectID().equals(projectID)) {
 				if (pdaSettings.profileExists(projectID, profileID)) {
 					throw FNProgException.getException("profileExists", profileID, projectID);
 				}
 
 				pdaSettings.deleteNode(obj.getProjectID(), profileID);
-				_model.removeRecord(obj);
+				model.removeRecord(obj);
 				isNewProfile = true;
 			}
 		}
@@ -302,12 +302,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
 		pdaSettings.setLastSaved();
 
-		_dialog.updateProfile(isNewProfile ? Action.Add : Action.Edit);
+		dialog.updateProfile(isNewProfile ? Action.Add : Action.Edit);
 	}
 
 	@Override
 	public void verifyDatabase(boolean isFirstRun) {
-		dbVerified = isFirstRun ? isNewProfile ? "" : dbSettings.getDatabaseFile() : fdDatabase.getText().trim();
+		String db = isNewProfile ? "" : dbSettings.getDatabaseFile();
+		dbVerified = isFirstRun ? db : fdDatabase.getText().trim();
 		if (dbVerified.isEmpty()) {
 			return;
 		}

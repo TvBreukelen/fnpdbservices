@@ -30,6 +30,15 @@ public class BookCAT extends FNProgramvare {
 	private String myPerson = "[None]";
 	private String myTitle = "";
 
+	private static final String AUTHOR = "Author";
+	private static final String CONTENTS = "Contents";
+	private static final String CONTENTS_ITEM = "Contents.Item";
+	private static final String CONTENTS_PERSON = "ContentsPerson";
+	private static final String ORIGINAL_RELEASE_NO = "OriginalReleaseNo";
+	private static final String ORIGINAL_TITLE = "OriginalTitle";
+	private static final String RELEASE_NO = "ReleaseNo";
+	private static final String TITLE = "Title";
+
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
 
@@ -40,21 +49,21 @@ public class BookCAT extends FNProgramvare {
 		useContentsItemTitle = pdaSettings.isUseContentsItemTitle();
 		useOriginalTitle = pdaSettings.isUseOriginalTitle();
 
-		personField = new String[] { "Author", "AuthorSort" };
-		sortList.put("Contents.Item", FieldTypes.NUMBER);
+		personField = new String[] { AUTHOR, "AuthorSort" };
+		sortList.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortList.put("Index", FieldTypes.NUMBER);
 	}
 
 	@Override
 	protected List<String> getSystemFields(List<String> userFields) {
-		useOriginalReleaseNo = userFields.contains("OriginalReleaseNo");
-		useReleaseNo = userFields.contains("ReleaseNo");
+		useOriginalReleaseNo = userFields.contains(ORIGINAL_RELEASE_NO);
+		useReleaseNo = userFields.contains(RELEASE_NO);
 		useAuthor = userFields.contains(personField[0]);
 		useAuthorSort = userFields.contains(personField[1]);
 
 		List<String> result = new ArrayList<>();
-		if (useOriginalTitle && !userFields.contains("OriginalTitle")) {
-			result.add("OriginalTitle");
+		if (useOriginalTitle && !userFields.contains(ORIGINAL_TITLE)) {
+			result.add(ORIGINAL_TITLE);
 		} else {
 			useOriginalTitle = false;
 		}
@@ -64,7 +73,7 @@ public class BookCAT extends FNProgramvare {
 	@Override
 	protected List<String> getContentsFields(List<String> userFields) {
 		List<String> result = new ArrayList<>(15);
-		useContents = userFields.contains("Contents");
+		useContents = userFields.contains(CONTENTS);
 
 		if (useContents) {
 			if (useContentsItemTitle) {
@@ -74,13 +83,13 @@ public class BookCAT extends FNProgramvare {
 			result.add("MediaCount");
 			result.add("NumberOfSections");
 			result.add("ContentsLink.ContentsID");
-			result.add("Contents.Item");
+			result.add(CONTENTS_ITEM);
 
 			if (useContentsAuthor) {
 				if (useAuthor || useAuthorSort) {
-					result.add(useAuthor ? "ContentsPerson" : "ContentsPersonSort");
+					result.add(useAuthor ? CONTENTS_PERSON : "ContentsPersonSort");
 				} else {
-					result.add("ContentsPerson");
+					result.add(CONTENTS_PERSON);
 				}
 			}
 		}
@@ -91,7 +100,7 @@ public class BookCAT extends FNProgramvare {
 	@Override
 	public void setCategories() throws Exception {
 		super.setCategories();
-		if (useRoles && myTable.equals("Album") || myTable.equals("Contents")) {
+		if (useRoles && myTable.equals("Album") || myTable.equals(CONTENTS)) {
 			switch ((int) Math.floor(Double.parseDouble(mySoftwareVersion))) {
 			case 6:
 				getVersion6Roles();
@@ -128,7 +137,7 @@ public class BookCAT extends FNProgramvare {
 		List<Map<String, Object>> list = msAccess.getMultipleRecords("FieldDefinitions", null,
 				Collections.singletonMap("Table", obj));
 		HashMap<Integer, String> personMap = new HashMap<>();
-		myRoles.put("Author", personMap);
+		myRoles.put(AUTHOR, personMap);
 
 		for (Map<String, Object> map : list) {
 			Object field = map.get("Field");
@@ -150,7 +159,7 @@ public class BookCAT extends FNProgramvare {
 		data = data.substring(index1, index2);
 
 		HashMap<Integer, String> personMap = new HashMap<>();
-		myRoles.put("Author", personMap);
+		myRoles.put(AUTHOR, personMap);
 
 		for (String s : data.split("\0\0\7")) {
 			index1 = s.indexOf("\1\1\6") + 3;
@@ -172,7 +181,7 @@ public class BookCAT extends FNProgramvare {
 	}
 
 	private void getVersion8Roles() throws Exception {
-		getRoles("Author", "AuthorRole", "AuthorRoleID");
+		getRoles(AUTHOR, "AuthorRole", "AuthorRoleID");
 		getRoles("Credits", "CreditRole", "CreditRoleID");
 	}
 
@@ -186,30 +195,30 @@ public class BookCAT extends FNProgramvare {
 			myItemCount = ((Number) dbDataRecord.get("MediaCount")).intValue();
 			if (((Number) dbDataRecord.get("NumberOfSections")).intValue() > 0) {
 				myPerson = (String) dbDataRecord.get(personField[useAuthorSort ? 1 : 0]);
-				myTitle = (String) dbDataRecord.get("Title");
-				dbDataRecord.put("Contents", getBookContents(hashTable));
+				myTitle = (String) dbDataRecord.get(TITLE);
+				dbDataRecord.put(CONTENTS, getBookContents(hashTable));
 			}
 		}
 
-		if (useReleaseNo && ((Number) dbDataRecord.get("ReleaseNo")).intValue() == 0) {
-			dbDataRecord.put("ReleaseNo", "");
+		if (useReleaseNo && ((Number) dbDataRecord.get(RELEASE_NO)).intValue() == 0) {
+			dbDataRecord.put(RELEASE_NO, "");
 		}
 
-		if (useOriginalReleaseNo && ((Number) dbDataRecord.get("OriginalReleaseNo")).intValue() == 0) {
-			dbDataRecord.put("OriginalReleaseNo", "");
+		if (useOriginalReleaseNo && ((Number) dbDataRecord.get(ORIGINAL_RELEASE_NO)).intValue() == 0) {
+			dbDataRecord.put(ORIGINAL_RELEASE_NO, "");
 		}
 
 		if (useOriginalTitle) {
-			String s = (String) dbDataRecord.get("OriginalTitle");
+			String s = (String) dbDataRecord.get(ORIGINAL_TITLE);
 			if (s != null && !s.isEmpty()) {
-				dbDataRecord.put("Title", s);
+				dbDataRecord.put(TITLE, s);
 			}
 		}
 	}
 
 	private String getBookContents(Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
-		List<Map<String, Object>> contentsList = hashTable.get("Contents");
+		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
 
 		if (contentsList.isEmpty()) {
 			return "";
@@ -227,7 +236,7 @@ public class BookCAT extends FNProgramvare {
 		List<Map<String, Object>> mediaList = hashTable.get("Media");
 
 		// Get Persons
-		List<Map<String, Object>> personList = hashTable.get("ContentsPerson");
+		List<Map<String, Object>> personList = hashTable.get(CONTENTS_PERSON);
 		int maxPersons = personList != null ? personList.size() : 0;
 
 		// Sort Media by Contents.Item
@@ -236,14 +245,14 @@ public class BookCAT extends FNProgramvare {
 		}
 
 		for (Map<String, Object> map : contentsList) {
-			String contTitle = (String) map.get("Title");
-			String origTitle = (String) map.get("OriginalTitle");
+			String contTitle = (String) map.get(TITLE);
+			String origTitle = (String) map.get(ORIGINAL_TITLE);
 
 			if (useContentsItemTitle && mediaList != null) {
-				item = ((Number) map.get("Contents.Item")).intValue();
+				item = ((Number) map.get(CONTENTS_ITEM)).intValue();
 				if (item != oldItem) {
 					Map<String, Object> mapItem = mediaList.get(item - 1);
-					String itemTitle = (String) mapItem.get("Title");
+					String itemTitle = (String) mapItem.get(TITLE);
 					if (myItemCount > 1 || myItemCount == 1 && !itemTitle.equalsIgnoreCase(title)) {
 						if (item > 1) {
 							result.append("  \n");

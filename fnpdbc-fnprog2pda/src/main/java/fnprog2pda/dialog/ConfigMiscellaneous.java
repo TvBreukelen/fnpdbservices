@@ -26,20 +26,20 @@ public class ConfigMiscellaneous extends BasicDialog {
 	 */
 	private static final long serialVersionUID = -5470122199126408967L;
 	private JCheckBox[] booleanFields;
-	private FNPSoftware _software;
-	private MiscellaneousData _data;
+	private FNPSoftware software;
+	transient MiscellaneousData data;
 	boolean isSaved = false;
 
 	public ConfigMiscellaneous(FNPSoftware softwareID, MiscellaneousData data) {
 		super();
-		_software = softwareID;
-		_data = data;
+		software = softwareID;
+		this.data = data;
 		init();
 	}
 
 	@Override
 	protected void init() {
-		init(_data.getProfileID() + " " + GUIFactory.getTitle("miscSettings"));
+		init(data.getProfileID() + " " + GUIFactory.getTitle("miscSettings"));
 		setHelpFile("miscellaneous_settings");
 		buildDialog();
 		pack();
@@ -66,15 +66,15 @@ public class ConfigMiscellaneous extends BasicDialog {
 						"inclTrackLength" },
 				{ "inclContentsItemTitle", "inclContentsSide", "inclContentsIndex", "inclContentsLength" } };
 		final boolean[][] miscValues = {
-				{ _data.isUseContentsPerson(), _data.isUseRoles(), _data.isUseContentsOrigTitle(),
-						_data.isUseOriginalTitle(), _data.isUseContentsItemTitle() },
-				{ _data.isUseContentsPerson(), _data.isUseRoles(), _data.isUseContentsItemTitle(),
-						_data.isUseContentsSide(), _data.isUseContentsIndex(),
-						_data.isUseContentsLength() },
-				{ _data.isUseContentsSide(), _data.isUseContentsItemTitle(),
-						_data.isUseContentsIndex(), _data.isUseContentsLength() } };
+				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsOrigTitle(),
+						data.isUseOriginalTitle(), data.isUseContentsItemTitle() },
+				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsItemTitle(),
+						data.isUseContentsSide(), data.isUseContentsIndex(),
+						data.isUseContentsLength() },
+				{ data.isUseContentsSide(), data.isUseContentsItemTitle(),
+						data.isUseContentsIndex(), data.isUseContentsLength() } };
 
-		int index = _software.ordinal() - 1;
+		int index = software.ordinal() - 1;
 		booleanFields = new JCheckBox[miscText[index].length];
 
 		for (int i = 0; i < booleanFields.length; i++) {
@@ -82,8 +82,8 @@ public class ConfigMiscellaneous extends BasicDialog {
 			result.add(booleanFields[i]);
 		}
 
-		String table = _data.getTableName();
-		switch (_software) {
+		String table = data.getTableName();
+		switch (software) {
 		case BOOKCAT:
 			if (table.equals("Contents")) {
 				int[] exclContents = { 0, 2, 4 };
@@ -123,36 +123,36 @@ public class ConfigMiscellaneous extends BasicDialog {
 
 	@Override
 	protected void save() throws Exception {
-		switch (_software) {
+		switch (software) {
 		case BOOKCAT:
-			_data.setUseContentsPerson(booleanFields[0].isSelected());
-			_data.setUseRoles(booleanFields[1].isSelected());
-			_data.setUseContentsOrigTitle(booleanFields[2].isSelected());
-			_data.setUseOriginalTitle(booleanFields[3].isSelected());
-			_data.setUseContentsItemTitle(booleanFields[4].isSelected());
-			_data.setUseContentsSide(false);
-			_data.setUseContentsIndex(false);
-			_data.setUseContentsLength(false);
+			data.setUseContentsPerson(booleanFields[0].isSelected());
+			data.setUseRoles(booleanFields[1].isSelected());
+			data.setUseContentsOrigTitle(booleanFields[2].isSelected());
+			data.setUseOriginalTitle(booleanFields[3].isSelected());
+			data.setUseContentsItemTitle(booleanFields[4].isSelected());
+			data.setUseContentsSide(false);
+			data.setUseContentsIndex(false);
+			data.setUseContentsLength(false);
 			break;
 		case CATRAXX:
-			_data.setUseContentsPerson(booleanFields[0].isSelected());
-			_data.setUseRoles(booleanFields[1].isSelected());
-			_data.setUseContentsItemTitle(booleanFields[2].isSelected());
-			_data.setUseContentsSide(booleanFields[3].isSelected());
-			_data.setUseContentsIndex(booleanFields[4].isSelected());
-			_data.setUseContentsLength(booleanFields[5].isSelected());
-			_data.setUseContentsOrigTitle(false);
-			_data.setUseOriginalTitle(false);
+			data.setUseContentsPerson(booleanFields[0].isSelected());
+			data.setUseRoles(booleanFields[1].isSelected());
+			data.setUseContentsItemTitle(booleanFields[2].isSelected());
+			data.setUseContentsSide(booleanFields[3].isSelected());
+			data.setUseContentsIndex(booleanFields[4].isSelected());
+			data.setUseContentsLength(booleanFields[5].isSelected());
+			data.setUseContentsOrigTitle(false);
+			data.setUseOriginalTitle(false);
 			break;
 		case CATVIDS:
-			_data.setUseContentsItemTitle(booleanFields[0].isSelected());
-			_data.setUseContentsSide(booleanFields[1].isSelected());
-			_data.setUseContentsIndex(booleanFields[2].isSelected());
-			_data.setUseContentsLength(booleanFields[3].isSelected());
-			_data.setUseRoles(false);
-			_data.setUseContentsOrigTitle(false);
-			_data.setUseOriginalTitle(false);
-			_data.setUseContentsPerson(false);
+			data.setUseContentsItemTitle(booleanFields[0].isSelected());
+			data.setUseContentsSide(booleanFields[1].isSelected());
+			data.setUseContentsIndex(booleanFields[2].isSelected());
+			data.setUseContentsLength(booleanFields[3].isSelected());
+			data.setUseRoles(false);
+			data.setUseContentsOrigTitle(false);
+			data.setUseOriginalTitle(false);
+			data.setUseContentsPerson(false);
 		default:
 			break;
 		}

@@ -23,13 +23,12 @@ public class ConfigFNProg extends ProgramDialog {
 	 * @version 4.5
 	 */
 	private static final long serialVersionUID = -9109798108105347350L;
-	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
-	private DatabaseFactory dbFactory = DatabaseFactory.getInstance();
-
 	protected FNPSoftware myFnSoftware = FNPSoftware.UNDEFINED;
 
 	public ConfigFNProg(boolean isMainScreen) {
 		super(PrefFNProg.getInstance(), isMainScreen);
+		dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
+		dbFactory = DatabaseFactory.getInstance();
 		exportProcess = new ExportProcess();
 		init();
 	}
