@@ -32,8 +32,8 @@ public class HelpDialog extends JDialog {
 	 * @version 4.5
 	 */
 	private static final long serialVersionUID = 4320971031741162514L;
-	private ActionListener funcBack;
-	private ActionListener funcExit;
+	transient ActionListener funcBack;
+	transient ActionListener funcExit;
 	private JEditorPane helpInfo;
 	private Deque<URL> urlList;
 	private JButton btBack;
@@ -73,6 +73,7 @@ public class HelpDialog extends JDialog {
 				helpInfo.setPage(urlList.peek()); // read previous url from stack
 				activateComponents();
 			} catch (IOException ex) {
+				// Should not occur
 			}
 		};
 
@@ -132,6 +133,7 @@ public class HelpDialog extends JDialog {
 						helpInfo.setPage(url);
 						activateComponents();
 					} catch (IOException ex) {
+						// Shouls not occur
 					}
 				}
 			}

@@ -51,9 +51,9 @@ public class ConfigGeneral extends BasicDialog {
 	private JComboBox<String> timeFormat;
 	private JComboBox<String> durationFormat;
 
-	private ActionListener funcSelectDir;
+	transient ActionListener funcSelectDir;
 
-	private final String[] DATE_DELIMITERS = { "", " ", "/", "-", ".", "," };
+	private static final String[] DATE_DELIMITERS = { "", " ", "/", "-", ".", "," };
 
 	public ConfigGeneral() {
 		init();
@@ -251,7 +251,7 @@ public class ConfigGeneral extends BasicDialog {
 	private void showDateExample() {
 		String format = dateFormat.getSelectedItem().toString();
 		String delimiter = DATE_DELIMITERS[dateDelimiter.getSelectedIndex()];
-		DateTimeFormatter sd = DateTimeFormatter.ofPattern(format.replaceAll(" ", delimiter), Locale.ENGLISH);
+		DateTimeFormatter sd = DateTimeFormatter.ofPattern(format.replace(" ", delimiter), Locale.ENGLISH);
 		dateExample.setText(LocalDate.now().format(sd));
 	}
 

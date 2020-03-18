@@ -9,9 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +40,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTitledPanel;
@@ -308,19 +311,19 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		String url = software.getDownload();
 		boolean isOpenSite = false;
 
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
-			String line = reader.readLine().trim();
-			while (line != null) {
-				line = line.trim();
-				if (line.startsWith("<tr title=")) {
-					int i = line.indexOf(" class") - 1;
-					isOpenSite = line.substring(11, i).compareTo(software.getVersion()) > 0;
-					break;
-				}
-				line = reader.readLine();
-			}
-		} catch (Exception e) {
-			throw FNProgException.getException("websiteError", url, e.getMessage());
+		final String REST_URI = "https://sourceforge.net/projects/" + software.getName().toLowerCase() +"/best_release.json"; 
+		
+		Client client = ClientBuilder.newClient();		 
+		WebTarget webTarget = client.target(REST_URI);
+		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
+		Response response = invocationBuilder.get();
+		if (response.getStatus() == 200) {
+			// Extract version from response
+			String result = response.readEntity(String.class);
+			result = result.substring(result.indexOf("filename") + 13, result.indexOf("/" + software.getName()));
+			isOpenSite = result.compareTo(software.getVersion()) > 0;
+		} else {
+			throw FNProgException.getException("websiteError", REST_URI, "Status: " + response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
 		}
 
 		if (isOpenSite) {
