@@ -35,11 +35,11 @@ public class ExportProcess implements Runnable, IExportProcess {
 		isRefresh = !myProgram.isModelValid();
 
 		if (isRefresh) {
-			myProgram.progressBar.setMinimum(0);
-			myProgram.progressBar.setValue(0);
-			myProgram.progressBar.setStringPainted(true);
-			myProgram.progressText.setEnabled(true);
-			myProgram.progressBar.setEnabled(true);
+			myProgram.getProgressBar().setMinimum(0);
+			myProgram.getProgressBar().setValue(0);
+			myProgram.getProgressBar().setStringPainted(true);
+			myProgram.getProgressText().setEnabled(true);
+			myProgram.getProgressBar().setEnabled(true);
 		}
 
 		t = new Thread(this);
@@ -94,13 +94,13 @@ public class ExportProcess implements Runnable, IExportProcess {
 		}
 
 		myProgram.enableForm(true);
-		myProgram.updateProfile(Action.Edit);
+		myProgram.updateProfile(Action.EDIT);
 	}
 
 	private void buildViewer() throws Exception {
 		mySoftware.checkNumberOfFields();
 		xView = new Viewer(mySoftware.getTableModelFields());
-		myProgram.progressBar.setMaximum(mySoftware.getTotalRecords());
+		myProgram.getProgressBar().setMaximum(mySoftware.getTotalRecords());
 		mySoftware.startMonitoring(myProgram);
 		mySoftware.processFiles(xView.getTableModel());
 		xView.getTableModel().resetColumnVisibility();

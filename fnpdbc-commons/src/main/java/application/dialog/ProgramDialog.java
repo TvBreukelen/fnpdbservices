@@ -75,7 +75,7 @@ import application.utils.General;
 
 public abstract class ProgramDialog extends BasicFrame implements Observer {
 	public enum Action {
-		Add, Edit, Clone, Delete, TabChange
+		ADD, EDIT, CLONE, DELETE, TABCHANGE
 	}
 
 	private JButton btClone;
@@ -84,8 +84,8 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	private JButton btView;
 	private JButton btExport;
 
-	public JProgressBar progressBar;
-	public JLabel progressText;
+	private JProgressBar progressBar;
+	private JLabel progressText;
 
 	private JCheckBox bIncremental;
 	private JCheckBox bNewRecords;
@@ -98,7 +98,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	private long oldGeneralCRC;
 	private String oldLastModified = "";
-	private GeneralSettings general = GeneralSettings.getInstance();
+	transient GeneralSettings general = GeneralSettings.getInstance();
 
 	protected JTextField lSoftware = new JTextField();
 	protected JTextField lSoftwareID = new JTextField();
@@ -114,6 +114,11 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	protected Profiles pdaSettings;
 	protected Databases dbSettings;
+	
+	private static final String CONFIG_ERROR = "configError";
+	private static final String FUNC_REMOVE = "funcRemove";
+	private static final String MENU_WELCOME = "menuWelcome";
+	private static final String PROFILE_ERROR = "profileError";
 
 	private static final long serialVersionUID = 7285565159492721667L;
 
@@ -125,7 +130,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				IConfigSoft configSoft = getConfigSoft(ProgramDialog.this, model, true);
 				configSoft.setVisible(true);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
 			}
 		};
 
@@ -134,7 +139,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				IConfigSoft config = getConfigSoft(ProgramDialog.this, model, false);
 				config.setVisible(true);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
 			}
 		};
 
@@ -155,7 +160,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				enableForm(false);
 				exportProcess.init(ProgramDialog.this, ExportStatus.EXPORT);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("configError"), null);
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
 			}
 		});
 
@@ -202,18 +207,18 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				ConfigClone config = new ConfigClone(pdaSettings, ProgramDialog.this);
 				config.setVisible(true);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
 			}
 		});
 
-		btRemove = General.createToolBarButton(GUIFactory.getToolTip("funcRemove"), "Delete.png", e -> {
-			String mesg = GUIFactory.getMessage("funcRemove", pdaSettings.getProfileID());
+		btRemove = General.createToolBarButton(GUIFactory.getToolTip(FUNC_REMOVE), "Delete.png", e -> {
+			String mesg = GUIFactory.getMessage(FUNC_REMOVE, pdaSettings.getProfileID());
 
-			if (!General.showConfirmMessage(ProgramDialog.this, mesg, GUIFactory.getTitle("funcRemove"))) {
+			if (!General.showConfirmMessage(ProgramDialog.this, mesg, GUIFactory.getTitle(FUNC_REMOVE))) {
 				return;
 			}
 
-			updateProfile(Action.Delete);
+			updateProfile(Action.DELETE);
 		});
 
 		btView = General.createToolBarButton(GUIFactory.getToolTip("funcViewer"), "Viewer.png", e -> {
@@ -259,7 +264,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 				activateComponents();
 			} else {
 				if (!isInit) {
-					updateProfile(Action.TabChange);
+					updateProfile(Action.TABCHANGE);
 				}
 			}
 		});
@@ -288,7 +293,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 					&& pdaSettings.profileExists(initProject, initProfile)) {
 				pdaSettings.setProject(initProject);
 				pdaSettings.setProfile(initProfile);
-				updateProfile(Action.Edit);
+				updateProfile(Action.EDIT);
 			}
 		}
 
@@ -298,7 +303,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	private Component createWelcomeScreen() {
 		isProfileSet = false;
 
-		JXTitledPanel result = new JXTitledPanel(GUIFactory.getText("menuWelcome"));
+		JXTitledPanel result = new JXTitledPanel(GUIFactory.getText(MENU_WELCOME));
 		JEditorPane helpInfo = new JEditorPane();
 		helpInfo.setContentType("text/html");
 		helpInfo.setText(GUIFactory.getText("welcome"));
@@ -353,11 +358,11 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		String profileID = pdaSettings.getProfileID();
 
 		switch (action) {
-		case Add:
-		case Clone:
+		case ADD:
+		case CLONE:
 			model.addRecord(projectID, profileID);
 			break;
-		case TabChange:
+		case TABCHANGE:
 			projectID = tabPane.getTitleAt(tabPane.getSelectedIndex());
 		default:
 			break;
@@ -377,7 +382,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			int modelIndex = -1;
 
 			switch (action) {
-			case Delete:
+			case DELETE:
 				pdaSettings.deleteNode(pdaSettings.getProfileID());
 				modelIndex = table.convertRowIndexToModel(row);
 				model.removeRecord(modelIndex);
@@ -397,16 +402,16 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 					return;
 				}
 				break;
-			case Clone:
-			case Add:
-			case Edit:
+			case CLONE:
+			case ADD:
+			case EDIT:
 				modelIndex = model.getProfileIndex(projectID, profileID);
 			default:
 				break;
 			}
 
 			isProfileSet = true;
-			if (action != Action.TabChange) {
+			if (action != Action.TABCHANGE) {
 				row = modelIndex > -1 ? table.convertRowIndexToView(modelIndex) : -1;
 			}
 
@@ -419,7 +424,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			table.addRowSelectionInterval(row, row);
 			activateComponents();
 		} catch (Exception ex) {
-			General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("profileError"), null);
+			General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
 		}
 	}
 
@@ -531,8 +536,8 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		menu = GUIFactory.getJMenu("menuHelp");
 		menu.setMnemonic(KeyEvent.VK_H);
 
-		menu.add(GUIFactory.getJMenuItem("menuWelcome", e -> {
-			HelpDialog help = new HelpDialog(GUIFactory.getText("menuWelcome"),
+		menu.add(GUIFactory.getJMenuItem(MENU_WELCOME, e -> {
+			HelpDialog help = new HelpDialog(GUIFactory.getText(MENU_WELCOME),
 					isDBConvert() ? "welcome_db" : "welcome_fn");
 			help.setVisible(true);
 		}));
@@ -556,7 +561,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			try {
 				checkVersion(false);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("configError"), null);
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
 			}
 			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}));
@@ -615,7 +620,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 					checkVersion(true);
 					generalSettings.setCheckVersionDate();
 				} catch (FNProgException ex) {
-					General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle("configError"), null);
+					General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
 				}
 		}
 
@@ -625,6 +630,14 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		pdaSettings.setLastProject();
 		pdaSettings.setLastProfile(pdaSettings.getProfileID());
 		super.close();
+	}
+
+	public JProgressBar getProgressBar() {
+		return progressBar;
+	}
+
+	public JLabel getProgressText() {
+		return progressText;
 	}
 
 	@Override

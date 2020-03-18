@@ -453,7 +453,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
 		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
 
-		dialog.updateProfile(isNewProfile ? Action.Add : Action.Edit);
+		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
 	}
 
 	@Override

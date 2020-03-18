@@ -99,7 +99,7 @@ public class ConfigClone extends BasicDialog {
 		_project.cloneCurrentProfile(projectCopyTo, profileID);
 		_project.setExportFile(copyToFile);
 
-		_dialog.updateProfile(Action.Clone);
+		_dialog.updateProfile(Action.CLONE);
 	}
 
 	@Override
