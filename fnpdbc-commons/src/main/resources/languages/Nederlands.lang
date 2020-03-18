@@ -277,6 +277,7 @@ miscSettings.title=Overige
 mobileDbCsv.text=MobileDB CSV
 mobileDbCsv.tooltip=MobileDB CSV bestand
 never.text=Nooit
+newVersion.mesg=Versie %0 van %1 is beschikbaar,\nzal ik u naar de download site brengen?
 no.text=Nee
 noDatabaseDefined.mesg=Er is geen database-bestand gedefinieert.
 noDatabaseExists.mesg=Bestand '%0' bestaat niet.

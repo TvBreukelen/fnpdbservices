@@ -9,22 +9,27 @@ public enum TvBSoftware {
 	 *
 	 * @author Tom van Breukelen
 	 */
+	
+	DBCONVERT("DBConvert", "6.2.2", "dbconvert",
+			"dbconvert/files", "dbconvert/best_release.json"),
+	FNPROG2PDA("FNProg2PDA", "8.6.2", "fnprog2pda",
+			"fnprog2pda/files", "fnprog2pda/best_release.json");
 
-	DBCONVERT("DBConvert", "6.2.2", "https://sourceforge.net/projects/dbconvert",
-			"https://sourceforge.net/projects/dbconvert/files"),
-	FNPROG2PDA("FNProg2PDA", "8.6.2", "https://sourceforge.net/projects/fnprog2pda",
-			"https://sourceforge.net/projects/fnprog2pda/files");
 
+	private static final String SOURCEFORGE = "https://sourceforge.net/projects/";
+	
 	private String version;
 	private String name;
 	private String support;
 	private String download;
+	private String releaseInfo;
 
-	private TvBSoftware(String name, String version, String support, String download) {
+	private TvBSoftware(String name, String version, String support, String download, String releaseInfo) {
 		this.name = name;
 		this.version = version;
-		this.support = support;
-		this.download = download;
+		this.support = SOURCEFORGE + support;
+		this.download = SOURCEFORGE + download;
+		this.releaseInfo = SOURCEFORGE + releaseInfo;
 	}
 
 	public String getName() {
@@ -45,5 +50,9 @@ public enum TvBSoftware {
 
 	public String getDownload() {
 		return download;
+	}
+
+	public String getReleaseInfo() {
+		return releaseInfo;
 	}
 }

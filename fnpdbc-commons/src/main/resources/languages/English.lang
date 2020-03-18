@@ -276,6 +276,7 @@ miscSettings.title=Miscellaneous
 mobileDbCsv.text=MobileDB CSV
 mobileDbCsv.tooltip=MobileDB CSV File
 never.text=Never
+newVersion.mesg=Version %0 of %1 is available,\nwould you like me to take you to the download site?
 no.text=No
 noDatabaseDefined.mesg=No Database File has been defined.
 noDatabaseExists.mesg=File '%0' doesn't exist.

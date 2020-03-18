@@ -313,29 +313,28 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	}
 
 	private void checkVersion(boolean isSilent) throws FNProgException {
-		String url = software.getDownload();
-		boolean isOpenSite = false;
-
-		final String REST_URI = "https://sourceforge.net/projects/" + software.getName().toLowerCase() +"/best_release.json"; 
-		
 		Client client = ClientBuilder.newClient();		 
-		WebTarget webTarget = client.target(REST_URI);
+		WebTarget webTarget = client.target(software.getReleaseInfo());
 		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
 		Response response = invocationBuilder.get();
+		
 		if (response.getStatus() == 200) {
 			// Extract version from response
 			String result = response.readEntity(String.class);
-			result = result.substring(result.indexOf("filename") + 13, result.indexOf("/" + software.getName()));
-			isOpenSite = result.compareTo(software.getVersion()) > 0;
+			String version = result.substring(result.indexOf("filename") + 13, result.indexOf("/" + software.getName()));
+			
+			// Check if there is a later version
+			if (version.compareTo(software.getVersion()) > 0) {
+				if (General.showConfirmMessage(this, GUIFactory.getMessage("newVersion", version, software.getName()), GUIFactory.getText("checkVersion"))) {
+					General.gotoWebsite(software.getDownload());
+				}
+			} else if (!isSilent) {
+				General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText("checkVersion"), false);
+			}
 		} else {
-			throw FNProgException.getException("websiteError", REST_URI, "Status: " + response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
+			throw FNProgException.getException("websiteError", software.getReleaseInfo(), "Status: " + response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
 		}
 
-		if (isOpenSite) {
-			General.gotoWebsite(url);
-		} else if (!isSilent) {
-			General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText("checkVersion"), false);
-		}
 		general.setCheckVersionDate();
 	}
 
