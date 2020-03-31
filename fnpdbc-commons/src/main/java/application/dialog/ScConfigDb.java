@@ -64,7 +64,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	private JCheckBox[] cConvert = new JCheckBox[4];
 	private JCheckBox btBackup;
-	private IConfigSoft _dialog;
 
 	private ActionListener funcSelectExport;
 	private ActionListener funcSelectConvert;
@@ -78,7 +77,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private boolean isImport;
 
 	public ScConfigDb(IConfigSoft dialog, ExportFile db, Profiles profiles) {
-		_dialog = dialog;
 		myExportFile = db;
 		pdaSettings = profiles;
 
@@ -118,6 +116,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				break;
 			case EXCEL:
 				resourceID = "sheet";
+				break;
 			case XML:
 				resourceID = "xmlRoot";
 			default:
@@ -149,7 +148,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dbConfig = null;
 			switch (myExportFile) {
 			case HANDBASE:
-				dbConfig = new ConfigHanDBase(_dialog, pdaSettings);
+				dbConfig = new ConfigHanDBase(dialog, pdaSettings);
 				break;
 			case REFERENCER:
 				dbConfig = new ConfigReferencer(pdaSettings);
@@ -169,14 +168,14 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			}
 
 			activateComponents();
-			_dialog.pack();
-			_dialog.activateComponents();
+			dialog.pack();
+			dialog.activateComponents();
 		};
 
-		funcSelectFile = e -> General.getSelectedFile((JDialog) _dialog, fdPDA, myExportFile, "", false);
+		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, "", false);
 
 		funcEncoding = e -> {
-			ConfigCharset config = new ConfigCharset(ScConfigDb.this, pdaSettings);
+			ConfigCharset config = new ConfigCharset(this, pdaSettings);
 			config.setVisible(true);
 			setEncodingText();
 		};
@@ -227,18 +226,18 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		rExists[0] = GUIFactory.getJRadioButton("intoNewDatabase");
-		rExists[1] = GUIFactory.getJRadioButton("replaceRecords");
-		rExists[2] = GUIFactory.getJRadioButton("appendRecords");
+		rExists[0] = GUIFactory.getJRadioButton("intoNewDatabase", funcSelectExport);
+		rExists[1] = GUIFactory.getJRadioButton("replaceRecords", funcSelectExport);
+		rExists[2] = GUIFactory.getJRadioButton("appendRecords", funcSelectExport);
 
-		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap");
-		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg");
-		rImages[2] = GUIFactory.getJRadioButton("imageToPng");
+		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
+		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);
+		rImages[2] = GUIFactory.getJRadioButton("imageToPng", null);
 
-		cConvert[0] = GUIFactory.getJCheckBox("booleansToCheckbox", true);
-		cConvert[1] = GUIFactory.getJCheckBox("datesToDate", true);
-		cConvert[2] = GUIFactory.getJCheckBox("timesToTime", true);
-		cConvert[3] = GUIFactory.getJCheckBox("imageToImageFile", false);
+		cConvert[0] = GUIFactory.getJCheckBox("booleansToCheckbox", true, funcSelectConvert);
+		cConvert[1] = GUIFactory.getJCheckBox("datesToDate", true, funcSelectConvert);
+		cConvert[2] = GUIFactory.getJCheckBox("timesToTime", true, funcSelectConvert);
+		cConvert[3] = GUIFactory.getJCheckBox("imageToImageFile", false, funcSelectConvert);
 
 		spHeight = new JSpinner(hModel);
 		lHeight = GUIFactory.getJLabel("height");
@@ -262,12 +261,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		passwordBox.add(Box.createHorizontalGlue());
 		passwordBox.add(fdPassword);
 
-		pExport = General.addVerticalButtons(GUIFactory.getTitle("exportData"), funcSelectExport, rExists);
+		pExport = General.addVerticalButtons(GUIFactory.getTitle("exportData"), rExists);
 		pExport.add(dbNameBox, c.gridCell(1, 4, 0, 0));
 		pExport.add(passwordBox, c.gridCell(1, 5, 0, 0));
 
-		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), funcSelectConvert, cConvert);
-		pConvert.add(General.addVerticalButtons(null, null, rImages[0], rImages[1], rImages[2]),
+		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), cConvert);
+		pConvert.add(General.addVerticalButtons(null, rImages[0], rImages[1], rImages[2]),
 				c.gridCell(1, 4, 2, 0));
 		pConvert.add(box, c.gridCell(1, 5, 0, 0));
 		pConvert.add(Box.createVerticalGlue());
@@ -355,10 +354,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	public Dimension getComboBoxSize() {
 		return bDatabase.getPreferredSize();
-	}
-
-	public Dimension getCheckBoxSize() {
-		return btBackup.getPreferredSize();
 	}
 
 	@Override

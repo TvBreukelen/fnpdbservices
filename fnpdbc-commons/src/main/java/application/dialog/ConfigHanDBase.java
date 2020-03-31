@@ -82,8 +82,8 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		JPanel p2 = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		fieldOrder = GUIFactory.getJRadioButton("fieldOrder");
-		physicalOrder = GUIFactory.getJRadioButton("physicalOrder");
+		fieldOrder = GUIFactory.getJRadioButton("fieldOrder", null);
+		physicalOrder = GUIFactory.getJRadioButton("physicalOrder", null);
 
 		if (pdaSettings.getImportOption() == 0) {
 			fieldOrder.setSelected(true);
@@ -91,7 +91,7 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 			physicalOrder.setSelected(true);
 		}
 
-		p1.add(General.addVerticalButtons(GUIFactory.getTitle("handbaseImport"), null, fieldOrder, physicalOrder),
+		p1.add(General.addVerticalButtons(GUIFactory.getTitle("handbaseImport"), fieldOrder, physicalOrder),
 				c.gridCell(0, 0, 0, 0));
 
 		autoInstallAllUsers = GUIFactory.getJCheckBox("autoInstallAllUsers",

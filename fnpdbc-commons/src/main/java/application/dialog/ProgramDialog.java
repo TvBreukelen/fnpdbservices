@@ -5,11 +5,15 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,15 +23,18 @@ import java.util.Observer;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -57,6 +64,7 @@ import application.interfaces.ExportStatus;
 import application.interfaces.IConfigSoft;
 import application.interfaces.IDatabaseFactory;
 import application.interfaces.IExportProcess;
+import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
 import application.preferences.Databases;
 import application.preferences.GeneralSettings;
@@ -72,8 +80,9 @@ import application.table.StringActionTableCellEditor;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
+import application.utils.gui.InternetSitesMenu;
 
-public abstract class ProgramDialog extends BasicFrame implements Observer {
+public abstract class ProgramDialog extends JFrame implements Observer {
 	public enum Action {
 		ADD, EDIT, CLONE, DELETE, TABCHANGE
 	}
@@ -90,15 +99,22 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	private JCheckBox bIncremental;
 	private JCheckBox bNewRecords;
 	private JCheckBox bNoFilter;
-	private ActionListener funcNew;
-	private ActionListener funcEdit;
+
+	transient ActionListener funcNew;
+	transient ActionListener funcEdit;
+	transient ActionListener funcHelp;
+	transient ActionListener funcLanguage;
+	transient ActionListener funcLookAndFeel;
+	transient ActionListener funcExit;
+	transient ActionListener funcSave;
 
 	protected IExportProcess exportProcess;
 	protected IDatabaseFactory dbFactory;
 
 	private long oldGeneralCRC;
 	private String oldLastModified = "";
-	transient GeneralSettings general = GeneralSettings.getInstance();
+	private String myHelpFile;
+	transient GeneralSettings generalSettings = GeneralSettings.getInstance();
 
 	protected JTextField lSoftware = new JTextField();
 	protected JTextField lSoftwareID = new JTextField();
@@ -106,6 +122,9 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	protected boolean isProfileSet = true;
 	private boolean isInit = true;
+	private boolean isMainScreen = false;
+	private TvBSoftware software;
+	private Component centerScreen;
 
 	private JTabbedPane tabPane;
 	private ProjectModel model;
@@ -114,16 +133,23 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 
 	protected Profiles pdaSettings;
 	protected Databases dbSettings;
-	
+
 	private static final String CONFIG_ERROR = "configError";
 	private static final String FUNC_REMOVE = "funcRemove";
+	private static final String MENU_HELP = "menuHelp";
 	private static final String MENU_WELCOME = "menuWelcome";
 	private static final String PROFILE_ERROR = "profileError";
+	private static final String CHECK_VERSION = "checkVersion";
 
 	private static final long serialVersionUID = 7285565159492721667L;
 
 	public ProgramDialog(Profiles profile, boolean mainScreen) {
-		super(profile.getTvBSoftware(), mainScreen);
+		// Only relevant for MacOS
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		System.setProperty("apple.awt.fileDialogForDirectories", "false");
+
+		software = profile.getTvBSoftware();
+		isMainScreen = mainScreen;
 
 		funcNew = e -> {
 			try {
@@ -143,14 +169,76 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			}
 		};
 
+		funcHelp = e -> {
+			HelpDialog help = new HelpDialog(GUIFactory.getText(MENU_HELP) + " - " + getTitle(), myHelpFile);
+			help.setVisible(true);
+		};
+		
+		funcLanguage = e -> {
+			String language = e.getActionCommand();
+			if (generalSettings.getLanguage().equals(language)) {
+				return;
+			}
+
+			generalSettings.setLanguage(language);
+			GUIFactory.refresh();
+			refreshScreen();
+		};
+
+		funcLookAndFeel = e -> {
+			String lookAndFeel = e.getActionCommand();
+			if (generalSettings.getLookAndFeel().equals(lookAndFeel)) {
+				return;
+			}
+
+			generalSettings.setLookAndFeel(lookAndFeel);
+			refreshScreen();
+		};
+
+		funcExit = e -> close();
+
 		pdaSettings = profile;
 		dbSettings = profile.getDbSettings();
 		model = new ProjectModel(pdaSettings);
 	}
 
-	@Override
-	protected void init() {
+	protected void init(String title) {
+		setTitle(title);
+
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				close();
+			}
+		});
+
 		myExportFile = ExportFile.getExportFile(pdaSettings.getInitialProject());
+
+		btEdit = General.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
+
+		btClone = General.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
+			try {
+				ConfigClone config = new ConfigClone(pdaSettings, ProgramDialog.this);
+				config.setVisible(true);
+			} catch (Exception ex) {
+				General.errorMessage(this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
+			}
+		});
+
+		btRemove = General.createToolBarButton(GUIFactory.getToolTip(FUNC_REMOVE), "Delete.png", e -> {
+			String mesg = GUIFactory.getMessage(FUNC_REMOVE, pdaSettings.getProfileID());
+
+			if (!General.showConfirmMessage(this, mesg, GUIFactory.getTitle(FUNC_REMOVE))) {
+				return;
+			}
+
+			updateProfile(Action.DELETE);
+		});
+
+		btView = General.createToolBarButton(GUIFactory.getToolTip("funcViewer"), "Viewer.png", e -> {
+			enableForm(false);
+			exportProcess.init(ProgramDialog.this, ExportStatus.SHOWVIEWER);
+		});
 
 		btExport = GUIFactory.getJButton("funcExport", e -> {
 			try {
@@ -188,44 +276,52 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			generalSettings.setNoFilterExport(bNoFilter.isSelected());
 			pdaSettings.setLastSaved();
 		});
+
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				close();
+			}
+		});
+
 	}
 
-	@Override
 	protected void buildDialog() {
-		super.buildDialog();
+		centerScreen = createCenterPanel();
+		getContentPane().add(createToolBar(), BorderLayout.NORTH);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
+		getContentPane().add(centerScreen, BorderLayout.CENTER);
 		getContentPane().add(createStatusbarPanel(), BorderLayout.SOUTH);
+
 		setPreferredSize(new Dimension(generalSettings.getWidth(), generalSettings.getHeight()));
 	}
 
+	private void replaceCenterScreen(Component comp) {
+		getContentPane().remove(centerScreen);
+		getContentPane().add(comp, BorderLayout.CENTER);
+		getContentPane().validate();
+		centerScreen = comp;
+	}
+
+	private boolean isDBConvert() {
+		return software == TvBSoftware.DBCONVERT;
+	}
+
 	@Override
+	public void setVisible(boolean b) {
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		int divX = isMainScreen ? 8 : 5;
+		int divY = isMainScreen ? 8 : 5;
+		setLocation((dim.width - getSize().width) / divX, (dim.height - getSize().height) / divY);
+		super.setVisible(b);
+	}
+
+	public boolean isMainScreen() {
+		return isMainScreen;
+	}
+
 	protected JComponent createToolBar() {
 		JButton btNew = General.createToolBarButton(GUIFactory.getToolTip("funcNew"), "New.png", funcNew);
-		btEdit = General.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
-
-		btClone = General.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
-			try {
-				ConfigClone config = new ConfigClone(pdaSettings, ProgramDialog.this);
-				config.setVisible(true);
-			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
-			}
-		});
-
-		btRemove = General.createToolBarButton(GUIFactory.getToolTip(FUNC_REMOVE), "Delete.png", e -> {
-			String mesg = GUIFactory.getMessage(FUNC_REMOVE, pdaSettings.getProfileID());
-
-			if (!General.showConfirmMessage(ProgramDialog.this, mesg, GUIFactory.getTitle(FUNC_REMOVE))) {
-				return;
-			}
-
-			updateProfile(Action.DELETE);
-		});
-
-		btView = General.createToolBarButton(GUIFactory.getToolTip("funcViewer"), "Viewer.png", e -> {
-			enableForm(false);
-			exportProcess.init(ProgramDialog.this, ExportStatus.SHOWVIEWER);
-		});
-
 		Box result = Box.createHorizontalBox();
 		result.add(Box.createHorizontalStrut(5));
 		result.add(btNew);
@@ -234,13 +330,15 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		result.add(btRemove);
 		result.add(Box.createHorizontalStrut(160));
 		result.add(btView);
-
-		result.add(super.createToolBar());
+		result.add(Box.createHorizontalGlue());
+		result.add(General.createToolBarButton(GUIFactory.getToolTip(MENU_HELP), "Help.png", funcHelp));
+		result.add(General.createToolBarButton(GUIFactory.getToolTip(isMainScreen ? "menuExitPgm" : "menuExitScr"),
+				"Exit.png", funcExit));
 		result.setBorder(BorderFactory.createRaisedBevelBorder());
+
 		return result;
 	}
 
-	@Override
 	protected Component createCenterPanel() {
 		List<String> proj = pdaSettings.getProjects();
 		if (proj.isEmpty()) {
@@ -313,29 +411,33 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	}
 
 	private void checkVersion(boolean isSilent) throws FNProgException {
-		Client client = ClientBuilder.newClient();		 
+		Client client = ClientBuilder.newClient();
 		WebTarget webTarget = client.target(software.getReleaseInfo());
-		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
+		Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 		Response response = invocationBuilder.get();
-		
+
 		if (response.getStatus() == 200) {
 			// Extract version from response
 			String result = response.readEntity(String.class);
-			String version = result.substring(result.indexOf("filename") + 13, result.indexOf("/" + software.getName()));
-			
+			String version = result.substring(result.indexOf("filename") + 13,
+					result.indexOf("/" + software.getName()));
+
 			// Check if there is a later version
 			if (version.compareTo(software.getVersion()) > 0) {
-				if (General.showConfirmMessage(this, GUIFactory.getMessage("newVersion", version, software.getName()), GUIFactory.getText("checkVersion"))) {
+				if (General.showConfirmMessage(this, GUIFactory.getMessage("newVersion", version, software.getName()),
+						GUIFactory.getText(CHECK_VERSION))) {
 					General.gotoWebsite(software.getDownload());
 				}
 			} else if (!isSilent) {
-				General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText("checkVersion"), false);
+				General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText(CHECK_VERSION),
+						false);
 			}
 		} else {
-			throw FNProgException.getException("websiteError", software.getReleaseInfo(), "Status: " + response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
+			throw FNProgException.getException("websiteError", software.getReleaseInfo(),
+					"Status: " + response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
 		}
 
-		general.setCheckVersionDate();
+		generalSettings.setCheckVersionDate();
 	}
 
 	private boolean isProjectOnTabPane(String projectID) {
@@ -363,6 +465,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			break;
 		case TABCHANGE:
 			projectID = tabPane.getTitleAt(tabPane.getSelectedIndex());
+			break;
 		default:
 			break;
 		}
@@ -405,6 +508,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			case ADD:
 			case EDIT:
 				modelIndex = model.getProfileIndex(projectID, profileID);
+				break;
 			default:
 				break;
 			}
@@ -520,19 +624,14 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 			menu.add(GUIFactory.getJMenuItem("menuExit", funcExit));
 		}
 
-		// Build the Config menu
-		menuBar.add(createConfigMenu());
-
 		// Build the Tools menu
-		if (!isDBConvert()) {
-			menuBar.add(createToolsMenu());
-		}
+		menuBar.add(createToolsMenu());
 
 		// Build the Sites menu
 		menuBar.add(createSitesMenu());
 
 		// Build the Help menu
-		menu = GUIFactory.getJMenu("menuHelp");
+		menu = GUIFactory.getJMenu(MENU_HELP);
 		menu.setMnemonic(KeyEvent.VK_H);
 
 		menu.add(GUIFactory.getJMenuItem(MENU_WELCOME, e -> {
@@ -555,7 +654,7 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		}));
 		menu.addSeparator();
 
-		menu.add(GUIFactory.getJMenuItem("checkVersion", e -> {
+		menu.add(GUIFactory.getJMenuItem(CHECK_VERSION, e -> {
 			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			try {
 				checkVersion(false);
@@ -568,7 +667,86 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		return menuBar;
 	}
 
-	protected abstract JMenu createToolsMenu();
+	private JMenu createLanguageMenu() {
+		JMenu result = GUIFactory.getJMenu("menuLanguage");
+		boolean[] selected;
+		JRadioButtonMenuItem rbMenuItem;
+		ButtonGroup languages = new ButtonGroup();
+
+		try {
+			List<String> guiLanguage = Arrays.asList("Deutsch", "English", "Nederlands");
+
+			int index = guiLanguage.indexOf(generalSettings.getLanguage());
+			if (index == -1) {
+				index = guiLanguage.indexOf("English");
+				if (index == -1) {
+					index = 0;
+				}
+			}
+
+			selected = new boolean[3];
+			selected[index] = true;
+
+			for (int i = 0; i < 3; i++) {
+				rbMenuItem = new JRadioButtonMenuItem(guiLanguage.get(i), selected[i]);
+				rbMenuItem.setActionCommand(guiLanguage.get(i));
+				rbMenuItem.addActionListener(funcLanguage);
+				result.add(rbMenuItem);
+				languages.add(rbMenuItem);
+			}
+		} catch (Exception e) {
+			General.errorMessage(this, e, "Configuration Error", null);
+			result.setEnabled(false);
+		}
+		return result;
+	}
+
+	private JMenu createLookAndFeelMenu() {
+		JMenu result = GUIFactory.getJMenu("menuLookAndFeel");
+		JRadioButtonMenuItem rbMenuItem;
+		ButtonGroup skins = new ButtonGroup();
+		Map<String, String> lfMap = General.getLookAndFeels();
+		String lfName = generalSettings.getLookAndFeel();
+
+		for (String lf : lfMap.keySet()) {
+			rbMenuItem = new JRadioButtonMenuItem(lf);
+			rbMenuItem.setActionCommand(lf);
+			rbMenuItem.setSelected(lf.equals(lfName));
+			rbMenuItem.addActionListener(funcLookAndFeel);
+			result.add(rbMenuItem);
+			skins.add(rbMenuItem);
+		}
+		return result;
+	}
+
+	protected JMenu createToolsMenu() {
+		JMenu result = GUIFactory.getJMenu("menuTools");
+
+		if (isMainScreen) {
+			result.add(createLanguageMenu());
+			result.add(createLookAndFeelMenu());
+		}
+		
+		result.add(GUIFactory.getJMenuItem("menuConfigGeneral", e -> {
+			ConfigGeneral view = new ConfigGeneral();
+			view.setVisible(true);
+			activateComponents();
+		}));
+
+		return result;
+	}
+
+	private JMenu createSitesMenu() {
+		InternetSitesMenu handler = new InternetSitesMenu(e -> {
+			try {
+				General.gotoWebsite(e.getActionCommand());
+			} catch (Exception ex) {
+				General.errorMessage(this, ex, GUIFactory.getTitle("connectionError"),
+						GUIFactory.getMessage("connectionError", "http://" + e.getActionCommand()));
+			}
+		}, software);
+		return handler.getInternetSitesMenu();
+	}
 
 	private Component createStatusbarPanel() {
 		Box result = Box.createHorizontalBox();
@@ -609,18 +787,17 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		}
 	}
 
-	@Override
 	protected void close() {
 		// Check if automated version check has been enabled
 		if (isMainScreen() && !generalSettings.isNoVersionCheck()
-					&& generalSettings.getCheckVersionDate().isBefore(LocalDate.now())) {
-				try {
-					// Make a "silent" check
-					checkVersion(true);
-					generalSettings.setCheckVersionDate();
-				} catch (FNProgException ex) {
-					General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
-				}
+				&& generalSettings.getCheckVersionDate().isBefore(LocalDate.now())) {
+			try {
+				// Make a "silent" check
+				checkVersion(true);
+				generalSettings.setCheckVersionDate();
+			} catch (FNProgException ex) {
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
+			}
 		}
 
 		generalSettings.setWidth(getWidth());
@@ -628,7 +805,13 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		dbSettings.cleanupNodes(pdaSettings);
 		pdaSettings.setLastProject();
 		pdaSettings.setLastProfile(pdaSettings.getProfileID());
-		super.close();
+
+		if (isMainScreen) {
+			System.exit(0);
+		}
+
+		setVisible(false);
+		dispose();
 	}
 
 	public JProgressBar getProgressBar() {
@@ -639,7 +822,6 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 		return progressText;
 	}
 
-	@Override
 	public void activateComponents() {
 		btExport.setEnabled(isProfileSet);
 		btEdit.setEnabled(isProfileSet);
@@ -654,12 +836,18 @@ public abstract class ProgramDialog extends BasicFrame implements Observer {
 	}
 
 	public boolean isModelValid() {
-		long checksum = general.getGeneralCRC32Checksum();
+		long checksum = generalSettings.getGeneralCRC32Checksum();
 		boolean isTrue = oldGeneralCRC == checksum && oldLastModified.equals(pdaSettings.getLastSaved());
 		oldGeneralCRC = checksum;
 		oldLastModified = pdaSettings.getLastSaved();
 		return isTrue;
 	}
 
+	public void setHelpFile(String helpFile) {
+		myHelpFile = helpFile;
+	}
+
 	protected abstract IConfigSoft getConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNewProfile);
+
+	protected abstract void refreshScreen();
 }

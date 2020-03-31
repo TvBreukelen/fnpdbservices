@@ -1,11 +1,13 @@
 package application.utils;
 
+import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Properties;
 
 import javax.swing.AbstractButton;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -52,7 +54,18 @@ public final class GUIFactory {
 	}
 
 	public static JLabel getJLabel(String resourceID) {
-		JLabel result = new JLabel(getText(resourceID));
+		return new JLabel(getText(resourceID));
+	}
+
+	public static JLabel getJLabel(String resourceID, Icon icon) {
+		JLabel result = getJLabel(getText(resourceID));
+		result.setIcon(icon);
+		return result;
+	}
+
+	public static JLabel getJLabel(String resourceID, Font font) {
+		JLabel result = getJLabel(getText(resourceID));
+		result.setFont(font);
 		return result;
 	}
 
@@ -111,13 +124,31 @@ public final class GUIFactory {
 		return result;
 	}
 
-	public static JRadioButton getJRadioButton(String resourceID) {
-		JRadioButton result = new JRadioButton(getText(resourceID));
+	public static JButton getJButton(String resourceID, String actionCommand, ActionListener action) {
+		JButton result = new JButton(getText(resourceID));
 		result.setToolTipText(getToolTip(resourceID));
+		result.addActionListener(action);
+		result.setActionCommand(actionCommand);
 		setMnemonic(result, resourceID);
 		return result;
 	}
 
+	public static JRadioButton getJRadioButton(String resourceID, ActionListener action) {
+		JRadioButton result = new JRadioButton(getText(resourceID));
+		result.setToolTipText(getToolTip(resourceID));
+		result.addActionListener(action);
+		setMnemonic(result, resourceID);
+		return result;
+	}
+
+	public static JRadioButton getJRadioButton(String resourceID, String actionCommand, ActionListener action) {
+		JRadioButton result = new JRadioButton(getText(resourceID));
+		result.setToolTipText(getToolTip(resourceID));
+		result.addActionListener(action);
+		result.setActionCommand(actionCommand);
+		setMnemonic(result, resourceID);
+		return result;
+	}
 	public static JCheckBox getJCheckBox(String resourceID, boolean value) {
 		JCheckBox result = new JCheckBox(getText(resourceID));
 		result.setToolTipText(getToolTip(resourceID));

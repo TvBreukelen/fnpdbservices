@@ -1,7 +1,7 @@
+
 package application.dialog;
 
 import java.awt.Component;
-import java.awt.ComponentOrientation;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
@@ -11,13 +11,13 @@ import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -32,8 +32,6 @@ public class ConfigGeneral extends BasicDialog {
 	 * @version 8.0
 	 */
 	private static final long serialVersionUID = 7553290524617159304L;
-	private JTextField fdChecked;
-	private JTextField fdUnchecked;
 	private JTextField dateExample;
 	private JTextField durationExample;
 	private JTextField timeExample;
@@ -42,8 +40,6 @@ public class ConfigGeneral extends BasicDialog {
 	private JTextField defaultImageFolder;
 	private JTextField defaultPdaFolder;
 
-	private JFormattedTextField checkVersionDays;
-	private JCheckBox noVersionCheck;
 	private JCheckBox noImagePath;
 
 	private JComboBox<String> dateFormat;
@@ -51,7 +47,11 @@ public class ConfigGeneral extends BasicDialog {
 	private JComboBox<String> timeFormat;
 	private JComboBox<String> durationFormat;
 
+	private int versionDaysCheck = 30;
+
 	transient ActionListener funcSelectDir;
+	private Font bold = new Font("serif", Font.BOLD, 14);
+	private XGridBagConstraints c = new XGridBagConstraints();
 
 	private static final String[] DATE_DELIMITERS = { "", " ", "/", "-", ".", "," };
 
@@ -91,10 +91,16 @@ public class ConfigGeneral extends BasicDialog {
 
 	@Override
 	protected Component createCenterPanel() {
-		Box result = Box.createVerticalBox();
-		JPanel p1 = new JPanel(new GridBagLayout());
-		JPanel p2 = new JPanel(new GridBagLayout());
-		XGridBagConstraints c = new XGridBagConstraints();
+		JTabbedPane result = new JTabbedPane(SwingConstants.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
+		result.addTab(GUIFactory.getText("dateTime"), addDateTimeTab());
+		result.addTab("Internet", addInternetTab());
+		result.addTab(GUIFactory.getText("folders"), addFoldersTab());
+		return result;
+	}
+
+	private Component addDateTimeTab() {
+		JPanel result = new JPanel(new GridBagLayout());
+		final String EXAMPLE = "example";
 
 		dateFormat = new JComboBox<>(new String[] { "d M yy", "d M yyyy", "d MMM yy", "d MMM yyyy", "dd MM yy",
 				"dd MM yyyy", "dd MMM yy", "dd MMM yyyy", "M d yy", "M d yyyy", "MM dd yy", "MM dd yyyy", "yy M d",
@@ -107,7 +113,7 @@ public class ConfigGeneral extends BasicDialog {
 		dateDelimiter.setSelectedIndex(General.getID(generalSettings.getDateDelimiter(), DATE_DELIMITERS));
 		dateDelimiter.addActionListener(e -> showDateExample());
 
-		dateExample = GUIFactory.getJTextField("example", "");
+		dateExample = GUIFactory.getJTextField(EXAMPLE, "");
 		dateExample.setEditable(false);
 
 		timeFormat = new JComboBox<>(new String[] { "h:mm", "hh:mm", "HH:mm", "h:mm:ss", "hh:mm:ss", "HH:mm:ss",
@@ -116,7 +122,7 @@ public class ConfigGeneral extends BasicDialog {
 		timeFormat.setToolTipText(GUIFactory.getToolTip("timeFormat"));
 		timeFormat.addActionListener(e -> showTimeExample());
 
-		timeExample = GUIFactory.getJTextField("example", "");
+		timeExample = GUIFactory.getJTextField(EXAMPLE, "");
 		timeExample.setEditable(false);
 
 		durationFormat = new JComboBox<>(new String[] { "h:mm:ss", "mmm:ss" });
@@ -124,127 +130,82 @@ public class ConfigGeneral extends BasicDialog {
 		durationFormat.setToolTipText(GUIFactory.getToolTip("durationFormat"));
 		durationFormat.addActionListener(e -> showDurationExample());
 
-		durationExample = GUIFactory.getJTextField("example", "");
+		durationExample = GUIFactory.getJTextField(EXAMPLE, "");
 		durationExample.setEditable(false);
-
-		fdChecked = new JTextField(generalSettings.getCheckBoxChecked());
-		fdChecked.setToolTipText(GUIFactory.getToolTip("selected"));
-
-		fdUnchecked = new JTextField(generalSettings.getCheckBoxUnchecked());
-		fdUnchecked.setToolTipText(GUIFactory.getToolTip("unselected"));
-
-		JLabel label1 = GUIFactory.getJLabel("dateTime");
-		label1.setFont(new Font("serif", Font.BOLD, 14));
-
-		JLabel label2 = GUIFactory.getJLabel("checkBox");
-		label2.setFont(new Font("serif", Font.BOLD, 14));
-
-		JLabel label3 = GUIFactory.getJLabel("selected");
-		label3.setIcon(General.createImageIcon("CheckboxSelected.gif"));
-
-		JLabel label4 = GUIFactory.getJLabel("unselected");
-		label4.setIcon(General.createImageIcon("CheckboxUnselected.gif"));
-
-		JLabel label5 = GUIFactory.getJLabel("checkNewVersion");
-		label5.setFont(new Font("serif", Font.BOLD, 14));
-
-		JLabel label6 = GUIFactory.getJLabel("folders");
-		label6.setFont(new Font("serif", Font.BOLD, 14));
 
 		defaultFileFolder = GUIFactory.getJTextField("defaultFileFolder", generalSettings.getDefaultFileFolder());
 		defaultBackupFolder = GUIFactory.getJTextField("defaultBackupFolder", generalSettings.getDefaultBackupFolder());
 		defaultImageFolder = GUIFactory.getJTextField("defaultImageFolder", generalSettings.getDefaultImageFolder());
 		defaultPdaFolder = GUIFactory.getJTextField("defaultPdaFolder", generalSettings.getDefaultPdaFolder());
-		checkVersionDays = GUIFactory.getIntegerTextField("checkNewVersion", 1, 365,
-				Integer.toString(generalSettings.getVersionDaysCheck()));
-
-		noVersionCheck = GUIFactory.getJCheckBox("never", !generalSettings.isNoVersionCheck(),
-				e -> checkVersionDays.setEnabled(!noVersionCheck.isSelected()));
-		noVersionCheck.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-		noVersionCheck.doClick();
-
 		noImagePath = GUIFactory.getJCheckBox("noImagePath", generalSettings.isNoImagePath());
 
-		JButton bt1 = GUIFactory.getJButton("browseFolder", funcSelectDir);
-		bt1.setActionCommand("0");
+		result.add(Box.createVerticalStrut(10), c.gridCell(0, 0, 0, 0));
+		result.add(GUIFactory.getJLabel("dateFormat", bold), c.gridCell(0, 1, 0, 0));
+		result.add(dateFormat, c.gridCell(0, 2, 0, 0));
+		result.add(dateDelimiter, c.gridCell(1, 2, 0, 0));
 
-		JButton bt2 = GUIFactory.getJButton("browseFolder", funcSelectDir);
-		bt2.setActionCommand("1");
+		result.add(dateExample, c.gridCell(2, 2, 0, 0));
+		result.add(Box.createVerticalStrut(10), c.gridCell(2, 3, 0, 0));
+		result.add(GUIFactory.getJLabel("timeFormat", bold), c.gridCell(0, 4, 0, 0));
+		result.add(GUIFactory.getJLabel("durationFormat", bold), c.gridCell(2, 4, 0, 0));
 
-		JButton bt3 = GUIFactory.getJButton("browseFolder", funcSelectDir);
-		bt3.setActionCommand("2");
+		result.add(timeFormat, c.gridCell(0, 5, 0, 0));
+		result.add(timeExample, c.gridCell(1, 5, 0, 0));
+		result.add(durationFormat, c.gridCell(2, 5, 0, 0));
+		result.add(durationExample, c.gridCell(3, 5, 0, 0));
+		result.add(Box.createVerticalStrut(10), c.gridCell(1, 6, 0, 0));
+		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("dateTime")));
+		return result;
+	}
 
-		p1.add(Box.createHorizontalStrut(10), c.gridCell(0, 0, 0, 0));
-		p1.add(label1, c.gridCell(1, 0, 0, 0));
-		p1.add(GUIFactory.getJLabel("dateFormat"), c.gridCell(1, 1, 0, 0));
+	private Component addInternetTab() {
+		versionDaysCheck = generalSettings.getVersionDaysCheck();
 
-		Box box = Box.createHorizontalBox();
-		box.add(dateFormat);
-		box.add(dateDelimiter);
+		ActionListener listener = e -> versionDaysCheck = Integer.valueOf(e.getActionCommand());
+		JRadioButton bt1 = GUIFactory.getJRadioButton("oncePerDay", "1", listener);
+		JRadioButton bt2 = GUIFactory.getJRadioButton("oncePerWeek", "7", listener);
+		JRadioButton bt3 = GUIFactory.getJRadioButton("oncePerMonth", "30", listener);
+		JRadioButton bt4 = GUIFactory.getJRadioButton("never", "0", listener);
 
-		p1.add(box, c.gridCell(1, 2, 0, 0));
+		JPanel result = General.addVerticalButtons(GUIFactory.getText("checkNewVersion"), bt1, bt2, bt3, bt4);
 
-		Box box0 = Box.createHorizontalBox();
-		box0.add(dateExample);
+		switch (versionDaysCheck) {
+		case 0:
+			bt4.setSelected(true);
+			break;
+		case 1:
+			bt1.setSelected(true);
+			break;
+		case 7:
+			bt2.setSelected(true);
+			break;
+		default:
+			bt4.setSelected(true);
+			break;
+		}
 
-		Box box1 = Box.createHorizontalBox();
-		box1.add(timeFormat);
-		box1.add(timeExample);
+		return result;
+	}
 
-		Box box2 = Box.createHorizontalBox();
-		box2.add(durationFormat);
-		box2.add(durationExample);
+	private Component addFoldersTab() {
+		JPanel result = new JPanel(new GridBagLayout());
+		final String BROWSE_FOLDER = "browseFolder";
 
-		Box box3 = Box.createHorizontalBox();
-		box3.add(noVersionCheck);
-		box3.add(Box.createHorizontalStrut(10));
-		box3.add(GUIFactory.getJLabel("every"));
-		box3.add(checkVersionDays);
-		box3.add(GUIFactory.getJLabel("days"));
-
-		p1.add(box0, c.gridCell(2, 2, 0, 0));
-		p1.add(Box.createVerticalStrut(10), c.gridCell(2, 3, 0, 0));
-		p1.add(GUIFactory.getJLabel("timeFormat"), c.gridCell(1, 4, 0, 0));
-		p1.add(GUIFactory.getJLabel("durationFormat"), c.gridCell(2, 4, 0, 0));
-
-		p1.add(box1, c.gridCell(1, 5, 0, 0));
-		p1.add(box2, c.gridCell(2, 5, 0, 0));
-		p1.add(Box.createVerticalStrut(10), c.gridCell(1, 6, 0, 0));
-
-		p1.add(label2, c.gridCell(1, 7, 0, 0));
-		p1.add(label3, c.gridCell(1, 8, 0, 0));
-		p1.add(label4, c.gridCell(2, 8, 0, 0));
-		p1.add(fdChecked, c.gridCell(1, 9, 0, 0));
-		p1.add(fdUnchecked, c.gridCell(2, 9, 0, 0));
-
-		p1.add(Box.createVerticalStrut(10), c.gridCell(1, 10, 0, 0));
-		p1.add(label5, c.gridCell(1, 11, 0, 0));
-		p1.add(box3, c.gridCell(1, 12, 0, 0));
-		p1.add(Box.createVerticalStrut(10), c.gridCell(1, 13, 0, 0));
-		p1.add(noImagePath, c.gridmultipleCell(1, 14, 0, 0, 2, 0));
-		p1.add(Box.createVerticalStrut(10), c.gridCell(1, 15, 0, 0));
-
-		p2.add(Box.createHorizontalStrut(10), c.gridCell(0, 0, 0, 0));
-		p2.add(label6, c.gridCell(1, 1, 0, 0));
-
-		p2.add(GUIFactory.getJLabel("defaultFileFolder"), c.gridCell(1, 2, 0, 0));
-		p2.add(defaultFileFolder, c.gridCell(2, 2, 2, 0));
-		p2.add(bt1, c.gridCell(3, 2, 0, 0));
-		p2.add(GUIFactory.getJLabel("defaultBackupFolder"), c.gridCell(1, 3, 0, 0));
-		p2.add(defaultBackupFolder, c.gridCell(2, 3, 2, 0));
-		p2.add(bt2, c.gridCell(3, 3, 0, 0));
-		p2.add(GUIFactory.getJLabel("defaultImageFolder"), c.gridCell(1, 4, 0, 0));
-		p2.add(defaultImageFolder, c.gridCell(2, 4, 2, 0));
-		p2.add(bt3, c.gridCell(3, 4, 0, 0));
-		p2.add(GUIFactory.getJLabel("defaultPdaFolder"), c.gridCell(1, 5, 0, 0));
-		p2.add(defaultPdaFolder, c.gridCell(2, 5, 2, 0));
-
-		result.add(Box.createVerticalStrut(10));
-		result.add(p1);
-		result.add(Box.createVerticalStrut(10));
-		result.add(p2);
-		result.add(Box.createVerticalStrut(10));
-		result.setBorder(BorderFactory.createEtchedBorder());
+		result.add(Box.createHorizontalStrut(10), c.gridCell(0, 0, 0, 0));
+		result.add(GUIFactory.getJLabel("defaultFileFolder"), c.gridCell(0, 1, 0, 0));
+		result.add(defaultFileFolder, c.gridCell(1, 1, 2, 0));
+		result.add(GUIFactory.getJButton(BROWSE_FOLDER, "0", funcSelectDir), c.gridCell(2, 1, 0, 0));
+		result.add(GUIFactory.getJLabel("defaultBackupFolder"), c.gridCell(0, 2, 0, 0));
+		result.add(defaultBackupFolder, c.gridCell(1, 2, 2, 0));
+		result.add(GUIFactory.getJButton(BROWSE_FOLDER, "1", funcSelectDir), c.gridCell(2, 2, 0, 0));
+		result.add(GUIFactory.getJLabel("defaultImageFolder"), c.gridCell(0, 3, 0, 0));
+		result.add(defaultImageFolder, c.gridCell(1, 3, 2, 0));
+		result.add(GUIFactory.getJButton(BROWSE_FOLDER, "2", funcSelectDir), c.gridCell(2, 3, 0, 0));
+		result.add(GUIFactory.getJLabel("defaultPdaFolder"), c.gridCell(0, 4, 0, 0));
+		result.add(defaultPdaFolder, c.gridCell(1, 4, 2, 0));
+		result.add(Box.createVerticalStrut(10), c.gridCell(0, 5, 0, 0));
+		result.add(noImagePath, c.gridmultipleCell(0, 6, 3, 0, 0, 0));
+		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("folders")));
 		return result;
 	}
 
@@ -271,14 +232,11 @@ public class ConfigGeneral extends BasicDialog {
 		generalSettings.setDateDelimiter(DATE_DELIMITERS[dateDelimiter.getSelectedIndex()]);
 		generalSettings.setTimeFormat(timeFormat.getSelectedItem().toString());
 		generalSettings.setDurationFormat(durationFormat.getSelectedItem().toString());
-		generalSettings.setCheckBoxChecked(fdChecked.getText().trim());
-		generalSettings.setCheckBoxUnchecked(fdUnchecked.getText().trim());
 		generalSettings.setDefaultBackupFolder(defaultBackupFolder.getText().trim());
 		generalSettings.setDefaultFileFolder(defaultFileFolder.getText().trim());
 		generalSettings.setDefaultImageFolder(defaultImageFolder.getText().trim());
 		generalSettings.setDefaultPdaFolder(defaultPdaFolder.getText().trim());
-		generalSettings.setVersionDaysCheck(Integer.parseInt(checkVersionDays.getText()));
-		generalSettings.setNoVersionCheck(noVersionCheck.isSelected());
+		generalSettings.setVersionDaysCheck(versionDaysCheck);
 		generalSettings.setNoImagePath(noImagePath.isSelected());
 	}
 

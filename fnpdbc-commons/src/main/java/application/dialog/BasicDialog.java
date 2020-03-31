@@ -144,9 +144,7 @@ public abstract class BasicDialog extends JDialog {
 		// Nothing to do here on this level
 	}
 
-	protected void save() throws Exception {
-		// Nothing to do here on this level
-	}
+	protected abstract void save() throws Exception;
 
 	protected Component addToToolbar() {
 		return Box.createHorizontalGlue();

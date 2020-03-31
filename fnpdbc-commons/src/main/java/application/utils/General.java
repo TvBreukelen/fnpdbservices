@@ -382,13 +382,10 @@ public final class General {
 
 	public static Map<String, String> getLookAndFeels() {
 		Map<String, String> map = new LinkedHashMap<>();
-		map.put("Java", UIManager.getCrossPlatformLookAndFeelClassName());
 		map.put("System", UIManager.getSystemLookAndFeelClassName());
 
 		for (UIManager.LookAndFeelInfo result : UIManager.getInstalledLookAndFeels()) {
-			if (!map.containsValue(result.getClassName())) {
-				map.put(result.getName(), result.getClassName());
-			}
+			map.putIfAbsent(result.getName(), result.getClassName());
 		}
 
 		return map;
@@ -986,7 +983,7 @@ public final class General {
 		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getLong();
 	}
 
-	public static JPanel addVerticalButtons(String title, ActionListener action, AbstractButton... buttons) {
+	public static JPanel addVerticalButtons(String title, AbstractButton... buttons) {
 		final int max = buttons.length;
 		JPanel result = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
@@ -996,12 +993,6 @@ public final class General {
 			if (buttons[i] instanceof JRadioButton) {
 				bGroup.add(buttons[i]);
 			}
-
-			if (action != null) {
-				buttons[i].addActionListener(action);
-				buttons[i].setActionCommand(buttons[i].getText());
-			}
-
 			result.add(buttons[i], c.gridCell(1, i, 1, 0));
 		}
 

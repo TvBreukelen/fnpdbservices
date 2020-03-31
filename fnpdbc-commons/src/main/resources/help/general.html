@@ -73,29 +73,15 @@ Here you can choose a time format to be used for the exported duration fields:
 </ol>
 </ul>
 
-<h2>CheckBox</h2>
+<h2>Internet - Automatically check for program updates</h2>
+<p>
+Here you could select how often the program should check automatically for updates
+</p>
 <ul>
-<li><b>Selected</b></li>
-Specifies what value should be used for the activated checkbox (= <img src="../images/CheckboxSelected.gif">)
- fields to be exported.<br>
-<li><b>Unselected</b></li> 
-The same as above but then for deactivated checkbox (= <img src="../images/CheckboxUnselected.gif">)
- fields to be exported.
-</ul>
-
-<h2>Check for new version</h2>
-<ul>
-<li><b>Never</b></li>
-When selected, the program doesn't run a check for new versions automatically 
-<br>
-<li><b>Every x. Day(s)</b></li> 
-Here you enter the numbers of days that the program has to check for a new version. 
-</ul>
-
-<h2>Export image file names without the path.</h2>
-<ul>
-<li>When selected, it removes the path information from the file name</li>
-For example: image.jpeg instead of d:/data/images/image.jpeg
+<li>Once a day</li>
+<li>Once a week</li>
+<li>Once a month</li>
+<li>Never</li>
 </ul>
 
 <h2>Folders</h2>
@@ -116,6 +102,12 @@ When used, the program still creates the image files in the Image Folder, but wr
  the folder (that is specified here), the database program on the mobile device should be able to retrieve the correct location
  of the image files automatically.
 <br> 
+
+</ul>
+<h2>Export image file names without the path.</h2>
+<ul>
+<li>When selected, it removes the path information from the file name</li>
+For example: image.jpeg instead of d:/data/images/image.jpeg
 </ul>
 
 <p><b>Notes:</b>
@@ -133,12 +125,6 @@ FNProg2PDA uses two internal date types, namely  "incomplete" and "standard" dat
 The difference between time and duration is that duration represents the length of time of a CD, track or video)
  and time the time of a day. Duration fields are always exported as text. Time fields can either be exported to
  text and (for some export file formats) also as time fields.<br>
-</p>
-<p>
-Some PDA databases accept "1" as a valid <img src="../images/CheckboxSelected.gif"> value  and "0" as
- valid <img src="../images/CheckboxUnselected.gif"> value (example: HanDBase or SmartList To Go).
- For others PDA databases, you could set the fields to a text value (like: "Yes" for
- <img src="../images/CheckboxSelected.gif"> or "No" for <img src="../images/CheckboxUnselected.gif">.
 </p>
 </p>
 </body>

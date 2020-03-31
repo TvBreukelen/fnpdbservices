@@ -33,9 +33,7 @@ public class ConfigFNProg extends ProgramDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
-		super.init();
+	private void init() {
 		init(TvBSoftware.FNPROG2PDA.getName() + " " + TvBSoftware.FNPROG2PDA.getVersion());
 		setHelpFile("fnprog2pda");
 		setJMenuBar(createMenuBar());
@@ -46,7 +44,7 @@ public class ConfigFNProg extends ProgramDialog {
 
 	@Override
 	protected JMenu createToolsMenu() {
-		JMenu result = GUIFactory.getJMenu("menuTools");
+		JMenu result = super.createToolsMenu();
 		result.add(GUIFactory.getJMenuItem("DBConvert", e -> {
 			ConfigDBConvert dbConvert = new ConfigDBConvert(false);
 			dbConvert.setVisible(true);

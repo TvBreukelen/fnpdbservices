@@ -1,7 +1,6 @@
 package dbconvert.dialog;
 
 import javax.swing.JFrame;
-import javax.swing.JMenu;
 
 import application.dialog.ProgramDialog;
 import application.interfaces.IConfigSoft;
@@ -29,11 +28,10 @@ public class ConfigDBConvert extends ProgramDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
-		super.init();
-		dbFactory = new XConverter(this);
+	private void init() {
 		init(TvBSoftware.DBCONVERT.getName() + " " + TvBSoftware.DBCONVERT.getVersion());
+
+		dbFactory = new XConverter(this);
 		setHelpFile("dbconvert");
 		exportProcess = new ExportProcess();
 
@@ -41,11 +39,6 @@ public class ConfigDBConvert extends ProgramDialog {
 		buildDialog();
 		activateComponents();
 		pack();
-	}
-
-	@Override
-	protected JMenu createToolsMenu() {
-		return null;
 	}
 
 	@Override

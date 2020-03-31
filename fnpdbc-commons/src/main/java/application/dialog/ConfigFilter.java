@@ -86,7 +86,7 @@ public class ConfigFilter extends BasicDialog {
 	private ActionListener funcSelectPressed;
 	private ActionListener funcSubSelectPressed;
 
-	private JRadioButton btFilterAnd = GUIFactory.getJRadioButton("and");
+	private JRadioButton btFilterAnd = GUIFactory.getJRadioButton("and", null);
 	private JButton[] btErase = new JButton[2];
 
 	private Box contentsPanel;
@@ -333,7 +333,7 @@ public class ConfigFilter extends BasicDialog {
 
 		// Create RadioButtonPanel
 		Box radioPanel = Box.createHorizontalBox();
-		JRadioButton btFilterOr = GUIFactory.getJRadioButton("or");
+		JRadioButton btFilterOr = GUIFactory.getJRadioButton("or", null);
 		ButtonGroup bGroup = new ButtonGroup();
 		bGroup.add(btFilterAnd);
 		bGroup.add(btFilterOr);
@@ -483,8 +483,8 @@ public class ConfigFilter extends BasicDialog {
 		switch (dbDef.getFieldType()) {
 		case BOOLEAN:
 			Box box = Box.createHorizontalBox();
-			JRadioButton button1 = GUIFactory.getJRadioButton("yes");
-			JRadioButton button2 = GUIFactory.getJRadioButton("no");
+			JRadioButton button1 = GUIFactory.getJRadioButton("yes", funcBoolFilter);
+			JRadioButton button2 = GUIFactory.getJRadioButton("no", funcBoolFilter);
 			button1.setActionCommand(index == 0 ? "0" : "2");
 			button2.setActionCommand(index == 0 ? "1" : "3");
 
@@ -492,8 +492,6 @@ public class ConfigFilter extends BasicDialog {
 			group.add(button1);
 			group.add(button2);
 
-			button1.addActionListener(funcBoolFilter);
-			button2.addActionListener(funcBoolFilter);
 			button2.setSelected(filterValue[index].equals(FALSE));
 			button1.setSelected(!button2.isSelected());
 			filterValue[index] = button1.isSelected() ? TRUE : FALSE;

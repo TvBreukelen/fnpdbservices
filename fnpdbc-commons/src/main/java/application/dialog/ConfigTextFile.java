@@ -2,6 +2,8 @@ package application.dialog;
 
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -104,16 +106,18 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		standardCsv = GUIFactory.getJRadioButton("standardCsv");
-		JRadioButton otherCsv = GUIFactory.getJRadioButton("otherCsv");
-
-		panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), e -> {
-			exportFile = ExportFile.getExportFile(e.getActionCommand());
-			activateComponents();
-		}, standardCsv, otherCsv));
-
-		standardCsv.setActionCommand(ExportFile.HANDBASE.getName());
-		otherCsv.setActionCommand(ExportFile.TEXTFILE.getName());
+		ActionListener listener = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				exportFile = ExportFile.getExportFile(e.getActionCommand());
+				activateComponents();
+			}
+		};
+		
+		standardCsv = GUIFactory.getJRadioButton("standardCsv", ExportFile.HANDBASE.getName(), listener);
+		JRadioButton otherCsv = GUIFactory.getJRadioButton("otherCsv", ExportFile.TEXTFILE.getName(),listener);
+		panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
 
 		exportFile = ExportFile
 				.getExportFile(isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat());

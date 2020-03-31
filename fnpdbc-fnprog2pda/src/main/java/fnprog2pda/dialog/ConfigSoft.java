@@ -144,6 +144,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		fieldSelect = new ScFieldSelect(dbFactory);
 		configDb = new ScConfigDb(this, myExportFile, pdaSettings);
+		fdView.setPreferredSize(configDb.getComboBoxSize());
 
 		verifyDatabase(true);
 		buildDialog();
@@ -231,7 +232,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private JPanel createFieldPanel() {
 		JPanel result = new JPanel(new BorderLayout());
 		result.add(fieldSelect.createFieldPanel(), BorderLayout.CENTER);
-		result.setPreferredSize(new Dimension(600, 550));
 		return result;
 	}
 

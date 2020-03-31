@@ -104,4 +104,9 @@ public class Viewer extends BasicDialog {
 	public ViewerModel getTableModel() {
 		return myModel;
 	}
+
+	@Override
+	protected void save() throws Exception {
+		// Not used here
+	}
 }

@@ -36,7 +36,6 @@ public final class GeneralSettings implements IEncoding {
 	private boolean isIncrementalExport;
 	private boolean isNewExport;
 	private boolean isNoFilterExport;
-	private boolean isNoVersionCheck;
 	private boolean isNoImagePath;
 
 	private int width;
@@ -72,10 +71,9 @@ public final class GeneralSettings implements IEncoding {
 		isIncrementalExport = myPref.getBoolean("incremental.export", false);
 		isNewExport = myPref.getBoolean("new.export", false);
 		isNoFilterExport = myPref.getBoolean("filter.export", false);
-		isNoVersionCheck = myPref.getBoolean("noversion.check", false);
 		isNoImagePath = myPref.getBoolean("noImagePath.check", false);
 
-		versionDaysCheck = myPref.getInt("version.days.check", 10);
+		versionDaysCheck = myPref.getInt("version.days.check", 30);
 		checkVersionDate = myPref.get("check.version.date", "");
 	}
 
@@ -224,12 +222,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public boolean isNoVersionCheck() {
-		return isNoVersionCheck;
-	}
-
-	public void setNoVersionCheck(boolean isNoVersionCheck) {
-		PrefUtils.writePref(myPref, "noversion.check", isNoVersionCheck, this.isNoVersionCheck, false);
-		this.isNoVersionCheck = isNoVersionCheck;
+		return versionDaysCheck == 0;
 	}
 
 	public boolean isNoImagePath() {
@@ -237,7 +230,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public void setNoImagePath(boolean isNoImagePath) {
-		PrefUtils.writePref(myPref, "noImagePath.check", isNoImagePath, isNoVersionCheck, false);
+		PrefUtils.writePref(myPref, "noImagePath.check", isNoImagePath, this.isNoImagePath, false);
 		this.isNoImagePath = isNoImagePath;
 	}
 
@@ -307,9 +300,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public void setCheckVersionDate() {
-		if (isNoVersionCheck) {
-			setCheckVersionDate("");
-		} else {
+		if (versionDaysCheck > 0) {
 			LocalDate futureCheckVersionDate = LocalDate.now().plusDays(versionDaysCheck);
 			setCheckVersionDate(futureCheckVersionDate.format(DateTimeFormatter.ISO_DATE));
 		}

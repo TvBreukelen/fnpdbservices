@@ -37,6 +37,6 @@ public class ConfigReferencer extends JPanel implements IConfigDb {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		paragraphHeader = GUIFactory.getJCheckBox("paragraphHeader", pdaSettings.isUseParagraphHeader());
 		titleHeader = GUIFactory.getJCheckBox("titleHeader", pdaSettings.isUseTitleHeader());
-		add(General.addVerticalButtons(GUIFactory.getTitle("export"), null, paragraphHeader, titleHeader));
+		add(General.addVerticalButtons(GUIFactory.getTitle("export"), paragraphHeader, titleHeader));
 	}
 }
