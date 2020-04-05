@@ -50,7 +50,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 	private void loadTableModel() {
 		if (isRefresh) {
 			try {
-				mySoftware = new XConverter(myProgram);
+				mySoftware = new XConverter();
 				mySoftware.connect2DB();
 				mySoftware.setupDBTranslation(false);
 				mySoftware.loadInputFile();

@@ -113,7 +113,7 @@ public class DBConvert_NoGUI implements Observer {
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");
 
-		mySoftware = new XConverter(null);
+		mySoftware = new XConverter();
 
 		try {
 			mySoftware.connect2DB();

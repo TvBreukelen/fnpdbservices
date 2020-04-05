@@ -31,7 +31,7 @@ public class ConfigDBConvert extends ProgramDialog {
 	private void init() {
 		init(TvBSoftware.DBCONVERT.getName() + " " + TvBSoftware.DBCONVERT.getVersion());
 
-		dbFactory = new XConverter(this);
+		dbFactory = new XConverter();
 		setHelpFile("dbconvert");
 		exportProcess = new ExportProcess();
 

@@ -1,6 +1,5 @@
 package application.table;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
 
@@ -11,13 +10,8 @@ public class ButtonTableCellEditor extends ActionTableCellEditor {
 		super(new JCheckBox());
 	}
 
-	public JButton getButton() {
-		return super.button;
-	}
-	
 	@Override
 	protected void editCell(JTable table, int row, int column) {
 		// No editing here since we're using a button
 	}
-
 }

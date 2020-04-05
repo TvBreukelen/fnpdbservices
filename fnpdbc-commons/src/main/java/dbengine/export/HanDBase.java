@@ -25,7 +25,7 @@ public class HanDBase extends CsvFile {
 	@Override
 	public void openFile(DatabaseHelper helper, boolean createBackup, boolean isInputFile) throws Exception {
 		// Check if the database conversion program is defined and exists
-		if (handbaseProgram.length() == 0) {
+		if (handbaseProgram.isEmpty()) {
 			throw FNProgException.getException("noHandbaseDesktop");
 		}
 

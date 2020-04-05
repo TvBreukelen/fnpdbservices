@@ -71,6 +71,8 @@ public class BasisField implements Serializable {
 		setFieldAlias(field.getFieldAlias());
 		setFieldName(field.getFieldName());
 		setFieldHeader(field.getFieldHeader());
+		setFieldType(field.getFieldType());
+		setSQLType(field.getSQLType());
 	}
 
 	@Override

@@ -127,6 +127,7 @@ public class JFile5 extends PalmDB {
 			Object dbValue = s.substring(index[1], index[2]);
 			if (!dbValue.equals("")) {
 				try {
+					field.setSize(Math.max(field.getSize(), dbValue.toString().length()));
 					switch (field.getFieldType()) {
 					case BOOLEAN:
 						dbValue = Boolean.parseBoolean(dbValue.toString());

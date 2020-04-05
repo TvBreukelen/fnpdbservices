@@ -72,11 +72,13 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 			pdaSettings.setUseHeader(inclHeaders.isSelected());
 			pdaSettings.setUseLinebreak(inclLinebreaks.isSelected());
 			pdaSettings.setMaxFileSize(splitFile.getSelectedIndex());
-			pdaSettings.setTextFileFormat(standardCsv.isSelected() ? "" : exportFile.getName());
+			pdaSettings
+					.setTextFileFormat(standardCsv.isSelected() ? ExportFile.HANDBASE.getName() : exportFile.getName());
 			pdaSettings.setFieldSeparator(separatorChar);
 			pdaSettings.setTextDelimiter(delimiterChar);
 		} else {
-			pdaSettings.setImportTextFileFormat(standardCsv.isSelected() ? "" : exportFile.getName());
+			pdaSettings.setImportTextFileFormat(
+					standardCsv.isSelected() ? ExportFile.HANDBASE.getName() : exportFile.getName());
 			pdaSettings.setImportFieldSeparator(separatorChar);
 			pdaSettings.setImportTextDelimiter(delimiterChar);
 		}
@@ -107,16 +109,16 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
 		ActionListener listener = new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				exportFile = ExportFile.getExportFile(e.getActionCommand());
 				activateComponents();
 			}
 		};
-		
+
 		standardCsv = GUIFactory.getJRadioButton("standardCsv", ExportFile.HANDBASE.getName(), listener);
-		JRadioButton otherCsv = GUIFactory.getJRadioButton("otherCsv", ExportFile.TEXTFILE.getName(),listener);
+		JRadioButton otherCsv = GUIFactory.getJRadioButton("otherCsv", ExportFile.TEXTFILE.getName(), listener);
 		panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
 
 		exportFile = ExportFile
@@ -181,6 +183,10 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		if (exportFile != ExportFile.TEXTFILE) {
 			separator.setSelectedIndex(0);
 			delimiter.setSelectedIndex(0);
+			if (isExport) {
+				inclHeaders.setSelected(true);
+				inclLinebreaks.setSelected(false);
+			}
 		}
 	}
 }

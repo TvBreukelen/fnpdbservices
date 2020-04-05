@@ -42,9 +42,9 @@ public abstract class GeneralDB {
 	protected String booleanFalse;
 	protected String encoding;
 
-	protected List<FieldDefinition> dbInfo2Write = new ArrayList<>(50);
-	protected List<String> dbFieldNames = new ArrayList<>(50);
-	protected List<FieldTypes> dbFieldTypes = new ArrayList<>(50);
+	protected List<FieldDefinition> dbInfo2Write = new ArrayList<>();
+	protected List<String> dbFieldNames = new ArrayList<>();
+	protected List<FieldTypes> dbFieldTypes = new ArrayList<>();
 
 	protected ExportFile myExportFile;
 	protected ExportFile myImportFile;

@@ -80,7 +80,7 @@ public class FieldDefinition extends BasisField {
 		return decimalFormat;
 	}
 
-	private void setDecimalPoint(int decimalPoint) {
+	public void setDecimalPoint(int decimalPoint) {
 		setDecimalFormat(Utils.getDecimalFormat(size < 10 ? 10 : size, decimalPoint));
 		this.decimalPoint = decimalPoint;
 	}

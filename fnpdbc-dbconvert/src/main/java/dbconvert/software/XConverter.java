@@ -46,7 +46,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	 * @version 4.5
 	 */
 	private String[] myFile;
-	private boolean createBackup;
 	private IConvert dbIn;
 	private GeneralDB dbOut;
 	private DatabaseHelper dbInHelper;
@@ -55,21 +54,18 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	private boolean isOutputFileOpen = false;
 
 	private List<String> dbFilterFields; // All fields that can be filtered or sorted
-	private List<BasisField> dbSelectFields; // All fields that can be exported
+	private List<FieldDefinition> dbSelectFields; // All fields that can be exported
 	private Map<String, Object> dbDataRecord = new HashMap<>(); // database record
 
-	private String myCategoryField;
-	private final String FILTER_FIELD = "{filterfield}";
+	private static final String FILTER_FIELD = "{filterfield}";
 
 	private ViewerModel myModel; // Tablemodel containing all records of the inputfile
-
-	private static PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
 
 	/*
 	 * Default Constructor (used by ConfigXConverter)
 	 */
-	public XConverter(Component parent) {
-		super(pdaSettings);
+	public XConverter() {
+		super(PrefDBConvert.getInstance());
 		Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
 		dbInHelper = new DatabaseHelper(dbSettings.getDatabaseFile(), dbSettings.getDatabaseUser(),
 				dbSettings.getDatabasePassword());
@@ -239,7 +235,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
-	public List<BasisField> getDbSelectFields() {
+	public List<FieldDefinition> getDbSelectFields() {
 		return dbSelectFields;
 	}
 
@@ -249,12 +245,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
-	public HashMap<String, FieldDefinition> getDbFieldDefinition() {
-		HashMap<String, FieldDefinition> result = new HashMap<>();
-		for (String s : dbFieldDefinition.keySet()) {
-			result.put(s, dbFieldDefinition.get(s));
-		}
-		return result;
+	public Map<String, FieldDefinition> getDbFieldDefinition() {
+		return new HashMap<>(dbFieldDefinition);
 	}
 
 	public void loadInputFile() throws Exception {
@@ -265,7 +257,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		myModel = new ViewerModel(dbFields);
 
 		// Get Category Field
-		myCategoryField = pdaSettings.getCategoryField();
+		String categoryField = pdaSettings.getCategoryField();
 		myCategories.clear();
 		int catCount = 0;
 		int emptyRecord = 0;
@@ -287,16 +279,16 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				emptyRecord++;
 				pRead.put(FILTER_FIELD, true);
 			}
-
-			dbTableModelFields.stream().filter(filter).forEach(field -> {
-				field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""));
-			});
+			
+			dbTableModelFields.stream().filter(filter).forEach(field -> 
+				field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""))
+			);
 
 			result.add(pRead);
 
 			// Check if we have to load the List or SmartList categories
-			if (!myCategoryField.isEmpty() && catCount < LISTDB_MAX_CATEGORIES) {
-				String s = pRead.get(myCategoryField).toString();
+			if (!categoryField.isEmpty() && catCount < LISTDB_MAX_CATEGORIES) {
+				String s = pRead.get(categoryField).toString();
 				if (s.length() > 15) {
 					s = s.substring(0, 15);
 				}
@@ -350,7 +342,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public void openToFile() throws Exception {
-		createBackup = pdaSettings.isCreateBackup();
+		boolean createBackup = pdaSettings.isCreateBackup();
 		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings, true);
 		dbOut.setSoftware(this);
 		dbOut.openFile(new DatabaseHelper(myFile[1]), createBackup, false);
@@ -365,7 +357,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		String result = dbIn.getPdaDatabase();
 		if (result == null) {
 			result = myFile[0].substring(myFile[0].lastIndexOf(System.getProperty("file.separator", "\\")) + 1,
-					myFile[0].lastIndexOf("."));
+					myFile[0].lastIndexOf('.'));
 		}
 		return result;
 	}
@@ -374,14 +366,14 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		if (dbIn != null && myImportFile == ExportFile.EXCEL) {
 			return ((ExcelFile) dbIn).getSheetNames();
 		}
-		return null;
+		return new String[0];
 	}
 
 	public String[] getTables() {
 		if (dbIn != null) {
 			return dbIn.getTableNames();
 		}
-		return null;
+		return new String[0];
 	}
 
 	public GeneralDB getDbOut() {

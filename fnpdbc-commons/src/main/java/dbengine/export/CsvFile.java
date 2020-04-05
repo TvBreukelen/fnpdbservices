@@ -41,8 +41,9 @@ public class CsvFile extends GeneralDB implements IConvert {
 	private int fileCounter = 1;
 
 	private List<HashMap<String, Object>> dbRecords;
+	private List<Integer> dbFieldSize = new ArrayList<>();
 	private List<String> exportFiles;
-
+	
 	public CsvFile(Profiles pref) {
 		super(pref);
 	}
@@ -86,18 +87,22 @@ public class CsvFile extends GeneralDB implements IConvert {
 		if (reader.readHeaders()) {
 			dbFieldNames.clear();
 			dbFieldTypes.clear();
+			dbFieldSize.clear();
 
 			int numFields = reader.getHeaderCount();
 			for (int i = 0; i < numFields; i++) {
 				dbFieldNames.add(reader.getHeader(i));
 				dbFieldTypes.add(FieldTypes.TEXT);
+				dbFieldSize.add(1);
 			}
 
-			dbRecords = new ArrayList<>(200);
+			dbRecords = new ArrayList<>();
 			while (reader.readRecord()) {
 				HashMap<String, Object> dbRead = new HashMap<>(numFields);
 				for (int i = 0; i < numFields; i++) {
-					dbRead.put(dbFieldNames.get(i), reader.get(i));
+					String obj = reader.get(i);
+					dbRead.put(dbFieldNames.get(i), obj);
+					dbFieldSize.set(i, Math.max(dbFieldSize.get(i), obj.length()));
 				}
 				dbRecords.add(dbRead);
 			}
@@ -159,9 +164,9 @@ public class CsvFile extends GeneralDB implements IConvert {
 	@Override
 	public void closeFile() {
 		if (isInputFile && reader != null) {
-				reader.close();
-				reader = null;
-				return;
+			reader.close();
+			reader = null;
+			return;
 		}
 		closeOutputFile();
 	}
@@ -210,7 +215,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 		// Read the Category
 		if (useCategory) {
 			String dbField = dbRecord.get(categoryField).toString();
-			if (dbField == null || dbField.length() == 0) {
+			if (dbField == null || dbField.isEmpty()) {
 				writer.write("Unfiled");
 			} else {
 				writer.write(dbField);
@@ -233,19 +238,31 @@ public class CsvFile extends GeneralDB implements IConvert {
 		writer.endRecord();
 
 		// Check if we have to create a new output file
-		if (maxSize != 0  && maxSize - writer.getMaxLineSize() < writer.getSize()) {
-				closeOutputFile();
-				StringBuilder buf = new StringBuilder();
-				buf.append(myFilename.substring(0, myFilename.lastIndexOf('.')));
-				buf.append("_");
-				buf.append(fileCounter++);
-				buf.append(myFilename.substring(myFilename.lastIndexOf('.')));
+		if (maxSize != 0 && maxSize - writer.getMaxLineSize() < writer.getSize()) {
+			closeOutputFile();
+			StringBuilder buf = new StringBuilder();
+			buf.append(myFilename.substring(0, myFilename.lastIndexOf('.')));
+			buf.append("_");
+			buf.append(fileCounter++);
+			buf.append(myFilename.substring(myFilename.lastIndexOf('.')));
 
-				outFile = new File(buf.toString());
-				exportFiles.add(buf.toString());
+			outFile = new File(buf.toString());
+			exportFiles.add(buf.toString());
 
-				outFile.delete();
-				writer = new CsvWriter(outFile, encoding);
+			outFile.delete();
+			writer = new CsvWriter(outFile, encoding);
 		}
+	}
+
+	@Override
+	public List<FieldDefinition> getTableModelFields() throws Exception {
+		List<FieldDefinition> result = new ArrayList<>();
+		int index = 0;
+		for (String name : dbFieldNames) {
+			FieldDefinition fieldDef = new FieldDefinition(name, name, dbFieldTypes.get(index));
+			fieldDef.setSize(dbFieldSize.get(index++).intValue());
+			result.add(fieldDef);
+		}
+		return result;
 	}
 }

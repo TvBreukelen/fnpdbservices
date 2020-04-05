@@ -153,19 +153,19 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 
 		funcNew = e -> {
 			try {
-				IConfigSoft configSoft = getConfigSoft(ProgramDialog.this, model, true);
+				IConfigSoft configSoft = getConfigSoft(this, model, true);
 				configSoft.setVisible(true);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
+				General.errorMessage(this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
 			}
 		};
 
 		funcEdit = e -> {
 			try {
-				IConfigSoft config = getConfigSoft(ProgramDialog.this, model, false);
+				IConfigSoft config = getConfigSoft(this, model, false);
 				config.setVisible(true);
 			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
+				General.errorMessage(this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
 			}
 		};
 
@@ -542,7 +542,7 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
+				if (e.getClickCount() > 0) {
 					btEdit.doClick();
 				}
 			}
@@ -555,7 +555,6 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 
 		TableColumn editProfile = table.getColumnModel().getColumn(ProjectModel.HEADER_EDIT);
 		ButtonTableCellEditor btEditor = new ButtonTableCellEditor();
-		btEditor.getButton().addActionListener(funcEdit);
 		editProfile.setCellEditor(btEditor);
 		editProfile.setCellRenderer(new ButtonRenderer());
 

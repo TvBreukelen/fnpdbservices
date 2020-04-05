@@ -22,7 +22,6 @@ import application.interfaces.FieldTypes;
 import application.interfaces.FilterOperator;
 import application.interfaces.IDatabaseFactory;
 import application.preferences.Profiles;
-import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
@@ -61,7 +60,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 	private Map<String, FieldDefinition> dbFieldDefinition = new HashMap<>();
 	private List<String> dbFilterFields = new ArrayList<>();
-	private List<BasisField> dbSelectFields = new ArrayList<>();
+	private List<FieldDefinition> dbSelectFields = new ArrayList<>();
 
 	private IniFile ini;
 
@@ -142,7 +141,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	@Override
-	public List<BasisField> getDbSelectFields() {
+	public List<FieldDefinition> getDbSelectFields() {
 		return dbSelectFields;
 	}
 
@@ -231,7 +230,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		setUserFieldDefinitions();
 		setDBFieldDefinitions();
 
-		dbSelectFields = dbSelectFields.stream().sorted(Comparator.comparing(BasisField::getFieldAlias))
+		dbSelectFields = dbSelectFields.stream().sorted(Comparator.comparing(FieldDefinition::getFieldAlias))
 				.collect(Collectors.toList());
 		dbFilterFields = dbFilterFields.stream().sorted().collect(Collectors.toList());
 	}

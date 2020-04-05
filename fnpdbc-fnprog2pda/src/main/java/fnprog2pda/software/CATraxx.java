@@ -26,7 +26,7 @@ public class CATraxx extends FNProgramvare {
 	private boolean useTrackIndex = true;
 	private boolean useTrackItemTitle = true;
 	private boolean isPlaylist = false;
-	
+
 	private static final String ARTIST = "Artist";
 	private static final String CONTENTS_PERSON = "Artist";
 	private static final String TRACKS = "Tracks";
@@ -256,23 +256,22 @@ public class CATraxx extends FNProgramvare {
 				}
 
 				if (isDoubleSided && useTrackSide && !side.equals(oldSide)) {
-						sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
-						sideTitle = side.equals("A") ? sideATitle : sideBTitle;
-						if (sideTitle == null) {
-							sideTitle = "";
-						}
+					sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
+					sideTitle = side.equals("A") ? sideATitle : sideBTitle;
+					if (sideTitle == null) {
+						sideTitle = "";
+					}
 
-						if (useTrackLength) {
-							result.append(
-									side + " - (" + General.convertDuration(sidePlaytime) + ") " + sideTitle + "\n");
+					if (useTrackLength) {
+						result.append(side + " - (" + General.convertDuration(sidePlaytime) + ") " + sideTitle + "\n");
+					} else {
+						if (!sideTitle.isEmpty()) {
+							result.append(side + " - " + sideTitle + "\n");
 						} else {
-							if (!sideTitle.isEmpty()) {
-								result.append(side + " - " + sideTitle + "\n");
-							} else {
-								result.append(side + "\n");
-							}
+							result.append(side + "\n");
 						}
 					}
+				}
 			}
 
 			if (useTrackIndex) {
@@ -304,7 +303,7 @@ public class CATraxx extends FNProgramvare {
 						int roleID = useRoles ? ((Number) mapPerson.get("RoleID")).intValue() : 0;
 
 						if (isPersonSet && roleID < 1) {
-								buf.append(" & ");
+							buf.append(" & ");
 						}
 
 						buf.append(roleID > 0 ? getPersonRole(ARTIST, persons, roleID) : persons);

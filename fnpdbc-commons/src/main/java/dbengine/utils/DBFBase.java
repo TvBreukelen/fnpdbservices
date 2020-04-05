@@ -33,7 +33,7 @@ public abstract class DBFBase {
 		}
 	}
 
-	public int getFieldCount() throws Exception {
+	public int getFieldCount() {
 		return header.fieldArray.length;
 	}
 	

@@ -120,7 +120,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		myImportFile = isNewProfile ? ExportFile.JFILE5 : ExportFile.getExportFile(dbSettings.getDatabaseType());
-		dbFactory = new XConverter(this);
+		dbFactory = new XConverter();
 
 		funcSelectWorksheet = e -> worksheetChanged();
 		funcSelectTable = e -> tableChanged();
@@ -256,8 +256,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 	private void importFileChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-		if (software != myImportFile && !dbSettings.getDatabaseFile().isEmpty()
-				&& !(isNewProfile && General.showConfirmMessage(this,
+		if (!isNewProfile && software != myImportFile && !dbSettings.getDatabaseFile().isEmpty()
+				&& !(General.showConfirmMessage(this,
 						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
 						GUIFactory.getTitle("warning")))) {
 

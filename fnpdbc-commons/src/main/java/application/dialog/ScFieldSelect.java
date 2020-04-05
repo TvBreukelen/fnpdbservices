@@ -8,19 +8,17 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import application.interfaces.IDatabaseFactory;
+import application.model.SelectionFieldModel;
 import application.model.UserFieldModel;
 import application.table.ETable;
 import application.utils.BasisField;
@@ -41,14 +39,14 @@ public class ScFieldSelect {
 	private JButton btRemove;
 	private JButton btClear;
 
-	private JList<BasisField> lstAvailableFields;
 	private JTable tbSelectedFields;
+	private JTable tbAvailableFields;
 	private JScrollPane scSelectedFields;
 
 	private ActionListener funcAddFields;
 
-	private DefaultListModel<BasisField> availableModel;
-	private UserFieldModel tabModel;
+	private UserFieldModel userModel;
+	private SelectionFieldModel fieldModel;
 	private IDatabaseFactory factory;
 
 	public ScFieldSelect(IDatabaseFactory factory) {
@@ -57,22 +55,20 @@ public class ScFieldSelect {
 	}
 
 	private void init() {
-		availableModel = new DefaultListModel<>();
-		lstAvailableFields = new JList<>(availableModel);
-		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
-
-		tabModel = new UserFieldModel();
-		tbSelectedFields = new ETable(tabModel);
+		userModel = new UserFieldModel();
+		fieldModel = new SelectionFieldModel();
+		tbSelectedFields = new ETable(userModel);
+		tbAvailableFields = new JTable(fieldModel);
 
 		funcAddFields = e -> {
-			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
+			List<BasisField> items = fieldModel.getSelectedItems(tbAvailableFields.getSelectedRows());
 			int selectedRow = tbSelectedFields.getSelectedRow();
 			int startRow = selectedRow > -1 && selectedRow < tbSelectedFields.getRowCount() - 1 ? selectedRow
-					: tabModel.getRowCount();
+					: userModel.getRowCount();
 			selectedRow = startRow - 1;
 
 			for (BasisField field : items) {
-				tabModel.addRecord(field, ++selectedRow);
+				userModel.addRecord(field, ++selectedRow);
 			}
 
 			scSelectedFields.getViewport().scrollRectToVisible(tbSelectedFields.getCellRect(selectedRow, 0, true));
@@ -82,9 +78,9 @@ public class ScFieldSelect {
 
 		ActionListener funcRemoveFields = e -> {
 			int selectedRow = tbSelectedFields.getSelectedRow();
-			tabModel.removeRecords(tbSelectedFields.getSelectedRows());
-			if (selectedRow > tabModel.getRowCount() - 1) {
-				selectedRow = tabModel.getRowCount() - 1;
+			userModel.removeRecords(tbSelectedFields.getSelectedRows());
+			if (selectedRow > userModel.getRowCount() - 1) {
+				selectedRow = userModel.getRowCount() - 1;
 			}
 
 			if (selectedRow > -1) {
@@ -95,20 +91,20 @@ public class ScFieldSelect {
 
 		ActionListener funcMoveFieldsUp = e -> {
 			int selectedRow = tbSelectedFields.getSelectedRow();
-			if (tabModel.moveRowUp(selectedRow)) {
+			if (userModel.moveRowUp(selectedRow)) {
 				tbSelectedFields.setRowSelectionInterval(--selectedRow, selectedRow);
 			}
 		};
 
 		ActionListener funcMoveFieldsDown = e -> {
 			int selectedRow = tbSelectedFields.getSelectedRow();
-			if (tabModel.moveRowDown(selectedRow)) {
+			if (userModel.moveRowDown(selectedRow)) {
 				tbSelectedFields.setRowSelectionInterval(++selectedRow, selectedRow);
 			}
 		};
 
 		ActionListener funcClearFields = e -> {
-			tabModel.clear();
+			userModel.clear();
 			activateComponents();
 		};
 
@@ -118,20 +114,15 @@ public class ScFieldSelect {
 		btClear = createImageButton("Delete.png", GUIFactory.getToolTip("funcClearFields"), funcClearFields);
 	}
 
-	public void loadFieldPanel(Vector<BasisField> userFields) {
-		availableModel.removeAllElements();
-
-		for (BasisField field : factory.getDbSelectFields()) {
-			availableModel.addElement(field);
-		}
-
-		lstAvailableFields.setSelectedIndex(0);
-		tabModel.setTableData(userFields);
+	public void loadFieldPanel(List<BasisField> userFields) {
+		fieldModel.setTableData(factory.getDbSelectFields());
+		tbAvailableFields.getSelectionModel().setSelectionInterval(0, 0);
+		userModel.setTableData(userFields);
 		activateComponents();
 	}
 
-	public Vector<BasisField> getFieldList() {
-		return tabModel.getUserFields();
+	public List<BasisField> getFieldList() {
+		return userModel.getUserFields();
 	}
 
 	public Component createFieldPanel() {
@@ -147,10 +138,10 @@ public class ScFieldSelect {
 				}
 			}
 		};
-		lstAvailableFields.addMouseListener(mouseListener);
+		tbAvailableFields.addMouseListener(mouseListener);
 
 		// Add scrollpane
-		JScrollPane scroll = new JScrollPane(lstAvailableFields);
+		JScrollPane scroll = new JScrollPane(tbAvailableFields);
 		scroll.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("availableFields")));
 
 		// Create Panel for selected FieldTypes
@@ -178,7 +169,7 @@ public class ScFieldSelect {
 		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
-		lstAvailableFields.setSelectedIndex(0);
+		tbAvailableFields.getSelectionModel().setSelectionInterval(0, 0);
 		return panel;
 	}
 
@@ -217,6 +208,6 @@ public class ScFieldSelect {
 		btUp.setEnabled(tbSelectedFields.getSelectedRow() != -1);
 		btDown.setEnabled(btUp.isEnabled());
 		btRemove.setEnabled(btUp.isEnabled());
-		btClear.setEnabled(tabModel.getRowCount() > 0);
+		btClear.setEnabled(userModel.getRowCount() > 0);
 	}
 }
