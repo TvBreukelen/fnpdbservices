@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import com.healthmarketscience.jackcess.Index;
 
@@ -108,16 +107,14 @@ public class MSTable {
 
 		switch (idx) {
 		case 2:
-			if (!args[2].isEmpty()) {
-				if (hIndex.contains(args[2])) {
-					index = args[2];
-					fromIndex = index;
-					isIndexOverride = true;
-				}
+			if (!args[2].isEmpty() && hIndex.contains(args[2])) {
+				index = args[2];
+				fromIndex = index;
+				isIndexOverride = true;
 			}
 		case 1:
 			if (!args[1].isEmpty()) {
-				int div = args[1].indexOf(".");
+				int div = args[1].indexOf('.');
 				if (div != -1) {
 					fromTable = args[1].substring(0, div);
 					fromIndex = args[1].substring(div + 1);
@@ -131,6 +128,8 @@ public class MSTable {
 			}
 		case 0:
 			name = args[0];
+		default:
+			break;
 		}
 	}
 
@@ -177,7 +176,7 @@ public class MSTable {
 			String fieldAlias = field.getFieldAlias();
 			IniItem iniAlias = renameSection.getItem(fieldAlias);
 			String newAlias = iniAlias == null ? null : iniAlias.getValue();
-			
+
 			if (newAlias != null) {
 				field.setFieldAlias(newAlias);
 				field.setFieldHeader(newAlias);
@@ -266,7 +265,7 @@ public class MSTable {
 	}
 
 	public List<FieldDefinition> getFields() {
-		List<FieldDefinition> result = new Vector<>();
+		List<FieldDefinition> result = new ArrayList<>();
 		if (isMainLine) {
 			result.addAll(dbFieldsHash.values());
 		} else {
@@ -290,10 +289,8 @@ public class MSTable {
 	public boolean setColumnValues(Map<String, Object> tableMap) {
 		Object obj = tableMap.get(getFromIndex());
 		if (obj != null) {
-			if (obj instanceof Number) {
-				if (((Number) obj).intValue() == -1) {
-					return false;
-				}
+			if (obj instanceof Number && ((Number) obj).intValue() == -1) {
+				return false;
 			}
 
 			columnValues.put(isMultiColumnIndex ? getFromIndex() : index, obj);

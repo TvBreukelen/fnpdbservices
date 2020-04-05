@@ -49,7 +49,7 @@ public class ListDB extends PalmDB {
 
 		// Prepare list of fieldnumbers to write from the userlist that are not Field1,
 		// Field2 or Category
-		ArrayList<Integer> tmp = new ArrayList<>(maxFields);
+		List<Integer> tmp = new ArrayList<>(maxFields);
 
 		int index = -1;
 		for (FieldDefinition field : dbInfo2Write) {

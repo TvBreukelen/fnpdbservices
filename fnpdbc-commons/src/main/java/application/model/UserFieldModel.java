@@ -28,7 +28,7 @@ public class UserFieldModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		return col == 2;
+		return col == 1;
 	}
 
 	@Override
@@ -64,8 +64,6 @@ public class UserFieldModel extends AbstractTableModel {
 		case 0:
 			return field.getFieldAlias();
 		case 1:
-			return field.getFieldType();
-		case 2:
 			return field.getFieldHeader();
 		}
 		return null;

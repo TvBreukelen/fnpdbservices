@@ -40,7 +40,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 	private int maxSize = 0;
 	private int fileCounter = 1;
 
-	private List<HashMap<String, Object>> dbRecords;
+	private List<Map<String, Object>> dbRecords;
 	private List<Integer> dbFieldSize = new ArrayList<>();
 	private List<String> exportFiles;
 	
@@ -98,7 +98,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 			dbRecords = new ArrayList<>();
 			while (reader.readRecord()) {
-				HashMap<String, Object> dbRead = new HashMap<>(numFields);
+				Map<String, Object> dbRead = new HashMap<>(numFields);
 				for (int i = 0; i < numFields; i++) {
 					String obj = reader.get(i);
 					dbRead.put(dbFieldNames.get(i), obj);
@@ -252,17 +252,5 @@ public class CsvFile extends GeneralDB implements IConvert {
 			outFile.delete();
 			writer = new CsvWriter(outFile, encoding);
 		}
-	}
-
-	@Override
-	public List<FieldDefinition> getTableModelFields() throws Exception {
-		List<FieldDefinition> result = new ArrayList<>();
-		int index = 0;
-		for (String name : dbFieldNames) {
-			FieldDefinition fieldDef = new FieldDefinition(name, name, dbFieldTypes.get(index));
-			fieldDef.setSize(dbFieldSize.get(index++).intValue());
-			result.add(fieldDef);
-		}
-		return result;
 	}
 }

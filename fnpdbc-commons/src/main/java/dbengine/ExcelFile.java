@@ -39,13 +39,13 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	 * @version 8+
 	 */
 	private File backupFile;
-	private HashMap<String, List<FieldDefinition>> hSheets;
+	private Map<String, List<FieldDefinition>> hSheets;
 	private int myCurrentRecord = 1;
 	protected int noOfSheets;
 
 	private File outFile;
 	private DataFormatter formatter = new DataFormatter();
-
+	
 	protected Workbook wb;
 	protected Sheet sheet;
 	protected CreationHelper helper;
@@ -141,15 +141,13 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		}
 
 		Row types = sheet.getRow(1); // Assumes that the 2nd row contains ALL field values
-		final int MAX_COLS = dbFieldNames.size();
-		List<FieldDefinition> result = new ArrayList<>(MAX_COLS);
-
-		int index = MAX_COLS < types.getLastCellNum() ? MAX_COLS : types.getLastCellNum();
+		final int index = dbFieldNames.size();
+		List<FieldDefinition> result = new ArrayList<>();
 
 		for (int i = 0; i < index; i++) {
 			Cell cell = types.getCell(i, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
 			String name = dbFieldNames.get(i);
-			result.add(new FieldDefinition(name, name, getFieldType(cell)));
+			result.add(new FieldDefinition(name, name, cell == null ? FieldTypes.TEXT : getFieldType(cell)));
 		}
 
 		return result;
@@ -174,8 +172,8 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		case NUMERIC:
 			if (DateUtil.isCellDateFormatted(pCell)) {
 				String format = pCell.getCellStyle().getDataFormatString();
-				boolean isDate = format.indexOf("d") != -1;
-				boolean isTime = format.indexOf(":") != -1;
+				boolean isDate = format.indexOf('d') != -1;
+				boolean isTime = format.indexOf(':') != -1;
 
 				if (isDate && isTime) {
 					return FieldTypes.TIMESTAMP;
@@ -189,7 +187,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			}
 
 			String s = formatter.formatCellValue(pCell);
-			return s.indexOf(".") != -1 ? FieldTypes.FLOAT : FieldTypes.NUMBER;
+			return s.indexOf('.') != -1 ? FieldTypes.FLOAT : FieldTypes.NUMBER;
 		default:
 			break;
 		}

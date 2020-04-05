@@ -17,7 +17,7 @@ public class PilotHeader {
 	private String dbType;
 	private String dbCreator;
 	private int totalRecords;
-	private final int DB_NAME_LENGTH = 32;
+	private static final int DB_NAME_LENGTH = 32;
 
 	public PilotHeader(RandomAccessFile r) throws Exception {
 		pilotRaf = r;
@@ -32,7 +32,7 @@ public class PilotHeader {
 		byte[] byteArray = new byte[32];
 		pilotRaf.read(byteArray);
 		pdaDatabase = new String(byteArray);
-		pdaDatabase = pdaDatabase.substring(0, pdaDatabase.indexOf("\0"));
+		pdaDatabase = pdaDatabase.substring(0, pdaDatabase.indexOf('\0'));
 		pdaDatabase = pdaDatabase.trim();
 		pilotRaf.seek(52);
 		appInfoId = pilotRaf.readInt();

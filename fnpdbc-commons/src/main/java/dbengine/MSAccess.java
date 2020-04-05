@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Cursor;
@@ -28,15 +27,15 @@ import application.utils.General;
 import dbengine.utils.MSTable;
 
 public class MSAccess extends GeneralDB implements IConvert {
-	private Database _database;
-	private Table _table;
+	private Database database;
+	private Table table;
 	private String myTable;
 	private boolean isIndexSupported = true;
 
 	private Map<String, MSTable> hTables;
 	private Map<String, CursorBuilder> hTableCursors;
 	private Map<String, String[]> hTableIndexes;
-	private Vector<String> aTables;
+	private List<String> aTables;
 
 	public MSAccess(Profiles pref) {
 		super(pref);
@@ -45,10 +44,10 @@ public class MSAccess extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
 		// For the moment we only open the database file for input
-		_database = DatabaseBuilder.open(new File(myFilename));
+		database = DatabaseBuilder.open(new File(myFilename));
 
 		try {
-			isIndexSupported = _database.getFileFormat() != FileFormat.V1997;
+			isIndexSupported = database.getFileFormat() != FileFormat.V1997;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -69,10 +68,10 @@ public class MSAccess extends GeneralDB implements IConvert {
 		hTables = new HashMap<>();
 		hTableCursors = new HashMap<>();
 		hTableIndexes = new HashMap<>();
-		aTables = new Vector<>();
+		aTables = new ArrayList<>();
 
 		try {
-			aTables.addAll(_database.getTableNames());
+			aTables.addAll(database.getTableNames());
 		} catch (IOException e1) {
 			return;
 		}
@@ -81,7 +80,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 		while (iter.hasNext()) {
 			String s = iter.next();
 			try {
-				Table table = _database.getTable(s);
+				table = database.getTable(s);
 				MSTable msTable = new MSTable(s, s);
 
 				List<? extends Index> lIndex = table.getIndexes();
@@ -124,6 +123,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 						break;
 					case SHORT_DATE_TIME:
 						fieldDef.setFieldType(FieldTypes.TIMESTAMP);
+						break;
 					default:
 						break;
 					}
@@ -180,7 +180,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	public List<Map<String, Object>> getMultipleRecords(String tableName, String indexName,
 			Map<String, Object> colValue, boolean isOverride, FilterOperator operator) throws Exception {
-		List<Map<String, Object>> result = new Vector<>();
+		List<Map<String, Object>> result = new ArrayList<>();
 		Cursor cursor = getCursor(tableName, indexName, colValue, operator);
 
 		if (!isOverride) {
@@ -254,7 +254,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 		if (result == null) {
 			try {
-				Table table = _database.getTable(tableName);
+				table = database.getTable(tableName);
 				result = new CursorBuilder(table);
 
 				if (indexName != null) {
@@ -301,31 +301,32 @@ public class MSAccess extends GeneralDB implements IConvert {
 		}
 
 		String[] result = new String[aTables.size()];
-		aTables.copyInto(result);
+		aTables.toArray(result);
 		return result;
 	}
 
-	public void setTable(String table) throws Exception {
-		_table = _database.getTable(table);
-		myTotalRecords = _table.getRowCount();
-		myTable = table;
+	public void setTable(String tableName) throws Exception {
+		table = database.getTable(tableName);
+		myTotalRecords = table.getRowCount();
+		myTable = tableName;
 	}
 
 	public Table getTable() {
-		return _table;
+		return table;
 	}
 
 	@Override
 	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
-		_table = _database.getTable(myTable);
-		myTotalRecords = _table.getRowCount();
+		table = database.getTable(myTable);
+		myTotalRecords = table.getRowCount();
 	}
 
 	@Override
 	public void closeFile() {
 		try {
-			_database.close();
+			database.close();
 		} catch (Exception e) {
+			// Should not occur
 		}
 		hTableCursors = null;
 		hTableIndexes = null;
@@ -341,7 +342,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 				getTableModelFields(strings[0]);
 				return true;
 			case 2:
-				_database.getTable(strings[0]).getColumn(strings[1]);
+				database.getTable(strings[0]).getColumn(strings[1]);
 				return true;
 			default:
 				return false;
@@ -353,14 +354,17 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	@Override
 	public void deleteFile() {
+		// We don't delete the entire database
 	}
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
+		// Not used
 	}
 
 	@Override
 	public void createDbHeader() throws Exception {
+		// No header is used
 	}
 
 	@Override
@@ -368,13 +372,13 @@ public class MSAccess extends GeneralDB implements IConvert {
 		Map<String, Object> result = new HashMap<>();
 
 		try {
-			result = _table.getNextRow();
+			result = table.getNextRow();
 			for (FieldDefinition field : getTableModelFields()) {
 				result.put(field.getFieldAlias(), convertObject(result, field));
 			}
 		} catch (IOException e) {
 			// End of file
-			_table.reset();
+			table.reset();
 		}
 		return result;
 	}

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
@@ -28,13 +27,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private boolean isConnected;
 	private boolean isFirstRead = true;
 
-	private HashMap<Integer, ArrayList<FieldDefinition>> hTables;
-	private Vector<String> aTables;
+	private Map<Integer, List<FieldDefinition>> hTables;
+	private List<String> aTables;
 
 	private Connection connection;
 	private DatabaseMetaData metaData;
 	private ResultSet dbResultSet;
-	private Statement dbStatement;
 
 	public SqlDB(Profiles pref) {
 		super(pref);
@@ -82,7 +80,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private void getDBFieldNamesAndTypes() {
 		// read all tables in the database
 		hTables = new HashMap<>();
-		aTables = new Vector<>();
+		aTables = new ArrayList<>();
 		int index = 0;
 
 		try {
@@ -90,12 +88,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			while (rs.next()) {
 				String table = rs.getString(3);
 				ResultSet columns = metaData.getColumns(null, null, table, null);
-				ArrayList<FieldDefinition> aFields = new ArrayList<>();
+				List<FieldDefinition> aFields = new ArrayList<>();
 				while (columns.next()) {
 					String field = columns.getString(4);
 					FieldDefinition fieldDef = new FieldDefinition(field, field, FieldTypes.TEXT);
 					fieldDef.setSQLType(columns.getInt(5));
-
+					
 					switch (fieldDef.getSQLType()) {
 					case Types.ARRAY:
 					case Types.BINARY:
@@ -128,6 +126,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					case Types.FLOAT:
 					case Types.REAL:
 						fieldDef.setFieldType(FieldTypes.FLOAT);
+						fieldDef.setDecimalPoint(columns.getInt(8));
 						break;
 					case Types.LONGVARCHAR:
 						fieldDef.setFieldType(FieldTypes.MEMO);
@@ -165,7 +164,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public ArrayList<FieldDefinition> getTableModelFields() throws Exception {
+	public List<FieldDefinition> getTableModelFields() throws Exception {
 		int index = aTables.indexOf(myTable);
 		return hTables.get(index == -1 ? 1 : index);
 	}
@@ -182,7 +181,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		String[] result = new String[aTables.size()];
-		aTables.copyInto(result);
+		aTables.toArray(result);
 		return result;
 	}
 
@@ -195,21 +194,22 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
 		if (isFirstRead) {
-			dbStatement = connection.createStatement();
-			ArrayList<FieldDefinition> fields = getTableModelFields();
-			StringBuilder buf = new StringBuilder("SELECT ");
+			try (Statement dbStatement = connection.createStatement()) {
+				List<FieldDefinition> fields = getTableModelFields();
+				StringBuilder buf = new StringBuilder("SELECT ");
 
-			for (FieldDefinition field : fields) {
-				buf.append(field.getFieldName());
-				buf.append(", ");
+				for (FieldDefinition field : fields) {
+					buf.append(field.getFieldName());
+					buf.append(", ");
+				}
+
+				buf.delete(buf.length() - 2, buf.length());
+				buf.append(" FROM ");
+				buf.append(myTable);
+
+				dbResultSet = dbStatement.executeQuery(buf.toString());
+				isFirstRead = false;
 			}
-
-			buf.delete(buf.length() - 2, buf.length());
-			buf.append(" FROM ");
-			buf.append(myTable);
-
-			dbResultSet = dbStatement.executeQuery(buf.toString());
-			isFirstRead = false;
 		}
 
 		Map<String, Object> result = new HashMap<>();
@@ -225,12 +225,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private Object getFieldObject(String sqlStatement) throws Exception {
 		Object result;
-		Statement statement;
-		ResultSet rs;
 
-		try {
-			statement = connection.createStatement();
-			rs = statement.executeQuery(sqlStatement);
+		try (Statement statement = connection.createStatement(); 
+				ResultSet rs = statement.executeQuery(sqlStatement)) {
 			rs.next();
 			result = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
 		} catch (SQLException e) {
@@ -239,9 +236,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 							+ "\nThe JDBC driver returned the following error: '" + e.getMessage() + "'");
 		}
 
-		// Close the resultset and sql statement
-		rs.close();
-		statement.close();
 		return result;
 	}
 
@@ -315,16 +309,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			default:
 				return getObject(colType, colNo, rs);
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			throw new Exception("Unable to read database field, due to " + e.toString());
 		}
 	}
 
 	public void verifyStatement(String sqlStatement) throws SQLException {
-		Statement statement = connection.createStatement();
-		ResultSet rs = statement.executeQuery(sqlStatement);
-		rs.close();
-		statement.close();
+		try (Statement statement = connection.createStatement()) {
+			ResultSet rs = statement.executeQuery(sqlStatement);
+			rs.close();
+		}
 	}
 
 	public boolean isConnected() {

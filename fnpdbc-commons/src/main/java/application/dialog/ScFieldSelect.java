@@ -12,13 +12,14 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import application.interfaces.IDatabaseFactory;
-import application.model.SelectionFieldModel;
 import application.model.UserFieldModel;
 import application.table.ETable;
 import application.utils.BasisField;
@@ -39,14 +40,14 @@ public class ScFieldSelect {
 	private JButton btRemove;
 	private JButton btClear;
 
+	private JList<BasisField> lstAvailableFields;
 	private JTable tbSelectedFields;
-	private JTable tbAvailableFields;
 	private JScrollPane scSelectedFields;
 
 	private ActionListener funcAddFields;
 
+	private DefaultListModel<BasisField> availableModel;
 	private UserFieldModel userModel;
-	private SelectionFieldModel fieldModel;
 	private IDatabaseFactory factory;
 
 	public ScFieldSelect(IDatabaseFactory factory) {
@@ -55,13 +56,15 @@ public class ScFieldSelect {
 	}
 
 	private void init() {
+		availableModel = new DefaultListModel<>();
+		lstAvailableFields = new JList<>(availableModel);
+		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
+
 		userModel = new UserFieldModel();
-		fieldModel = new SelectionFieldModel();
 		tbSelectedFields = new ETable(userModel);
-		tbAvailableFields = new JTable(fieldModel);
 
 		funcAddFields = e -> {
-			List<BasisField> items = fieldModel.getSelectedItems(tbAvailableFields.getSelectedRows());
+			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
 			int selectedRow = tbSelectedFields.getSelectedRow();
 			int startRow = selectedRow > -1 && selectedRow < tbSelectedFields.getRowCount() - 1 ? selectedRow
 					: userModel.getRowCount();
@@ -115,8 +118,9 @@ public class ScFieldSelect {
 	}
 
 	public void loadFieldPanel(List<BasisField> userFields) {
-		fieldModel.setTableData(factory.getDbSelectFields());
-		tbAvailableFields.getSelectionModel().setSelectionInterval(0, 0);
+		availableModel.clear();
+		factory.getDbSelectFields().forEach(availableModel::addElement);
+		lstAvailableFields.setSelectedIndex(0);
 		userModel.setTableData(userFields);
 		activateComponents();
 	}
@@ -138,10 +142,10 @@ public class ScFieldSelect {
 				}
 			}
 		};
-		tbAvailableFields.addMouseListener(mouseListener);
+		lstAvailableFields.addMouseListener(mouseListener);
 
 		// Add scrollpane
-		JScrollPane scroll = new JScrollPane(tbAvailableFields);
+		JScrollPane scroll = new JScrollPane(lstAvailableFields);
 		scroll.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("availableFields")));
 
 		// Create Panel for selected FieldTypes
@@ -169,7 +173,7 @@ public class ScFieldSelect {
 		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
-		tbAvailableFields.getSelectionModel().setSelectionInterval(0, 0);
+		lstAvailableFields.setSelectedIndex(0);
 		return panel;
 	}
 

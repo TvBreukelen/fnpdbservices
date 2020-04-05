@@ -3,7 +3,6 @@ package dbengine.export;
 import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -374,20 +373,5 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			myPref.setEncoding(result);
 			encoding = result;
 		}
-	}
-
-	@Override
-	public List<FieldDefinition> getTableModelFields() throws Exception {
-		List<FieldDefinition> result = new ArrayList<>();
-		int index = 0;
-		reader.getField(0);
-		for (String name : dbFieldNames) {
-			DBFField field = reader.getField(index);
-			FieldDefinition fieldDef = new FieldDefinition(name, name, dbFieldTypes.get(index++));
-			fieldDef.setSize(field.getFieldLength());
-			fieldDef.setDecimalPoint(field.getDecimalCount());
-			result.add(fieldDef);
-		}
-		return result;
 	}
 }

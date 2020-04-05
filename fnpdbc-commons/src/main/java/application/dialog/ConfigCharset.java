@@ -29,7 +29,7 @@ public class ConfigCharset extends BasicDialog {
 	private JTextPane description;
 	private Properties charset;
 	private JList<String> charSets;
-	private IEncoding encodingPref;
+	transient IEncoding encodingPref;
 
 	public ConfigCharset() {
 		encodingPref = GeneralSettings.getInstance();

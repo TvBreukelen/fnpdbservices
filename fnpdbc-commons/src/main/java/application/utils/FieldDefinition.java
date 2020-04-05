@@ -47,7 +47,7 @@ public class FieldDefinition extends BasisField {
 		return size;
 	}
 
-	public void setSize(int size) {
+	private void setSize(int size) {
 		this.size = size;
 	}
 

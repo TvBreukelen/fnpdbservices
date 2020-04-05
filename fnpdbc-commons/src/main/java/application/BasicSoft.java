@@ -90,8 +90,8 @@ public abstract class BasicSoft extends Observable {
 
 		dbOut.createDbHeader();
 		for (Map<String, Object> rowData : table) {
-			dbOut.processData(dbTableModelFields.stream().collect(
-					Collectors.toMap(FieldDefinition::getFieldAlias, field -> rowData.get(field.getFieldAlias()))));
+			dbOut.processData(dbTableModelFields.stream().collect(Collectors.toMap(FieldDefinition::getFieldAlias,
+					field -> rowData.getOrDefault(field.getFieldAlias(), ""))));
 			setChanged();
 			myCurrentRecord++;
 		}

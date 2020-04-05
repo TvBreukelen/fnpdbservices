@@ -143,17 +143,16 @@ public class ConfigGeneral extends BasicDialog {
 		result.add(GUIFactory.getJLabel("dateFormat", bold), c.gridCell(0, 1, 0, 0));
 		result.add(dateFormat, c.gridCell(0, 2, 0, 0));
 		result.add(dateDelimiter, c.gridCell(1, 2, 0, 0));
-
 		result.add(dateExample, c.gridCell(2, 2, 0, 0));
 		result.add(Box.createVerticalStrut(10), c.gridCell(2, 3, 0, 0));
+
 		result.add(GUIFactory.getJLabel("timeFormat", bold), c.gridCell(0, 4, 0, 0));
 		result.add(GUIFactory.getJLabel("durationFormat", bold), c.gridCell(2, 4, 0, 0));
-
 		result.add(timeFormat, c.gridCell(0, 5, 0, 0));
 		result.add(timeExample, c.gridCell(1, 5, 0, 0));
 		result.add(durationFormat, c.gridCell(2, 5, 0, 0));
-		result.add(durationExample, c.gridCell(3, 5, 0, 0));
-		result.add(Box.createVerticalStrut(10), c.gridCell(1, 6, 0, 0));
+		result.add(durationExample, c.gridCell(3, 5, 3, 0));
+		result.add(Box.createVerticalStrut(50), c.gridCell(1, 6, 0, 0));
 		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("dateTime")));
 		return result;
 	}

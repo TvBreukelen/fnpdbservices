@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -120,8 +119,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// fields of dbIn
 		int maxFields = dbFields.size();
 		dbFieldDefinition = new HashMap<>(maxFields);
-		dbSelectFields = new Vector<>();
-		dbFilterFields = new Vector<>();
+		dbSelectFields = new ArrayList<>();
+		dbFilterFields = new ArrayList<>();
 		dbFilterFields.add("");
 
 		for (int i = 0; i < maxFields; i++) {
@@ -262,7 +261,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		int catCount = 0;
 		int emptyRecord = 0;
 
-		List<Map<String, Object>> result = new Vector<>();
+		List<Map<String, Object>> result = new ArrayList<>();
 		Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
 				|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
@@ -401,7 +400,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	@Override
 	protected List<Map<String, Object>> getDataVector() throws Exception {
-		List<Map<String, Object>> result = new Vector<>();
+		List<Map<String, Object>> result = new ArrayList<>();
 		List<Map<String, Object>> inputVector = myModel.getDataVector();
 
 		myCurrentRecord = 0;
