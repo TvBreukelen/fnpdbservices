@@ -11,7 +11,7 @@ public class StringActionTableCellEditor extends ActionTableCellEditor {
 
 	public StringActionTableCellEditor() {
 		super(new JCheckBox());
-		setClickCountToStart(2);
+		clickCountToStart = 2;
 	}
 
 	@Override

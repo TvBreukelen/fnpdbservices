@@ -6,15 +6,13 @@ import javax.swing.event.ListSelectionEvent;
 
 public class ButtonTableCellEditor extends ActionTableCellEditor {
 	private static final long serialVersionUID = 4572899617279598428L;
-	private MainTableSelectionListener listener;
-	private ListSelectionEvent evt;
+	transient MainTableSelectionListener listener;
+	private final ListSelectionEvent evt = new ListSelectionEvent(this, 0, 0, false);
 	
 	public ButtonTableCellEditor(MainTableSelectionListener listener) {
 		super(new JCheckBox());
 		this.listener = listener;
-		this.clickCountToStart = 1;
-
-		evt = new ListSelectionEvent(this, 0, 0, false);
+		clickCountToStart = 1;
 	}
 
 	@Override

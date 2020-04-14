@@ -16,7 +16,7 @@ public class ExportToTableCellEditor extends ActionTableCellEditor {
 
 	public ExportToTableCellEditor() {
 		super(new JCheckBox());
-		setClickCountToStart(2);
+		clickCountToStart = 2;
 	}
 
 	@Override
