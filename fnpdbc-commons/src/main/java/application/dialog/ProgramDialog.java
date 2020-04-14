@@ -398,6 +398,10 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 		return result;
 	}
 
+	public void clickEdit() {
+		btEdit.doClick();
+	}
+	
 	private Component createWelcomeScreen() {
 		isProfileSet = false;
 
@@ -542,19 +546,21 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() > 0) {
+				if (e.getClickCount() > 1) {
 					btEdit.doClick();
 				}
 			}
 		});
 
+		MainTableSelectionListener listener = new MainTableSelectionListener(table, this);
+		
 		table.setRowSorter(sortModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.getSelectionModel().addListSelectionListener(new MainTableSelectionListener(table, this));
+		table.getSelectionModel().addListSelectionListener(listener);
 
 		TableColumn editProfile = table.getColumnModel().getColumn(ProjectModel.HEADER_EDIT);
-		ButtonTableCellEditor btEditor = new ButtonTableCellEditor();
+		ButtonTableCellEditor btEditor = new ButtonTableCellEditor(listener);
 		editProfile.setCellEditor(btEditor);
 		editProfile.setCellRenderer(new ButtonRenderer());
 

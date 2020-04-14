@@ -239,13 +239,13 @@ public abstract class GeneralDB {
 		return null;
 	}
 
-	abstract protected void openFile(boolean createBackup, boolean isInputFile) throws Exception;
+	protected abstract void openFile(boolean createBackup, boolean isInputFile) throws Exception;
 
-	abstract public void closeFile();
+	public abstract void closeFile();
 
-	abstract public void deleteFile();
+	public abstract void deleteFile();
 
-	abstract public void processData(Map<String, Object> dbRecord) throws Exception;
+	public abstract void processData(Map<String, Object> dbRecord) throws Exception;
 
-	abstract public void createDbHeader() throws Exception;
+	public abstract void createDbHeader() throws Exception;
 }

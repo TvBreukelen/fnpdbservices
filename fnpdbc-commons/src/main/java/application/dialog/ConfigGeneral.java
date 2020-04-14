@@ -32,6 +32,8 @@ public class ConfigGeneral extends BasicDialog {
 	 * @version 8.0
 	 */
 	private static final long serialVersionUID = 7553290524617159304L;
+	private JTextField fdChecked;
+	private JTextField fdUnchecked;
 	private JTextField dateExample;
 	private JTextField durationExample;
 	private JTextField timeExample;
@@ -91,10 +93,15 @@ public class ConfigGeneral extends BasicDialog {
 
 	@Override
 	protected Component createCenterPanel() {
-		JTabbedPane result = new JTabbedPane(SwingConstants.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
-		result.addTab(GUIFactory.getText("dateTime"), addDateTimeTab());
-		result.addTab("Internet", addInternetTab());
-		result.addTab(GUIFactory.getText("folders"), addFoldersTab());
+		JPanel result = new JPanel();
+		result.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
+		
+		JTabbedPane pane = new JTabbedPane(SwingConstants.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
+		pane.addTab(GUIFactory.getText("conversions"), addDateTimeTab());
+		pane.addTab("Internet", addInternetTab());
+		pane.addTab(GUIFactory.getText("folders"), addFoldersTab());
+		
+		result.add(pane);
 		return result;
 	}
 
@@ -133,6 +140,11 @@ public class ConfigGeneral extends BasicDialog {
 		durationExample = GUIFactory.getJTextField(EXAMPLE, "");
 		durationExample.setEditable(false);
 
+		fdChecked = new JTextField(generalSettings.getCheckBoxChecked());
+		fdChecked.setToolTipText(GUIFactory.getToolTip("selected"));
+		fdUnchecked = new JTextField(generalSettings.getCheckBoxUnchecked());
+		fdUnchecked.setToolTipText(GUIFactory.getToolTip("unselected"));
+
 		defaultFileFolder = GUIFactory.getJTextField("defaultFileFolder", generalSettings.getDefaultFileFolder());
 		defaultBackupFolder = GUIFactory.getJTextField("defaultBackupFolder", generalSettings.getDefaultBackupFolder());
 		defaultImageFolder = GUIFactory.getJTextField("defaultImageFolder", generalSettings.getDefaultImageFolder());
@@ -152,8 +164,24 @@ public class ConfigGeneral extends BasicDialog {
 		result.add(timeExample, c.gridCell(1, 5, 0, 0));
 		result.add(durationFormat, c.gridCell(2, 5, 0, 0));
 		result.add(durationExample, c.gridCell(3, 5, 3, 0));
-		result.add(Box.createVerticalStrut(50), c.gridCell(1, 6, 0, 0));
-		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("dateTime")));
+		
+		Box box1 = Box.createHorizontalBox();
+		box1.add(GUIFactory.getJLabel("true"));
+		box1.add(Box.createHorizontalStrut(5));
+		box1.add(fdChecked);
+		
+		Box box2 = Box.createHorizontalBox();
+		box2.add(GUIFactory.getJLabel("false"));
+		box2.add(Box.createHorizontalStrut(5));
+		box2.add(fdUnchecked);
+
+		result.add(Box.createVerticalStrut(10), c.gridCell(0, 6, 0, 0));
+		result.add(GUIFactory.getJLabel("boolean", bold), c.gridCell(0, 7, 0, 0));
+		result.add(box1, c.gridCell(0, 8, 0, 0));
+		result.add(box2, c.gridCell(1, 8, 0, 0));
+		result.add(Box.createVerticalStrut(20), c.gridCell(0, 9, 0, 0));
+		
+		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("conversions")));
 		return result;
 	}
 
@@ -231,6 +259,8 @@ public class ConfigGeneral extends BasicDialog {
 		generalSettings.setDateDelimiter(DATE_DELIMITERS[dateDelimiter.getSelectedIndex()]);
 		generalSettings.setTimeFormat(timeFormat.getSelectedItem().toString());
 		generalSettings.setDurationFormat(durationFormat.getSelectedItem().toString());
+		generalSettings.setCheckBoxChecked(fdChecked.getText().trim());
+		generalSettings.setCheckBoxUnchecked(fdUnchecked.getText().trim());
 		generalSettings.setDefaultBackupFolder(defaultBackupFolder.getText().trim());
 		generalSettings.setDefaultFileFolder(defaultFileFolder.getText().trim());
 		generalSettings.setDefaultImageFolder(defaultImageFolder.getText().trim());

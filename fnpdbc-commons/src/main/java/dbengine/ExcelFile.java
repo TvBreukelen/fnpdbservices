@@ -50,7 +50,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	protected Sheet sheet;
 	protected CreationHelper helper;
 
-	protected static int MAX_ROWS_IN_SHEET;
+	protected static int maxRowsInSheet;
 
 	public ExcelFile(Profiles pref) {
 		super(pref);
@@ -88,7 +88,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			wb = isXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
 			String sheetName = myPref.getPdaDatabaseName();
 			sheet = wb.createSheet(sheetName.isEmpty() ? "Sheet1" : sheetName);
-			MAX_ROWS_IN_SHEET = isXlsx ? 1048576 : 65536;
+			maxRowsInSheet = isXlsx ? 1048576 : 65536;
 		}
 		helper = wb.getCreationHelper();
 	}
@@ -105,7 +105,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	public String[] getSheetNames() {
 		if (wb == null) {
-			return null;
+			return new String[0];
 		}
 
 		String[] result = new String[noOfSheets];
@@ -164,9 +164,10 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		case BLANK:
 		case STRING:
 			String contents = pCell.getRichStringCellValue().getString();
-			if (contents.length() > ExportFile.EXCEL.getMaxTextSize() || contents.indexOf("\n") > -1) {
+			if (contents.length() > ExportFile.EXCEL.getMaxTextSize() || contents.indexOf('\n') > -1) {
 				return FieldTypes.MEMO;
 			}
+			return FieldTypes.TEXT;
 		case FORMULA:
 			return FieldTypes.TEXT;
 		case NUMERIC:
@@ -189,10 +190,8 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			String s = formatter.formatCellValue(pCell);
 			return s.indexOf('.') != -1 ? FieldTypes.FLOAT : FieldTypes.NUMBER;
 		default:
-			break;
+			return FieldTypes.TEXT;
 		}
-
-		return FieldTypes.TEXT;
 	}
 
 	@Override
@@ -298,8 +297,8 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	}
 
 	protected void createNextSheet() {
-		int noOfSheets = wb.getNumberOfSheets();
-		sheet = wb.createSheet("Page " + (noOfSheets + 1));
+		int numOfSheets = wb.getNumberOfSheets();
+		sheet = wb.createSheet("Page " + (numOfSheets + 1));
 	}
 
 	@Override
@@ -309,8 +308,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			return;
 		}
 
-		int MAX_COL = row1.getLastCellNum();
-		for (int i = 0; i < MAX_COL; i++) {
+		for (int i = 0; i < row1.getLastCellNum(); i++) {
 			sheet.autoSizeColumn(i);
 		}
 	}

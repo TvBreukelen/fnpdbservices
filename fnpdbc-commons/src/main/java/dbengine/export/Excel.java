@@ -160,7 +160,7 @@ public class Excel extends ExcelFile {
 			}
 		}
 
-		if (excelRow > ExcelFile.MAX_ROWS_IN_SHEET) {
+		if (excelRow > ExcelFile.maxRowsInSheet) {
 			createNextSheet();
 		} else {
 			excelRow++;

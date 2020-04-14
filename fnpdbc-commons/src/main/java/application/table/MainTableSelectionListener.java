@@ -32,6 +32,11 @@ public class MainTableSelectionListener implements ListSelectionListener {
 			obj.alignProfiles();
 			obj.alignTable();
 			dialog.activateComponents();
+			
+			if (evt.getSource() instanceof ButtonTableCellEditor) {
+				dialog.clickEdit();
+			}
+			
 			break;
 		default:
 		}
