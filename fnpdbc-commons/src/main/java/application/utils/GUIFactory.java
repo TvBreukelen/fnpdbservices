@@ -38,11 +38,11 @@ public final class GUIFactory {
 		case 'D':
 			Locale.setDefault(Locale.GERMAN);
 			break;
-		case 'E':
-			Locale.setDefault(Locale.ENGLISH);
-			break;
 		case 'N':
 			Locale.setDefault(new Locale("nl"));
+			break;
+		default:
+			Locale.setDefault(Locale.ENGLISH);
 			break;
 		}
 	}
@@ -125,11 +125,8 @@ public final class GUIFactory {
 	}
 
 	public static JButton getJButton(String resourceID, String actionCommand, ActionListener action) {
-		JButton result = new JButton(getText(resourceID));
-		result.setToolTipText(getToolTip(resourceID));
-		result.addActionListener(action);
+		JButton result = getJButton(resourceID, action);
 		result.setActionCommand(actionCommand);
-		setMnemonic(result, resourceID);
 		return result;
 	}
 
@@ -142,11 +139,8 @@ public final class GUIFactory {
 	}
 
 	public static JRadioButton getJRadioButton(String resourceID, String actionCommand, ActionListener action) {
-		JRadioButton result = new JRadioButton(getText(resourceID));
-		result.setToolTipText(getToolTip(resourceID));
-		result.addActionListener(action);
+		JRadioButton result = getJRadioButton(resourceID, action);
 		result.setActionCommand(actionCommand);
-		setMnemonic(result, resourceID);
 		return result;
 	}
 	public static JCheckBox getJCheckBox(String resourceID, boolean value) {
@@ -163,17 +157,17 @@ public final class GUIFactory {
 		return result;
 	}
 
-	public static JHyperLink getJHyperLink(String resourceID, ActionListener action, ImageIcon icon) {
-		JHyperLink result = getJHyperLink(resourceID, action);
-		result.setIcon(icon);
-		return result;
-	}
-
 	public static JHyperLink getJHyperLink(String resourceID, ActionListener action) {
 		JHyperLink result = new JHyperLink();
 		result.setText(getText(resourceID));
 		result.setToolTipText(getToolTip(resourceID));
 		result.addActionListener(action);
+		return result;
+	}
+
+	public static JHyperLink getJHyperLink(String resourceID, ActionListener action, ImageIcon icon) {
+		JHyperLink result = getJHyperLink(resourceID, action);
+		result.setIcon(icon);
 		return result;
 	}
 
@@ -185,10 +179,8 @@ public final class GUIFactory {
 	}
 
 	public static JMenuItem getJMenuItem(String resourceID, ActionListener action) {
-		JMenuItem result = new JMenuItem(getText(resourceID));
-		result.setToolTipText(getToolTip(resourceID));
+		JMenuItem result = getJMenuItem(resourceID, action);
 		result.addActionListener(action);
-		setMnemonic(result, resourceID);
 		return result;
 	}
 

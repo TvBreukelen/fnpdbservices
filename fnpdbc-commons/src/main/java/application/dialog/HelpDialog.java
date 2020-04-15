@@ -121,7 +121,7 @@ public class HelpDialog extends JDialog {
 		super.setVisible(b);
 	}
 
-	public HyperlinkListener createHyperLinkListener() {
+	private HyperlinkListener createHyperLinkListener() {
 		return e -> {
 			if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 				if (e instanceof HTMLFrameHyperlinkEvent) {
@@ -133,7 +133,7 @@ public class HelpDialog extends JDialog {
 						helpInfo.setPage(url);
 						activateComponents();
 					} catch (IOException ex) {
-						// Shouls not occur
+						// Should not occur
 					}
 				}
 			}
