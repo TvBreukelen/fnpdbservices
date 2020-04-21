@@ -124,6 +124,15 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+Version 8.7
+-----------
+Cleaned up General Config dialog.
+Used SonarCube to improve code quality
+Fixed MS-Access empty cells bug
+Added more fields to export for BookCAT
+Used Restful Service API to perform SourceForge version check
+
+
 Version 8.6.2
 -------------
 Removed "Replace Records in Database" feature for non HanDBase exports

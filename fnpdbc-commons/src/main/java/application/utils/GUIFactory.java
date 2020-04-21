@@ -179,8 +179,10 @@ public final class GUIFactory {
 	}
 
 	public static JMenuItem getJMenuItem(String resourceID, ActionListener action) {
-		JMenuItem result = getJMenuItem(resourceID, action);
+		JMenuItem result = new JMenuItem(getText(resourceID));
+		result.setToolTipText(getToolTip(resourceID));
 		result.addActionListener(action);
+		setMnemonic(result, resourceID);
 		return result;
 	}
 

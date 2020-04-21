@@ -141,6 +141,15 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 6.3
+-----------
+Cleaned up General Config dialog.
+Used SonarCube to improve code quality
+Fixed MS-Access empty cells bug
+Improved Textfile export
+Used Restful Service API to perform SourceForge version check
+
+
 Version 6.2.2
 -------------
 Removed "Replace Records in Database" feature for non HanDBase exports
