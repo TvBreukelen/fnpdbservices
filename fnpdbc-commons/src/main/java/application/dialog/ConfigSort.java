@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.HashSet;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,7 +37,7 @@ public class ConfigSort extends BasicDialog {
 
 	private boolean isDbConvert;
 
-	private Vector<String> dbFilterFields;
+	private String[] dbFilterFields;
 	private ExportFile myExportFile;
 
 	private SortData pdaSettings;
@@ -48,7 +47,7 @@ public class ConfigSort extends BasicDialog {
 		isDbConvert = dbFactory.isDbConvert();
 		myExportFile = dbFactory.getExportFile();
 		pdaSettings = data;
-		dbFilterFields = new Vector<>(dbFactory.getDbFilterFields());
+		dbFilterFields = dbFactory.getDbFilterFields();
 		numSort = myExportFile.getMaxSortFields();
 		lbSortField = new JLabel[numSort];
 		cbSortField = new JComboBox[numSort];
@@ -119,7 +118,7 @@ public class ConfigSort extends BasicDialog {
 		ckSort.setVisible(isDbConvert && myExportFile.isSpecialFieldSort());
 
 		cbCategoryField = new JComboBox<>(dbFilterFields);
-		cbCategoryField.setSelectedItem(getCategoryField());
+		cbCategoryField.setSelectedItem(findFilterField(pdaSettings.getCategoryField()));
 
 		result.add(lbCategory, c.gridCell(0, index, 0, 0));
 		result.add(cbCategoryField, c.gridCell(1, index, 2, 0));
@@ -127,7 +126,7 @@ public class ConfigSort extends BasicDialog {
 		for (int i = 0; i < numSort; i++) {
 			lbSortField[i] = GUIFactory.getJLabel(guiText + i);
 			cbSortField[i] = new JComboBox<>(dbFilterFields);
-			cbSortField[i].setSelectedItem(getSortedField(i));
+			cbSortField[i].setSelectedItem(findFilterField(pdaSettings.getSortField(i)));
 			cbSortField[i].addActionListener(e -> activateComponents());
 
 			index++;
@@ -149,16 +148,16 @@ public class ConfigSort extends BasicDialog {
 		return panel;
 	}
 
-	private String getCategoryField() {
-		String result = pdaSettings.getCategoryField();
-		return dbFilterFields.contains(result) ? result : "";
+	private String findFilterField(String field) {
+		for(String filter : dbFilterFields) {
+			if(filter.equals(field)) {
+				return filter;
+			}
+		}
+		return "";
 	}
-
-	private String getSortedField(int index) {
-		String result = pdaSettings.getSortField(index);
-		return dbFilterFields.contains(result) ? result : "";
-	}
-
+	
+	
 	@Override
 	protected void save() throws Exception {
 		boolean isSortSelected = false;

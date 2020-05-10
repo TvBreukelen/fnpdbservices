@@ -10,9 +10,9 @@ public class BasisField implements Serializable {
 	private String fieldAlias;
 	private String fieldName;
 	private String fieldHeader;
+	private boolean outputAsText;
 	private FieldTypes fieldType;
-	private int sqlType;
-
+	
 	public BasisField() {
 	}
 
@@ -59,12 +59,13 @@ public class BasisField implements Serializable {
 		fieldType = type;
 	}
 
-	public int getSQLType() {
-		return sqlType;
+
+	public boolean isOutputAsText() {
+		return outputAsText;
 	}
 
-	public void setSQLType(int sqltype) {
-		sqlType = sqltype;
+	public void setOutputAsText(boolean outputAsText) {
+		this.outputAsText = outputAsText;
 	}
 
 	public void set(BasisField field) {
@@ -72,7 +73,7 @@ public class BasisField implements Serializable {
 		setFieldName(field.getFieldName());
 		setFieldHeader(field.getFieldHeader());
 		setFieldType(field.getFieldType());
-		setSQLType(field.getSQLType());
+		setOutputAsText(field.isOutputAsText());
 	}
 
 	@Override

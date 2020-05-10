@@ -120,21 +120,21 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 			switch (field.getFieldType()) {
 			case BOOLEAN:
-				if (useBoolean) {
-					fields[i].setDataType(DBFField.FIELD_TYPE_L);
-				} else {
+				if (field.isOutputAsText()) {
 					int t = getBooleanTrue().length();
 					int f = getBooleanFalse().length();
 					fields[i].setFieldLength(Math.max(t, f));
 					fields[i].setDataType(DBFField.FIELD_TYPE_C);
+				} else {
+					fields[i].setDataType(DBFField.FIELD_TYPE_L);
 				}
 				break;
 			case DATE:
-				if (useDate) {
-					fields[i].setDataType(DBFField.FIELD_TYPE_D);
-				} else {
+				if (field.isOutputAsText()) {
 					fields[i].setFieldLength(10);
 					fields[i].setDataType(DBFField.FIELD_TYPE_C);
+				} else {
+					fields[i].setDataType(DBFField.FIELD_TYPE_D);
 				}
 				break;
 			case DURATION:
@@ -258,15 +258,15 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				boolean b = (Boolean) dbField;
-				if (useBoolean) {
-					rowData[i] = b;
-				} else {
+				if (field.isOutputAsText()) {
 					rowData[i] = b ? getBooleanTrue() : getBooleanFalse();
+				} else {
+					rowData[i] = b;
 				}
 				break;
 			case DATE:
-				rowData[i] = useDate ? General.convertDB2Date(dbField.toString())
-						: General.convertDate(dbField.toString());
+				rowData[i] = field.isOutputAsText() ? General.convertDate(dbField.toString())
+						: General.convertDB2Date(dbField.toString());
 				break;
 			case FUSSY_DATE:
 				rowData[i] = General.convertFussyDate(dbField.toString());
@@ -361,14 +361,20 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		}
 
 		String[] charset = result.split(",");
-		List<String> charSets = General.getCharacterSets();
-		int index = charSets.indexOf(charset[1]);
+		String[] charSets = General.getCharacterSets();
 
-		if (index == -1) {
+		result = "";
+		for (String cSet : charSets) {
+			if (cSet.equals(charset[1])) {
+				result = cSet;
+				break;
+			}
+		}
+
+		if (result.isEmpty()) {
 			return;
 		}
 
-		result = charSets.get(index);
 		if (!result.equals(encoding)) {
 			myPref.setEncoding(result);
 			encoding = result;

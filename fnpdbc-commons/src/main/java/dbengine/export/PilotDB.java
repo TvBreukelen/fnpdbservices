@@ -60,14 +60,16 @@ public class PilotDB extends PalmDB {
 		StringBuilder buf = new StringBuilder(numFields * 16);
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbInfo2Write.get(i);
+			boolean isNoTextExport = !field.isOutputAsText();
+
 			switch (field.getFieldType()) {
 			case BOOLEAN:
-				if (useBoolean) {
+				if (isNoTextExport) {
 					fieldTypes[i] = 1;
 				}
 				break;
 			case DATE:
-				if (useDate) {
+				if (isNoTextExport) {
 					fieldTypes[i] = 3;
 				}
 				break;
@@ -81,7 +83,7 @@ public class PilotDB extends PalmDB {
 				fieldTypes[i] = 2;
 				break;
 			case TIME:
-				if (useTime) {
+				if (isNoTextExport) {
 					fieldTypes[i] = 4;
 				}
 			default:
@@ -122,10 +124,12 @@ public class PilotDB extends PalmDB {
 		// Read the user defined list of DB fields
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbInfo2Write.get(i);
+			boolean isNoTextExport = !field.isOutputAsText();
+
 			offSet = dasNames.size() + start;
 			pdbDas.writeShort(offSet);
 			try {
-				dasNames.write(convertData(dbRecord.get(field.getFieldAlias()), field.getFieldType()));
+				dasNames.write(convertData(dbRecord.get(field.getFieldAlias()), field.getFieldType(), isNoTextExport));
 			} catch (Exception e) {
 				throw FNProgException.getException("fieldConvertError", field.getFieldAlias(), e.getMessage());
 			}
@@ -137,7 +141,7 @@ public class PilotDB extends PalmDB {
 		pdbBaos.reset();
 	}
 
-	private byte[] convertData(Object dbField, FieldTypes pIndex) throws Exception {
+	private byte[] convertData(Object dbField, FieldTypes pIndex, boolean isNoTextExport) throws Exception {
 		byte[] result = new byte[1];
 
 		if (dbField == null || dbField.equals("")) {
@@ -148,13 +152,14 @@ public class PilotDB extends PalmDB {
 		switch (pIndex) {
 		case BOOLEAN:
 			boolean b = (Boolean) dbField;
-			if (useBoolean) {
+			if (isNoTextExport) {
 				result[0] = b ? (byte) 1 : 0;
 				return result;
 			}
 			return General.getNullTerminatedString(b ? booleanTrue : booleanFalse, 0, "");
 		case DATE:
-			return useDate ? (byte[]) convertDate(dbValue)
+			return isNoTextExport ? (byte[]) convertDate(
+					dbValue)
 					: General.getNullTerminatedString(General.convertDate(dbValue), 0, "");
 		case FUSSY_DATE:
 			return General.getNullTerminatedString(General.convertFussyDate(dbValue), 0, "");
@@ -166,7 +171,7 @@ public class PilotDB extends PalmDB {
 			return INT((Integer) dbField);
 		case TIME:
 			dbValue = General.convertTime(dbValue);
-			return useTime ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, 0, "");
+			return isNoTextExport ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, 0, "");
 		case DURATION:
 			return General.getNullTerminatedString(General.convertDuration((Number) dbField), 0, "");
 		default:

@@ -45,12 +45,12 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	private File outFile;
 	private DataFormatter formatter = new DataFormatter();
-	
+
 	protected Workbook wb;
 	protected Sheet sheet;
 	protected CreationHelper helper;
 
-	protected static int maxRowsInSheet;
+	protected int maxRowsInSheet;
 
 	public ExcelFile(Profiles pref) {
 		super(pref);
@@ -94,7 +94,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<FieldDefinition> getTableModelFields() throws Exception {
+	public List<FieldDefinition> getTableModelFields() {
 		return hSheets.get(getCurrentSheet());
 	}
 

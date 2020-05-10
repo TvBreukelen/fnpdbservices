@@ -93,7 +93,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					String field = columns.getString(4);
 					FieldDefinition fieldDef = new FieldDefinition(field, field, FieldTypes.TEXT);
 					fieldDef.setSQLType(columns.getInt(5));
-					
+
 					switch (fieldDef.getSQLType()) {
 					case Types.ARRAY:
 					case Types.BINARY:
@@ -164,7 +164,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<FieldDefinition> getTableModelFields() throws Exception {
+	public List<FieldDefinition> getTableModelFields() {
 		int index = aTables.indexOf(myTable);
 		return hTables.get(index == -1 ? 1 : index);
 	}
@@ -226,7 +226,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private Object getFieldObject(String sqlStatement) throws Exception {
 		Object result;
 
-		try (Statement statement = connection.createStatement(); 
+		try (Statement statement = connection.createStatement();
 				ResultSet rs = statement.executeQuery(sqlStatement)) {
 			rs.next();
 			result = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
@@ -240,8 +240,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws Exception {
-		StringBuilder buf = new StringBuilder();
-
 		try {
 			int c = 0;
 			switch (colType) {
@@ -267,25 +265,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				out.close();
 				return b;
 			case Types.LONGVARCHAR:
-				Reader reader;
-				try {
-					reader = rs.getCharacterStream(colNo);
-					if (reader == null) {
-						return "";
-					}
-				} catch (NullPointerException ex) {
-					return "";
-				}
-
-				buf = new StringBuilder();
-				while (c != -1) {
-					c = reader.read();
-					if (c != -1) {
-						buf.append((char) c);
-					}
-				}
-				reader.close();
-				return buf.toString();
+				return readMemoField(rs, colNo);
 			case Types.BIT:
 			case Types.BOOLEAN:
 				return rs.getBoolean(colNo);
@@ -312,6 +292,29 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} catch (Exception e) {
 			throw new Exception("Unable to read database field, due to " + e.toString());
 		}
+	}
+
+	private String readMemoField(ResultSet rs, int colNo) throws Exception {
+		Reader reader;
+		int c = 0;
+		try {
+			reader = rs.getCharacterStream(colNo);
+			if (reader == null) {
+				return "";
+			}
+		} catch (NullPointerException ex) {
+			return "";
+		}
+
+		StringBuilder buf = new StringBuilder();
+		while (c != -1) {
+			c = reader.read();
+			if (c != -1) {
+				buf.append((char) c);
+			}
+		}
+		reader.close();
+		return buf.toString();
 	}
 
 	public void verifyStatement(String sqlStatement) throws SQLException {

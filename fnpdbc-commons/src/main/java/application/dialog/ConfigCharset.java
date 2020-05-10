@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.nio.charset.Charset;
 import java.util.Properties;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -58,7 +57,7 @@ public class ConfigCharset extends BasicDialog {
 	protected Component createCenterPanel() {
 		Box result = Box.createHorizontalBox();
 
-		charSets = new JList<>(new Vector<>(General.getCharacterSets()));
+		charSets = new JList<>(General.getCharacterSets());
 
 		charSets.addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {

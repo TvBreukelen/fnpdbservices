@@ -8,11 +8,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -137,7 +137,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			activateComponents();
 		};
 
-		fdView = new JComboBox<>(new Vector<>(myImportFile.getViews()));
+		fdView = new JComboBox<>(myImportFile.getViews());
 
 		profile = GUIFactory.getJTextField("funcNew", isNewProfile ? "" : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
@@ -342,10 +342,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void refreshViews() {
 		myImportFile = dbFactory.getDatabaseType();
-
 		fdView.removeActionListener(funcSelectView);
-		fdView.removeAllItems();
-		myImportFile.getViews().forEach(view -> fdView.addItem(view));
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(myImportFile.getViews());
+		fdView.setModel(model);
 	}
 
 	private void reloadFieldSelect(String view) throws Exception {

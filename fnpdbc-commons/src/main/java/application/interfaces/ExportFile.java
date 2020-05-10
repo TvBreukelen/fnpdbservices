@@ -1,7 +1,7 @@
 package application.interfaces;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import application.FileType;
 import application.utils.General;
@@ -65,24 +65,26 @@ public enum ExportFile {
 		return TEXTFILE;
 	}
 
-	public static Vector<String> getExportFilenames(boolean isImport) {
-		Vector<String> result = new Vector<>();
+	public static String[] getExportFilenames(boolean isImport) {
+		List<String> exportList = new ArrayList<>();
 		for (ExportFile exp : values()) {
-			result.add(exp.name);
+			exportList.add(exp.name);
 		}
 
 		if (!General.IS_WINDOWS) {
-			result.remove(HANDBASE.name);
+			exportList.remove(HANDBASE.name);
 		}
 
 		if (isImport) {
-			result.remove(REFERENCER.name);
+			exportList.remove(REFERENCER.name);
 		} else {
-			// TODO To add in a later version
-			result.remove(SQLITE.name);
-			result.remove(ACCESS.name);
+			exportList.remove(SQLITE.name);
+			exportList.remove(ACCESS.name);
 		}
 
+
+		String[] result = new String[exportList.size()];
+		exportList.toArray(result);
 		return result;
 	}
 
@@ -101,6 +103,16 @@ public enum ExportFile {
 		case FOXPRO:
 		case ACCESS:
 		case SQLITE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public boolean isTextExport() {
+		switch (this) {
+		case TEXTFILE:
+		case XML:
 			return true;
 		default:
 			return false;
@@ -178,7 +190,7 @@ public enum ExportFile {
 			return false;
 		}
 	}
-	
+
 	public boolean isAppend() {
 		switch (this) {
 		case HANDBASE:

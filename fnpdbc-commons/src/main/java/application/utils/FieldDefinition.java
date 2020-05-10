@@ -18,6 +18,7 @@ public class FieldDefinition extends BasisField {
 	private String table = "";
 	private int size = 1;
 	private int decimalPoint = 0;
+	private int sqlType = 0;
 	private DecimalFormat decimalFormat;
 	private boolean isExport = true;
 	private boolean isHideTable = false;
@@ -62,7 +63,7 @@ public class FieldDefinition extends BasisField {
 		if (getFieldType() != FieldTypes.FLOAT) {
 			return;
 		}
-		
+
 		int index = s.lastIndexOf('.');
 		if (index++ != -1) {
 			if (s.endsWith("0")) {
@@ -164,6 +165,15 @@ public class FieldDefinition extends BasisField {
 		result.setRoleField(isRoleField);
 		result.setIndexField(indexField);
 		result.setIndexValue(indexValue);
+		result.setSQLType(sqlType);
 		return result;
+	}
+
+	public int getSQLType() {
+		return sqlType;
+	}
+
+	public void setSQLType(int sqlType) {
+		this.sqlType = sqlType;
 	}
 }

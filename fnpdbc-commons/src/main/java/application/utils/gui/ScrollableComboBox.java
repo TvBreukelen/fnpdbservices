@@ -1,7 +1,5 @@
 package application.utils.gui;
 
-import java.util.Vector;
-
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
@@ -25,16 +23,11 @@ public abstract class ScrollableComboBox extends JComboBox<String> {
 		setUI(new ScrollableComboUI());
 	}
 
-	public ScrollableComboBox(Vector<String> vec) {
-		super(vec);
+	public ScrollableComboBox(String[] objects) {
+		super(objects);
 		if (General.IS_MAC_OSX) {
 			return;
 		}
-		setUI(new ScrollableComboUI());
-	}
-
-	public ScrollableComboBox(String[] objects) {
-		super(objects);
 		setUI(new ScrollableComboUI());
 	}
 

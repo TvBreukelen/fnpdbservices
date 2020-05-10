@@ -57,7 +57,7 @@ public class Viewer extends BasicDialog {
 		};
 
 		myTable.setDefaultRenderer(Object.class, new ObjectRenderer(dbFields));
-		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer(myTable.getBackground()));
+		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer(myTable));
 		myTable.setDefaultRenderer(Number.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Float.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Double.class, new ObjectRenderer(dbFields));
@@ -82,7 +82,7 @@ public class Viewer extends BasicDialog {
 
 	@Override
 	protected Component createCenterPanel() {
-		isModelSaved = General.writeObjectToDisk(myModel.getDataVector());
+		isModelSaved = General.writeObjectToDisk(myModel.getDataListMap());
 		JPanel result = new JPanel(new BorderLayout());
 		myTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		btReload.setEnabled(isModelSaved);
@@ -96,7 +96,7 @@ public class Viewer extends BasicDialog {
 
 	@SuppressWarnings("unchecked")
 	private void restoreOldValues() {
-		myModel.setDataVector((List<Map<String, Object>>) General.readObjectFromDisk());
+		myModel.setDataListMap((List<Map<String, Object>>) General.readObjectFromDisk());
 		myModel.fireTableDataChanged();
 		General.packColumns(myTable);
 	}

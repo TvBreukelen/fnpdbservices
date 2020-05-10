@@ -58,7 +58,7 @@ public class ConfigFNProg extends ProgramDialog {
 
 		if (isProfileSet) {
 			if (pdaSettings.getTableName().isEmpty()) {
-				pdaSettings.setTableName(myFnSoftware.getViews().get(0), false);
+				pdaSettings.setTableName(myFnSoftware.getViews()[0], false);
 			}
 
 			myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseType());

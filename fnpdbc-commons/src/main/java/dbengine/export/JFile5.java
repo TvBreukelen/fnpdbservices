@@ -50,14 +50,16 @@ public class JFile5 extends PalmDB {
 		// field names (1)
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbInfo2Write.get(i);
+			boolean isNoTextExport = !field.isOutputAsText();
+
 			switch (field.getFieldType()) {
 			case BOOLEAN:
-				if (useBoolean) {
+				if (isNoTextExport) {
 					fieldTypes[i] = 2;
 				}
 				break;
 			case DATE:
-				if (useDate) {
+				if (isNoTextExport) {
 					fieldTypes[i] = 4;
 				}
 				break;
@@ -68,7 +70,7 @@ public class JFile5 extends PalmDB {
 				fieldTypes[i] = 8;
 				break;
 			case TIME:
-				if (useTime) {
+				if (isNoTextExport) {
 					fieldTypes[i] = 32;
 				}
 				break;

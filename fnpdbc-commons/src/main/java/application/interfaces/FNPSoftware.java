@@ -1,8 +1,5 @@
 package application.interfaces;
 
-import java.util.Arrays;
-import java.util.List;
-
 public enum FNPSoftware {
 	/**
 	 * Title: FNPSoftware Description: Enums for all FNProgramvare Software related
@@ -17,11 +14,11 @@ public enum FNPSoftware {
 	UNDEFINED("undefined");
 
 	private String name;
-	private List<String> views;
+	private String[] views;
 
 	private FNPSoftware(String name, String... views) {
 		this.name = name;
-		this.views = Arrays.asList(views);
+		this.views = views;
 	}
 
 	public static FNPSoftware getSoftware(String id) {
@@ -33,7 +30,7 @@ public enum FNPSoftware {
 		return UNDEFINED;
 	}
 
-	public List<String> getViews() {
+	public String[] getViews() {
 		return views;
 	}
 

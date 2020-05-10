@@ -40,9 +40,6 @@ public abstract class Profiles extends Project implements IEncoding {
 
 	private boolean appendRecords;
 	private boolean createBackup;
-	private boolean exportBoolean;
-	private boolean exportDate;
-	private boolean exportTime;
 	private boolean exportImages;
 	private boolean forceSort;
 
@@ -121,10 +118,7 @@ public abstract class Profiles extends Project implements IEncoding {
 		appendRecords = child.getBoolean("append.records", false);
 		categoryField = child.get("category.field", "");
 		createBackup = child.getBoolean("create.backup", false);
-		exportBoolean = child.getBoolean("export.boolean", false);
-		exportDate = child.getBoolean("export.date", false);
 		exportImages = child.getBoolean("export.images", false);
-		exportTime = child.getBoolean("export.time", false);
 		forceSort = child.getBoolean("force.sort", true);
 		imageOption = child.getInt("export.image.option", 0);
 		imageHeight = child.getInt("export.image.height", 0);
@@ -290,10 +284,6 @@ public abstract class Profiles extends Project implements IEncoding {
 		this.createBackup = createBackup;
 	}
 
-	public boolean isExportBoolean() {
-		return exportBoolean;
-	}
-
 	@Override
 	public String getEncoding() {
 		return encoding;
@@ -305,19 +295,6 @@ public abstract class Profiles extends Project implements IEncoding {
 		this.encoding = encoding;
 	}
 
-	public void setExportBoolean(boolean exportBoolean) {
-		PrefUtils.writePref(child, "export.boolean", exportBoolean, this.exportBoolean, false);
-		this.exportBoolean = exportBoolean;
-	}
-
-	public boolean isExportDate() {
-		return exportDate;
-	}
-
-	public void setExportDate(boolean exportDate) {
-		PrefUtils.writePref(child, "export.date", exportDate, this.exportDate, false);
-	}
-
 	public boolean isExportImages() {
 		return exportImages;
 	}
@@ -325,15 +302,6 @@ public abstract class Profiles extends Project implements IEncoding {
 	public void setExportImages(boolean exportImages) {
 		PrefUtils.writePref(child, "export.images", exportImages, this.exportImages, false);
 		this.exportImages = exportImages;
-	}
-
-	public boolean isExportTime() {
-		return exportTime;
-	}
-
-	public void setExportTime(boolean exportTime) {
-		PrefUtils.writePref(child, "export.time", exportTime, this.exportTime, false);
-		this.exportTime = exportTime;
 	}
 
 	public boolean isForceSort() {

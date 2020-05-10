@@ -121,7 +121,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 		FNPSoftware soft = FNPSoftware.getSoftware(dbSettings.getDatabaseType());
 		mySoftware = FNProgramvare.getSoftware(soft);
 		if (pdaSettings.getTableName().isEmpty()) {
-			pdaSettings.setTableName(soft.getViews().get(0), true);
+			pdaSettings.setTableName(soft.getViews()[0], true);
 		}
 
 		try {

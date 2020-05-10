@@ -277,7 +277,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<FieldDefinition> getTableModelFields() throws Exception {
+	public List<FieldDefinition> getTableModelFields() {
 		return hTables.get(myTable).getDbFields();
 	}
 

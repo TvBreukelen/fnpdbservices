@@ -77,7 +77,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	protected MSAccess msAccess;
 
 	private Map<String, FieldDefinition> dbInfoToExport = new HashMap<>(); // DB definitions of the fields to be
-																			// exported
+	// exported
 	private Map<String, FieldTypes> dbSortList = new LinkedHashMap<>(); // Sort by field -number and -type
 	private Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
 			|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
@@ -209,8 +209,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		FieldDefinition field = dbFieldDefinition.get(dbField);
 		if (field != null && !dbInfoToExport.containsKey(field.getFieldAlias())) {
 			usrList.add(dbField);
-			// Clone FieldDefiniton and set export flag to false for system fields (see
-			// getDataVector)
 			field = field.copy();
 			field.setExport(!isSystemField);
 			field.setContentsField(isContentsField);
@@ -221,7 +219,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	public void openToFile() throws Exception {
-		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings, false);
+		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
 		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), pdaSettings.isCreateBackup(), false);
 		isOutputFileOpen = true;
@@ -316,7 +314,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	@Override
-	protected List<Map<String, Object>> getDataVector() throws Exception {
+	protected List<Map<String, Object>> getDataListMap() throws Exception {
 		List<Map<String, Object>> result = new ArrayList<>();
 		Map<String, List<Map<String, Object>>> hashTable = new HashMap<>();
 		Set<Object> keywordList = new HashSet<>();
@@ -885,7 +883,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		pWrite.add(pRead);
 
 		dbTableModelFields.stream().filter(filter)
-				.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
+		.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 	}
 
 	public void checkNumberOfFields(boolean isExport, ViewerModel model) throws Exception {

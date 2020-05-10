@@ -100,7 +100,7 @@ public class BookCAT extends FNProgramvare {
 	@Override
 	public void setCategories() throws Exception {
 		super.setCategories();
-		if (useRoles && myTable.equals("Album") || myTable.equals(CONTENTS)) {
+		if (useRoles && myTable.equals("Book") || myTable.equals(CONTENTS)) {
 			switch ((int) Math.floor(Double.parseDouble(mySoftwareVersion))) {
 			case 6:
 				getVersion6Roles();
@@ -288,7 +288,7 @@ public class BookCAT extends FNProgramvare {
 							buf.append("; ");
 						}
 
-						buf.append(getPersonRole("Artist", persons, roleID));
+						buf.append(getPersonRole(AUTHOR, persons, roleID));
 						isPersonSet = true;
 					} else {
 						break;

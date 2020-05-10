@@ -12,7 +12,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -264,7 +263,7 @@ public class ConfigFilter extends BasicDialog {
 			filterPanel[i] = Box.createHorizontalBox();
 			filterPanel[i].setToolTipText(GUIFactory.getToolTip("databaseFieldValue"));
 
-			cbFilterField[i] = new JComboBox<>(new DefaultComboBoxModel<>(new Vector<>(dbFactory.getDbFilterFields())));
+			cbFilterField[i] = new JComboBox<>(new DefaultComboBoxModel<>(dbFactory.getDbFilterFields()));
 			cbFilterField[i].setToolTipText(GUIFactory.getToolTip("databaseFields"));
 			cbFilterField[i].setActionCommand(String.valueOf(i));
 

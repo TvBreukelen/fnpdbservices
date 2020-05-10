@@ -184,7 +184,7 @@ public class Referencer extends ExcelFile {
 			isTitlePrinted = true;
 		}
 
-		if (excelRow > ExcelFile.maxRowsInSheet) {
+		if (excelRow > maxRowsInSheet) {
 			createNextSheet();
 		}
 	}

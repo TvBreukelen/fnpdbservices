@@ -430,11 +430,13 @@ public final class General {
 		return new InputStreamReader(is, StandardCharsets.UTF_8);
 	}
 
-	public static List<String> getCharacterSets() {
+	public static String[] getCharacterSets() {
 		SortedMap<String, Charset> charSets = Charset.availableCharsets();
-		List<String> result = new ArrayList<>(100);
-		result.add(" ");
-		charSets.keySet().forEach(result::add);
+		List<String> charList = new ArrayList<>(100);
+		charList.add(" ");
+		charSets.keySet().forEach(charList::add);
+		String[] result = new String[charList.size()];
+		charList.toArray(result);
 		return result;
 	}
 

@@ -26,8 +26,8 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 	 * @version 4.5
 	 */
 	private static final long serialVersionUID = 9209643909894109017L;
-	private ActionListener funcHeader = null;
-	private JComboBox<String> font = null;
+	transient ActionListener funcHeader = null;
+	private JComboBox<String> fontName = null;
 	private JComboBox<String> fontSize = null;
 	private JCheckBox[] cHeader = new JCheckBox[3];
 	private JCheckBox lockColumn = null;
@@ -44,7 +44,7 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 	@Override
 	public void setProperties() {
 		pdaSettings.setLock1stColumn(lockColumn.isSelected());
-		pdaSettings.setFont(font.getSelectedItem().toString());
+		pdaSettings.setFont(fontName.getSelectedItem().toString());
 		pdaSettings.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
 		pdaSettings.setUseHeader(cHeader[0].isSelected());
 		pdaSettings.setLockHeader(cHeader[1].isSelected());
@@ -61,8 +61,8 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		lockColumn = GUIFactory.getJCheckBox("lockColumn", pdaSettings.isLock1stColumn());
 
-		font = new JComboBox<>(new String[] { "Arial", "Courier", "Tahoma", "Times" });
-		font.setSelectedItem(pdaSettings.getFont());
+		fontName = new JComboBox<>(new String[] { "Arial", "Courier", "Tahoma", "Times" });
+		fontName.setSelectedItem(pdaSettings.getFont());
 
 		fontSize = new JComboBox<>(new String[] { "8", "10", "12", "14", "16" });
 		fontSize.setSelectedItem(String.valueOf(pdaSettings.getFontSize()));
@@ -72,7 +72,7 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 
 		p.add(lockColumn, c.gridCell(0, 0, 0, 0, 0, 1, GridBagConstraints.LINE_END));
 		p.add(GUIFactory.getJLabel("font"), c.gridCell(0, 1, 0, 0));
-		p.add(font, c.gridCell(1, 1, 0, 0));
+		p.add(fontName, c.gridCell(1, 1, 0, 0));
 		p.add(fontSize, c.gridCell(2, 1, 0, 0));
 		p.add(Box.createVerticalBox(), c.gridCell(0, 2, 0, 30)); // To move the previous lines up
 		p.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("generalSettings")));

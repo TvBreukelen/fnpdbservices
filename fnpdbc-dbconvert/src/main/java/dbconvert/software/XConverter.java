@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import application.BasicSoft;
 import application.interfaces.ExportFile;
@@ -52,7 +51,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
 
-	private List<String> dbFilterFields; // All fields that can be filtered or sorted
+	private String[] dbFilterFields; // All fields that can be filtered or sorted
 	private List<FieldDefinition> dbSelectFields; // All fields that can be exported
 	private Map<String, Object> dbDataRecord = new HashMap<>(); // database record
 
@@ -97,7 +96,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			firstRecord = myImportFile == ExportFile.MOBILEDB ? 4 : 0;
 		}
 
-		dbIn = (IConvert) GeneralDB.getDatabase(myImportFile, pdaSettings, true);
+		dbIn = (IConvert) GeneralDB.getDatabase(myImportFile, pdaSettings);
 		dbIn.setSoftware(this);
 		dbIn.openFile(dbInHelper, false, true);
 
@@ -120,8 +119,10 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		int maxFields = dbFields.size();
 		dbFieldDefinition = new HashMap<>(maxFields);
 		dbSelectFields = new ArrayList<>();
-		dbFilterFields = new ArrayList<>();
-		dbFilterFields.add("");
+
+		List<String> filterFields = new ArrayList<>();
+		// dbFilterFields = new ArrayList<>();
+		filterFields.add("");
 
 		for (int i = 0; i < maxFields; i++) {
 			FieldDefinition fieldDef = dbFields.get(i);
@@ -148,10 +149,10 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 			dbFieldDefinition.put(fieldName, fieldDef);
 			dbSelectFields.add(fieldDef);
-			dbFilterFields.add(fieldName);
+			filterFields.add(fieldName);
 		}
 
-		dbFilterFields = dbFilterFields.stream().sorted().collect(Collectors.toList());
+		dbFilterFields = filterFields.stream().sorted().toArray(String[]::new);
 
 		if (isNew) {
 			dbUserFields = new ArrayList<>();
@@ -186,7 +187,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		if (!sortList.isEmpty()) {
 			XComparator compare = new XComparator(sortList);
-			Collections.sort(myModel.getDataVector(), compare);
+			Collections.sort(myModel.getDataListMap(), compare);
 		}
 	}
 
@@ -239,7 +240,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
-	public List<String> getDbFilterFields() {
+	public String[] getDbFilterFields() {
 		return dbFilterFields;
 	}
 
@@ -278,10 +279,10 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				emptyRecord++;
 				pRead.put(FILTER_FIELD, true);
 			}
-			
-			dbTableModelFields.stream().filter(filter).forEach(field -> 
-				field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""))
-			);
+
+			dbTableModelFields.stream().filter(filter).forEach(field ->
+			field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""))
+					);
 
 			result.add(pRead);
 
@@ -301,7 +302,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		Collections.sort(myCategories);
 		myCategories.add(0, "Unfiled");
 		myTotalRecord -= emptyRecord;
-		myModel.setDataVector(result);
+		myModel.setDataListMap(result);
 	}
 
 	private boolean isIncludeRecord(Map<String, Object> dbRecord) {
@@ -327,7 +328,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			loadInputFile();
 		}
 
-		List<Map<String, Object>> table = myModel.getDataVector();
+		List<Map<String, Object>> table = myModel.getDataListMap();
 		for (Map<String, Object> rowData : table) {
 			Object obj = rowData.get(field.getFieldAlias());
 			if (!result.contains(obj)) {
@@ -342,7 +343,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	public void openToFile() throws Exception {
 		boolean createBackup = pdaSettings.isCreateBackup();
-		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings, true);
+		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
 		dbOut.openFile(new DatabaseHelper(myFile[1]), createBackup, false);
 		isOutputFileOpen = true;
@@ -399,12 +400,12 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
-	protected List<Map<String, Object>> getDataVector() throws Exception {
+	protected List<Map<String, Object>> getDataListMap() throws Exception {
 		List<Map<String, Object>> result = new ArrayList<>();
-		List<Map<String, Object>> inputVector = myModel.getDataVector();
+		List<Map<String, Object>> listMap = myModel.getDataListMap();
 
 		myCurrentRecord = 0;
-		for (Map<String, Object> tableRecord : inputVector) {
+		for (Map<String, Object> tableRecord : listMap) {
 			if ((Boolean) tableRecord.get(FILTER_FIELD)) {
 				continue;
 			}

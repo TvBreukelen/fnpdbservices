@@ -54,12 +54,11 @@ public abstract class GeneralDB {
 
 	protected int myTotalRecords = 0;
 
-	protected boolean useAppend;
-	protected boolean useBoolean = true;
-	protected boolean useDate = true;
 	protected boolean useImages;
-	protected boolean useTime;
+	protected boolean useAppend;
 	protected boolean hasBackup;
+	private boolean isBooleanExport;
+	private boolean isDateExport;
 	protected boolean isInputFile;
 
 	protected String handbaseProgram;
@@ -79,18 +78,18 @@ public abstract class GeneralDB {
 
 		createBackup = myPref.isCreateBackup();
 		useAppend = myPref.isAppendRecords();
-		useBoolean = myPref.isExportBoolean();
-		useDate = myPref.isExportDate();
 		useImages = myPref.isExportImages();
-		useTime = myPref.isExportTime();
 		encoding = myPref.getEncoding(); // Output file encoding
 
 		hasBackup = false;
 		isInputFile = false;
 
+		isBooleanExport = myExportFile.isBooleanExport();
+		isDateExport = myExportFile.isDateExport();
+
 		GeneralSettings generalProps = GeneralSettings.getInstance();
-		booleanTrue = useBoolean ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
-		booleanFalse = useBoolean ? myExportFile.getFalseValue() : generalProps.getCheckBoxUnchecked();
+		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
+		booleanFalse = isBooleanExport ? myExportFile.getFalseValue() : generalProps.getCheckBoxUnchecked();
 		handbaseProgram = generalProps.getHandbaseConversionProgram();
 	}
 
@@ -158,9 +157,15 @@ public abstract class GeneralDB {
 		switch (field.getFieldType()) {
 		case BOOLEAN:
 			boolean b = (Boolean) dbValue;
-			return useBoolean ? b : b ? booleanTrue : booleanFalse;
+			if (!isBooleanExport || field.isOutputAsText()) {
+				return b ? booleanTrue : booleanFalse;
+			}
+			return b;
 		case DATE:
-			return useDate ? convertDate(dbValue.toString()) : General.convertDate(dbValue.toString());
+			if (!isDateExport || field.isOutputAsText()) {
+				return General.convertDate(dbValue.toString());
+			}
+			return convertDate(dbValue.toString());
 		case DURATION:
 			return General.convertDuration((Number) dbValue);
 		case FUSSY_DATE:
@@ -183,7 +188,7 @@ public abstract class GeneralDB {
 		}
 	}
 
-	public List<FieldDefinition> getTableModelFields() throws Exception {
+	public List<FieldDefinition> getTableModelFields() {
 		if (myDBDefinition == null) {
 			int index = 0;
 			myDBDefinition = new ArrayList<>();
@@ -202,7 +207,7 @@ public abstract class GeneralDB {
 		// Nothing to do here on this level
 	}
 
-	public static GeneralDB getDatabase(ExportFile db, Profiles profile, boolean isDBConvert) {
+	public static GeneralDB getDatabase(ExportFile db, Profiles profile) {
 		switch (db) {
 		case ACCESS:
 			return new MSAccess(profile);

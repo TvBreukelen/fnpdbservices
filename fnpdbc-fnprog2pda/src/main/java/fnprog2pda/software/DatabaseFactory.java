@@ -59,7 +59,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private Set<String> hShowFields = new HashSet<>();
 
 	private Map<String, FieldDefinition> dbFieldDefinition = new HashMap<>();
-	private List<String> dbFilterFields = new ArrayList<>();
+	private String[] dbFilterFields;
 	private List<FieldDefinition> dbSelectFields = new ArrayList<>();
 
 	private IniFile ini;
@@ -136,7 +136,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	@Override
-	public List<String> getDbFilterFields() {
+	public String[] getDbFilterFields() {
 		return dbFilterFields;
 	}
 
@@ -199,9 +199,10 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 		dbFieldDefinition.clear();
 		dbSelectFields.clear();
-		dbFilterFields.clear();
 		dbTables.clear();
-		dbFilterFields.add("");
+
+		List<String> filterFields = new ArrayList<>();
+		filterFields.add("");
 		hShowFields.clear();
 
 		MSTable table = msAccess.getMSTable(currentTable);
@@ -228,11 +229,11 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 
 		setUserFieldDefinitions();
-		setDBFieldDefinitions();
+		setDBFieldDefinitions(filterFields);
 
 		dbSelectFields = dbSelectFields.stream().sorted(Comparator.comparing(FieldDefinition::getFieldAlias))
 				.collect(Collectors.toList());
-		dbFilterFields = dbFilterFields.stream().sorted().collect(Collectors.toList());
+		dbFilterFields = filterFields.stream().sorted().toArray(String[]::new);
 	}
 
 	private List<IniSection> getSections(String key) {
@@ -395,7 +396,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 	}
 
-	private void setDBFieldDefinitions() {
+	private void setDBFieldDefinitions(List<String> filterFields) {
 		Set<String> hHidden = getSectionHash("hideColumns", "columns");
 		for (MSTable table : dbTables.values()) {
 			Set<String> hHiddenColumns = getSectionHash("hideColumns", table.getName());
@@ -416,7 +417,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 				dbSelectFields.add(field);
 				if (field.getFieldType() != FieldTypes.IMAGE) {
-					dbFilterFields.add(alias);
+					filterFields.add(alias);
 				}
 			}
 		}

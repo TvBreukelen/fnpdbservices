@@ -78,20 +78,21 @@ public class MobileDB extends PalmDB {
 			FieldDefinition field = dbInfo2Write.get(i);
 			pdbDas.writeShort(i);
 			pdbDas.writeBytes(field.getFieldHeader().isEmpty() ? field.getFieldAlias() : field.getFieldHeader());
+			boolean isNoTextExport = !field.isOutputAsText();
 
 			switch (field.getFieldType()) {
 			case BOOLEAN:
-				if (useBoolean) {
+				if (isNoTextExport) {
 					fieldTypes[i] = "B";
 				}
 				break;
 			case DATE:
-				if (useDate) {
+				if (isNoTextExport) {
 					fieldTypes[i] = "D";
 				}
 				break;
 			case TIME:
-				if (useTime) {
+				if (isNoTextExport) {
 					fieldTypes[i] = "d";
 				}
 			default:
@@ -149,7 +150,7 @@ public class MobileDB extends PalmDB {
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				dbValue = dbValue.equals("true") || dbValue.equals("ja") || dbValue.equals("yes")
-						|| dbValue.equals("1");
+				|| dbValue.equals("1");
 				break;
 			case DATE:
 				dbValue = convertDate2DB(dbValue.toString());
@@ -205,7 +206,7 @@ public class MobileDB extends PalmDB {
 		// Converts a LocalDate to a MobileDB date (no. of days since 01.01.1904)
 		LocalDate date = General.convertDB2Date(pDate);
 		LocalDate palmDate = LocalDate.of(1904, 1, 1);
-		
+
 		return String.valueOf(ChronoUnit.DAYS.between(palmDate, date));
 	}
 

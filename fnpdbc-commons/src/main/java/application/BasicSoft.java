@@ -8,7 +8,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 import application.interfaces.ExportFile;
@@ -74,7 +73,7 @@ public abstract class BasicSoft extends Observable {
 
 		try {
 			// Load TableModel
-			tabModel.setDataVector(getDataVector());
+			tabModel.setDataListMap(getDataListMap());
 		} finally {
 			timer.cancel();
 			notifyObservers(new int[] { myTotalRecord, myTotalRecord });
@@ -83,7 +82,7 @@ public abstract class BasicSoft extends Observable {
 
 	/* Write the TableModel data into the ExportFile */
 	public void convertFromTableModel(ViewerModel tabModel, GeneralDB dbOut) throws Exception {
-		List<Map<String, Object>> table = tabModel.getDataVector();
+		List<Map<String, Object>> table = tabModel.getDataListMap();
 
 		myCurrentRecord = 0;
 		myTotalRecord = table.size();
@@ -124,8 +123,8 @@ public abstract class BasicSoft extends Observable {
 		return dbTableModelFields;
 	}
 
-	public Vector<BasisField> getDbUserFields() {
-		return new Vector<>(dbUserFields);
+	public List<BasisField> getDbUserFields() {
+		return new ArrayList<>(dbUserFields);
 	}
 
 	protected void validateUserFields(List<String> validFields, boolean isDBConvert) {
@@ -292,5 +291,5 @@ public abstract class BasicSoft extends Observable {
 		return myCategories;
 	}
 
-	protected abstract List<Map<String, Object>> getDataVector() throws Exception;
+	protected abstract List<Map<String, Object>> getDataListMap() throws Exception;
 }

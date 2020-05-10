@@ -25,5 +25,18 @@ public enum FieldTypes {
 		return FieldTypes.TEXT;
 	}
 
+	public boolean isTextConvertable() {
+		switch (this) {
+		case BOOLEAN:
+		case DATE:
+		case DURATION:
+		case TIME:
+		case TIMESTAMP:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public static final int MIN_MEMO_FIELD_LEN = 120;
 }

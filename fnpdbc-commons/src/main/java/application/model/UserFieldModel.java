@@ -10,9 +10,16 @@ import application.utils.GUIFactory;
 
 public class UserFieldModel extends AbstractTableModel {
 	private static final long serialVersionUID = -3745524495569802922L;
+	private static final int COLUMN_2 = 2;
+	private static final int COLUMN_3 = 3;
 
 	private List<BasisField> tableData = new ArrayList<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
+	private boolean isTextOnly = false;
+
+	public UserFieldModel(boolean isTextOnlyExport) {
+		isTextOnly = isTextOnlyExport;
+	}
 
 	public void setTableData(List<BasisField> tableData) {
 		if (tableData != null) {
@@ -28,12 +35,17 @@ public class UserFieldModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		return col == 1;
+		return col == COLUMN_2 || col == COLUMN_3 && getValueAt(row, col) != null;
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col) {
+		return col == 3 ? Boolean.class : Object.class;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return columnNames.length;
+		return isTextOnly ? 3 : 4;
 	}
 
 	@Override
@@ -60,13 +72,19 @@ public class UserFieldModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int col) {
 		BasisField field = tableData.get(row);
-		switch(col) {
+		switch (col) {
 		case 0:
 			return field.getFieldAlias();
 		case 1:
+			String text = field.getFieldType().toString();
+			return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
+		case 2:
 			return field.getFieldHeader();
+		case 3:
+			return field.getFieldType().isTextConvertable() ? field.isOutputAsText() : null;
+		default:
+			return null;
 		}
-		return null;
 	}
 
 	@Override
@@ -77,7 +95,11 @@ public class UserFieldModel extends AbstractTableModel {
 		}
 
 		BasisField field = tableData.get(row);
-		field.setFieldHeader(s);
+		if (col == COLUMN_2)
+			field.setFieldHeader(s);
+		else if (col == COLUMN_3) {
+			field.setOutputAsText((Boolean) value);
+		}
 		fireTableCellUpdated(row, col);
 	}
 
@@ -111,10 +133,10 @@ public class UserFieldModel extends AbstractTableModel {
 		}
 		return false;
 	}
-	
+
 	public List<BasisField> getSelectedItems(int[] rows) {
 		List<BasisField> result = new ArrayList<>();
-		for(int i : rows) {
+		for (int i : rows) {
 			result.add(tableData.get(i));
 		}
 		return result;

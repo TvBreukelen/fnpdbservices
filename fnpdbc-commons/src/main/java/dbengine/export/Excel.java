@@ -108,14 +108,16 @@ public class Excel extends ExcelFile {
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				boolean b = (Boolean) dbField;
-				if (useBoolean) {
-					cell.setCellValue(b);
-				} else {
+				if (field.isOutputAsText()) {
 					cell.setCellValue(b ? getBooleanTrue() : getBooleanFalse());
+				} else {
+					cell.setCellValue(b);
 				}
 				break;
 			case DATE:
-				if (useDate) {
+				if (field.isOutputAsText()) {
+					cell.setCellValue(General.convertDate(dbValue));
+				} else {
 					LocalDate date = General.convertDB2Date(dbValue);
 					if (date == null) {
 						cell.setCellValue(dbValue);
@@ -123,8 +125,6 @@ public class Excel extends ExcelFile {
 						cell.setCellStyle(formatDate);
 						cell.setCellValue(date);
 					}
-				} else {
-					cell.setCellValue(General.convertDate(dbValue));
 				}
 				break;
 			case FUSSY_DATE:
@@ -138,11 +138,11 @@ public class Excel extends ExcelFile {
 				break;
 			case TIME:
 				String timeStr = General.convertTime(dbValue);
-				if (useTime) {
+				if (field.isOutputAsText()) {
+					cell.setCellValue(timeStr);
+				} else {
 					cell.setCellStyle(formatTime);
 					cell.setCellValue(DateUtil.convertTime(timeStr));
-				} else {
-					cell.setCellValue(timeStr);
 				}
 				break;
 			case DURATION:
@@ -160,7 +160,7 @@ public class Excel extends ExcelFile {
 			}
 		}
 
-		if (excelRow > ExcelFile.maxRowsInSheet) {
+		if (excelRow > maxRowsInSheet) {
 			createNextSheet();
 		} else {
 			excelRow++;

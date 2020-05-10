@@ -62,7 +62,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private JLabel lHeight;
 	private JLabel lWidth;
 
-	private JCheckBox[] cConvert = new JCheckBox[4];
+	private JCheckBox cConvertImages = new JCheckBox();
 	private JCheckBox btBackup;
 
 	private ActionListener funcSelectExport;
@@ -88,16 +88,16 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		};
 
 		funcSelectConvert = e -> {
-			rImages[0].setEnabled(cConvert[3].isSelected());
-			rImages[1].setEnabled(cConvert[3].isSelected());
-			rImages[2].setEnabled(cConvert[3].isSelected());
-			spHeight.setEnabled(cConvert[3].isSelected() && myExportFile != ExportFile.REFERENCER);
+			rImages[0].setEnabled(cConvertImages.isSelected());
+			rImages[1].setEnabled(cConvertImages.isSelected());
+			rImages[2].setEnabled(cConvertImages.isSelected());
+			spHeight.setEnabled(cConvertImages.isSelected() && myExportFile != ExportFile.REFERENCER);
 			spWidth.setEnabled(spHeight.isEnabled());
 		};
 
 		funcSelectDb = e -> {
 			myExportFile = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-			
+
 			pdaSettings.setProject(myExportFile.getName());
 			fdPDA.setToolTipText(myExportFile.getFileType());
 			fdPDA.setText(getDatabaseName(true));
@@ -107,7 +107,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			btEncoding.setVisible(fdEncoding.isVisible());
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
-			
+
 			String resourceID = "database";
 			switch(myExportFile) {
 			case ACCESS:
@@ -122,7 +122,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			default:
 				break;
 			}
-			
+
 			dbFileNameLabel.setText(GUIFactory.getText(resourceID));
 
 			if (myExportFile.isPasswordSupported()) {
@@ -139,10 +139,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			rExists[index].setSelected(true);
 
 			// Restore Conversion options
-			cConvert[0].setSelected(pdaSettings.isExportBoolean());
-			cConvert[1].setSelected(pdaSettings.isExportDate());
-			cConvert[2].setSelected(pdaSettings.isExportTime());
-			cConvert[3].setSelected(pdaSettings.isExportImages());
+			cConvertImages.setSelected(pdaSettings.isExportImages());
 			rImages[pdaSettings.getImageOption()].setSelected(true);
 
 			dbConfig = null;
@@ -216,7 +213,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dbNameBox.add(Box.createHorizontalStrut(5));
 		dbNameBox.add(Box.createHorizontalGlue());
 		dbNameBox.add(dbFileName);
-		
+
 		fdEncoding = new JTextField();
 		fdEncoding.setEditable(false);
 
@@ -234,10 +231,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);
 		rImages[2] = GUIFactory.getJRadioButton("imageToPng", null);
 
-		cConvert[0] = GUIFactory.getJCheckBox("booleansToCheckbox", true, funcSelectConvert);
-		cConvert[1] = GUIFactory.getJCheckBox("datesToDate", true, funcSelectConvert);
-		cConvert[2] = GUIFactory.getJCheckBox("timesToTime", true, funcSelectConvert);
-		cConvert[3] = GUIFactory.getJCheckBox("imageToImageFile", false, funcSelectConvert);
+		cConvertImages = GUIFactory.getJCheckBox("imageToImageFile", false, funcSelectConvert);
 
 		spHeight = new JSpinner(hModel);
 		lHeight = GUIFactory.getJLabel("height");
@@ -265,7 +259,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pExport.add(dbNameBox, c.gridCell(1, 4, 0, 0));
 		pExport.add(passwordBox, c.gridCell(1, 5, 0, 0));
 
-		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), cConvert);
+		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), cConvertImages);
 		pConvert.add(General.addVerticalButtons(null, rImages[0], rImages[1], rImages[2]),
 				c.gridCell(1, 4, 2, 0));
 		pConvert.add(box, c.gridCell(1, 5, 0, 0));
@@ -328,21 +322,18 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pdaSettings.setExportFile(getDatabaseName(false));
 		pdaSettings.setCreateBackup(btBackup.isEnabled() && btBackup.isSelected());
-		pdaSettings.setExportBoolean(cConvert[0].isVisible() ? cConvert[0].isSelected() : false);
-		pdaSettings.setExportDate(cConvert[1].isVisible() ? cConvert[1].isSelected() : false);
-		pdaSettings.setExportTime(cConvert[2].isVisible() ? cConvert[2].isSelected() : false);
-		pdaSettings.setExportImages(cConvert[3].isVisible() ? cConvert[3].isSelected() : false);
-		pdaSettings.setImageOption(cConvert[3].isVisible() ? index : 0);
-		pdaSettings.setImageHeight(cConvert[3].isVisible() ? hModel.getNumber().intValue() : 0);
-		pdaSettings.setImageWidth(cConvert[3].isVisible() ? wModel.getNumber().intValue() : 0);
+		pdaSettings.setExportImages(cConvertImages.isVisible() ? cConvertImages.isSelected() : false);
+		pdaSettings.setImageOption(cConvertImages.isVisible() ? index : 0);
+		pdaSettings.setImageHeight(cConvertImages.isVisible() ? hModel.getNumber().intValue() : 0);
+		pdaSettings.setImageWidth(cConvertImages.isVisible() ? wModel.getNumber().intValue() : 0);
 		pdaSettings.setExportPassword(fdPassword.getPassword());
-		
+
 		String dbFile = dbFileName.getText().trim();
 		if (dbFile.isEmpty()) {
 			dbFile = pdaSettings.getProfileID();
 			dbFileName.setText(dbFile);
 		}
-		
+
 		pdaSettings.setPdaDatabaseName(dbFile);
 
 		if (pOtherOptions.isVisible()) {
@@ -367,8 +358,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pOtherOptions);
 			break;
 		case EXCEL:
-			pTopContainer.add(pConvert);
-			pBottomContainer.add(pOtherOptions);
+			pTopContainer.add(pOtherOptions);
 			break;
 		case TEXTFILE:
 			pTopContainer.add(pOtherOptions);
@@ -384,38 +374,28 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		rExists[1].setVisible(myExportFile == ExportFile.HANDBASE);
 		passwordBox.setVisible(myExportFile.isPasswordSupported());
 
-		cConvert[0].setVisible(myExportFile.isBooleanExport());
-		cConvert[1].setVisible(myExportFile.isDateExport());
-		cConvert[2].setVisible(myExportFile.isTimeExport());
-		cConvert[3].setVisible(myExportFile.isImageExport());
+		cConvertImages.setVisible(myExportFile.isImageExport());
 
-		spHeight.setVisible(cConvert[3].isVisible());
-		spWidth.setVisible(cConvert[3].isVisible());
-		lHeight.setVisible(cConvert[3].isVisible());
-		lWidth.setVisible(cConvert[3].isVisible());
+		spHeight.setVisible(cConvertImages.isVisible());
+		spWidth.setVisible(cConvertImages.isVisible());
+		lHeight.setVisible(cConvertImages.isVisible());
+		lWidth.setVisible(cConvertImages.isVisible());
 
-		rImages[1].setVisible(cConvert[3].isVisible() && myExportFile != ExportFile.REFERENCER);
+		rImages[1].setVisible(cConvertImages.isVisible() && myExportFile != ExportFile.REFERENCER);
 		rImages[0].setVisible(rImages[1].isVisible());
 		rImages[2].setVisible(rImages[1].isVisible());
-		rImages[0].setEnabled(cConvert[3].isSelected());
-		rImages[1].setEnabled(cConvert[3].isSelected());
-		rImages[2].setEnabled(cConvert[3].isSelected());
+		rImages[0].setEnabled(cConvertImages.isSelected());
+		rImages[1].setEnabled(cConvertImages.isSelected());
+		rImages[2].setEnabled(cConvertImages.isSelected());
 
-		spHeight.setEnabled(cConvert[3].isSelected() && myExportFile != ExportFile.REFERENCER);
+		spHeight.setEnabled(cConvertImages.isSelected() && myExportFile != ExportFile.REFERENCER);
 		spWidth.setEnabled(spHeight.isEnabled());
 
-		pConvert.setVisible(cConvert[0].isVisible() || cConvert[1].isVisible() || cConvert[2].isVisible()
-				|| cConvert[3].isVisible());
+		pConvert.setVisible(cConvertImages.isVisible());
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
 
 		dbFileName.setVisible(myExportFile != ExportFile.TEXTFILE);
 		dbFileNameLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
-		
-		if (pTopContainer.isVisible() && myExportFile != ExportFile.LIST && myExportFile != ExportFile.XML) {
-			pTopContainer.setBorder(BorderFactory.createRaisedBevelBorder());
-		} else {
-			pTopContainer.setBorder(null);
-		}
 
 		if (dbConfig != null) {
 			dbConfig.activateComponents();

@@ -1,7 +1,8 @@
 package application.model;
 
 import java.time.LocalDateTime;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.table.AbstractTableModel;
@@ -23,7 +24,7 @@ public class ProjectModel extends AbstractTableModel {
 	public static final int HEADER_LASTEXPORT = 7;
 	public static final int HEADER_NOTES = 8;
 
-	private Vector<ProfileObject> tableData = new Vector<>();
+	private List<ProfileObject> tableData = new ArrayList<>();
 
 	private JComponent parent;
 	private Profiles objectData;

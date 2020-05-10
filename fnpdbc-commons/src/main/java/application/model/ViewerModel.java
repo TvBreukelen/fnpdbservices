@@ -1,10 +1,10 @@
 package application.model;
 
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
@@ -24,7 +24,7 @@ public class ViewerModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = -4971384644052737284L;
 	private List<FieldDefinition> fieldList;
-	private List<Map<String, Object>> tableData = new Vector<>();
+	private List<Map<String, Object>> tableData = new ArrayList<>();
 
 	private Font font;
 	private boolean[] columnsVisible;
@@ -44,11 +44,11 @@ public class ViewerModel extends AbstractTableModel {
 		Arrays.fill(columnsVisible, true);
 	}
 
-	public List<Map<String, Object>> getDataVector() {
+	public List<Map<String, Object>> getDataListMap() {
 		return tableData;
 	}
 
-	public void setDataVector(List<Map<String, Object>> data) {
+	public void setDataListMap(List<Map<String, Object>> data) {
 		tableData = data;
 	}
 

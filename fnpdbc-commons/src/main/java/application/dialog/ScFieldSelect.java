@@ -1,7 +1,6 @@
 package application.dialog;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -21,6 +20,7 @@ import javax.swing.JTable;
 
 import application.interfaces.IDatabaseFactory;
 import application.model.UserFieldModel;
+import application.table.BooleanRenderer;
 import application.table.ETable;
 import application.utils.BasisField;
 import application.utils.GUIFactory;
@@ -29,11 +29,11 @@ import application.utils.gui.XGridBagConstraints;
 
 public class ScFieldSelect {
 	/**
-	 * Title: ScFieldSelect Description: Export Fields Selection Copyright: (c)
-	 * 2004-2012
+	 * Export Fields Selection
 	 *
 	 * @author Tom van Breukelen
 	 * @version 8
+	 * @since 2004
 	 */
 	private JButton btUp;
 	private JButton btDown;
@@ -49,6 +49,7 @@ public class ScFieldSelect {
 	private DefaultListModel<BasisField> availableModel;
 	private UserFieldModel userModel;
 	private IDatabaseFactory factory;
+	private boolean isTextExport = false;
 
 	public ScFieldSelect(IDatabaseFactory factory) {
 		this.factory = factory;
@@ -56,12 +57,23 @@ public class ScFieldSelect {
 	}
 
 	private void init() {
+		isTextExport = factory.getExportFile().isTextExport();
+
 		availableModel = new DefaultListModel<>();
 		lstAvailableFields = new JList<>(availableModel);
 		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
 
-		userModel = new UserFieldModel();
+		userModel = new UserFieldModel(isTextExport);
 		tbSelectedFields = new ETable(userModel);
+		tbSelectedFields.setDefaultRenderer(Boolean.class, new BooleanRenderer(tbSelectedFields));
+
+		tbSelectedFields.getColumnModel().getColumn(0).setPreferredWidth(120);
+		tbSelectedFields.getColumnModel().getColumn(1).setPreferredWidth(20);
+		tbSelectedFields.getColumnModel().getColumn(2).setPreferredWidth(120);
+
+		if (!isTextExport) {
+			tbSelectedFields.getColumnModel().getColumn(3).setPreferredWidth(30);
+		}
 
 		funcAddFields = e -> {
 			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
@@ -160,17 +172,14 @@ public class ScFieldSelect {
 				}
 			}
 		};
+
 		tbSelectedFields.addMouseListener(mouseListener);
 		scSelectedFields = new JScrollPane(tbSelectedFields);
 		scSelectedFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("selectedFields")));
 
-		Dimension dim = scSelectedFields.getPreferredSize();
-		dim.setSize(scroll.getPreferredSize().getHeight(), dim.getWidth() * .7);
-		scSelectedFields.setPreferredSize(dim);
-
 		panel.add(scroll, c.gridCell(1, 0, 2, 1));
 		panel.add(createButtonPanel(), c.gridCell(2, 0, 0, 0));
-		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
+		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 2));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
 		lstAvailableFields.setSelectedIndex(0);

@@ -11,7 +11,7 @@ public interface IDatabaseFactory {
 
 	List<FieldDefinition> getDbSelectFields();
 
-	List<String> getDbFilterFields();
+	String[] getDbFilterFields();
 
 	List<Object> getDbFieldValues(String pField) throws Exception;
 
