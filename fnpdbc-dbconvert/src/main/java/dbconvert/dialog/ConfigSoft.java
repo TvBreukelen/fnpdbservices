@@ -100,6 +100,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		this.dialog = dialog;
 		this.model = model;
 		isNewProfile = isNew;
+		setMinimumSize(new Dimension(500, 350));
 		init();
 	}
 
@@ -250,7 +251,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	private JPanel createFieldPanel() {
 		JPanel result = new JPanel(new BorderLayout());
 		result.add(fieldSelect.createFieldPanel(), BorderLayout.CENTER);
-		result.setPreferredSize(new Dimension(600, 550));
 		return result;
 	}
 

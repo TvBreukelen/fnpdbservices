@@ -67,14 +67,6 @@ public class ScFieldSelect {
 		tbSelectedFields = new ETable(userModel);
 		tbSelectedFields.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 
-		tbSelectedFields.getColumnModel().getColumn(0).setPreferredWidth(120);
-		tbSelectedFields.getColumnModel().getColumn(1).setPreferredWidth(20);
-		tbSelectedFields.getColumnModel().getColumn(2).setPreferredWidth(120);
-
-		if (!isTextExport) {
-			tbSelectedFields.getColumnModel().getColumn(3).setPreferredWidth(30);
-		}
-
 		funcAddFields = e -> {
 			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
 			int selectedRow = tbSelectedFields.getSelectedRow();
@@ -177,9 +169,9 @@ public class ScFieldSelect {
 		scSelectedFields = new JScrollPane(tbSelectedFields);
 		scSelectedFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("selectedFields")));
 
-		panel.add(scroll, c.gridCell(1, 0, 2, 1));
+		panel.add(scroll, c.gridCell(1, 0, 1, 1));
 		panel.add(createButtonPanel(), c.gridCell(2, 0, 0, 0));
-		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 2));
+		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
 		lstAvailableFields.setSelectedIndex(0);
