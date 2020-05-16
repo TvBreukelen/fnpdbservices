@@ -124,6 +124,13 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+Version 8.7.1
+-------------
+The rather confusing conversion settings for booleans, times and dates has disappeared. It is now
+possible to change the export for these values on a field by field basis.
+A bug prevented to include author roles in the BookCAT export, this has been fixed. 
+
+
 Version 8.7
 -----------
 Cleaned up General Config dialog.

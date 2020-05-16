@@ -2,6 +2,7 @@ package application;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -44,7 +45,7 @@ public abstract class BasicSoft extends Observable {
 	protected List<FieldDefinition> dbInfoToWrite = new ArrayList<>(); // Export fields for the export file
 	protected Map<String, FieldDefinition> dbFieldDefinition; // Definition of all fields in the database
 	protected List<BasisField> dbUserFields = new ArrayList<>(); // User defined fields (note: userFields +
-																	// dbSpecialFields = dbInfoToWrite)
+	// dbSpecialFields = dbInfoToWrite)
 
 	protected boolean isFilterDefined;
 	protected ExportFile myExportFile = ExportFile.EXCEL;
@@ -88,9 +89,12 @@ public abstract class BasicSoft extends Observable {
 		myTotalRecord = table.size();
 
 		dbOut.createDbHeader();
+		Map<String, Object> dbRecord = new HashMap<>();
 		for (Map<String, Object> rowData : table) {
-			dbOut.processData(dbTableModelFields.stream().collect(Collectors.toMap(FieldDefinition::getFieldAlias,
-					field -> rowData.getOrDefault(field.getFieldAlias(), ""))));
+			dbRecord.clear();
+			dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
+					rowData.getOrDefault(field.getFieldAlias(), "")));
+			dbOut.processData(dbRecord);
 			setChanged();
 			myCurrentRecord++;
 		}
@@ -145,7 +149,7 @@ public abstract class BasicSoft extends Observable {
 		SpecialFields dbSpecialFields = pdaSettings.getSpecialFields();
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		dbTableModelFields.stream().filter(b -> dbSpecialFields.getSpecialFields().contains(b.getFieldAlias()))
-				.forEach(b -> b.setExport(true));
+		.forEach(b -> b.setExport(true));
 		dbInfoToWrite = dbTableModelFields.stream().filter(b -> b.isExport()).collect(Collectors.toList());
 	}
 
@@ -198,6 +202,7 @@ public abstract class BasicSoft extends Observable {
 				break;
 			case NUMBER:
 				filterValue = Integer.toString(Integer.MIN_VALUE);
+				break;
 			default:
 				break;
 			}

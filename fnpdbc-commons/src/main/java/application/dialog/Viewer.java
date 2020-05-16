@@ -57,7 +57,7 @@ public class Viewer extends BasicDialog {
 		};
 
 		myTable.setDefaultRenderer(Object.class, new ObjectRenderer(dbFields));
-		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer(myTable));
+		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 		myTable.setDefaultRenderer(Number.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Float.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Double.class, new ObjectRenderer(dbFields));

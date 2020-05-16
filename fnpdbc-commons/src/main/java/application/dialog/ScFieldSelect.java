@@ -65,7 +65,7 @@ public class ScFieldSelect {
 
 		userModel = new UserFieldModel(isTextExport);
 		tbSelectedFields = new ETable(userModel);
-		tbSelectedFields.setDefaultRenderer(Boolean.class, new BooleanRenderer(tbSelectedFields));
+		tbSelectedFields.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 
 		tbSelectedFields.getColumnModel().getColumn(0).setPreferredWidth(120);
 		tbSelectedFields.getColumnModel().getColumn(1).setPreferredWidth(20);

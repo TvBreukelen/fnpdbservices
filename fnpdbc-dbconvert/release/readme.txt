@@ -148,6 +148,9 @@ Used SonarCube to improve code quality
 Fixed MS-Access empty cells bug
 Improved Textfile export
 Used Restful Service API to perform SourceForge version check
+The rather confusing conversion settings for booleans, times
+and dates has disappeared. It is now possible to change the
+export for these values on a field by field basis.
 
 
 Version 6.2.2
