@@ -18,7 +18,7 @@
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
-    <minVersion>1.7.0</minVersion>
+    <minVersion>1.8.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>8.7.0.0</fileVersion>
-    <txtFileVersion>Version 8.7</txtFileVersion>
+    <fileVersion>8.8.0.0</fileVersion>
+    <txtFileVersion>Version 8.8</txtFileVersion>
     <fileDescription>FNProg2PDA</fileDescription>
     <copyright>Tom van Breukelen 2003-2020</copyright>
-    <productVersion>8.7.0.0</productVersion>
-    <txtProductVersion>Version 8.7</txtProductVersion>
+    <productVersion>8.8.0.0</productVersion>
+    <txtProductVersion>Version 8.8</txtProductVersion>
     <productName>FNProg2PDA</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>FNProg2PDA</internalName>
