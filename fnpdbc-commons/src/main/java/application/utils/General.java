@@ -72,6 +72,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.MattePainter;
@@ -104,6 +105,8 @@ public final class General {
 	public static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Win");
 	public static final boolean IS_X64 = System.getProperty("sun.arch.data.model", "32").equals("64");
 	public static final boolean IS_GTK = UIManager.getLookAndFeel().getClass().getName().contains("GTK");
+	
+	private static Map<String, ImageIcon> ICON_MAP = new HashedMap<>();
 
 	private static boolean isQuietMode = false;
 
@@ -441,16 +444,19 @@ public final class General {
 	}
 
 	public static ImageIcon createImageIcon(String image) {
-		try {
-			URL url = image.getClass().getResource("/images/" + image);
-			if (url == null) {
-				return new ImageIcon("images/" + image);
-			}
-			return new ImageIcon(url);
-		} catch (Exception e) {
-			//
+		ImageIcon result = ICON_MAP.get(image);
+		if (result != null) {
+			return result;
 		}
-		return null;
+		
+		try {
+			URL url = General.class.getResource("/images/" + image);
+			result = url == null ? new ImageIcon("/images/" + image) : new ImageIcon(url);
+			ICON_MAP.put(image, result);
+			
+		} catch (Exception e) {
+		}
+		return result;
 	}
 
 	public static JButton createToolBarButton(String toolTip, String iconFile, ActionListener action) {
