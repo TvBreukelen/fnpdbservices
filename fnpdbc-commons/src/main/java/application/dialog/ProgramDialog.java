@@ -173,7 +173,7 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 			HelpDialog help = new HelpDialog(GUIFactory.getText(MENU_HELP) + " - " + getTitle(), myHelpFile);
 			help.setVisible(true);
 		};
-		
+
 		funcLanguage = e -> {
 			String language = e.getActionCommand();
 			if (generalSettings.getLanguage().equals(language)) {
@@ -401,7 +401,7 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 	public void clickEdit() {
 		btEdit.doClick();
 	}
-	
+
 	private Component createWelcomeScreen() {
 		isProfileSet = false;
 
@@ -430,7 +430,7 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 			if (version.compareTo(software.getVersion()) > 0) {
 				if (General.showConfirmMessage(this, GUIFactory.getMessage("newVersion", version, software.getName()),
 						GUIFactory.getText(CHECK_VERSION))) {
-					General.gotoWebsite(software.getDownload());
+					General.gotoWebsite(software.getSupport());
 				}
 			} else if (!isSilent) {
 				General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText(CHECK_VERSION),
@@ -553,7 +553,7 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 		});
 
 		MainTableSelectionListener listener = new MainTableSelectionListener(table, this);
-		
+
 		table.setRowSorter(sortModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -731,7 +731,7 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 			result.add(createLanguageMenu());
 			result.add(createLookAndFeelMenu());
 		}
-		
+
 		result.add(GUIFactory.getJMenuItem("menuConfigGeneral", e -> {
 			ConfigGeneral view = new ConfigGeneral();
 			view.setVisible(true);

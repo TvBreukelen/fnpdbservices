@@ -744,15 +744,18 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	private boolean setKeywordFilter(Set<Object> idSet) throws Exception {
+		final String KEYWORD = "Keyword";
+		final String KEYWORD_ID = "KeywordID";
+
 		idSet.clear();
 		if (!pdaSettings.getKeywordFilter().isEmpty()) {
 			Object kwFilter = pdaSettings.getKeywordFilter();
 
-			MSTable table = dbFactory.getMSTable("Keyword");
-			Map<String, Object> map = msAccess.getSingleRecord("Keyword",
-					table.isIndexedColumn("Keyword") ? "Keyword" : null, Collections.singletonMap("Keyword", kwFilter));
-			if (!map.isEmpty() && !setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), "KeywordID",
-					Collections.singletonMap("KeywordID", map.get("KeywordID"))))) {
+			MSTable table = dbFactory.getMSTable(KEYWORD);
+			Map<String, Object> map = msAccess.getSingleRecord(KEYWORD, table.isIndexedColumn(KEYWORD) ? KEYWORD : null,
+					Collections.singletonMap(KEYWORD, kwFilter));
+			if (!map.isEmpty() && !setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), KEYWORD_ID,
+					Collections.singletonMap(KEYWORD_ID, map.get(KEYWORD_ID))))) {
 				pdaSettings.setKeywordFilter("");
 				return false;
 			}

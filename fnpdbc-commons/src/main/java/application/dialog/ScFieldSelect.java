@@ -49,7 +49,6 @@ public class ScFieldSelect {
 	private DefaultListModel<BasisField> availableModel;
 	private UserFieldModel userModel;
 	private IDatabaseFactory factory;
-	private boolean isTextExport = false;
 
 	public ScFieldSelect(IDatabaseFactory factory) {
 		this.factory = factory;
@@ -57,7 +56,7 @@ public class ScFieldSelect {
 	}
 
 	private void init() {
-		isTextExport = factory.getExportFile().isTextExport();
+		boolean isTextExport = factory.getExportFile().isTextExport();
 
 		availableModel = new DefaultListModel<>();
 		lstAvailableFields = new JList<>(availableModel);

@@ -30,12 +30,6 @@ public class InternetSitesMenu {
 		menuItem.addActionListener(listener);
 		soft.add(menuItem);
 
-		menuItem = new JMenuItem("Download Site");
-		menuItem.setActionCommand(software.getDownload());
-		menuItem.setToolTipText(software.getDownload());
-		menuItem.addActionListener(listener);
-		soft.add(menuItem);
-
 		IniFile in = General.getIniFile("config/InternetSites.ini");
 
 		in.getSections().forEach(ini -> {

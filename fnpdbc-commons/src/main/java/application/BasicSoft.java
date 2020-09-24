@@ -150,7 +150,7 @@ public abstract class BasicSoft extends Observable {
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		dbTableModelFields.stream().filter(b -> dbSpecialFields.getSpecialFields().contains(b.getFieldAlias()))
 		.forEach(b -> b.setExport(true));
-		dbInfoToWrite = dbTableModelFields.stream().filter(b -> b.isExport()).collect(Collectors.toList());
+		dbInfoToWrite = dbTableModelFields.stream().filter(FieldDefinition::isExport).collect(Collectors.toList());
 	}
 
 	protected void verifyFilter() {
@@ -224,12 +224,14 @@ public abstract class BasicSoft extends Observable {
 
 		int idx = 0;
 		try {
+			idx = obj.toString().compareTo(filterValue);
 			switch (field.getFieldType()) {
 			case DATE:
 				if (obj instanceof Date) {
 					idx = General.convertDate2DB((Date) obj).compareTo(filterValue);
 					break;
 				}
+				break;
 			case FLOAT:
 				idx = ((Double) obj).compareTo(Double.valueOf(filterValue));
 				break;
@@ -241,8 +243,9 @@ public abstract class BasicSoft extends Observable {
 					idx = General.convertTimestamp2DB((Date) obj).compareTo(filterValue);
 					break;
 				}
+				break;
 			default:
-				idx = obj.toString().compareTo(filterValue);
+				break;
 			}
 		} catch (Exception ex) {
 			// Database field isn't a valid NumberField

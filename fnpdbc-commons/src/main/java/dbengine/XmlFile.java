@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -87,6 +88,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 				out.flush();
 				out.close();
 			} catch (Exception e) {
+				// Do Nothing?
 			}
 			out = null;
 			outFile = null;
@@ -112,13 +114,13 @@ public class XmlFile extends GeneralDB implements IConvert {
 	public void processData(Map<String, Object> dbRecord) throws Exception {
 		if (myPref.isForceSort()) {
 			int i = -1;
-			for (String s : hElements.keySet()) {
+			for (Entry<String, String> entry : hElements.entrySet()) {
 				i++;
-				String oValue = hElements.get(s);
-				String nValue = dbRecord.get(s).toString();
+				String oValue = entry.getValue();
+				String nValue = dbRecord.get(entry.getKey()).toString();
 
 				if (!oValue.equals(nValue)) {
-					hElements.put(s, nValue);
+					hElements.put(entry.getKey(), nValue);
 
 					nodes[i] = doc.createElement(hFields.get(i).getFieldHeader());
 					nodes[i].setAttribute("value", nValue);
@@ -141,6 +143,10 @@ public class XmlFile extends GeneralDB implements IConvert {
 			nodes[index] = doc.createElement("Row");
 		}
 
+		createXmlDocument(dbRecord);
+	}
+
+	private void createXmlDocument(Map<String, Object> dbRecord) {
 		for (FieldDefinition field : dbWrite) {
 			Object dbField = convertDataFields(dbRecord.get(field.getFieldName()), field);
 			if (dbField == null) {
@@ -163,8 +169,8 @@ public class XmlFile extends GeneralDB implements IConvert {
 			xmlRoot = "Results";
 		}
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
+		DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = df.newDocumentBuilder();
 		doc = builder.newDocument();
 		results = doc.createElement(xmlRoot);
 		doc.appendChild(results);

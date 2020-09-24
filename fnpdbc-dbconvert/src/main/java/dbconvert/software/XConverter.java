@@ -400,7 +400,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
-	protected List<Map<String, Object>> getDataListMap() throws Exception {
+	protected List<Map<String, Object>> getDataListMap() {
 		List<Map<String, Object>> result = new ArrayList<>();
 		List<Map<String, Object>> listMap = myModel.getDataListMap();
 
