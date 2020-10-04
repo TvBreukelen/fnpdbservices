@@ -1037,7 +1037,7 @@ public final class General {
 			if (mesg == null) {
 				mesg = GUIFactory.getText("internalProgramError");
 			}
-			System.out.println(title + ":" + mesg);
+			System.out.println(title + ": " + mesg);
 			return;
 		}
 		JOptionPane.showMessageDialog(parent, setDialogText(mesg), title,

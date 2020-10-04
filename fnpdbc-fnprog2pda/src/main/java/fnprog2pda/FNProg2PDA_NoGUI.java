@@ -132,6 +132,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 			mySoftware.setCategories(); // Obtain categories (when required)
 
 			mySoftware.startMonitoring(this); // Start monitoring process
+			mySoftware.refreshSpecialFields();
 			mySoftware.processFiles(tabModel);
 			mySoftware.close(); // Close Database
 		} catch (Exception e) {

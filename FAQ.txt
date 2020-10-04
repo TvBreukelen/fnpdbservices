@@ -39,6 +39,7 @@ On a Mac:
 
 On a Linux PC
 - unzip the installation zip file into a directory of your liking.
+- grant DBConvert.jar/FNProg2PDA.jar execute rights
 
 
 5. What is the main difference between the Windows and Mac/Linux versions?
@@ -90,6 +91,9 @@ http://sourceforge.net/projects/fnprog2pda
 
 There you can also find information about forthcoming versions as well as the
 latest (pre)releases of the programs.
+
+If you are interested in the source code then have a look at:
+https://github.com/TvBreukelen/fnpdbservices
 
 
 10. What are your plans with DBConvert and FNProg2PDA for the future?
