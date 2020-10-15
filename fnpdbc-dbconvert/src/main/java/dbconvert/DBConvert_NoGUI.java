@@ -1,7 +1,7 @@
 package dbconvert;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
@@ -12,16 +12,16 @@ import application.utils.General;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
 
-public class DBConvert_NoGUI implements Observer {
+public class DBConvert_NoGUI implements PropertyChangeListener {
 	private String myProfileID;
 	private ExportFile databaseType;
-	private int recordsRead;
 
 	private PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
 	private Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
 
 	private XConverter mySoftware;
 	private ViewerModel tabModel;
+	private boolean loadModel;
 
 	public DBConvert_NoGUI(String... args) {
 		TvBSoftware software = TvBSoftware.DBCONVERT;
@@ -66,11 +66,10 @@ public class DBConvert_NoGUI implements Observer {
 	}
 
 	@Override
-	public void update(Observable obj, Object arg) {
-		int[] records = (int[]) arg;
-		System.out.println(GUIFactory.getMessage(records[1] > recordsRead ? "recordsRead" : "recordsProcessed",
-				Integer.toString(records[0])));
-		recordsRead = records[0];
+	public void propertyChange(PropertyChangeEvent evt) {
+		int record = (int) evt.getNewValue();
+		System.out.println(
+				GUIFactory.getMessage((loadModel ? "recordsRead" : "recordsProcessed"), Integer.toString(record)));
 	}
 
 	private void runExport() throws Exception {
@@ -114,13 +113,13 @@ public class DBConvert_NoGUI implements Observer {
 		System.out.println("--------------------------------------------------------\n");
 
 		mySoftware = new XConverter();
+		loadModel = true;
 
 		try {
 			mySoftware.connect2DB();
 			mySoftware.setupDBTranslation(false);
 			mySoftware.checkNumberOfFields();
 			tabModel = new ViewerModel(mySoftware.getTableModelFields());
-			mySoftware.startMonitoring(this);
 			mySoftware.openToFile();
 			mySoftware.loadInputFile();
 			mySoftware.processFiles(tabModel);
@@ -132,6 +131,7 @@ public class DBConvert_NoGUI implements Observer {
 		}
 
 		// Start Export
+		loadModel = false;
 		mySoftware.openToFile();
 		mySoftware.convertFromTableModel(tabModel, mySoftware.getDbOut());
 		mySoftware.close(); // Close export file

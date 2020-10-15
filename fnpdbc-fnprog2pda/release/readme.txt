@@ -79,7 +79,8 @@ For Linux
 ---------
 1. Unpack the Zip file in your Applications folder
 
-2. Ensure that you always open the FNProg2PDA.jar with the Java runtime
+2. Grant FNProg2PDA.jar or FNProg2PDA.sh execute permissions. If you intend to run FNProg2PDA in
+   batch mode, grant FNProg2PDA_batch.sh execute permissions as well.
 
 
 ============================================================
@@ -123,6 +124,18 @@ General Public License for more details.
 ===================================================================================================
 4. What is New?
 ===================================================================================================
+
+Version 8.8.1
+-------------
+Added bash startup scripts for runnung FNProg2PDA under Línux in standard and batch mode
+Renamed FNProg2PDA_NoGUI to FNProg2PDA_batch
+Bugfix: problem with running FNProg2PDA_NoGUI
+
+
+Version 8.8
+-----------
+Bugfix: under Linux icons were not shown
+
 
 Version 8.7.1
 -------------

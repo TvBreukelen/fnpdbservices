@@ -72,7 +72,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 
 		try {
 			// Start Export
-			mySoftware.startMonitoring(myProgram);
+			mySoftware.addObserver(myProgram);
 			mySoftware.openToFile();
 			mySoftware.convertFromTableModel(xView.getTableModel(), mySoftware.getDbOut());
 			mySoftware.close(); // Close export file
@@ -101,7 +101,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 		mySoftware.checkNumberOfFields();
 		xView = new Viewer(mySoftware.getTableModelFields());
 		myProgram.getProgressBar().setMaximum(mySoftware.getTotalRecords());
-		mySoftware.startMonitoring(myProgram);
+		mySoftware.addObserver(myProgram);
 		mySoftware.processFiles(xView.getTableModel());
 		xView.getTableModel().resetColumnVisibility();
 		xView.buildViewer();

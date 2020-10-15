@@ -12,13 +12,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -82,7 +82,7 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.InternetSitesMenu;
 
-public abstract class ProgramDialog extends JFrame implements Observer {
+public abstract class ProgramDialog extends JFrame implements PropertyChangeListener {
 	public enum Action {
 		ADD, EDIT, CLONE, DELETE, TABCHANGE
 	}
@@ -768,15 +768,17 @@ public abstract class ProgramDialog extends JFrame implements Observer {
 	}
 
 	@Override
-	public void update(Observable obj, Object arg) {
-		int[] value = (int[]) arg;
-		if (value[0] != progressBar.getMaximum()) {
+	public void propertyChange(PropertyChangeEvent evt) {
+		int newValue = (int) evt.getNewValue();
+		int oldValue = (int) evt.getOldValue();
+
+		if (oldValue != progressBar.getMaximum()) {
 			// filter has been applied, need to lower progress bar max value
-			progressBar.setMaximum(value[0]);
+			progressBar.setMaximum(oldValue);
 		}
 
-		progressBar.setValue(value[1]);
-		progressText.setText(" " + Integer.toString(value[1]) + " Records");
+		progressBar.setValue(newValue);
+		progressText.setText(" " + Integer.toString(newValue) + " Records");
 	}
 
 	public void enableForm(boolean enable) {

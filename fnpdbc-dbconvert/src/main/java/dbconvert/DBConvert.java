@@ -6,6 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 
 import application.preferences.GeneralSettings;
 import application.utils.GUIFactory;
@@ -47,7 +48,7 @@ public class DBConvert {
 
 		frame = new ConfigDBConvert(true);
 		frame.setIconImage(General.createImageIcon("PDA.png").getImage());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.pack();
 
 		frame.setVisible(true);

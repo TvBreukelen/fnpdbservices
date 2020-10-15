@@ -1,7 +1,7 @@
 package fnprog2pda;
 
-import java.util.Observable;
-import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FNPSoftware;
@@ -14,16 +14,16 @@ import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.FNProgramvare;
 import fnprog2pda.utils.ConvertOldVersion;
 
-public class FNProg2PDA_NoGUI implements Observer {
+public class FNProg2PDA_NoGUI implements PropertyChangeListener {
 
 	private String myProfileID;
 	private ExportFile databaseType;
-	private int recordsRead;
 
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
 	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 
 	private FNProgramvare mySoftware;
+	private boolean loadModel;
 
 	public FNProg2PDA_NoGUI(String... args) {
 		TvBSoftware software = TvBSoftware.FNPROG2PDA;
@@ -69,11 +69,10 @@ public class FNProg2PDA_NoGUI implements Observer {
 	}
 
 	@Override
-	public void update(Observable obj, Object arg) {
-		int[] records = (int[]) arg;
-		System.out.println(GUIFactory.getMessage(records[1] > recordsRead ? "recordsRead" : "recordsProcessed",
-				Integer.toString(records[0])));
-		recordsRead = records[0];
+	public void propertyChange(PropertyChangeEvent evt) {
+		int record = (int) evt.getNewValue();
+		System.out.println(
+				GUIFactory.getMessage((loadModel ? "recordsRead" : "recordsProcessed"), Integer.toString(record)));
 	}
 
 	private void runExport() throws Exception {
@@ -124,6 +123,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 			pdaSettings.setTableName(soft.getViews()[0], true);
 		}
 
+		loadModel = true;
 		try {
 			mySoftware.openFile(); // Connect to the FNProgramvare Access database
 			mySoftware.setupDBTranslation(false);
@@ -131,7 +131,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 			mySoftware.checkNumberOfFields(false, tabModel); // Plausibility check 1
 			mySoftware.setCategories(); // Obtain categories (when required)
 
-			mySoftware.startMonitoring(this); // Start monitoring process
+			mySoftware.addObserver(this); // Start monitoring process
 			mySoftware.refreshSpecialFields();
 			mySoftware.processFiles(tabModel);
 			mySoftware.close(); // Close Database
@@ -141,6 +141,7 @@ public class FNProg2PDA_NoGUI implements Observer {
 			return;
 		}
 
+		loadModel = false;
 		mySoftware.checkNumberOfFields(true, tabModel); // Plausibility check 2
 		mySoftware.openToFile();
 		mySoftware.convertFromTableModel(tabModel, mySoftware.getDbOut());

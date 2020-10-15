@@ -61,7 +61,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 				mySoftware.checkNumberOfFields(false, xView.getTableModel()); // Plausibility check
 				mySoftware.setCategories(); // Obtain categories (when required)
 
-				mySoftware.startMonitoring(myProgram);
+				mySoftware.addObserver(myProgram);
 				mySoftware.processFiles(xView.getTableModel());
 				mySoftware.refreshSpecialFields();
 				xView.getTableModel().resetColumnVisibility();
@@ -87,7 +87,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 			mySoftware.checkNumberOfFields(true, xView.getTableModel());
 			mySoftware.openToFile();
 			myProgram.getProgressBar().setMaximum(mySoftware.getTotalRecords());
-			mySoftware.startMonitoring(myProgram); // Update the progressbar automatically
+			mySoftware.addObserver(myProgram); // Update the progressbar automatically
 			mySoftware.convertFromTableModel(xView.getTableModel(), mySoftware.getDbOut());
 			mySoftware.close(); // Close output file
 			mySoftware.runConversionProgram(myProgram);

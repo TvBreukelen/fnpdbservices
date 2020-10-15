@@ -1,12 +1,12 @@
 package application;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.utils.SpecialFields;
 
-public abstract class BasicSoft extends Observable {
+public abstract class BasicSoft {
 	/**
 	 * Title: BasicSoft
 	 *
@@ -33,9 +33,9 @@ public abstract class BasicSoft extends Observable {
 	 * @author Tom van Breukelen
 	 * @version 6.0
 	 */
-	protected int myTotalRecord = 0;
+	protected int totalRecords = 0;
 	protected int firstRecord = 0;
-	protected int myCurrentRecord = 0;
+	private int currentRecord = 0;
 
 	protected static final int LISTDB_MAX_CATEGORIES = 15;
 	protected static final int LISTDB_MAX_CATEGORY_LENGTH = 15;
@@ -45,7 +45,7 @@ public abstract class BasicSoft extends Observable {
 	protected List<FieldDefinition> dbInfoToWrite = new ArrayList<>(); // Export fields for the export file
 	protected Map<String, FieldDefinition> dbFieldDefinition; // Definition of all fields in the database
 	protected List<BasisField> dbUserFields = new ArrayList<>(); // User defined fields (note: userFields +
-	// dbSpecialFields = dbInfoToWrite)
+																	// dbSpecialFields = dbInfoToWrite)
 
 	protected boolean isFilterDefined;
 	protected ExportFile myExportFile = ExportFile.EXCEL;
@@ -55,9 +55,35 @@ public abstract class BasicSoft extends Observable {
 	protected int numFilter;
 	private Timer timer;
 
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
 	public BasicSoft(Profiles profile) {
 		pdaSettings = profile;
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
+	}
+
+	public void addObserver(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+
+		timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				setCurrentRecord(currentRecord);
+			}
+		}, 1000, 500);
+	}
+
+	public void increaseCurrentRecord() {
+		currentRecord++;
+	}
+
+	public void setCurrentRecord(int value) {
+		int oldValue = value == totalRecords ? 0 : totalRecords;
+		currentRecord = value;
+		if (value > 0) {
+			pcs.firePropertyChange("currentRecord", oldValue, currentRecord);
+		}
 	}
 
 	public ExportFile getImportFile() {
@@ -70,14 +96,14 @@ public abstract class BasicSoft extends Observable {
 
 	/* Read the input file and load the input records in the TableModel */
 	public void processFiles(ViewerModel tabModel) throws Exception {
-		myCurrentRecord = 0;
+		setCurrentRecord(0);
 
 		try {
 			// Load TableModel
 			tabModel.setDataListMap(getDataListMap());
 		} finally {
 			timer.cancel();
-			notifyObservers(new int[] { myTotalRecord, myTotalRecord });
+			setCurrentRecord(totalRecords);
 		}
 	}
 
@@ -85,8 +111,8 @@ public abstract class BasicSoft extends Observable {
 	public void convertFromTableModel(ViewerModel tabModel, GeneralDB dbOut) throws Exception {
 		List<Map<String, Object>> table = tabModel.getDataListMap();
 
-		myCurrentRecord = 0;
-		myTotalRecord = table.size();
+		setCurrentRecord(0);
+		totalRecords = table.size();
 
 		dbOut.createDbHeader();
 		Map<String, Object> dbRecord = new HashMap<>();
@@ -95,28 +121,12 @@ public abstract class BasicSoft extends Observable {
 			dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
 					rowData.getOrDefault(field.getFieldAlias(), "")));
 			dbOut.processData(dbRecord);
-			setChanged();
-			myCurrentRecord++;
+			currentRecord++;
 		}
 
 		timer.cancel();
-		notifyObservers(new int[] { myTotalRecord, myTotalRecord });
+		setCurrentRecord(totalRecords);
 		dbOut.closeData();
-	}
-
-	public void startMonitoring(Observer obj) {
-		deleteObservers();
-		addObserver(obj);
-
-		timer = new Timer();
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if (BasicSoft.this.hasChanged()) {
-					notifyObservers(new int[] { myTotalRecord, myCurrentRecord + 1 });
-				}
-			}
-		}, 1000, 500);
 	}
 
 	public List<FieldDefinition> getDbInfoToWrite() {
@@ -149,7 +159,7 @@ public abstract class BasicSoft extends Observable {
 		SpecialFields dbSpecialFields = pdaSettings.getSpecialFields();
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		dbTableModelFields.stream().filter(b -> dbSpecialFields.getSpecialFields().contains(b.getFieldAlias()))
-		.forEach(b -> b.setExport(true));
+				.forEach(b -> b.setExport(true));
 		dbInfoToWrite = dbTableModelFields.stream().filter(FieldDefinition::isExport).collect(Collectors.toList());
 	}
 
@@ -292,7 +302,7 @@ public abstract class BasicSoft extends Observable {
 	}
 
 	public int getTotalRecords() {
-		return myTotalRecord;
+		return totalRecords;
 	}
 
 	public List<String> getCategories() {

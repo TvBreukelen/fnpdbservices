@@ -112,7 +112,8 @@ For Linux
 ---------
 1. Unpack the Zip file in your Applications folder
 
-2. Ensure that you always open the DBConvert.jar with the Java runtime
+2. Grant DBConvert.jar or DBConvert.sh execute permissions. If you intend to run DBConvert in
+   Batch mode than add execute permissions to DBConvert_batch.sh as well
 
 
 ============================================================
@@ -140,6 +141,12 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 6.3.1
+-------------
+Added bash scripts for running DBConvert in batch and standard mode.
+Bugfix: under Linux buttons were shown without an icon.
+ 
 
 Version 6.3
 -----------

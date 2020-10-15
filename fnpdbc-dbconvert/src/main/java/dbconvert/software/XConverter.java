@@ -1,6 +1,8 @@
 package dbconvert.software;
 
 import java.awt.Component;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -57,6 +59,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	private static final String FILTER_FIELD = "{filterfield}";
 
+	private PropertyChangeSupport support;
+	private String recordsRead;
+
 	private ViewerModel myModel; // Tablemodel containing all records of the inputfile
 
 	/*
@@ -74,6 +79,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		dbDataRecord.clear();
 		myImportFile = ExportFile.getExportFile(dbSettings.getDatabaseType());
+		support = new PropertyChangeSupport(this);
 	}
 
 	// Called via ConfigSoft.verifyDatabase
@@ -112,7 +118,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void setupDBTranslation(boolean isNew) throws Exception {
 		// Load filter and mapping fields
 		List<FieldDefinition> dbFields = dbIn.getTableModelFields();
-		myTotalRecord = dbIn.getTotalRecords() - firstRecord;
+		totalRecords = dbIn.getTotalRecords() - firstRecord;
 
 		// Load dbFieldDefinition, dbSelectFields and dbFilterFields with all available
 		// fields of dbIn
@@ -267,7 +273,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
 		// Write all records into the table model
-		for (int i = 0; i < myTotalRecord; i++) {
+		for (int i = 0; i < totalRecords; i++) {
 			Map<String, Object> pRead = dbIn.readRecord();
 			if (pRead == null) {
 				emptyRecord++;
@@ -280,9 +286,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				pRead.put(FILTER_FIELD, true);
 			}
 
-			dbTableModelFields.stream().filter(filter).forEach(field ->
-			field.setSize(pRead.getOrDefault(field.getFieldAlias(), ""))
-					);
+			dbTableModelFields.stream().filter(filter)
+					.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 
 			result.add(pRead);
 
@@ -301,7 +306,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		Collections.sort(myCategories);
 		myCategories.add(0, "Unfiled");
-		myTotalRecord -= emptyRecord;
+		totalRecords -= emptyRecord;
 		myModel.setDataListMap(result);
 	}
 
@@ -394,7 +399,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		// Check if there are any records to process
-		if (myTotalRecord == 0) {
+		if (totalRecords == 0) {
 			throw FNProgException.getException("noRecordsFound", myImportFile.getName());
 		}
 	}
@@ -404,14 +409,13 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		List<Map<String, Object>> result = new ArrayList<>();
 		List<Map<String, Object>> listMap = myModel.getDataListMap();
 
-		myCurrentRecord = 0;
+		setCurrentRecord(0);
 		for (Map<String, Object> tableRecord : listMap) {
 			if ((Boolean) tableRecord.get(FILTER_FIELD)) {
 				continue;
 			}
 			result.add(tableRecord);
-			setChanged();
-			myCurrentRecord++;
+			increaseCurrentRecord();
 		}
 		return result;
 	}
@@ -469,6 +473,19 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		// Save last export date
 		pdaSettings.setLastModified(General.convertTimestamp2DB(new Date()));
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
+		support.addPropertyChangeListener(pcl);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener pcl) {
+		support.removePropertyChangeListener(pcl);
+	}
+
+	public void setRecordsRead(String value) {
+		support.firePropertyChange("recordsRead", recordsRead, value);
+		recordsRead = value;
 	}
 
 	@Override

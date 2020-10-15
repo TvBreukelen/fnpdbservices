@@ -241,7 +241,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		dbFactory.getMSAccess().verifyDatabase(null);
 		msAccess = dbFactory.getMSAccess();
 		msAccess.setSoftware(this);
-		myTotalRecord = msAccess.getTotalRecords();
+		totalRecords = msAccess.getTotalRecords();
 	}
 
 	public void close() {
@@ -323,7 +323,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		final String separator = myTable.equals("BoxSet") ? "\n" : "; ";
 
 		cursor = null;
-		myCurrentRecord = 0;
+		setCurrentRecord(0);
 
 		prepareFilters(hFilterTable, keywordList);
 
@@ -334,7 +334,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		boolean isFilterSubset = !keywordList.isEmpty();
 
 		if (isFilterSubset) {
-			myTotalRecord = keywordList.size();
+			totalRecords = keywordList.size();
 			iter = keywordList.iterator();
 		} else {
 			if (cursor == null) {
@@ -347,7 +347,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		while (true) {
-			myCurrentRecord++;
+			increaseCurrentRecord();
 
 			hashTable.clear();
 			Map<String, Object> dbRecord = new HashMap<>(); // stores a single record
@@ -459,7 +459,6 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 
 			setTableRecord(dbRecord, hashTable, result);
-			setChanged();
 		}
 
 		if (!hTextFields.isEmpty()) {
@@ -886,7 +885,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		pWrite.add(pRead);
 
 		dbTableModelFields.stream().filter(filter)
-		.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
+				.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 	}
 
 	public void checkNumberOfFields(boolean isExport, ViewerModel model) throws Exception {
@@ -897,7 +896,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		if (isExport) {
-			myTotalRecord = model == null ? 0 : model.getRowCount();
+			totalRecords = model == null ? 0 : model.getRowCount();
 			if (userFields > myExportFile.getMaxFields()) {
 				throw FNProgException.getException("maxFieldsOverride", Integer.toString(userFields),
 						myExportFile.getName(), Integer.toString(myExportFile.getMaxFields()));
@@ -905,7 +904,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		// Check if there are any records to process
-		if (myTotalRecord == 0) {
+		if (totalRecords == 0) {
 			throw FNProgException.getException("noRecordsFound", pdaSettings.getProfileID());
 		}
 
