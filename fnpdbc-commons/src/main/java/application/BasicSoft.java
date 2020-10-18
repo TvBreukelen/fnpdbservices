@@ -35,7 +35,7 @@ public abstract class BasicSoft {
 	 */
 	protected int totalRecords = 0;
 	protected int firstRecord = 0;
-	private int currentRecord = 0;
+	protected int currentRecord = 0;
 
 	protected static final int LISTDB_MAX_CATEGORIES = 15;
 	protected static final int LISTDB_MAX_CATEGORY_LENGTH = 15;
@@ -72,10 +72,6 @@ public abstract class BasicSoft {
 				setCurrentRecord(currentRecord);
 			}
 		}, 1000, 500);
-	}
-
-	public void increaseCurrentRecord() {
-		currentRecord++;
 	}
 
 	public void setCurrentRecord(int value) {

@@ -415,7 +415,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				continue;
 			}
 			result.add(tableRecord);
-			increaseCurrentRecord();
+			currentRecord++;
 		}
 		return result;
 	}

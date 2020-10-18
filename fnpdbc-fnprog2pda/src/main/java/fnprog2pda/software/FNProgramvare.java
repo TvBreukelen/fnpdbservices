@@ -347,7 +347,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		while (true) {
-			increaseCurrentRecord();
+			currentRecord++;
 
 			hashTable.clear();
 			Map<String, Object> dbRecord = new HashMap<>(); // stores a single record
