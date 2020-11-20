@@ -23,45 +23,49 @@ public final class Utils {
 	public static final int ALIGN_LEFT = 10;
 	public static final int ALIGN_RIGHT = 12;
 
-	public static byte[] trimLeftSpaces(byte[] arr) {
-		StringBuilder t_sb = new StringBuilder(arr.length);
-		for (byte element : arr) {
-			if (element != ' ') {
-				t_sb.append((char) element);
-			}
-		}
-		return t_sb.toString().getBytes();
+	private Utils() {
+		// Hide constructor
 	}
 
-	public static byte[] textPadding(String text, String characterSetName, int length) throws Exception {
+	public static byte[] trimLeftSpaces(byte[] arr) {
+		StringBuilder sb = new StringBuilder(arr.length);
+		for (byte element : arr) {
+			if (element != ' ') {
+				sb.append((char) element);
+			}
+		}
+		return sb.toString().getBytes();
+	}
+
+	public static byte[] textPadding(String text, String characterSetName, int length) {
 		return textPadding(text, characterSetName, length, Utils.ALIGN_LEFT);
 	}
 
-	public static byte[] textPadding(String text, String characterSetName, int length, int alignment) throws Exception {
+	public static byte[] textPadding(String text, String characterSetName, int length, int alignment) {
 		return textPadding(text, characterSetName, length, alignment, (byte) ' ');
 	}
 
-	public static byte[] textPadding(String text, String characterSetName, int length, int alignment, byte paddingByte)
-			throws Exception {
+	public static byte[] textPadding(String text, String characterSetName, int length, int alignment,
+			byte paddingByte) {
 
 		if (text.length() >= length) {
 			return General.convertString2Bytes(text.substring(0, length), characterSetName);
 		}
 
-		byte byte_array[] = new byte[length];
-		Arrays.fill(byte_array, paddingByte);
+		byte[] byteArray = new byte[length];
+		Arrays.fill(byteArray, paddingByte);
 
 		if (alignment == ALIGN_RIGHT) {
-			int t_offset = length - text.length();
-			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byte_array, t_offset,
+			int tOffset = length - text.length();
+			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byteArray, tOffset,
 					text.length());
 		} else {
-			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byte_array, 0, text.length());
+			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byteArray, 0, text.length());
 		}
-		return byte_array;
+		return byteArray;
 	}
 
-	public static byte[] numberFormating(Number num, DBFField field) throws Exception {
+	public static byte[] numberFormating(Number num, DBFField field) {
 		return textPadding(getDecimalFormat(field.getFieldLength(), field.getDecimalCount()).format(num), "",
 				field.getFieldLength(), ALIGN_RIGHT);
 	}

@@ -97,12 +97,12 @@ public class DBFReader extends DBFBase {
 			boolean isDeleted = false;
 			do {
 				if (isDeleted) {
-					dataInputStream.skip((long)header.recordLength - 1);
+					dataInputStream.skip((long) header.recordLength - 1);
 				}
 
 				int tByte = dataInputStream.readByte();
 				if (tByte == END_OF_DATA) {
-					return null;
+					return new Object[0];
 				}
 
 				isDeleted = tByte == '*';
@@ -143,7 +143,7 @@ public class DBFReader extends DBFBase {
 						dataInputStream.read(bNumeric);
 						bNumeric = Utils.trimLeftSpaces(bNumeric);
 						if (bNumeric.length > 0 && !Utils.contains(bNumeric, (byte) '?')) {
-							recordObjects[i] = new Double(new String(bNumeric).replace(',', '.'));
+							recordObjects[i] = Double.valueOf(new String(bNumeric).replace(',', '.'));
 						} else {
 							recordObjects[i] = null;
 						}
@@ -190,7 +190,7 @@ public class DBFReader extends DBFBase {
 				}
 			}
 		} catch (EOFException e) {
-			return null;
+			return new Object[0];
 		}
 		return recordObjects;
 	}

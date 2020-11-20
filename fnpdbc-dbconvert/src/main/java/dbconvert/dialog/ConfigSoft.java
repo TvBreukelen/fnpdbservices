@@ -232,6 +232,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		gPanel.add(textImport, c.gridmultipleCell(1, 4, 2, 0, 4, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
+		myView = isNewProfile ? "" : fdDatabase.getText().trim();
+
 		if (isNewProfile) {
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			p1.setBorder(BorderFactory.createEtchedBorder());
@@ -240,6 +242,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			p1.add(Box.createHorizontalStrut(10));
 			p1.add(profile);
 			panel.add(p1);
+		} else {
+			FilterData filter = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
+			filter.loadProfile(pdaSettings);
+			SortData data = sortDataMap.computeIfAbsent(myView, e -> new SortData());
+			data.loadProfile(pdaSettings);
 		}
 
 		panel.add(gPanel);

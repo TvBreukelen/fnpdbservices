@@ -284,7 +284,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		List<FieldDefinition> dbDef = getTableModelFields();
 
 		Object[] rowObjects = reader.nextRecord();
-		if (rowObjects == null) {
+		if (rowObjects.length == 0) {
 			return null;
 		}
 
@@ -302,6 +302,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				if (rowObjects[i] instanceof Double) {
 					dbField = ((Double) dbField).intValue();
 				}
+				break;
 			default:
 				break;
 			}

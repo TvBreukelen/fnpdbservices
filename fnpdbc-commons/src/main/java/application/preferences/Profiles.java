@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.prefs.Preferences;
 
 import application.interfaces.ExportFile;
@@ -14,7 +15,6 @@ import application.interfaces.TvBSoftware;
 import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.General;
-import dbengine.utils.SpecialFields;
 
 public abstract class Profiles extends Project implements IEncoding {
 	// General Settings
@@ -704,8 +704,8 @@ public abstract class Profiles extends Project implements IEncoding {
 		}
 	}
 
-	public SpecialFields getSpecialFields() {
-		SpecialFields result = new SpecialFields();
+	public Set<String> getSpecialFields() {
+		Set<String> result = new HashSet<>();
 		ExportFile exp = ExportFile.getExportFile(getProjectID());
 
 		if (userList.isEmpty() || !exp.isSpecialFieldSort()) {
@@ -719,7 +719,7 @@ public abstract class Profiles extends Project implements IEncoding {
 
 		// Add Category field to user fields
 		if (!categoryField.isEmpty() && !set.contains(categoryField)) {
-			result.addField(categoryField);
+			result.add(categoryField);
 		}
 		return result;
 	}

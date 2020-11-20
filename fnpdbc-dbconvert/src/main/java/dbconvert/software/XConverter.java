@@ -35,7 +35,6 @@ import dbengine.IConvert;
 import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
-import dbengine.utils.SpecialFields;
 
 public class XConverter extends BasicSoft implements IDatabaseFactory {
 	/**
@@ -223,10 +222,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			validateUserFields(usrList, true);
 		}
 
-		// Add special fields for list, smartlist, Referencer or Xml to the fields to
+		// Add special fields for list, Referencer or Xml to the fields to
 		// export and to write, but deactivate their visability
-		SpecialFields dbSpecialFields = pdaSettings.getSpecialFields();
-		for (String dbField : dbSpecialFields.getSpecialFields()) {
+		for (String dbField : pdaSettings.getSpecialFields()) {
 			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
 			if (fieldDef == null) {
 				pdaSettings.removeSortField(dbField);
@@ -237,7 +235,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				dbTableModelFields.add(new FieldDefinition(dbField, fieldDef.getFieldType(), false));
 			}
 		}
-		refreshSpecialFields(); // activate visibility in table model for list, smartlist, Referencer or Xml
+		refreshSpecialFields(); // activate visibility in table model for list, Referencer or Xml
 	}
 
 	@Override

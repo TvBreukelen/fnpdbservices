@@ -157,6 +157,7 @@ public class DBFWriter extends DBFBase {
 					throw new Exception("Invalid value '" + values[i].toString() + "' for numeric field "
 							+ header.fieldArray[i].getName());
 				}
+			default:
 				break;
 			}
 		}

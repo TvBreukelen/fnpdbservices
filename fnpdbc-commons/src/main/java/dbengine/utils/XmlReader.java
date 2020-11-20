@@ -3,6 +3,8 @@ package dbengine.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -11,12 +13,12 @@ import org.xml.sax.helpers.DefaultHandler;
 import application.interfaces.FieldTypes;
 
 public class XmlReader extends DefaultHandler {
-	private ArrayList<String> fieldNames = new ArrayList<>();
-	private ArrayList<FieldTypes> fieldTypes = new ArrayList<>();
-	private HashSet<String> fieldSet = new HashSet<>();
-	private ArrayList<HashMap<String, Object>> dbRecords = new ArrayList<>();
+	private List<String> fieldNames = new ArrayList<>();
+	private List<FieldTypes> fieldTypes = new ArrayList<>();
+	private Set<String> fieldSet = new HashSet<>();
+	private List<HashMap<String, Object>> dbRecords = new ArrayList<>();
 	private HashMap<String, Object> workRecord = new HashMap<>();
-	private HashSet<String> processList = new HashSet<>();
+	private Set<String> processList = new HashSet<>();
 	private StringBuilder buf = new StringBuilder();
 	private String rootElement = "";
 
@@ -31,7 +33,7 @@ public class XmlReader extends DefaultHandler {
 			}
 
 			String s = new String(text, start, length).trim();
-			if (s.equals("")) {
+			if (s.isEmpty()) {
 				return;
 			}
 
@@ -49,19 +51,19 @@ public class XmlReader extends DefaultHandler {
 	@SuppressWarnings("unchecked")
 	public void startElement(String uri, String name, String qName, Attributes atts) {
 		if (rootElement.equals("")) {
-			rootElement = name;
+			rootElement = qName;
 			return;
 		}
 
-		if (processList.contains(name)) {
+		if (processList.contains(qName)) {
 			// New block
 			dbRecords.add((HashMap<String, Object>) workRecord.clone());
 			processList.clear();
 
-			int index = fieldNames.indexOf(name);
+			int index = fieldNames.indexOf(qName);
 			if (index == -1) {
 				if (atts.getLength() > 0) {
-					index = fieldNames.indexOf(name + "." + atts.getLocalName(0));
+					index = fieldNames.indexOf(qName + "." + atts.getLocalName(0));
 				}
 
 				if (index == -1) {
@@ -74,10 +76,10 @@ public class XmlReader extends DefaultHandler {
 			}
 		}
 
-		processList.add(name);
+		processList.add(qName);
 
 		for (int i = 0; i < atts.getLength(); i++) {
-			String s = name + "." + atts.getLocalName(i);
+			String s = qName + "." + atts.getLocalName(i);
 			fillFieldNamesAndTypes(s);
 			workRecord.put(s, atts.getValue(i));
 		}
@@ -94,8 +96,8 @@ public class XmlReader extends DefaultHandler {
 	@Override
 	public void endElement(String uri, String name, String qName) {
 		if (buf.length() > 0) {
-			fillFieldNamesAndTypes(name);
-			workRecord.put(name, buf.toString());
+			fillFieldNamesAndTypes(qName);
+			workRecord.put(qName, buf.toString());
 			buf = new StringBuilder();
 		}
 	}
@@ -110,15 +112,15 @@ public class XmlReader extends DefaultHandler {
 		return rootElement;
 	}
 
-	public ArrayList<String> getFieldNames() {
+	public List<String> getFieldNames() {
 		return fieldNames;
 	}
 
-	public ArrayList<FieldTypes> getFieldTypes() {
+	public List<FieldTypes> getFieldTypes() {
 		return fieldTypes;
 	}
 
-	public ArrayList<HashMap<String, Object>> getDbRecords() {
+	public List<HashMap<String, Object>> getDbRecords() {
 		return dbRecords;
 	}
 }

@@ -12,8 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -22,8 +25,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
@@ -65,10 +66,13 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 		if (isInputFile) {
 			splitDbInfoToWrite();
-			XMLReader parser = XMLReaderFactory.createXMLReader();
+
 			handler = new XmlReader();
-			parser.setContentHandler(handler);
-			parser.parse(myFilename);
+			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+			SAXParser parser = parserFactory.newSAXParser();
+			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			parser.parse(myFilename, handler);
 		} else {
 			outFile.delete();
 			out = new BufferedWriter(
@@ -99,12 +103,13 @@ public class XmlFile extends GeneralDB implements IConvert {
 	public void deleteFile() {
 		closeFile();
 		outFile = new File(myFilename);
+		boolean deleted = true;
 
 		if (outFile.exists()) {
-			outFile.delete();
+			deleted = outFile.delete();
 		}
 
-		if (hasBackup) {
+		if (hasBackup && deleted) {
 			File backupFile = new File(myFilename + ".bak");
 			backupFile.renameTo(outFile);
 		}
@@ -170,6 +175,9 @@ public class XmlFile extends GeneralDB implements IConvert {
 		}
 
 		DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
+		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
 		DocumentBuilder builder = df.newDocumentBuilder();
 		doc = builder.newDocument();
 		results = doc.createElement(xmlRoot);
@@ -229,6 +237,8 @@ public class XmlFile extends GeneralDB implements IConvert {
 	public void closeData() {
 		DOMSource domSource = new DOMSource(doc);
 		TransformerFactory tf = TransformerFactory.newInstance();
+		tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 		tf.setAttribute("indent-number", 4);
 
 		try {
@@ -239,6 +249,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 			StreamResult sr = new StreamResult(out);
 			transformer.transform(domSource, sr);
 		} catch (Exception e) {
+			// Nothing to do
 		}
 	}
 

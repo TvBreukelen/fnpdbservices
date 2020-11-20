@@ -41,12 +41,12 @@ public class MSTable {
 		setIndex(idx.getName());
 		isMultiColumnIndex = idx.getColumns().size() > 1;
 
-		for (Index index : lIndex) {
-			if (index.isPrimaryKey()) {
-				setIndex(index.getName());
-				isMultiColumnIndex = index.getColumns().size() > 1;
+		for (Index key : lIndex) {
+			if (key.isPrimaryKey()) {
+				setIndex(key.getName());
+				isMultiColumnIndex = key.getColumns().size() > 1;
 			}
-			hIndex.add(index.getName());
+			hIndex.add(key.getName());
 		}
 	}
 
@@ -128,6 +128,7 @@ public class MSTable {
 			}
 		case 0:
 			name = args[0];
+			break;
 		default:
 			break;
 		}

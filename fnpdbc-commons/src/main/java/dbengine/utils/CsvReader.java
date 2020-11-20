@@ -8,7 +8,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CsvReader {
 	/**
@@ -30,7 +31,7 @@ public class CsvReader {
 	private String[] headers = new String[0];
 	private int headersCount;
 
-	private Hashtable<String, Integer> headerIndexByName = new Hashtable<>();
+	private Map<String, Integer> headerIndexByName = new HashMap<>();
 	private char[] columnBuffer = new char[100];
 	private int columnBufferSize = 100;
 	private int maxColumnCount = 10;

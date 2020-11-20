@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
@@ -21,7 +22,6 @@ import application.utils.BasisField;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.GeneralDB;
-import dbengine.utils.SpecialFields;
 
 public abstract class BasicSoft {
 	/**
@@ -152,9 +152,9 @@ public abstract class BasicSoft {
 	}
 
 	public void refreshSpecialFields() {
-		SpecialFields dbSpecialFields = pdaSettings.getSpecialFields();
+		Set<String> dbSpecialFields = pdaSettings.getSpecialFields();
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		dbTableModelFields.stream().filter(b -> dbSpecialFields.getSpecialFields().contains(b.getFieldAlias()))
+		dbTableModelFields.stream().filter(b -> dbSpecialFields.contains(b.getFieldAlias()))
 				.forEach(b -> b.setExport(true));
 		dbInfoToWrite = dbTableModelFields.stream().filter(FieldDefinition::isExport).collect(Collectors.toList());
 	}

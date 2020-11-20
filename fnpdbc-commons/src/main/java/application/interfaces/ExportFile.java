@@ -82,7 +82,6 @@ public enum ExportFile {
 			exportList.remove(ACCESS.name);
 		}
 
-
 		String[] result = new String[exportList.size()];
 		exportList.toArray(result);
 		return result;
@@ -178,7 +177,7 @@ public enum ExportFile {
 	}
 
 	public boolean isFixedFieldLength() {
-		switch(this) {
+		switch (this) {
 		case DBASE3:
 		case DBASE4:
 		case DBASE5:

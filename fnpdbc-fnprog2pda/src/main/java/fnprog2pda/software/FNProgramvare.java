@@ -44,7 +44,6 @@ import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
-import dbengine.utils.SpecialFields;
 import fnprog2pda.preferences.PrefFNProg;
 
 public abstract class FNProgramvare extends BasicSoft {
@@ -168,10 +167,9 @@ public abstract class FNProgramvare extends BasicSoft {
 			validateUserFields(usrList, false);
 		}
 
-		// Add special fields for list, SmartList, Referencer or XML to the fields to
+		// Add special fields for list, Referencer or XML to the fields to
 		// export and to write
-		SpecialFields dbSpecialFields = pdaSettings.getSpecialFields();
-		for (String dbField : dbSpecialFields.getSpecialFields()) {
+		for (String dbField : pdaSettings.getSpecialFields()) {
 			if (addField(dbField, usrList, false, false) == null) {
 				pdaSettings.removeSortField(dbField);
 			}

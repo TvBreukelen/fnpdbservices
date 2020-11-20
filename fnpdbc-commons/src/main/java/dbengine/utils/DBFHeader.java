@@ -171,6 +171,7 @@ public class DBFHeader {
 				break;
 			case SIG_FOXPRO:
 				signature = SIG_FOXPRO_WITH_MEMO;
+				break;
 			default:
 				break;
 			}
