@@ -181,7 +181,7 @@ public class ConfigFilter extends BasicDialog {
 				switch (dbDef.getFieldType()) {
 				case FLOAT:
 				case NUMBER:
-					formattedText[index].setValue(new Double(value.toString()));
+					formattedText[index].setValue(Double.valueOf(value.toString()));
 					break;
 				case DATE:
 					datePicker.setDate(General.convertDB2Date(filterValue[index]));
@@ -281,8 +281,8 @@ public class ConfigFilter extends BasicDialog {
 		time.setFormatForMenuTimes(General.sdInternalTime);
 
 		dateTimePicker = new DateTimePicker(date1, time);
-		dateTimePicker.addDateTimeChangeListener(
-				e -> filterValue[(Integer) dateTimePicker.getClientProperty(INDEX)] = General
+		dateTimePicker
+				.addDateTimeChangeListener(e -> filterValue[(Integer) dateTimePicker.getClientProperty(INDEX)] = General
 						.convertTimestamp2DB(dateTimePicker.getDateTimePermissive()));
 
 		datePicker = new DatePicker(date2);
@@ -508,7 +508,7 @@ public class ConfigFilter extends BasicDialog {
 			formattedText[index].setActionCommand(Integer.toString(index));
 
 			try {
-				formattedText[index].setValue(new Double(filterValue[index]));
+				formattedText[index].setValue(Double.valueOf(filterValue[index]));
 			} catch (Exception e) {
 				formattedText[index].setValue(0);
 			}

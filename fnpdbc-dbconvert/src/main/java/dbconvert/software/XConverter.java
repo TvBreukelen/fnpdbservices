@@ -126,7 +126,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		dbSelectFields = new ArrayList<>();
 
 		List<String> filterFields = new ArrayList<>();
-		// dbFilterFields = new ArrayList<>();
 		filterFields.add("");
 
 		for (int i = 0; i < maxFields; i++) {
@@ -493,7 +492,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	@Override
 	public ExportFile getExportFile() {
-		return myExportFile;
+		return ExportFile.getExportFile(pdaSettings.getProjectID());
 	}
 
 	@Override

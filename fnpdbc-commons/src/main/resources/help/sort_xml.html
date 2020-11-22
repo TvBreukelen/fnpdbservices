@@ -1,0 +1,59 @@
+<html>
+<body>
+<h1>XML Sort Order</h2>
+
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><img src="../images/Delete.png"></td>
+<td>Clears all sort fields</td>
+</tr>
+<tr>
+<td><img src="../images/Help.png"></td>
+<td>Shows this help screen</td>
+</tr>
+<tr>
+<td><img src="../images/Exit.png"></td>
+<td>Exits this screen</td>
+</tr>
+<tr>
+<td>Apply</td>
+<td>Apply the changes made on this screen</td>
+</tr>
+</table>
+<br>
+
+<h2>XML Field Definition</h2>
+
+An XML file is structured in a tree like fashion. From the root-element, defined in the PDA Database Name field on the
+ previous screen, elements "sprout" from the root-element like leaves on a tree.
+<br><br>
+
+<h3>Re-Sort (DBConvert only)</h3>
+This little insignificant looking checkbox has an huge impact on how DBConvert creates your new xml file. When selected,
+ DBConvert sorts the records to be exported by element. If the original import file is already correctly sorted then it is
+ better to deactivate the checkbox, because that reduces memory consumption and processing time.
+<br><br>
+
+<h3>Elements</h3>
+In this screen you can define up to 4 fields to be used as sorted element. Each field you choose here, acts as an container
+ for the elements to follow.
+<br><br>
+
+<h3>Example</h3>
+Imagine that you are exporting a Books database, a logical element sort order would then be:<br><br>
+
+Element 1: Author<br>
+Element 2: Series<br>
+Element 3: Title
+
+<p>The result would then be something like this:</p>
+
+<img src="../images/XmlExample.gif">
+
+</body>
+</html>

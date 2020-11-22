@@ -78,7 +78,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	transient PrefFNProg pdaSettings = PrefFNProg.getInstance();
 	transient DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 	private ExportFile myExportFile;
-	private ConfigMiscellaneous miscDialog;
 
 	transient Map<String, MiscellaneousData> miscDataMap = new HashMap<>();
 	transient Map<String, FilterData> filterDataMap = new HashMap<>();
@@ -112,7 +111,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		btMisc = General.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
-			miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
+			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
 			miscDialog.setVisible(true);
 		});
 
@@ -343,7 +342,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private void refreshViews() {
 		myImportFile = dbFactory.getDatabaseType();
 		fdView.removeActionListener(funcSelectView);
-		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>(myImportFile.getViews());
+		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(myImportFile.getViews());
 		fdView.setModel(model);
 	}
 

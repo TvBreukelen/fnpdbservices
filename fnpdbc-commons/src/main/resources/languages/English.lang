@@ -146,6 +146,7 @@ funcRemove.tooltip=Remove the selected Profile
 funcRemove.mesg=OK, to remove Profile '%0' ?
 funcRemoveFields.tooltip=Remove selected field(s)
 funcRemoveFilter.tooltip=Clear all filters
+funcRemoveSort.tooltip=Clear all sort fields
 funcRename.mesg=Rename '%0' to
 funcRename.tooltip=Rename the selected Profile
 funcRestore.text=Restore

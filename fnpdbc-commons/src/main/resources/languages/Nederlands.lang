@@ -146,6 +146,7 @@ funcRemove.tooltip=Verwijder het geselekteerde profiel
 funcRemove.mesg=Druk op OK om Profiel '%0' te verwijderen.
 funcRemoveFields.tooltip=Verwijder de geselekteerde veld(en)
 funcRemoveFilter.tooltip=Verwijder alle filters
+funcRemoveSort.tooltip=Leeg alle sorteer velden
 funcRename.mesg=Benoem '%0' om tot
 funcRename.tooltip=Benoem het geselekteerde profiel om
 funcRestore.text=Herstel

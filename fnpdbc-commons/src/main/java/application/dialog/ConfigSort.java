@@ -2,9 +2,12 @@ package application.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,15 +20,15 @@ import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
 import application.model.SortData;
 import application.utils.GUIFactory;
+import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 
 public class ConfigSort extends BasicDialog {
 	/**
 	 * Title: ScFieldSort Description: FNProgramvare Software Sort Configuration
-	 * parms Copyright: (c) 2005
 	 *
 	 * @author Tom van Breukelen
-	 * @version 4.5
+	 * @version 4.5+
 	 */
 	private static final long serialVersionUID = -1957596896864461526L;
 
@@ -34,13 +37,12 @@ public class ConfigSort extends BasicDialog {
 	private JLabel[] lbSortField;
 	private JCheckBox ckSort;
 	private final int numSort;
-
 	private boolean isDbConvert;
 
 	private String[] dbFilterFields;
 	private ExportFile myExportFile;
 
-	private SortData pdaSettings;
+	private transient SortData pdaSettings;
 
 	@SuppressWarnings("unchecked")
 	public ConfigSort(IDatabaseFactory dbFactory, SortData data) {
@@ -60,13 +62,13 @@ public class ConfigSort extends BasicDialog {
 
 		switch (myExportFile) {
 		case LIST:
-			setHelpFile("field_definition_list");
+			setHelpFile("sort_list");
 			break;
 		case REFERENCER:
-			setHelpFile("field_definition_referencer");
+			setHelpFile("sort_referencer");
 			break;
 		case XML:
-			setHelpFile("field_definition_xml");
+			setHelpFile("sort_xml");
 			break;
 		default:
 			setHelpFile("sort_order");
@@ -85,8 +87,15 @@ public class ConfigSort extends BasicDialog {
 		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
 		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
 		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
+		setMinimumSize(new Dimension(400, 200));
 	}
-	
+
+	@Override
+	protected Component addToToolbar() {
+		return General.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png",
+				e -> Arrays.stream(cbSortField).forEach(cb -> cb.setSelectedItem("")));
+	}
+
 	@Override
 	protected Component createCenterPanel() {
 		JPanel result = new JPanel(new GridBagLayout());
@@ -149,19 +158,18 @@ public class ConfigSort extends BasicDialog {
 	}
 
 	private String findFilterField(String field) {
-		for(String filter : dbFilterFields) {
-			if(filter.equals(field)) {
+		for (String filter : dbFilterFields) {
+			if (filter.equals(field)) {
 				return filter;
 			}
 		}
 		return "";
 	}
-	
-	
+
 	@Override
 	protected void save() throws Exception {
 		boolean isSortSelected = false;
-		HashSet<String> map = new HashSet<>();
+		Set<String> map = new HashSet<>();
 		int index = 0;
 
 		pdaSettings.clearSortFields();
@@ -192,13 +200,6 @@ public class ConfigSort extends BasicDialog {
 			return;
 		}
 
-		for (int i = 0; i < numSort; i++) {
-			if (cbSortField[i].getSelectedIndex() > 0) {
-				ckSort.setEnabled(true);
-				return;
-			}
-		}
-
-		ckSort.setEnabled(false);
+		ckSort.setEnabled(Arrays.stream(cbSortField).anyMatch(cb -> cb.getSelectedIndex() > 0));
 	}
 }
