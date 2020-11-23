@@ -125,9 +125,15 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+Version 8.9
+-----------
+Updated help files. Added Delete button to the Sort dialog. Updated deprecated code.
+Minor bugfixes.
+
+
 Version 8.8.1
 -------------
-Added bash startup scripts for runnung FNProg2PDA under Línux in standard and batch mode
+Added bash startup scripts for running FNProg2PDA under Linux in standard and batch mode
 Renamed FNProg2PDA_NoGUI to FNProg2PDA_batch
 Bugfix: problem with running FNProg2PDA_NoGUI
 

@@ -142,6 +142,13 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 6.4
+-----------
+Updated help files. Added Delete button to the Sort dialog. Updated deprecated code.
+Bugfix: Sort and Filter settings didn't load/save properly.
+Minor bugfixes.
+
+
 Version 6.3.1
 -------------
 Added bash scripts for running DBConvert in batch and standard mode.
