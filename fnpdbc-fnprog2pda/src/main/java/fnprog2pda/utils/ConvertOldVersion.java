@@ -1,20 +1,13 @@
 package fnprog2pda.utils;
 
-import java.util.Date;
-import java.util.List;
-
 import application.interfaces.TvBSoftware;
 import application.preferences.GeneralSettings;
-import application.preferences.Profiles;
-import fnprog2pda.preferences.PrefFNProg;
 
 public class ConvertOldVersion {
-	private static Profiles pdaSettings = PrefFNProg.getInstance();
-
 	private ConvertOldVersion() {
 		// Hide constructor
 	}
-	
+
 	public static void convert() {
 		GeneralSettings myGeneralSettings = GeneralSettings.getInstance();
 		String version = myGeneralSettings.getFnpVersion();
@@ -26,41 +19,7 @@ public class ConvertOldVersion {
 		if (!myGeneralSettings.isNoVersionCheck()) {
 			myGeneralSettings.setCheckVersionDate();
 		}
-		
-		if (!version.startsWith("6.2")) {
-			convertDateFields();
-		}
-		
+
 		myGeneralSettings.setFnpVersion(TvBSoftware.FNPROG2PDA.getVersion());
-	}
-
-	private static void convertDateFields() {
-		List<String> projects = pdaSettings.getProjects();
-
-		if (projects.isEmpty()) {
-			// Nothing to do
-			return;
-		}
-
-		for (String project : projects) {
-			for (String profile : pdaSettings.getProfiles(project)) {
-				pdaSettings.setProject(project);
-				pdaSettings.setProfile(profile);
-
-				String lastSaved = pdaSettings.getLastSaved();
-				if (lastSaved.isEmpty()) {
-					// Nothing to do
-					continue;
-				}
-
-				Date date;
-				try {
-					date = new Date(Long.valueOf(lastSaved));
-				} catch(Exception e) {
-					date = new Date();
-				}
-				pdaSettings.setLastSaved(date);
-			}
-		}
 	}
 }

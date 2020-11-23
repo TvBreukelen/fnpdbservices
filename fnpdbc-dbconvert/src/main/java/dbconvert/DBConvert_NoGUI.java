@@ -36,7 +36,6 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 				return;
 			}
 
-			// ConvertOldVersion.convert(TvBSoftware.DBCONVERT);
 			String exportID = args[maxProfiles];
 			databaseType = ExportFile.getExportFile(exportID);
 			if (!exportID.equalsIgnoreCase(databaseType.getName())) {
@@ -69,7 +68,7 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		int record = (int) evt.getNewValue();
 		System.out.println(
-				GUIFactory.getMessage((loadModel ? "recordsRead" : "recordsProcessed"), Integer.toString(record)));
+				GUIFactory.getMessage(loadModel ? "recordsRead" : "recordsProcessed", Integer.toString(record)));
 	}
 
 	private void runExport() throws Exception {

@@ -264,9 +264,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	private void importFileChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
 		if (!isNewProfile && software != myImportFile && !dbSettings.getDatabaseFile().isEmpty()
-				&& !(General.showConfirmMessage(this,
+				&& !General.showConfirmMessage(this,
 						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
-						GUIFactory.getTitle("warning")))) {
+						GUIFactory.getTitle("warning"))) {
 
 			bDatabase.setSelectedItem(myImportFile.getName());
 			return;
