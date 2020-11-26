@@ -95,12 +95,12 @@ public class ConfigGeneral extends BasicDialog {
 	protected Component createCenterPanel() {
 		JPanel result = new JPanel();
 		result.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 5));
-		
+
 		JTabbedPane pane = new JTabbedPane(SwingConstants.LEFT, JTabbedPane.SCROLL_TAB_LAYOUT);
 		pane.addTab(GUIFactory.getText("conversions"), addDateTimeTab());
 		pane.addTab("Internet", addInternetTab());
 		pane.addTab(GUIFactory.getText("folders"), addFoldersTab());
-		
+
 		result.add(pane);
 		return result;
 	}
@@ -164,12 +164,12 @@ public class ConfigGeneral extends BasicDialog {
 		result.add(timeExample, c.gridCell(1, 5, 0, 0));
 		result.add(durationFormat, c.gridCell(2, 5, 0, 0));
 		result.add(durationExample, c.gridCell(3, 5, 3, 0));
-		
+
 		Box box1 = Box.createHorizontalBox();
 		box1.add(GUIFactory.getJLabel("true"));
 		box1.add(Box.createHorizontalStrut(5));
 		box1.add(fdChecked);
-		
+
 		Box box2 = Box.createHorizontalBox();
 		box2.add(GUIFactory.getJLabel("false"));
 		box2.add(Box.createHorizontalStrut(5));
@@ -180,7 +180,7 @@ public class ConfigGeneral extends BasicDialog {
 		result.add(box1, c.gridCell(0, 8, 0, 0));
 		result.add(box2, c.gridCell(1, 8, 0, 0));
 		result.add(Box.createVerticalStrut(20), c.gridCell(0, 9, 0, 0));
-		
+
 		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("conversions")));
 		return result;
 	}
@@ -207,7 +207,7 @@ public class ConfigGeneral extends BasicDialog {
 			bt2.setSelected(true);
 			break;
 		default:
-			bt4.setSelected(true);
+			bt3.setSelected(true);
 			break;
 		}
 
