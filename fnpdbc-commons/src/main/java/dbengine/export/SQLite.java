@@ -52,6 +52,15 @@ public class SQLite extends SqlDB implements IConvert {
 	}
 
 	@Override
+	protected String getTimestamp(ResultSet rs, int colNo) throws Exception {
+		String time = rs.getString(colNo);
+		if (time == null || time.isEmpty()) {
+			return "";
+		}
+		return time.substring(0, 19);
+	}
+
+	@Override
 	protected Object getObject(int colType, int colNo, ResultSet rs) throws Exception {
 		return rs.getString(colNo);
 	}

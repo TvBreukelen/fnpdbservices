@@ -33,6 +33,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private Connection connection;
 	private DatabaseMetaData metaData;
 	private ResultSet dbResultSet;
+	private Statement dbStatement;
 
 	public SqlDB(Profiles pref) {
 		super(pref);
@@ -81,64 +82,31 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// read all tables in the database
 		hTables = new HashMap<>();
 		aTables = new ArrayList<>();
+
 		int index = 0;
 
 		try {
 			ResultSet rs = metaData.getTables(null, null, "%", null);
 			while (rs.next()) {
 				String table = rs.getString(3);
-				ResultSet columns = metaData.getColumns(null, null, table, null);
+				ResultSet columns;
+				try {
+					columns = metaData.getColumns(null, null, table, null);
+				} catch (Exception e) {
+					continue;
+				}
+
 				List<FieldDefinition> aFields = new ArrayList<>();
 				while (columns.next()) {
 					String field = columns.getString(4);
 					FieldDefinition fieldDef = new FieldDefinition(field, field, FieldTypes.TEXT);
 					fieldDef.setSQLType(columns.getInt(5));
 
-					switch (fieldDef.getSQLType()) {
-					case Types.ARRAY:
-					case Types.BINARY:
-					case Types.BLOB:
-					case Types.CLOB:
-					case Types.DATALINK:
-					case Types.DISTINCT:
-					case Types.JAVA_OBJECT:
-					case Types.LONGVARBINARY:
-					case Types.NULL:
-					case Types.OTHER:
-					case Types.REF:
-					case Types.STRUCT:
-					case Types.VARBINARY:
-						continue;
-					case Types.BIGINT:
-					case Types.INTEGER:
-					case Types.SMALLINT:
-					case Types.TINYINT:
-						fieldDef.setFieldType(FieldTypes.NUMBER);
-						break;
-					case Types.BIT:
-					case Types.BOOLEAN:
-						fieldDef.setFieldType(FieldTypes.BOOLEAN);
-						break;
-					case Types.DATE:
-						fieldDef.setFieldType(FieldTypes.DATE);
-						break;
-					case Types.DOUBLE:
-					case Types.FLOAT:
-					case Types.REAL:
-						fieldDef.setFieldType(FieldTypes.FLOAT);
-						fieldDef.setDecimalPoint(columns.getInt(8));
-						break;
-					case Types.LONGVARCHAR:
-						fieldDef.setFieldType(FieldTypes.MEMO);
-						break;
-					case Types.TIME:
-						fieldDef.setFieldType(FieldTypes.TIME);
-						break;
-					case Types.TIMESTAMP:
-						fieldDef.setFieldType(FieldTypes.TIMESTAMP);
-						break;
-					default:
-						fieldDef.setFieldType(getFieldType(fieldDef.getSQLType()));
+					String type = columns.getString(6);
+					if (!(type.isEmpty() || type.equals("TEXT"))) {
+						if (!(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
+							continue;
+						}
 					}
 					aFields.add(fieldDef);
 				}
@@ -151,6 +119,75 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} catch (Exception e) {
 			// should not occur
 		}
+	}
+
+	private boolean setFieldType(FieldDefinition field) {
+		switch (field.getSQLType()) {
+		case Types.BIGINT:
+		case Types.INTEGER:
+		case Types.SMALLINT:
+		case Types.TINYINT:
+			field.setFieldType(FieldTypes.NUMBER);
+			break;
+		case Types.BIT:
+		case Types.BOOLEAN:
+			field.setFieldType(FieldTypes.BOOLEAN);
+			break;
+		case Types.DATE:
+			field.setFieldType(FieldTypes.DATE);
+			break;
+		case Types.DOUBLE:
+		case Types.FLOAT:
+		case Types.REAL:
+			field.setFieldType(FieldTypes.FLOAT);
+			break;
+		case Types.LONGVARCHAR:
+			field.setFieldType(FieldTypes.MEMO);
+			break;
+		case Types.TIME:
+			field.setFieldType(FieldTypes.TIME);
+			break;
+		case Types.TIMESTAMP:
+			field.setFieldType(FieldTypes.TIMESTAMP);
+			break;
+		default:
+			return false;
+		}
+		return true;
+	}
+
+	private boolean setFieldType(FieldDefinition field, String type) {
+		// SqLite sets the SQL Type incorrectly, but the type name correct
+		switch (type) {
+		case "BOOL":
+			field.setFieldType(FieldTypes.BOOLEAN);
+			field.setSQLType(Types.BOOLEAN);
+			break;
+		case "DATE":
+			field.setFieldType(FieldTypes.DATE);
+			field.setSQLType(Types.DATE);
+			break;
+		case "INTEGER":
+			field.setFieldType(FieldTypes.NUMBER);
+			field.setSQLType(Types.INTEGER);
+			break;
+		case "REAL":
+			field.setFieldType(FieldTypes.FLOAT);
+			field.setSQLType(Types.FLOAT);
+			break;
+		case "TIME":
+			field.setFieldType(FieldTypes.TIME);
+			field.setSQLType(Types.TIME);
+			break;
+		case "TIMESTAMP":
+			field.setFieldType(FieldTypes.TIMESTAMP);
+			field.setSQLType(Types.TIMESTAMP);
+			break;
+		default:
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -194,22 +231,21 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
 		if (isFirstRead) {
-			try (Statement dbStatement = connection.createStatement()) {
-				List<FieldDefinition> fields = getTableModelFields();
-				StringBuilder buf = new StringBuilder("SELECT ");
+			dbStatement = connection.createStatement();
+			List<FieldDefinition> fields = getTableModelFields();
+			StringBuilder buf = new StringBuilder("SELECT ");
 
-				for (FieldDefinition field : fields) {
-					buf.append(field.getFieldName());
-					buf.append(", ");
-				}
-
-				buf.delete(buf.length() - 2, buf.length());
-				buf.append(" FROM ");
-				buf.append(myTable);
-
-				dbResultSet = dbStatement.executeQuery(buf.toString());
-				isFirstRead = false;
+			for (FieldDefinition field : fields) {
+				buf.append(field.getFieldName());
+				buf.append(", ");
 			}
+
+			buf.delete(buf.length() - 2, buf.length());
+			buf.append(" FROM ");
+			buf.append(myTable);
+
+			dbResultSet = dbStatement.executeQuery(buf.toString());
+			isFirstRead = false;
 		}
 
 		Map<String, Object> result = new HashMap<>();
@@ -219,6 +255,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
 				result.put(field.getFieldAlias(), obj);
 			}
+		} else {
+			dbStatement.close();
 		}
 		return result;
 	}
@@ -226,8 +264,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private Object getFieldObject(String sqlStatement) throws Exception {
 		Object result;
 
-		try (Statement statement = connection.createStatement();
-				ResultSet rs = statement.executeQuery(sqlStatement)) {
+		try (Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sqlStatement)) {
 			rs.next();
 			result = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
 		} catch (SQLException e) {
@@ -280,7 +317,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			case Types.SMALLINT:
 				return (int) rs.getShort(colNo);
 			case Types.TIMESTAMP:
-				return General.convertTimestamp2DB(rs.getTimestamp(colNo).toLocalDateTime());
+				return getTimestamp(rs, colNo);
 			case Types.TIME:
 				return General.convertTime2DB(rs.getTime(colNo).toLocalTime());
 			case Types.VARCHAR:
@@ -292,6 +329,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} catch (Exception e) {
 			throw new Exception("Unable to read database field, due to " + e.toString());
 		}
+	}
+
+	protected String getTimestamp(ResultSet rs, int colNo) throws Exception {
+		return General.convertTimestamp2DB(rs.getTimestamp(colNo).toLocalDateTime());
 	}
 
 	private String readMemoField(ResultSet rs, int colNo) throws Exception {
