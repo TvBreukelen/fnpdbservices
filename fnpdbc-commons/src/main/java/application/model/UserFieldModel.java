@@ -21,6 +21,15 @@ public class UserFieldModel extends AbstractTableModel {
 		isTextOnly = isTextOnlyExport;
 	}
 
+	public void setTextOnly(boolean isTextOnlyExport) {
+		isTextOnly = isTextOnlyExport;
+		if (!isTextOnlyExport) {
+			// Reset text fields
+			tableData.forEach(e -> e.setOutputAsText(false));
+		}
+		fireTableStructureChanged();
+	}
+
 	public void setTableData(List<BasisField> tableData) {
 		if (tableData != null) {
 			this.tableData = tableData;
@@ -95,9 +104,9 @@ public class UserFieldModel extends AbstractTableModel {
 		}
 
 		BasisField field = tableData.get(row);
-		if (col == COLUMN_2)
+		if (col == COLUMN_2) {
 			field.setFieldHeader(s);
-		else if (col == COLUMN_3) {
+		} else if (col == COLUMN_3) {
 			field.setOutputAsText((Boolean) value);
 		}
 		fireTableCellUpdated(row, col);

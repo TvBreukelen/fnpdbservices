@@ -142,7 +142,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 
 		fieldSelect = new ScFieldSelect(dbFactory);
-		configDb = new ScConfigDb(this, myExportFile, pdaSettings);
+		configDb = new ScConfigDb(this, fieldSelect, myExportFile, pdaSettings);
 		fdView.setPreferredSize(configDb.getComboBoxSize());
 
 		verifyDatabase(true);

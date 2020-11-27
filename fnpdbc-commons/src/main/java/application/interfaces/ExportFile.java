@@ -21,7 +21,7 @@ public enum ExportFile {
 	MOBILEDB("MobileDB", "Mdb1", "Mdb1", "true", "false", FileType.PDB, 256, 1000, 20),
 	PILOTDB("Pilot-DB", "DB00", "DBOS", "1", "0", FileType.PDB, 256, 3000, 256),
 	REFERENCER("P. Referencer", "", "", "true", "false", FileType.XLS, 256, 32767, 32767),
-	SQLITE("SQLite", "SQLite", "", "true", "false", FileType.DB, 255, 255, 255),
+	SQLITE("SQLite", "SQLite", "", "1", "0", FileType.DB, 255, 255, 255),
 	ACCESS("MS-Access", "", "", "true", "false", FileType.MDB, 255, 255, 255),
 	EXCEL("MS-Excel", "", "", "true", "false", FileType.XLSX, 256, 32767, 32767),
 	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
@@ -170,20 +170,6 @@ public enum ExportFile {
 		switch (this) {
 		case TEXTFILE:
 		case XML:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	public boolean isFixedFieldLength() {
-		switch (this) {
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
-		case ACCESS:
-		case SQLITE:
 			return true;
 		default:
 			return false;

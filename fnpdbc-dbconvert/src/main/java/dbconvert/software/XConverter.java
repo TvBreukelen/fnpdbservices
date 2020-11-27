@@ -1,7 +1,6 @@
 package dbconvert.software;
 
 import java.awt.Component;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -470,14 +469,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		// Save last export date
 		pdaSettings.setLastModified(General.convertTimestamp2DB(new Date()));
-	}
-
-	public void addPropertyChangeListener(PropertyChangeListener pcl) {
-		support.addPropertyChangeListener(pcl);
-	}
-
-	public void removePropertyChangeListener(PropertyChangeListener pcl) {
-		support.removePropertyChangeListener(pcl);
 	}
 
 	public void setRecordsRead(String value) {

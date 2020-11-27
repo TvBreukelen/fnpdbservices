@@ -131,7 +131,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		profile.setPreferredSize(new Dimension(100, 25));
 
 		fieldSelect = new ScFieldSelect(dbFactory);
-		configDb = new ScConfigDb(ConfigSoft.this, myExportFile, pdaSettings);
+		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
 
 		verifyDatabase(true);
 		buildDialog();

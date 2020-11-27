@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -18,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
 import application.model.UserFieldModel;
 import application.table.BooleanRenderer;
@@ -27,7 +30,7 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 
-public class ScFieldSelect {
+public class ScFieldSelect implements PropertyChangeListener {
 	/**
 	 * Export Fields Selection
 	 *
@@ -213,5 +216,19 @@ public class ScFieldSelect {
 		btDown.setEnabled(btUp.isEnabled());
 		btRemove.setEnabled(btUp.isEnabled());
 		btClear.setEnabled(userModel.getRowCount() > 0);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		// Called from ScConfigDb after an export file change
+		ExportFile newValue = (ExportFile) evt.getNewValue();
+		ExportFile oldValue = (ExportFile) evt.getOldValue();
+
+		if (newValue.isTextExport() == oldValue.isTextExport()) {
+			// No change in text export
+			return;
+		}
+
+		userModel.setTextOnly(newValue.isTextExport());
 	}
 }

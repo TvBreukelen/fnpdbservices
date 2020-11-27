@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeSupport;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -74,11 +75,15 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	private IConfigDb dbConfig;
 	private Profiles pdaSettings;
+	private PropertyChangeSupport support;
+
 	private boolean isImport;
 
-	public ScConfigDb(IConfigSoft dialog, ExportFile db, Profiles profiles) {
+	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
 		myExportFile = db;
 		pdaSettings = profiles;
+		support = new PropertyChangeSupport(this);
+		support.addPropertyChangeListener(sc);
 
 		funcSelectExport = e -> {
 			if (myExportFile == ExportFile.HANDBASE) {
@@ -96,7 +101,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		};
 
 		funcSelectDb = e -> {
-			myExportFile = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
+			ExportFile exportFile = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
+			support.firePropertyChange("exportfile", myExportFile, exportFile);
+			myExportFile = exportFile;
 
 			pdaSettings.setProject(myExportFile.getName());
 			fdPDA.setToolTipText(myExportFile.getFileType());
@@ -109,7 +116,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
 			String resourceID = "database";
-			switch(myExportFile) {
+			switch (myExportFile) {
 			case ACCESS:
 			case SQLITE:
 				resourceID = "table";
@@ -260,8 +267,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pExport.add(passwordBox, c.gridCell(1, 5, 0, 0));
 
 		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), cConvertImages);
-		pConvert.add(General.addVerticalButtons(null, rImages[0], rImages[1], rImages[2]),
-				c.gridCell(1, 4, 2, 0));
+		pConvert.add(General.addVerticalButtons(null, rImages[0], rImages[1], rImages[2]), c.gridCell(1, 4, 2, 0));
 		pConvert.add(box, c.gridCell(1, 5, 0, 0));
 		pConvert.add(Box.createVerticalGlue());
 
