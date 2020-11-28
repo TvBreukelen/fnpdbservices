@@ -10,8 +10,8 @@ public enum TvBSoftware {
 	 * @author Tom van Breukelen
 	 */
 
-	DBCONVERT("DBConvert", "6.4", "dbconvert", "dbconvert/files", "dbconvert/best_release.json"),
-	FNPROG2PDA("FNProg2PDA", "8.9", "fnprog2pda", "fnprog2pda/files", "fnprog2pda/best_release.json");
+	DBCONVERT("DBConvert", "6.4.1", "dbconvert", "dbconvert/files", "dbconvert/best_release.json"),
+	FNPROG2PDA("FNProg2PDA", "8.9.1", "fnprog2pda", "fnprog2pda/files", "fnprog2pda/best_release.json");
 
 	private static final String SOURCEFORGE = "https://sourceforge.net/projects/";
 
@@ -38,7 +38,7 @@ public enum TvBSoftware {
 	}
 
 	public String getCopyright() {
-		return "Copyright © 2003-" + Year.now().getValue() + " Tom van Breukelen.";
+		return "Copyright ï¿½ 2003-" + Year.now().getValue() + " Tom van Breukelen.";
 	}
 
 	public String getSupport() {

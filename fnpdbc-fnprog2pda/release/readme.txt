@@ -68,16 +68,15 @@ For Windows
    different folder, the application will be installed in your program files folder 
    (example: C:\Program Files\FNProg2PDA).
    
+
 For Mac
 -------
-1. Open the FNProg2PDA.dmg file
-
-2. Drag the FNProg2PDA folder from the dmg file to Applications
+1. Unpack the FNProg2PDA_Mac.zip file in your Applications folder.
 
 
 For Linux
 ---------
-1. Unpack the Zip file in your Applications folder
+1. Unpack the FNProg2PDA.zip file in your Applications folder
 
 2. Grant FNProg2PDA.jar or FNProg2PDA.sh execute permissions. If you intend to run FNProg2PDA in
    batch mode, grant FNProg2PDA_batch.sh execute permissions as well.
@@ -125,22 +124,30 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+
+Version 8.9.1
+-------------
+New DBConvert version (SQLite import improvements). 
+External libraries update.
+Fixed check for new version each month could not be saved and other minor bugs.
+
+
 Version 8.9
 -----------
 Updated help files. Added Delete button to the Sort dialog. Updated deprecated code.
-Minor bugfixes.
+Minor bug fixes.
 
 
 Version 8.8.1
 -------------
 Added bash startup scripts for running FNProg2PDA under Linux in standard and batch mode
 Renamed FNProg2PDA_NoGUI to FNProg2PDA_batch
-Bugfix: problem with running FNProg2PDA_NoGUI
+Bug Fix: problem with running FNProg2PDA_NoGUI
 
 
 Version 8.8
 -----------
-Bugfix: under Linux icons were not shown
+Bug Fix: under Linux icons were not shown
 
 
 Version 8.7.1
@@ -214,13 +221,13 @@ Removed support for SmartList to Go
 
 Version 8.2.3
 -------------
-Bugfix: double click on DBConvert.jar wasn't supported under Linux
-Bugfix: you had to click the OK button twice to close the About dialog.
+Bug fix: double click on DBConvert.jar wasn't supported under Linux
+Bug fix: you had to click the OK button twice to close the About dialog.
 
 
 Version 8.2.2
 -------------
-Bugfix: Tracks without an Artist, caused an IndexOutOfRange exception in case the Track Artist had
+Bug fix: Tracks without an Artist, caused an IndexOutOfRange exception in case the Track Artist had
 to be exported 
 
 

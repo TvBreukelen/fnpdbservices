@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>6.4.0.0</fileVersion>
-    <txtFileVersion>Version 6.4</txtFileVersion>
+    <fileVersion>6.4.1.0</fileVersion>
+    <txtFileVersion>Version 6.4.1</txtFileVersion>
     <fileDescription>DBConvert Batch program</fileDescription>
     <copyright>Tom van Breukelen 2004-2020</copyright>
-    <productVersion>6.4.0.0</productVersion>
-    <txtProductVersion>Version 6.4</txtProductVersion>
+    <productVersion>6.4.1.0</productVersion>
+    <txtProductVersion>Version 6.4.1</txtProductVersion>
     <productName>DBConvert</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>DBConvert</internalName>

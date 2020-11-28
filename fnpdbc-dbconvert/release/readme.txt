@@ -103,14 +103,12 @@ For Windows
 
 For Mac
 -------
-1. Open the DBConvert.dmg file. 
-
-2. Dag the DBConvert folder from the dmg file to Applications
+1. Unpack the DBConvert_Mac.zip file in your  Applications folder.
 
 
 For Linux
 ---------
-1. Unpack the Zip file in your Applications folder
+1. Unpack the DBConvert.zip file in your Applications folder
 
 2. Grant DBConvert.jar or DBConvert.sh execute permissions. If you intend to run DBConvert in
    Batch mode than add execute permissions to DBConvert_batch.sh as well
@@ -142,17 +140,23 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 6.4.1
+-------------
+SQLite import improvements (better recognition of data types) and bug fixes
+External libraries update.
+Fixed check for new version each month could not be saved and other minor bugs.
+
+
 Version 6.4
 -----------
 Updated help files. Added Delete button to the Sort dialog. Updated deprecated code.
-Bugfix: Sort and Filter settings didn't load/save properly.
-Minor bugfixes.
+Bug fix: Sort and Filter settings didn't load/save properly.
 
 
 Version 6.3.1
 -------------
 Added bash scripts for running DBConvert in batch and standard mode.
-Bugfix: under Linux buttons were shown without an icon.
+Bug fix: under Linux buttons were shown without an icon.
  
 
 Version 6.3
@@ -201,46 +205,3 @@ Added support for SQLite export
 Updated 3rd party libraries
 Migrated from Java 6 to Java 7 
 Removed support for SmartList to Go
-
-
-Version 5.4.2
--------------
-Bugfix: double click on DBConvert.jar wasn't supported under Linux
-Bugfix: you had to click the OK button twice to close the About dialog.
-
-
-Version 5.4.1
--------------
-Bugfix: xViewer wouldn't edit
-
-
-Version 5.4
------------
-Added Excel 2007+ support (.xlsx files)
-Added password support to HanDBase export
-Fixed a small DBase read bug
-
-
-Version 5.3
------------
-Added option to check for the last DBConvert version 
-Bugfix: timestamp wasn't set when cloning/copying a profile 
-Bugfix: couldn't save alternative field name
-Some small bug fixes, mainly related to the GUI
-
-
-Version 5.2
------------
-Some small bug fixes, mainly related to the GUI
-
-
-Version 5.1
------------
-Bugfix: Import of csv file, didn't recognize ";" delimited files
-Bugfix: Entries written in the registry were not always flushed directly (causing the next read
-        or write not to recognize the changes immediately).  
-
-
-Version 5.0
------------
-Brand new GUI Version
