@@ -146,6 +146,7 @@ funcRemove.tooltip=Entferne das ausgewählte Profil
 funcRemove.mesg=Drücke auf OK um dem Profil '%0' zu löschen.
 funcRemoveFields.tooltip=Lösche die selektierte Feld(er)
 funcRemoveFilter.tooltip=Entferne alle Filter
+funcRemoveMisc.tooltip=Entferne alle Sonstige Einstellungen
 funcRemoveSort.tooltip=Leere alle Sortierfelder
 funcRename.mesg=Benenne '%0' um zu
 funcRename.tooltip=Ausgewähltes Profil umbenennen

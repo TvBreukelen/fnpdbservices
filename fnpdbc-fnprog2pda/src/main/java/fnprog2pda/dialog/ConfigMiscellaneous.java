@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -13,13 +14,13 @@ import javax.swing.JPanel;
 import application.dialog.BasicDialog;
 import application.interfaces.FNPSoftware;
 import application.utils.GUIFactory;
+import application.utils.General;
 import fnprog2pda.model.MiscellaneousData;
 
 public class ConfigMiscellaneous extends BasicDialog {
 	/**
 	 * Title: ScMiscellaneous Description: FNProgramvare Software Miscellaneous
-	 * Configuration parms 
-	 * Copyright (c) 2006-2020
+	 * Configuration parms Copyright (c) 2006-2020
 	 *
 	 * @author Tom van Breukelen
 	 * @version 5.1
@@ -27,6 +28,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 	private static final long serialVersionUID = -5470122199126408967L;
 	private JCheckBox[] booleanFields;
 	private FNPSoftware software;
+
 	transient MiscellaneousData data;
 	boolean isSaved = false;
 
@@ -44,6 +46,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 		buildDialog();
 		pack();
 	}
+
 	@Override
 	protected void buildDialog() {
 		btSave.setVisible(false);
@@ -52,6 +55,12 @@ public class ConfigMiscellaneous extends BasicDialog {
 		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
 		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
 		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
+	}
+
+	@Override
+	protected Component addToToolbar() {
+		return General.createToolBarButton(GUIFactory.getToolTip("funcRemoveMisc"), "Delete.png",
+				e -> Arrays.stream(booleanFields).forEach(cb -> cb.setSelected(false)));
 	}
 
 	@Override
@@ -69,10 +78,9 @@ public class ConfigMiscellaneous extends BasicDialog {
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsOrigTitle(),
 						data.isUseOriginalTitle(), data.isUseContentsItemTitle() },
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsItemTitle(),
-						data.isUseContentsSide(), data.isUseContentsIndex(),
-						data.isUseContentsLength() },
-				{ data.isUseContentsSide(), data.isUseContentsItemTitle(),
-						data.isUseContentsIndex(), data.isUseContentsLength() } };
+						data.isUseContentsSide(), data.isUseContentsIndex(), data.isUseContentsLength() },
+				{ data.isUseContentsSide(), data.isUseContentsItemTitle(), data.isUseContentsIndex(),
+						data.isUseContentsLength() } };
 
 		int index = software.ordinal() - 1;
 		booleanFields = new JCheckBox[miscText[index].length];
