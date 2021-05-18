@@ -212,14 +212,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public String[] getTableNames() {
+	public List<String> getTableNames() {
 		if (aTables == null) {
-			return null;
+			return new ArrayList<>();
 		}
-
-		String[] result = new String[aTables.size()];
-		aTables.toArray(result);
-		return result;
+		return aTables;
 	}
 
 	@Override

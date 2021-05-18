@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,16 +104,15 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		return sheet == null ? null : sheet.getSheetName();
 	}
 
-	public String[] getSheetNames() {
+	@Override
+	public List<String> getSheetNames() {
 		if (wb == null) {
-			return new String[0];
+			return new ArrayList<>();
 		}
 
-		String[] result = new String[noOfSheets];
-		for (int i = 0; i < noOfSheets; i++) {
-			result[i] = wb.getSheetName(i);
-		}
-		return result;
+		List<String> lSheets = new ArrayList<>(hSheets.keySet());
+		Collections.sort(lSheets);
+		return lSheets;
 	}
 
 	private String getCurrentSheet() {

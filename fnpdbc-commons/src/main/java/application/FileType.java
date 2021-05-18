@@ -5,8 +5,9 @@ import java.util.List;
 
 public enum FileType {
 	PDB(" Palm or Pocket PC database (*.pdb)"), TXT(" textfile (*.csv, *.txt)"), XLS(" MS-Excel file (*.xls)"),
-	XLSX(" MS-Excel file (*.xls, *.xlsx)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
-	DBF(" Dbase or FoxPro file (*.dbf)"), XML(" XML File (*.xml)"), MDB(" MS Access Database (*.mdb, *.accdb)");
+	XLSX(" MS-Excel file (*.xls, *.xlsx)"), ODS("OpenOffice Calc (*.ods)"),
+	DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"), DBF(" Dbase or FoxPro file (*.dbf)"), XML(" XML File (*.xml)"),
+	MDB(" MS Access Database (*.mdb, *.accdb)");
 
 	private String name;
 
@@ -30,6 +31,9 @@ public enum FileType {
 		case XLSX:
 			result.add(".xls");
 			result.add(".xlsx");
+			break;
+		case ODS:
+			result.add(".ods");
 			break;
 		case DB:
 			result.add(".db");

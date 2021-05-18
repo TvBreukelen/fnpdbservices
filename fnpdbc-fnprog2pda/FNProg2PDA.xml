@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>E:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\target\fnpdbc-fnprog2pda-0.0.1-SNAPSHOT.jar</jar>
+  <jar>E:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\target\fnpdbc-fnprog2pda-9.0.0.jar</jar>
   <outfile>E:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\release\FNProg2PDA.exe</outfile>
   <errTitle>FNProg2PDA Program Error</errTitle>
   <cmdLine></cmdLine>
@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>8.9.1.0</fileVersion>
-    <txtFileVersion>Version 8.9.1</txtFileVersion>
+    <fileVersion>9.0.0.0</fileVersion>
+    <txtFileVersion>Version 9.0</txtFileVersion>
     <fileDescription>FNProg2PDA</fileDescription>
-    <copyright>Tom van Breukelen 2003-2020</copyright>
-    <productVersion>8.9.1.0</productVersion>
-    <txtProductVersion>Version 8.9.1</txtProductVersion>
+    <copyright>Tom van Breukelen 2003-2021</copyright>
+    <productVersion>9.0.0.0</productVersion>
+    <txtProductVersion>Version 9.0</txtProductVersion>
     <productName>FNProg2PDA</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>FNProg2PDA</internalName>

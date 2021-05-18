@@ -28,7 +28,6 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
 import dbconvert.preferences.PrefDBConvert;
-import dbengine.ExcelFile;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 import dbengine.export.CsvFile;
@@ -203,15 +202,18 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		List<String> usrList = new ArrayList<>();
 
 		for (BasisField field : dbUserFields) {
-			FieldDefinition fieldDef = dbFieldDefinition.get(field.getFieldAlias());
-			if (fieldDef == null) {
+			FieldDefinition dbField = dbFieldDefinition.get(field.getFieldAlias());
+			if (dbField == null) {
 				isUserListError = true;
 				continue;
 			}
 
-			fieldDef.set(field);
-			dbTableModelFields.add(fieldDef);
-			usrList.add(fieldDef.getFieldAlias());
+			dbField = dbField.copy();
+			field.setFieldType(dbField.getFieldType()); // Just incase the type has changed
+			dbField.set(field);
+
+			dbTableModelFields.add(dbField);
+			usrList.add(dbField.getFieldAlias());
 		}
 
 		if (isUserListError || dbUserFields.isEmpty()) {
@@ -221,7 +223,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		// Add special fields for list, Referencer or Xml to the fields to
-		// export and to write, but deactivate their visability
+		// export and to write, but deactivate their visibility
 		for (String dbField : pdaSettings.getSpecialFields()) {
 			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
 			if (fieldDef == null) {
@@ -363,18 +365,18 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		return result;
 	}
 
-	public String[] getWorksheets() {
-		if (dbIn != null && myImportFile == ExportFile.EXCEL) {
-			return ((ExcelFile) dbIn).getSheetNames();
+	public List<String> getSheets() {
+		if (dbIn != null) {
+			return dbIn.getSheetNames();
 		}
-		return new String[0];
+		return new ArrayList<>();
 	}
 
-	public String[] getTables() {
+	public List<String> getTables() {
 		if (dbIn != null) {
 			return dbIn.getTableNames();
 		}
-		return new String[0];
+		return new ArrayList<>();
 	}
 
 	public GeneralDB getDbOut() {

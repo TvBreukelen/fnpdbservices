@@ -147,12 +147,8 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 
 			dbField = dbField.copy();
+			field.setFieldType(dbField.getFieldType()); // Just incase the type has changed
 			dbField.set(field);
-
-			if (field.getFieldType() == null) {
-				field.setFieldType(dbField.getFieldType());
-			}
-
 			dbTableModelFields.add(dbField);
 
 			usrList.add(dbField.getFieldAlias());

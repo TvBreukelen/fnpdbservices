@@ -142,7 +142,7 @@ public abstract class Profiles extends Project implements IEncoding {
 		importOption = child.getInt("import.option", 0);
 
 		// MS-Excel
-		boldHeader = child.getBoolean("bold.headers", true);
+		boldHeader = child.getBoolean("use.bold.headers", true);
 		font = child.get("font", "Arial");
 		fontSize = child.getInt("font.size", 8);
 		lockHeader = child.getBoolean("lock.headers", true);

@@ -19,11 +19,11 @@ import application.utils.gui.XGridBagConstraints;
 
 public class ConfigExcel extends JPanel implements IConfigDb {
 	/**
-	 * Title: DbExcel Description: MS-Excel Configuration parms Copyright (c)
-	 * 2004-2005
+	 * MS-Excel Configuration
 	 *
 	 * @author Tom van Breukelen
 	 * @version 4.5
+	 * @since 2004
 	 */
 	private static final long serialVersionUID = 9209643909894109017L;
 	transient ActionListener funcHeader = null;
@@ -82,7 +82,6 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 		cHeader[1] = GUIFactory.getJCheckBox("freezeHeaders", pdaSettings.isLockHeader());
 		cHeader[2] = GUIFactory.getJCheckBox("fontBold", pdaSettings.isBoldHeader());
 
-		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader[0], cHeader[1],
-				cHeader[2]));
+		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader[0], cHeader[1], cHeader[2]));
 	}
 }

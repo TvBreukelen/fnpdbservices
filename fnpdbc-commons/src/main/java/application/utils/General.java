@@ -36,6 +36,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -805,6 +806,17 @@ public final class General {
 		int sec = pTime.getSecond();
 
 		return Integer.toString(hrs + min + sec);
+	}
+
+	/**
+	 * Converts a Java time back to the database time format
+	 */
+	public static String convertTime2DB(Duration pTime) {
+		if (pTime == null) {
+			return "";
+		}
+
+		return Long.toString(pTime.getSeconds());
 	}
 
 	public static String convertTimestamp2DB(Date pDate) {

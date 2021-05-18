@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -120,7 +121,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		});
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.JFILE5 : ExportFile.getExportFile(dbSettings.getDatabaseType());
+		myImportFile = isNewProfile ? ExportFile.CALC : ExportFile.getExportFile(dbSettings.getDatabaseType());
 		dbFactory = new XConverter();
 
 		funcSelectWorksheet = e -> worksheetChanged();
@@ -339,12 +340,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		bWorkSheets.removeActionListener(funcSelectWorksheet);
 		bWorkSheets.removeAllItems();
 
-		if (myImportFile != ExportFile.EXCEL || dbVerified.getDatabase().isEmpty()) {
+		if (dbVerified.getDatabase().isEmpty()) {
 			return;
 		}
 
-		String[] worksheets = dbFactory.getWorksheets();
-		if (worksheets == null) {
+		List<String> worksheets = dbFactory.getSheets();
+		if (worksheets.isEmpty()) {
 			return;
 		}
 
@@ -359,7 +360,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			bWorkSheets.setSelectedItem(worksheet);
 		}
 
-		bWorkSheets.setVisible(worksheets.length > 1);
+		bWorkSheets.setVisible(worksheets.size() > 1);
 		bWorkSheets.addActionListener(funcSelectWorksheet);
 	}
 
@@ -371,8 +372,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			return;
 		}
 
-		String[] tables = dbFactory.getTables();
-		if (tables == null) {
+		List<String> tables = dbFactory.getTables();
+		if (tables.isEmpty()) {
 			return;
 		}
 
@@ -380,7 +381,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			bTables.addItem(s);
 		}
 
-		bTables.setVisible(tables.length > 1);
+		bTables.setVisible(tables.size() > 1);
 		bTables.setSelectedItem(pdaSettings.getTableName());
 		bTables.addActionListener(funcSelectTable);
 	}
@@ -435,6 +436,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		case TEXTFILE:
 			textImport.setProperties();
 			break;
+		case CALC:
 		case EXCEL:
 			if (lWorksheet != null) {
 				pdaSettings.setTableName(bWorkSheets.getSelectedItem().toString(), true);
@@ -467,7 +469,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	public void activateComponents() {
 		boolean isTextFile = myImportFile == ExportFile.TEXTFILE;
 		boolean isEncoding = myImportFile.isEncodingSupported();
-		boolean isExcel = myImportFile == ExportFile.EXCEL;
+		boolean isSpreadsheet = myImportFile == ExportFile.EXCEL || myImportFile == ExportFile.CALC;
 		boolean isFileValid = false;
 		boolean isFurtherCheck = true;
 
@@ -518,7 +520,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			tabPane.setEnabledAt(1, isFileValid);
 			bTables.setVisible(bTables.getItemCount() > 1);
 			lTable.setVisible(bTables.isVisible());
-			bWorkSheets.setVisible(isExcel && bWorkSheets.getItemCount() > 1);
+			bWorkSheets.setVisible(isSpreadsheet && bWorkSheets.getItemCount() > 1);
 			lWorksheet.setVisible(bWorkSheets.isVisible());
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);

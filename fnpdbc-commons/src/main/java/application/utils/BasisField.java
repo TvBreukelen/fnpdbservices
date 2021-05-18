@@ -12,7 +12,7 @@ public class BasisField implements Serializable {
 	private String fieldHeader;
 	private boolean outputAsText;
 	private FieldTypes fieldType;
-	
+
 	public BasisField() {
 	}
 
@@ -58,7 +58,6 @@ public class BasisField implements Serializable {
 	public void setFieldType(FieldTypes type) {
 		fieldType = type;
 	}
-
 
 	public boolean isOutputAsText() {
 		return outputAsText;

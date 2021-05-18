@@ -30,6 +30,7 @@ The current version of DBConvert can Import from:
 
 Name            OS            
 ----------------------------------
+Calc			All platforms
 JFile 3         Palm
 JFile 4         Palm
 JFile 5+        Palm
@@ -38,7 +39,7 @@ MobileDB        Palm/PocketPC
 Pilot-DB        Palm  
 MS-Access       Microsoft Windows / Mac OS X
 MS-Excel        Microsoft Windows / Mac OS X
-SQLite		Cross platform (Mac, Windows, Android, etc.)
+SQLite			Cross platform (Mac, Windows, Android, etc.)
 DBase III       MS-DOS
 DBase IV        MS-DOS
 DBase V         Microsoft Windows
@@ -52,6 +53,7 @@ and Export to:
 
 Name            OS            
 ----------------------------------
+Calc			All platforms
 JFile 5+        Palm
 HanDBase        Palm/Pocket PC/iPhone/iPad
 List            Palm 
@@ -139,6 +141,13 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 6.5
+-----------
+Added support for OpenOffice/LibreOffice Calc spreadsheet (ODS files).
+Changed the order of the export files (moved legacy format to the end of the list).
+Updated external libraries.
+ 
 
 Version 6.4.1
 -------------

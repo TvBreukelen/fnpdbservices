@@ -7,8 +7,8 @@ public enum FieldTypes {
 	 * @author Tom van Breukelen
 	 */
 
-	BOOLEAN('B'), DATE('D'), DURATION('t'), FLOAT('F'), FUSSY_DATE('d'), IMAGE('I'), LINKED('l'), LIST('L'), MEMO('M'),
-	NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'), TIMESTAMP('S'), UNKNOWN('U');
+	BOOLEAN('B'), CURRENCY('C'), DATE('D'), DURATION('t'), FLOAT('F'), FUSSY_DATE('d'), IMAGE('I'), LINKED('l'),
+	LIST('L'), MEMO('M'), NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'), TIMESTAMP('S'), UNKNOWN('U');
 
 	private char typeID;
 

@@ -26,7 +26,7 @@ FNProg2PDA is developed by
 ===================================================================================================
 FNProg2PDA is a add-on tool for the FNProgramvare software to transfer information from the
 AssetCAT, BookCAT, CATraxx, CATVids, SoftCAT or StampCAT databases to your PDA Database, Microsoft
-Excel spreadsheet, csv textfile, xBase database (DBase 3,4,5 and Foxpro) or XML file.
+Calc or Excel spreadsheet, csv textfile, xBase database (DBase 3,4,5 and Foxpro) or XML file.
 
 The current version of FNProg2PDA supports the following PDA databases:
 
@@ -123,6 +123,12 @@ General Public License for more details.
 ===================================================================================================
 4. What is New?
 ===================================================================================================
+
+Version 9.0
+-----------
+Added support for OpenOffice/LibreOffice Calc spreadsheet (ODS files).
+Changed the order of the export files (moved legacy format to the end of the list).
+Updated external libraries.
 
 
 Version 8.9.1

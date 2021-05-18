@@ -13,6 +13,7 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
+import dbengine.export.Calc;
 import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
@@ -136,9 +137,14 @@ public abstract class GeneralDB {
 		return null;
 	}
 
-	public String[] getTableNames() {
+	public List<String> getTableNames() {
 		// valid for MS-Access and SQL based databases only
-		return null;
+		return new ArrayList<>();
+	}
+
+	public List<String> getSheetNames() {
+		// valid for Calc and MS-Excel only
+		return new ArrayList<>();
 	}
 
 	public int getTotalRecords() {
@@ -211,6 +217,8 @@ public abstract class GeneralDB {
 		switch (db) {
 		case ACCESS:
 			return new MSAccess(profile);
+		case CALC:
+			return new Calc(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
 		case JFILE5:

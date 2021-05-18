@@ -13,6 +13,16 @@ public enum ExportFile {
 	 * @author Tom van Breukelen
 	 */
 
+	CALC("Calc", "", "", "true", "false", FileType.ODS, 256, 32767, 32767),
+	ACCESS("MS-Access", "", "", "true", "false", FileType.MDB, 255, 255, 255),
+	EXCEL("MS-Excel", "", "", "true", "false", FileType.XLSX, 256, 32767, 32767),
+	SQLITE("SQLite", "SQLite", "", "1", "0", FileType.DB, 255, 255, 255),
+	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
+	XML("Xml", "", "", "true", "false", FileType.XML, 32767, 32767, 32767),
+	DBASE3("DBase3", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
+	DBASE4("DBase4", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
+	DBASE5("DBase5", "", "", "T", "F", FileType.DBF, 254, 32767, 1024),
+	FOXPRO("FoxPro", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
 	HANDBASE("HanDBase", "DATA", "HanD", "1", "0", FileType.PDB, 256, 2000, 100),
 	JFILE3("JFile3", "JbDb", "JBas", "1", "0", FileType.PDB, 64, 500, 20),
 	JFILE4("JFile4", "JfDb", "JFil", "1", "0", FileType.PDB, 256, 10000, 50),
@@ -20,16 +30,7 @@ public enum ExportFile {
 	LIST("List", "DATA", "LSdb", "true", "false", FileType.PDB, 4095, 4095, 32767),
 	MOBILEDB("MobileDB", "Mdb1", "Mdb1", "true", "false", FileType.PDB, 256, 1000, 20),
 	PILOTDB("Pilot-DB", "DB00", "DBOS", "1", "0", FileType.PDB, 256, 3000, 256),
-	REFERENCER("P. Referencer", "", "", "true", "false", FileType.XLS, 256, 32767, 32767),
-	SQLITE("SQLite", "SQLite", "", "1", "0", FileType.DB, 255, 255, 255),
-	ACCESS("MS-Access", "", "", "true", "false", FileType.MDB, 255, 255, 255),
-	EXCEL("MS-Excel", "", "", "true", "false", FileType.XLSX, 256, 32767, 32767),
-	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
-	DBASE3("DBase3", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
-	DBASE4("DBase4", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
-	DBASE5("DBase5", "", "", "T", "F", FileType.DBF, 254, 32767, 1024),
-	FOXPRO("FoxPro", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
-	XML("Xml", "", "", "true", "false", FileType.XML, 32767, 32767, 32767);
+	REFERENCER("P. Referencer", "", "", "true", "false", FileType.XLS, 256, 32767, 32767);
 
 	private String name;
 	private String dbType;
@@ -89,6 +90,7 @@ public enum ExportFile {
 
 	public boolean isBooleanExport() {
 		switch (this) {
+		case CALC:
 		case HANDBASE:
 		case JFILE3:
 		case JFILE4:
@@ -120,6 +122,7 @@ public enum ExportFile {
 
 	public boolean isDateExport() {
 		switch (this) {
+		case CALC:
 		case JFILE3:
 		case JFILE4:
 		case JFILE5:
@@ -152,6 +155,7 @@ public enum ExportFile {
 
 	public boolean isTimeExport() {
 		switch (this) {
+		case CALC:
 		case JFILE3:
 		case JFILE4:
 		case JFILE5:

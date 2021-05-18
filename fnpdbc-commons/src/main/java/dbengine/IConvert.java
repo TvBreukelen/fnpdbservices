@@ -25,7 +25,9 @@ public interface IConvert {
 
 	List<FieldDefinition> getTableModelFields() throws Exception;
 
-	String[] getTableNames();
+	List<String> getSheetNames();
+
+	List<String> getTableNames();
 
 	int getTotalRecords();
 

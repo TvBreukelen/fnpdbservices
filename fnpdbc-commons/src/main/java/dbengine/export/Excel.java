@@ -36,9 +36,6 @@ public class Excel extends ExcelFile {
 	public void createDbHeader() throws Exception {
 		String font = myPref.getFont();
 		int fontSize = myPref.getFontSize();
-		boolean useHeader = myPref.isUseHeader();
-		boolean lockHeader = myPref.isLockHeader();
-		boolean lock1stCol = myPref.isLock1stColumn();
 
 		Font normal = wb.createFont();
 		normal.setFontName(font);
@@ -67,7 +64,7 @@ public class Excel extends ExcelFile {
 
 		excelRow = 0;
 
-		if (useHeader) {
+		if (myPref.isUseHeader()) {
 			// Read the user defined list of DB fields
 			Row row = sheet.createRow(excelRow++);
 			int i = 0;
@@ -77,11 +74,11 @@ public class Excel extends ExcelFile {
 				cell.setCellValue(field.getFieldHeader());
 			}
 
-			if (lockHeader) {
-				setFreeze(1, lock1stCol ? 1 : 0);
+			if (myPref.isLockHeader()) {
+				setFreeze(1, myPref.isLock1stColumn() ? 1 : 0);
 			}
 			excelRow = 1;
-		} else if (lock1stCol) {
+		} else if (myPref.isLock1stColumn()) {
 			setFreeze(0, 1);
 		}
 	}
@@ -89,7 +86,6 @@ public class Excel extends ExcelFile {
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
 		int excelCol = 0;
-		String dbValue;
 
 		// Read the user defined list of DB fields
 		Row row = sheet.createRow(excelRow);
@@ -101,7 +97,7 @@ public class Excel extends ExcelFile {
 				continue;
 			}
 
-			dbValue = dbField.toString();
+			String dbValue = dbField.toString();
 			Cell cell = row.createCell(excelCol++);
 			cell.setCellStyle(format);
 
@@ -151,8 +147,8 @@ public class Excel extends ExcelFile {
 			default:
 				// Change Tabs to spaces, remove carriage returns and the trailing line feed
 				// char
-				dbValue = dbValue.replaceAll("\t", "  ");
-				dbValue = dbValue.replaceAll("\r", "");
+				dbValue = dbValue.replace("\t", "  ");
+				dbValue = dbValue.replace("\r", "");
 				if (dbValue.endsWith("\n")) {
 					dbValue = dbValue.substring(0, dbValue.length() - 1);
 				}

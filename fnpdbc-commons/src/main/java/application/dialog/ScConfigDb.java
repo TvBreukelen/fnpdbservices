@@ -121,8 +121,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			case SQLITE:
 				resourceID = "table";
 				break;
+			case CALC:
 			case EXCEL:
-				resourceID = "sheet";
+				resourceID = "worksheet";
 				break;
 			case XML:
 				resourceID = "xmlRoot";
@@ -156,6 +157,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				break;
 			case REFERENCER:
 				dbConfig = new ConfigReferencer(pdaSettings);
+				break;
+			case CALC:
+				dbConfig = new ConfigCalc(pdaSettings);
 				break;
 			case EXCEL:
 				dbConfig = new ConfigExcel(pdaSettings);
@@ -363,6 +367,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pConvert);
 			pTopContainer.add(pOtherOptions);
 			break;
+		case CALC:
 		case EXCEL:
 			pTopContainer.add(pOtherOptions);
 			break;

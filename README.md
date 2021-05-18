@@ -7,7 +7,7 @@ https://sourceforge.net/projects/dbconvert/
 
 
 FNProg2PDA is an add-on tool for the FNProgramvare software (https://www.fnprg.com/) to transfer information from the AssetCAT, BookCAT, 
-CATraxx, CATVids, SoftCAT or StampCAT databases to a PDA Database, Microsoft Excel spreadsheet, csv textfile, xBase database (DBase 3, 4, 5 and Foxpro) or XML file.
+CATraxx, CATVids, SoftCAT or StampCAT databases to a PDA Database, Microsoft Excel or Calc spreadsheet, csv textfile, xBase database (DBase 3, 4, 5 and Foxpro) or XML file.
 
 FYI: FNProgramvare has ceased operations, but their software is still regularly updated. 
 
