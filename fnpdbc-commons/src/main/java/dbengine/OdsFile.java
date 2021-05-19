@@ -3,6 +3,7 @@ package dbengine;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -126,6 +127,10 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 			return FieldTypes.DATE;
 		}
 
+		if (cell instanceof LocalDateTime) {
+			return FieldTypes.TIMESTAMP;
+		}
+
 		if (cell instanceof Duration) {
 			return FieldTypes.TIME;
 		}
@@ -206,6 +211,9 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 					break;
 				case TIME:
 					cell = General.convertTime2DB((Duration) cell);
+					break;
+				case TIMESTAMP:
+					cell = General.convertTimestamp2DB((LocalDateTime) cell);
 					break;
 				default:
 					break;

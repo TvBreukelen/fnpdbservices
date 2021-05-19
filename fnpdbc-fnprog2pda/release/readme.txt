@@ -127,7 +127,7 @@ General Public License for more details.
 Version 9.0
 -----------
 Added support for OpenOffice/LibreOffice Calc spreadsheet (ODS files).
-Changed the order of the export files (moved legacy format to the end of the list).
+Changed the order of the export files (moved legacy formats to the end of the list).
 Updated external libraries.
 
 
@@ -167,7 +167,7 @@ Version 8.7
 -----------
 Cleaned up General Config dialog.
 Used SonarCube to improve code quality
-Fixed MS-Access empty cells bug
+Fixed MS-Excel empty cells bug
 Added more fields to export for BookCAT
 Used Restful Service API to perform SourceForge version check
 

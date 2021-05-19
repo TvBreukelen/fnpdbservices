@@ -145,7 +145,7 @@ Delete the DBConvert installation folder from your applications folder.
 Version 6.5
 -----------
 Added support for OpenOffice/LibreOffice Calc spreadsheet (ODS files).
-Changed the order of the export files (moved legacy format to the end of the list).
+Changed the order of the export files (moved legacy formats to the end of the list).
 Updated external libraries.
  
 
@@ -172,7 +172,7 @@ Version 6.3
 -----------
 Cleaned up General Config dialog.
 Used SonarCube to improve code quality
-Fixed MS-Access empty cells bug
+Fixed MS-Excel empty cells bug
 Improved Textfile export
 Used Restful Service API to perform SourceForge version check
 The rather confusing conversion settings for booleans, times

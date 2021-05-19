@@ -2,8 +2,8 @@ package dbengine;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -392,7 +392,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 		case NUMBER:
 			return ((Number) result).intValue();
 		case TIMESTAMP:
-			return General.convertTimestamp2DB((Date) result);
+			return General.convertTimestamp2DB((LocalDateTime) result);
 		default:
 			return result;
 		}
