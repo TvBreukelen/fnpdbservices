@@ -79,6 +79,8 @@ public enum ExportFile {
 		if (!isImport) {
 			exportList.remove(SQLITE.name);
 			exportList.remove(ACCESS.name);
+		} else {
+			exportList.remove(JSON.name);
 		}
 
 		String[] result = new String[exportList.size()];

@@ -143,7 +143,9 @@ Delete the DBConvert installation folder from your applications folder.
 
 Version 6.6
 -----------
-Removed support for P. Referencer
+Removed support for P. Referencer.
+Added export to JSON. 
+Fixed batch bug (NPE timer = null)
 
 
 Version 6.5

@@ -12,5 +12,5 @@ Rem *    DBConvert_batch.exe "Palm Db" MS-Excel                     *
 Rem *    DBConvert_batch.exe myXml herXml HanDBase                  *
 Rem *---------------------------------------------------------------*
  
-DBConvert_batch.exe Albums MS-Excel
+DBConvert_batch.exe Music MS-Excel
 pause
