@@ -1,7 +1,6 @@
 package dbengine.export;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -150,10 +149,11 @@ public class MobileDB extends PalmDB {
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				dbValue = dbValue.equals("true") || dbValue.equals("ja") || dbValue.equals("yes")
-				|| dbValue.equals("1");
+						|| dbValue.equals("1");
 				break;
 			case DATE:
 				dbValue = convertDate2DB(dbValue.toString());
+				break;
 			default:
 				break;
 			}
@@ -163,16 +163,15 @@ public class MobileDB extends PalmDB {
 	}
 
 	/**
-	 * Converts a MobileDB date back to a YYYYMMDD database date format
+	 * Converts a MobileDB date back to a LocalDate
 	 */
-	private String convertDate2DB(String pDate) {
+	private LocalDate convertDate2DB(String pDate) {
 		if (pDate == null || pDate.trim().length() == 0) {
-			return "";
+			return null;
 		}
 
 		int palmDate = Integer.parseInt(pDate.trim());
-		LocalDate result = LocalDate.of(1904, 1, 1).plusDays(palmDate);
-		return DateTimeFormatter.BASIC_ISO_DATE.format(result);
+		return LocalDate.of(1904, 1, 1).plusDays(palmDate);
 	}
 
 	@Override
@@ -197,17 +196,15 @@ public class MobileDB extends PalmDB {
 	/**
 	 * Converts a date stored in the database table a MobileDB database date
 	 */
-	@Override
-	protected Object convertDate(String pDate) {
-		if (pDate == null || pDate.equals("")) {
+	protected Object convertDate(LocalDate pDate) {
+		if (pDate == null) {
 			return "";
 		}
 
 		// Converts a LocalDate to a MobileDB date (no. of days since 01.01.1904)
-		LocalDate date = General.convertDB2Date(pDate);
 		LocalDate palmDate = LocalDate.of(1904, 1, 1);
 
-		return String.valueOf(ChronoUnit.DAYS.between(palmDate, date));
+		return String.valueOf(ChronoUnit.DAYS.between(palmDate, pDate));
 	}
 
 	@Override

@@ -13,12 +13,13 @@ public enum ExportFile {
 	 * @author Tom van Breukelen
 	 */
 
-	CALC("Calc", "", "", "true", "false", FileType.ODS, 256, 32767, 32767),
+	CALC("Calc", "", "", "true", "false", FileType.ODS, 256, 1048576, 1048576),
 	ACCESS("MS-Access", "", "", "true", "false", FileType.MDB, 255, 255, 255),
 	EXCEL("MS-Excel", "", "", "true", "false", FileType.XLSX, 256, 32767, 32767),
 	SQLITE("SQLite", "SQLite", "", "1", "0", FileType.DB, 255, 255, 255),
 	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
 	XML("Xml", "", "", "true", "false", FileType.XML, 32767, 32767, 32767),
+	JSON("Json", "", "", "true", "false", FileType.JSON, 32767, 32767, 32767),
 	DBASE3("DBase3", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
 	DBASE4("DBase4", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
 	DBASE5("DBase5", "", "", "T", "F", FileType.DBF, 254, 32767, 1024),
@@ -29,8 +30,7 @@ public enum ExportFile {
 	JFILE5("JFile5", "JfD5", "JFi5", "1", "0", FileType.PDB, 256, 10000, 50),
 	LIST("List", "DATA", "LSdb", "true", "false", FileType.PDB, 4095, 4095, 32767),
 	MOBILEDB("MobileDB", "Mdb1", "Mdb1", "true", "false", FileType.PDB, 256, 1000, 20),
-	PILOTDB("Pilot-DB", "DB00", "DBOS", "1", "0", FileType.PDB, 256, 3000, 256),
-	REFERENCER("P. Referencer", "", "", "true", "false", FileType.XLS, 256, 32767, 32767);
+	PILOTDB("Pilot-DB", "DB00", "DBOS", "1", "0", FileType.PDB, 256, 3000, 256);
 
 	private String name;
 	private String dbType;
@@ -76,9 +76,7 @@ public enum ExportFile {
 			exportList.remove(HANDBASE.name);
 		}
 
-		if (isImport) {
-			exportList.remove(REFERENCER.name);
-		} else {
+		if (!isImport) {
 			exportList.remove(SQLITE.name);
 			exportList.remove(ACCESS.name);
 		}
@@ -88,30 +86,32 @@ public enum ExportFile {
 		return result;
 	}
 
-	public boolean isBooleanExport() {
+	public boolean isSpreadSheet() {
 		switch (this) {
 		case CALC:
-		case HANDBASE:
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
-		case MOBILEDB:
-		case PILOTDB:
 		case EXCEL:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
-		case ACCESS:
-		case SQLITE:
 			return true;
 		default:
 			return false;
 		}
 	}
 
+	public boolean isBooleanExport() {
+		switch (this) {
+		case JSON:
+		case LIST:
+		case TEXTFILE:
+		case XML:
+			return false;
+		default:
+			return true;
+		}
+	}
+
 	public boolean isTextExport() {
 		switch (this) {
+		case JSON:
+		case LIST:
 		case TEXTFILE:
 		case XML:
 			return true;
@@ -120,24 +120,20 @@ public enum ExportFile {
 		}
 	}
 
+	public boolean isDurationExport() {
+		return this == CALC;
+	}
+
 	public boolean isDateExport() {
 		switch (this) {
-		case CALC:
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
-		case MOBILEDB:
-		case PILOTDB:
-		case EXCEL:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
-		case ACCESS:
-		case SQLITE:
-			return true;
-		default:
+		case HANDBASE:
+		case JSON:
+		case LIST:
+		case TEXTFILE:
+		case XML:
 			return false;
+		default:
+			return true;
 		}
 	}
 
@@ -146,7 +142,6 @@ public enum ExportFile {
 		case HANDBASE:
 		case ACCESS:
 		case TEXTFILE:
-		case REFERENCER:
 			return true;
 		default:
 			return false;
@@ -208,7 +203,6 @@ public enum ExportFile {
 	public boolean isSpecialFieldSort() {
 		switch (this) {
 		case LIST:
-		case REFERENCER:
 		case XML:
 			return true;
 		default:

@@ -132,7 +132,7 @@ public class ConfigGeneral extends BasicDialog {
 		timeExample = GUIFactory.getJTextField(EXAMPLE, "");
 		timeExample.setEditable(false);
 
-		durationFormat = new JComboBox<>(new String[] { "h:mm:ss", "mmm:ss" });
+		durationFormat = new JComboBox<>(new String[] { "H:mm:ss", "mmm:ss", "mm:ss" });
 		durationFormat.setSelectedItem(generalSettings.getDurationFormat());
 		durationFormat.setToolTipText(GUIFactory.getToolTip("durationFormat"));
 		durationFormat.addActionListener(e -> showDurationExample());
@@ -250,7 +250,8 @@ public class ConfigGeneral extends BasicDialog {
 	}
 
 	private void showDurationExample() {
-		durationExample.setText(durationFormat.getSelectedIndex() == 0 ? "2:10:15" : "170:15");
+		String[] durations = { "2:14:23", "070:15", "45:45" };
+		durationExample.setText(durations[durationFormat.getSelectedIndex()]);
 	}
 
 	@Override

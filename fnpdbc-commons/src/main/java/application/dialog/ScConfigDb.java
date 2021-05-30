@@ -96,7 +96,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			rImages[0].setEnabled(cConvertImages.isSelected());
 			rImages[1].setEnabled(cConvertImages.isSelected());
 			rImages[2].setEnabled(cConvertImages.isSelected());
-			spHeight.setEnabled(cConvertImages.isSelected() && myExportFile != ExportFile.REFERENCER);
+			spHeight.setEnabled(cConvertImages.isSelected());
 			spWidth.setEnabled(spHeight.isEnabled());
 		};
 
@@ -154,9 +154,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			switch (myExportFile) {
 			case HANDBASE:
 				dbConfig = new ConfigHanDBase(dialog, pdaSettings);
-				break;
-			case REFERENCER:
-				dbConfig = new ConfigReferencer(pdaSettings);
 				break;
 			case CALC:
 				dbConfig = new ConfigCalc(pdaSettings);
@@ -363,10 +360,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pBottomContainer.removeAll();
 
 		switch (myExportFile) {
-		case REFERENCER:
-			pTopContainer.add(pConvert);
-			pTopContainer.add(pOtherOptions);
-			break;
 		case CALC:
 		case EXCEL:
 			pTopContainer.add(pOtherOptions);
@@ -392,14 +385,14 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		lHeight.setVisible(cConvertImages.isVisible());
 		lWidth.setVisible(cConvertImages.isVisible());
 
-		rImages[1].setVisible(cConvertImages.isVisible() && myExportFile != ExportFile.REFERENCER);
+		rImages[1].setVisible(cConvertImages.isVisible());
 		rImages[0].setVisible(rImages[1].isVisible());
 		rImages[2].setVisible(rImages[1].isVisible());
 		rImages[0].setEnabled(cConvertImages.isSelected());
 		rImages[1].setEnabled(cConvertImages.isSelected());
 		rImages[2].setEnabled(cConvertImages.isSelected());
 
-		spHeight.setEnabled(cConvertImages.isSelected() && myExportFile != ExportFile.REFERENCER);
+		spHeight.setEnabled(cConvertImages.isSelected());
 		spWidth.setEnabled(spHeight.isEnabled());
 
 		pConvert.setVisible(cConvertImages.isVisible());

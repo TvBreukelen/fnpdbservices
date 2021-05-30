@@ -1,6 +1,10 @@
 package application.model;
 
 import java.awt.Font;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -147,17 +151,17 @@ public class ViewerModel extends AbstractTableModel {
 			}
 			break;
 		case DATE:
-			return General.convertDate(obj.toString());
+			return General.convertDate((LocalDate) obj, General.getSimpleDateFormat());
 		case FUSSY_DATE:
-			return General.convertFussyDate(obj.toString());
+			return General.convertFussyDate(obj.toString().trim());
 		case MEMO:
 			return createMemoField(obj.toString());
 		case TIME:
-			return General.convertTime(obj.toString());
+			return General.convertTime((LocalTime) obj, General.getSimpleTimeFormat());
 		case DURATION:
-			return General.convertDuration((Number) obj);
+			return General.convertDuration((Duration) obj);
 		case TIMESTAMP:
-			return General.convertTimestamp(obj.toString());
+			return General.convertTimestamp((LocalDateTime) obj, General.getSimpleTimestampFormat());
 		default:
 			break;
 		}

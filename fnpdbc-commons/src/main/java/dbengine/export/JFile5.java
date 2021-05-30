@@ -1,6 +1,7 @@
 package dbengine.export;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -135,8 +136,8 @@ public class JFile5 extends PalmDB {
 						dbValue = Boolean.parseBoolean(dbValue.toString());
 						break;
 					case DATE:
-						String date = General.convertDate2DB(dbValue.toString());
-						if (date.isEmpty()) {
+						LocalDate date = General.convertDate2DB(dbValue.toString(), General.sdInternalDate);
+						if (date == null) {
 							field.setFieldType(FieldTypes.TEXT);
 						} else {
 							dbValue = date;
@@ -149,7 +150,7 @@ public class JFile5 extends PalmDB {
 						dbValue = Double.parseDouble(dbValue.toString());
 						break;
 					case TIME:
-						dbValue = General.convertTime2DB(dbValue.toString());
+						dbValue = General.convertTime2DB(dbValue.toString(), General.sdInternalTime);
 						break;
 					default:
 						break;

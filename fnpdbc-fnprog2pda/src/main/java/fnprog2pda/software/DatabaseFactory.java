@@ -67,6 +67,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private DatabaseHelper dbHelper;
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
 	private boolean isConnected = false;
+	private String personSeparator = "\n";
 
 	private static final DatabaseFactory gInstance = new DatabaseFactory();
 
@@ -150,6 +151,10 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		return isConnected;
 	}
 
+	public String getPersonSeparator() {
+		return personSeparator;
+	}
+
 	public void verifyDatabase(String pDatabase) throws Exception {
 		boolean isVersionNotFound = true;
 
@@ -173,6 +178,10 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		section = properties.getSection(databaseType.getName());
 		versions = section.getItem("versions").getValue().split(",");
 		maxVersions = versions.length;
+
+		if (section.hasItem("person.separator")) {
+			personSeparator = section.getItem("person.separator").getValue().replace("\"", "");
+		}
 
 		for (int i = 0; i < maxVersions; i++) {
 			String verify = section.getItem("version" + versions[i] + ".exists").getValue();
@@ -219,6 +228,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 		table.setMainLine(true);
 		table.setShowAll(true);
+		table.setFromTable(currentTable);
 		table.renameFields(renameSection);
 		dbTables.put(view, table);
 
@@ -472,7 +482,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 		if (table != null) {
 			boolean isUseLink = !table.getFromTable().isEmpty();
-			HashMap<String, Object> linkMap = new HashMap<>();
+			Map<String, Object> linkMap = new HashMap<>();
 
 			List<Map<String, Object>> list = msAccess.getMultipleRecords(table.getName());
 			if (!list.isEmpty()) {

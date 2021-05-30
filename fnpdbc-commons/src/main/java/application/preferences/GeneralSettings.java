@@ -130,8 +130,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public void setDefaultBackupFolder(String defaultBackupFolder) {
-		PrefUtils.writePref(myPref, "default.backup.folder", defaultBackupFolder, this.defaultBackupFolder,
-				userHome);
+		PrefUtils.writePref(myPref, "default.backup.folder", defaultBackupFolder, this.defaultBackupFolder, userHome);
 		this.defaultBackupFolder = defaultBackupFolder;
 	}
 
@@ -140,8 +139,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public void setDefaultFileFolder(String defaultFileFolder) {
-		PrefUtils.writePref(myPref, "default.file.folder", defaultFileFolder, this.defaultFileFolder,
-				userHome);
+		PrefUtils.writePref(myPref, "default.file.folder", defaultFileFolder, this.defaultFileFolder, userHome);
 		this.defaultFileFolder = defaultFileFolder;
 	}
 
@@ -150,8 +148,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public void setDefaultImageFolder(String defaultImageFolder) {
-		PrefUtils.writePref(myPref, "default.image.folder", defaultImageFolder, this.defaultImageFolder,
-				userHome);
+		PrefUtils.writePref(myPref, "default.image.folder", defaultImageFolder, this.defaultImageFolder, userHome);
 		this.defaultImageFolder = defaultImageFolder;
 	}
 
@@ -169,7 +166,7 @@ public final class GeneralSettings implements IEncoding {
 	}
 
 	public void setDurationFormat(String durationFormat) {
-		PrefUtils.writePref(myPref, "duration.format", durationFormat, this.durationFormat, "h:mm:ss");
+		PrefUtils.writePref(myPref, "duration.format", durationFormat, this.durationFormat, "H:mm:ss");
 		this.durationFormat = durationFormat;
 	}
 

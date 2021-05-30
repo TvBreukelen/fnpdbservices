@@ -29,7 +29,8 @@ public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 
-		Component comp = value instanceof Boolean ? this : label;
+		boolean isBoolean = value instanceof Boolean;
+		Component comp = isBoolean ? this : label;
 
 		if (isSelected) {
 			comp.setForeground(table.getSelectionForeground());
@@ -38,7 +39,9 @@ public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 			comp.setBackground(Color.BLACK);
 			comp.setForeground(new Color(255, 0, 255));
 		}
-		setSelected((value != null && ((Boolean) value).booleanValue()));
+		if (isBoolean) {
+			setSelected(((Boolean) value));
+		}
 
 		if (hasFocus) {
 			setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
@@ -48,10 +51,10 @@ public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 
 		return comp;
 	}
-	//		if (value instanceof Boolean) {
-	//			setSelected((Boolean) value);
-	//			return this;
-	//		}
-	//		return label;
+	// if (value instanceof Boolean) {
+	// setSelected((Boolean) value);
+	// return this;
+	// }
+	// return label;
 	// }
 }

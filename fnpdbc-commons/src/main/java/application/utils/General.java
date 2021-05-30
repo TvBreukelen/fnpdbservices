@@ -35,16 +35,14 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,6 +72,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.MattePainter;
@@ -111,174 +110,24 @@ public final class General {
 
 	private static boolean isQuietMode = false;
 
-	private General() {
-		// Hidden constructor
-	}
-
-	public static int getID(String pNameID, String[] pIds) {
-		for (int i = 0; i < pIds.length; i++) {
-			if (pIds[i].equalsIgnoreCase(pNameID)) {
-				return i;
-			}
-		}
-		return 0;
-	}
-
-	public static void setQuietMode() {
-		isQuietMode = true;
-	}
-
-	/**
-	 * Converts a "normal" string to a byte array containing a fix length null
-	 * terminated string
-	 *
-	 * @see splitNullTerminatedString
-	 */
-	public static byte[] getNullTerminatedString(String field, int length, String encoding) {
-		if (field == null || field.isEmpty()) {
-			return new byte[length];
-		}
-
-		if (length == 0) {
-			length = field.length() + 1;
-		}
-
-		final int MAX_FIELD_LEN = length - 1; // Last char must be a null
-		if (field.length() > MAX_FIELD_LEN) {
-			field = field.substring(0, MAX_FIELD_LEN);
-		}
-
-		final int FIELD_LENGTH = field.length();
-		byte[] result = new byte[length];
-		System.arraycopy(convertString2Bytes(field, encoding), 0, result, 0, FIELD_LENGTH);
-		return result;
-	}
-
-	/**
-	 * Convert a byte array containing null terminated Strings to a ArrayList of
-	 * strings
-	 *
-	 * @see getNullTerminatedString
-	 */
-	public static List<String> splitNullTerminatedString(byte[] fields, int fieldLen) throws Exception {
-		List<String> result = null;
-		if (fields == null || fields.length == 0) {
-			return result;
-		}
-
-		final int max = fields.length / fieldLen;
-		ByteArrayInputStream bytes = new ByteArrayInputStream(fields);
-		byte[] field = new byte[fieldLen];
-
-		result = new ArrayList<>(max);
-		String s = null;
+	public static JPanel addVerticalButtons(String title, AbstractButton... buttons) {
+		final int max = buttons.length;
+		JPanel result = new JPanel(new GridBagLayout());
+		XGridBagConstraints c = new XGridBagConstraints();
+		ButtonGroup bGroup = new ButtonGroup();
 
 		for (int i = 0; i < max; i++) {
-			bytes.read(field);
-			if (field[0] == 0) {
-				break;
+			if (buttons[i] instanceof JRadioButton) {
+				bGroup.add(buttons[i]);
 			}
-
-			s = new String(field);
-			int index = s.indexOf('\0');
-			result.add(index != -1 ? s.substring(0, index) : s);
+			result.add(buttons[i], c.gridCell(1, i, 1, 0));
 		}
 
+		result.add(Box.createVerticalGlue(), c.gridCell(0, max, 0, 1));
+		if (title != null) {
+			result.setBorder(BorderFactory.createTitledBorder(title));
+		}
 		return result;
-	}
-
-	public static void setEnabled(Component component, boolean enable) {
-		if (component == null) {
-			return;
-		}
-
-		component.setEnabled(enable);
-		if (enable) {
-			component.setCursor(null);
-		}
-
-		// Check for instance of container.
-		if (component instanceof Container) {
-			// Continue setEnabled if there are more components.
-			Component[] components = ((Container) component).getComponents();
-			for (Component element : components) {
-				if (element != null) {
-					setEnabled(element, enable); // <- Here is the recursive
-													// call.
-				}
-			}
-		}
-	}
-
-	/**
-	 * Sets the preferred width of the visible columns in a JTable. The columns will
-	 * be just wide enough to show the column head and the widest cell in the
-	 * column. Margin pixels are added to the left and right (resulting in an
-	 * additional width of 4 pixels).
-	 */
-	public static void packColumns(JTable table) {
-		final int MAXWIDTH = 300;
-		DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
-		int maxCols = colModel.getColumnCount();
-		int maxRows = table.getRowCount();
-
-		for (int vColIndex = 0; vColIndex < maxCols; vColIndex++) {
-			TableColumn col = colModel.getColumn(vColIndex);
-			int width = 0;
-
-			// Get width of column header
-			TableCellRenderer renderer = col.getHeaderRenderer();
-			if (renderer == null) {
-				renderer = table.getTableHeader().getDefaultRenderer();
-			}
-
-			Component comp = renderer.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
-			width = comp.getPreferredSize().width;
-
-			if (maxRows > 0) {
-				renderer = table.getCellRenderer(0, vColIndex);
-				if (renderer instanceof BooleanRenderer) {
-					width = Math.max(width, 25);
-				} else {
-					// Get maximum width of column data
-					for (int r = 0; r < table.getRowCount(); r++) {
-						try {
-							comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, vColIndex), false,
-									false, r, vColIndex);
-							width = Math.max(width, comp.getPreferredSize().width);
-							if (width > MAXWIDTH) {
-								break;
-							}
-						} catch (Exception e) {
-							// Row contains an invalid object
-						}
-					}
-				}
-			}
-
-			// Add margin
-			width += 4;
-
-			if (width > MAXWIDTH) {
-				width = MAXWIDTH;
-			}
-
-			// Set the width
-			col.setPreferredWidth(width);
-		}
-	}
-
-	public static byte[] convertString2Bytes(String s, String encoding) {
-		if (encoding.isEmpty()) {
-			return s.getBytes();
-		}
-
-		try {
-			return s.getBytes(encoding);
-		} catch (Exception e) {
-			// Encoding is not supported
-			return s.getBytes();
-		}
 	}
 
 	public static String convertBytes2String(byte[] b, String encoding) {
@@ -293,180 +142,184 @@ public final class General {
 		}
 	}
 
-	public static long getChecksum(byte[] bytes) {
-		Checksum checksumEngine = new CRC32();
-		checksumEngine.update(bytes, 0, bytes.length);
-		return checksumEngine.getValue();
-	}
-
-	public static String encryptPassword(char[] password) {
-		if (password == null || password.length == 0) {
+	/**
+	 * Converts a database date to a 'readable' format
+	 *
+	 * @param pDate the date in the database table to be converted
+	 */
+	public static String convertDate(LocalDate pDate, DateTimeFormatter format) {
+		if (pDate == null) {
 			return "";
 		}
 
-		String encryped = xor(password);
-		return Base64.getMimeEncoder().encodeToString(encryped.getBytes());
-	}
-
-	public static String decryptPassword(String password) {
-		if (password == null || password.isEmpty()) {
-			return "";
-		}
-
-		String encrypted = new String(Base64.getMimeDecoder().decode(password));
-		return xor(encrypted.toCharArray());
-	}
-
-	private static String xor(char[] password) {
-		String keyPhrase = "PasswordProtected";
-		char[] key = keyPhrase.toCharArray();
-		int textLength = password.length;
-		int keyLength = key.length;
-
-		// encryption
-		char[] result = new char[textLength];
-		for (int i = 0; i < textLength; i++) {
-			result[i] = (char) (password[i] ^ key[i % keyLength]);
-		}
-		return new String(result);
+		return format.format(pDate);
 	}
 
 	/**
-	 * Executes another program within the current one
+	 * Converts 'readable' date created by convertDate back to a database date
+	 * format
 	 *
-	 * @param pCmd array containing the program file and (optional) command line
-	 *             parameters
-	 * @throws an exception when the program returned any output message
+	 * @param pDate : the date in the database table to be converted
 	 */
-	public static void executeProgram(String[] pCmd) throws FNProgException {
-		boolean isError = false;
-		String s = null;
-		StringBuilder errors = new StringBuilder();
+	public static LocalDate convertDate2DB(String pDate, DateTimeFormatter format) {
+		if (pDate == null || pDate.isEmpty()) {
+			return null;
+		}
 
 		try {
-			Process p = Runtime.getRuntime().exec(pCmd);
+			return LocalDate.parse(pDate, format);
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
-			// Try to catch the output of the running program
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			while ((s = br.readLine()) != null) {
-				isError = true;
-				errors.append("\n" + s);
+	/**
+	 * Convert a duration stored in the database table to a 'readable' format
+	 */
+	public static String convertDuration(Duration duration) {
+		if (duration == null) {
+			return "";
+		}
+
+		return DurationFormatUtils.formatDuration(duration.toMillis(), mySettings.getDurationFormat());
+	}
+
+	/**
+	 * Convert a duration stored in the database table as Integer to a 'readable'
+	 * format
+	 */
+	public static String convertDuration(Integer duration) {
+		if (duration == null) {
+			return "";
+		}
+
+		return DurationFormatUtils.formatDuration(Duration.ofSeconds(duration).toMillis(),
+				mySettings.getDurationFormat());
+	}
+
+	/**
+	 * Method to convert a 'readable' duration created by convertDuration back to a
+	 * database date format
+	 */
+	public static Duration convertDuration2DB(String pTime) {
+		if (pTime == null || pTime.isEmpty()) {
+			return null;
+		}
+
+		if (pTime.equals("0")) {
+			return Duration.ofSeconds(0);
+		}
+
+		pTime = pTime.trim().toUpperCase();
+		int hrs = 0;
+		int min = 0;
+		int sec = 0;
+
+		String[] displayTime = pTime.split(":");
+		int index = displayTime.length - 1;
+
+		sec = Integer.parseInt(displayTime[index--]);
+		min = Integer.parseInt(displayTime[index--]);
+		if (index == 0) {
+			hrs = Integer.parseInt(displayTime[0]);
+		}
+
+		return Duration.ofSeconds(hrs * 3600L + min * 60 + sec);
+	}
+
+	/**
+	 * Converts a date with a missing year, month or day to a 'readable' format
+	 *
+	 * @param pDate the date in the database table to be converted
+	 */
+	public static String convertFussyDate(String pDate) {
+		boolean isNoDay = true;
+		boolean isNoMonth = true;
+
+		switch (pDate.length()) {
+		case 4:
+			break;
+		case 6:
+			if (pDate.endsWith("00")) {
+				pDate = pDate.substring(0, 4);
+				break;
 			}
-			p.waitFor();
-		} catch (Exception e) {
-			isError = true;
-			errors.append("\n" + e.getMessage());
-		}
-
-		if (isError) {
-			throw FNProgException.getException("programExecError", pCmd[0], errors.toString());
-		}
-	}
-
-	public static void gotoWebsite(String webpage) throws FNProgException {
-		Desktop desktop = null;
-		if (Desktop.isDesktopSupported()) {
-			desktop = Desktop.getDesktop();
-			if (!desktop.isSupported(Desktop.Action.BROWSE)) {
-				throw FNProgException.getException("websiteError", webpage,
-						"Unable to find an Internet browser on this computer");
+			isNoMonth = false;
+			break;
+		case 8:
+			if (pDate.endsWith("00")) {
+				if (pDate.endsWith("0000")) {
+					pDate = pDate.substring(0, 4);
+					break;
+				}
+				pDate = pDate.substring(0, 6);
+				isNoMonth = false;
+				break;
 			}
-		} else {
-			throw FNProgException.getException("websiteError", webpage,
-					"This function is not supported on this platform");
+			isNoMonth = false;
+			isNoDay = false;
+			break;
+		default:
+			return pDate;
 		}
 
-		try {
-			URI uri = new URI(webpage);
-			desktop.browse(uri);
-		} catch (Exception e) {
-			throw FNProgException.getException("websiteError", webpage, e.getMessage());
-		}
-	}
-
-	public static Map<String, String> getLookAndFeels() {
-		Map<String, String> map = new LinkedHashMap<>();
-		map.put("System", UIManager.getSystemLookAndFeelClassName());
-
-		for (UIManager.LookAndFeelInfo result : UIManager.getInstalledLookAndFeels()) {
-			map.putIfAbsent(result.getName(), result.getClassName());
+		String dateFormat = mySettings.getDateFormat();
+		if (isNoDay) {
+			dateFormat = dateFormat.replace("d", "");
 		}
 
-		return map;
-	}
-
-	public static Properties getProperties(String nodeName) {
-		return getPropertyFile(nodeName, false);
-	}
-
-	public static Properties getLanguages(String nodeName) {
-		return getPropertyFile(nodeName, true);
-	}
-
-	public static IniFile getIniFile(String file) {
-		IniFile result = new IniFile();
-
-		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
-			IniFileReader iniReader = new IniFileReader(result, reader);
-			iniReader.read();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
-
-	private static Properties getPropertyFile(String nodeName, boolean isLanguage) {
-		String config = isLanguage ? ".lang" : ".config";
-		String file = (isLanguage ? "languages/" : "config/") + nodeName + config;
-		Properties result = new Properties();
-
-		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
-			result.load(reader);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
-
-	private static Reader getInputStreamReader(String file) {
-		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-		InputStream is = classloader.getResourceAsStream(file);
-		return new InputStreamReader(is, StandardCharsets.UTF_8);
-	}
-
-	public static String[] getCharacterSets() {
-		SortedMap<String, Charset> charSets = Charset.availableCharsets();
-		List<String> charList = new ArrayList<>(100);
-		charList.add(" ");
-		charSets.keySet().forEach(charList::add);
-		String[] result = new String[charList.size()];
-		charList.toArray(result);
-		return result;
-	}
-
-	public static ImageIcon createImageIcon(String image) {
-		ImageIcon result = ICON_MAP.get(image);
-		if (result != null) {
-			return result;
+		if (isNoMonth) {
+			dateFormat = dateFormat.replace("M", "");
 		}
 
-		try {
-			URL url = General.class.getResource("/images/" + image);
-			result = url == null ? new ImageIcon("/images/" + image) : new ImageIcon(url);
-			ICON_MAP.put(image, result);
+		dateFormat = dateFormat.replace("  ", " ").trim();
+		dateFormat = dateFormat.replace(" ", mySettings.getDateDelimiter());
+		String fDate = pDate + "0101".substring(0, 8 - pDate.length());
 
-		} catch (Exception e) {
+		LocalDate date = convertDate2DB(fDate, General.sdInternalDate);
+		if (date == null) {
+			return pDate;
 		}
-		return result;
+
+		DateTimeFormatter sd = DateTimeFormatter.ofPattern(dateFormat);
+		return sd.format(date);
 	}
 
-	public static JButton createToolBarButton(String toolTip, String iconFile, ActionListener action) {
-		JButton result = new JButton();
-		result.addActionListener(action);
-		result.setToolTipText(toolTip);
-		result.setIcon(createImageIcon(iconFile));
-		result.setMargin(new Insets(2, 2, 2, 2));
-		return result;
+	/**
+	 * Converts a 'readable' fussy date back to a database date format
+	 */
+	public static String convertFussyDate2DB(String pDate) {
+		if (pDate == null || pDate.trim().length() == 0) {
+			return "";
+		}
+
+		pDate = pDate.trim();
+		String[] displayDate = pDate.split(mySettings.getDateDelimiter());
+		String[] dBDate = new String[3];
+
+		int[] dateOrder = new int[3];
+		String dateFormat = mySettings.getDateFormat().replace(" ", "");
+		dateFormat = dateFormat.replace("MM", "M");
+		dateFormat = dateFormat.replace("yyyy", "y");
+		dateFormat = dateFormat.replace("yy", "y");
+		dateFormat = dateFormat.replace("dd", "d");
+
+		dateOrder[0] = dateFormat.indexOf('d');
+		dateOrder[1] = dateFormat.indexOf('M');
+		dateOrder[2] = dateFormat.indexOf('y');
+
+		final int index = displayDate.length;
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < index; i++) {
+			dBDate[dateOrder[i]] = displayDate[i];
+		}
+
+		for (int i = index; i < 3; i++) {
+			dBDate[dateOrder[i]] = "";
+		}
+
+		result.append(dBDate[2] + dBDate[1] + dBDate[0]);
+		return result.toString();
 	}
 
 	/**
@@ -528,44 +381,21 @@ public final class General {
 		return true;
 	}
 
-	/**
-	 * Returns the DateFormat used to convert a date in a 'readable' format
-	 */
-	public static String getDateFormat() {
-		return mySettings.getDateFormat().replace(" ", mySettings.getDateDelimiter());
+	public static byte[] convertString2Bytes(String s, String encoding) {
+		if (encoding.isEmpty()) {
+			return s.getBytes();
+		}
+
+		try {
+			return s.getBytes(encoding);
+		} catch (Exception e) {
+			// Encoding is not supported
+			return s.getBytes();
+		}
 	}
 
-	/**
-	 * Returns the SimpleDateFormat used to convert a date in a 'readable' format
-	 */
-	public static DateTimeFormatter getSimpleDateFormat() {
-		return DateTimeFormatter.ofPattern(getDateFormat());
-	}
-
-	/**
-	 * Returns the SimpleDateFormat used to convert a time stamp in a 'readable'
-	 * format
-	 */
-	public static DateTimeFormatter getSimpleTimestampFormat() {
-		return DateTimeFormatter.ofPattern(getDateFormat() + " HH:mm:ss");
-	}
-
-	/**
-	 * Returns the TimeFormat used to convert a time in a 'readable' format
-	 */
-	public static String getTimeFormat() {
-		return mySettings.getTimeFormat();
-	}
-
-	/**
-	 * Returns the SimpleDateFormat used to convert a time in a 'readable' format
-	 */
-	public static DateTimeFormatter getSimpleTimeFormat() {
-		return DateTimeFormatter.ofPattern(getTimeFormat().replace("am/pm", "aa"));
-	}
-
-	public static Date convertLocalDateToDate(LocalDate date) {
-		return date == null ? null : Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+	public static List<String> convertStringToList(String dbValue) {
+		return new ArrayList<>(Arrays.asList(dbValue.split("\n")));
 	}
 
 	/**
@@ -573,13 +403,23 @@ public final class General {
 	 *
 	 * @param pDate the date in the database table to be converted
 	 */
-	public static String convertDate(String pDate) {
-		LocalDate date = convertDB2Date(pDate);
-		if (date == null) {
+	public static String convertTime(LocalTime pTime, DateTimeFormatter format) {
+		if (pTime == null) {
 			return "";
 		}
 
-		return getSimpleDateFormat().format(date);
+		return format.format(pTime);
+	}
+
+	public static LocalTime convertTime2DB(String pTime, DateTimeFormatter format) {
+		if (pTime == null || pTime.isEmpty()) {
+			return null;
+		}
+		try {
+			return LocalTime.parse(pTime, format);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**
@@ -587,394 +427,28 @@ public final class General {
 	 *
 	 * @param pDate the date in the database table to be converted
 	 */
-	public static String convertTimestamp(String pDate) {
-		LocalDateTime date = convertDB2Timestamp(pDate);
-		if (date == null) {
+	public static String convertTimestamp(LocalDateTime pDate, DateTimeFormatter format) {
+		if (pDate == null) {
 			return "";
 		}
 
-		return getSimpleTimestampFormat().format(date);
-	}
-
-	/**
-	 * Converts a date with a missing year, month or day to a 'readable' format
-	 *
-	 * @param pDate the date in the database table to be converted
-	 */
-	public static String convertFussyDate(String pDate) {
-		if (pDate == null || pDate.isEmpty()) {
-			return "";
-		}
-
-		boolean isNoDay = true;
-		boolean isNoMonth = true;
-
-		switch (pDate.length()) {
-		case 4:
-			break;
-		case 6:
-			if (pDate.endsWith("00")) {
-				pDate = pDate.substring(0, 4);
-				break;
-			}
-			isNoMonth = false;
-			break;
-		case 8:
-			if (pDate.endsWith("00")) {
-				if (pDate.endsWith("0000")) {
-					pDate = pDate.substring(0, 4);
-					break;
-				}
-				pDate = pDate.substring(0, 6);
-				isNoMonth = false;
-				break;
-			}
-			isNoMonth = false;
-			isNoDay = false;
-			break;
-		default:
-			return pDate;
-		}
-
-		LocalDate date = convertDB2Date(pDate);
-		if (date == null) {
-			return pDate;
-		}
-
-		String dateFormat = mySettings.getDateFormat();
-		if (isNoDay) {
-			dateFormat = dateFormat.replace("d", "");
-		}
-
-		if (isNoMonth) {
-			dateFormat = dateFormat.replace("M", "");
-		}
-
-		dateFormat = dateFormat.replace("  ", " ").trim();
-		DateTimeFormatter sd = DateTimeFormatter.ofPattern(dateFormat.replace(" ", mySettings.getDateDelimiter()));
-		return sd.format(date);
-	}
-
-	/**
-	 * Converts 'readable' date created by convertDate back to a database date
-	 * format
-	 *
-	 * @param pDate : the date in the database table to be converted
-	 */
-	public static String convertDate2DB(String pDate) {
-		if (pDate == null || pDate.isEmpty()) {
-			return "";
-		}
-
-		try {
-			LocalDate date = LocalDate.parse(pDate, getSimpleDateFormat());
-			return convertDate2DB(date);
-		} catch (Exception e) {
-			return "";
-		}
+		return format.format(pDate);
 	}
 
 	/**
 	 * Converts 'readable' time stamp created by convertTimetamp back to a database
 	 * date format
 	 */
-	public static String convertTimestamp2DB(String pDate) {
-		if (pDate == null || pDate.isEmpty()) {
-			return "";
-		}
-
-		try {
-			LocalDateTime date = LocalDateTime.parse(pDate, getSimpleTimestampFormat());
-			return convertTimestamp2DB(date);
-		} catch (Exception e) {
-			return "";
-		}
-	}
-
-	/**
-	 * Converts a 'readable' fussy date back to a database date format
-	 */
-	public static String convertFussyDate2DB(String pDate) {
-		if (pDate == null || pDate.trim().length() == 0) {
-			return "";
-		}
-
-		pDate = pDate.trim();
-		String[] displayDate = pDate.split(mySettings.getDateDelimiter());
-		String[] dBDate = new String[3];
-
-		int[] dateOrder = new int[3];
-		String dateFormat = mySettings.getDateFormat().replace(" ", "");
-		dateFormat = dateFormat.replace("MM", "M");
-		dateFormat = dateFormat.replace("yyyy", "y");
-		dateFormat = dateFormat.replace("yy", "y");
-		dateFormat = dateFormat.replace("dd", "d");
-
-		dateOrder[0] = dateFormat.indexOf('d');
-		dateOrder[1] = dateFormat.indexOf('M');
-		dateOrder[2] = dateFormat.indexOf('y');
-
-		final int index = displayDate.length;
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < index; i++) {
-			dBDate[dateOrder[i]] = displayDate[i];
-		}
-
-		for (int i = index; i < 3; i++) {
-			dBDate[dateOrder[i]] = "";
-		}
-
-		result.append(dBDate[2] + dBDate[1] + dBDate[0]);
-		return result.toString();
-	}
-
-	public static LocalDateTime convertDB2Timestamp(String pDate) {
-		if (pDate == null || pDate.isEmpty() || pDate.length() != 19) {
-			return null;
-		}
-
-		try {
-			return LocalDateTime.parse(pDate, sdInternalTimestamp);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	/**
-	 * Converts a internal database date to a JAVA date
-	 *
-	 * @param pDate the date in the database table to be converted
-	 */
-	public static LocalDate convertDB2Date(String pDate) {
+	public static LocalDateTime convertTimestamp2DB(String pDate, DateTimeFormatter format) {
 		if (pDate == null || pDate.isEmpty()) {
 			return null;
 		}
 
-		String format;
-		switch (pDate.length()) {
-		case 4:
-			format = "yyyy";
-			break;
-		case 6:
-			format = "yyyyMM";
-			break;
-		case 8:
-			format = "yyyyMMdd";
-			break;
-		default:
-			return null;
-		}
-
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
 		try {
-			return LocalDate.parse(pDate, formatter);
+			return LocalDateTime.parse(pDate, format);
 		} catch (Exception e) {
 			return null;
 		}
-	}
-
-	/**
-	 * Converts a Java date back to a database date format
-	 */
-	public static String convertDate2DB(Date pDate) {
-		if (pDate == null) {
-			return "";
-		}
-		return sdInternalDate.format(new Timestamp(pDate.getTime()).toLocalDateTime());
-	}
-
-	/**
-	 * Converts a Java LocalDateTime back to a database date format
-	 */
-	public static String convertDate2DB(LocalDate pDate) {
-		if (pDate == null) {
-			return "";
-		}
-		return sdInternalDate.format(pDate);
-	}
-
-	/**
-	 * Converts a Java time back to the database time format
-	 */
-	public static String convertTime2DB(LocalTime pTime) {
-		if (pTime == null) {
-			return "";
-		}
-
-		int hrs = pTime.getHour() * 3600;
-		int min = pTime.getMinute() * 60;
-		int sec = pTime.getSecond();
-
-		return Integer.toString(hrs + min + sec);
-	}
-
-	/**
-	 * Converts a Java time back to the database time format
-	 */
-	public static String convertTime2DB(Duration pTime) {
-		if (pTime == null) {
-			return "";
-		}
-
-		return Long.toString(pTime.getSeconds());
-	}
-
-	public static String convertTimestamp2DB(Date pDate) {
-		if (pDate == null) {
-			return "";
-		}
-
-		return sdInternalTimestamp.format(new Timestamp(pDate.getTime()).toLocalDateTime());
-	}
-
-	/**
-	 * Converts a Java time stamp back to a database time stamp format
-	 */
-	public static String convertTimestamp2DB(LocalDateTime pDate) {
-		if (pDate == null) {
-			return "";
-		}
-
-		return sdInternalTimestamp.format(pDate);
-	}
-
-	/**
-	 * Converts a time stored in the database format to a 'readable' format
-	 */
-	public static String convertTime(String pTime) {
-		if (pTime == null || pTime.isEmpty()) {
-			return "";
-		}
-
-		int time = Integer.parseInt(pTime);
-		int hrs = time / 3600;
-		int totalMin = hrs * 3600;
-		int min = (time - totalMin) / 60;
-		int sec = time - (totalMin + min * 60);
-
-		LocalTime lc = LocalTime.of(hrs, min, sec);
-		return getSimpleTimeFormat().format(lc);
-	}
-
-	/**
-	 * Convert a duration stored in the database table to a 'readable' format
-	 */
-	public static String convertDuration(Number number) {
-		if (number == null) {
-			return "";
-		}
-
-		int time = number.intValue();
-		if (time == 0) {
-			return "0:00";
-		}
-
-		int min = 0;
-		int hrs = 0;
-		int sec = 0;
-		int totalMin = 0;
-
-		StringBuilder result = new StringBuilder();
-
-		if (mySettings.getDurationFormat().equals("h:mm:ss")) {
-			hrs = time / 3600;
-			totalMin = hrs * 3600;
-			result.append(hrs + ":");
-		}
-
-		min = (time - totalMin) / 60;
-		sec = time - (totalMin + min * 60);
-
-		if (min < 10) {
-			result.append("0");
-		}
-		result.append(min);
-		result.append(":");
-
-		if (sec < 10) {
-			result.append("0");
-		}
-		result.append(sec);
-		return result.toString();
-	}
-
-	/**
-	 * Method to convert a 'readable' time created by convertTime back to a database
-	 * date format
-	 */
-	public static String convertTime2DB(String pTime) {
-		if (pTime == null || pTime.isEmpty()) {
-			return "";
-		}
-
-		if (pTime.equals("0")) {
-			return "0";
-		}
-
-		pTime = pTime.trim().toUpperCase();
-		int hrs = 0;
-		int min = 0;
-		int sec = 0;
-
-		int total = 0;
-		String[] displayTime = pTime.split(":");
-		int index = displayTime.length - 1;
-
-		boolean amTime = displayTime[index].endsWith("AM");
-		boolean pmTime = displayTime[index].endsWith("PM");
-
-		if (amTime || pmTime) {
-			displayTime[index] = displayTime[index].substring(0, displayTime[index].length() - 2).trim();
-		}
-
-		min = Integer.parseInt(displayTime[1]);
-		hrs = Integer.parseInt(displayTime[0]);
-
-		if (index == 2) {
-			sec = Integer.parseInt(displayTime[2]);
-		}
-
-		if (pmTime) {
-			hrs += 12;
-			if (hrs == 24) {
-				hrs = 0;
-			}
-		}
-
-		total = hrs * 3600 + min * 60 + sec;
-		return String.valueOf(total);
-	}
-
-	/**
-	 * Method to convert a 'readable' duration created by convertDuration back to a
-	 * database date format
-	 */
-	public static String convertDuration2DB(String pTime) {
-		if (pTime == null || pTime.isEmpty()) {
-			return "";
-		}
-
-		if (pTime.equals("0")) {
-			return "0";
-		}
-
-		pTime = pTime.trim().toUpperCase();
-		int hrs = 0;
-		int min = 0;
-		int sec = 0;
-
-		int total = 0;
-		String[] displayTime = pTime.split(":");
-		int index = displayTime.length - 1;
-
-		sec = Integer.parseInt(displayTime[index--]);
-		min = Integer.parseInt(displayTime[index--]);
-		if (index == 0) {
-			hrs = Integer.parseInt(displayTime[0]);
-		}
-
-		total = hrs * 3600 + min * 60 + sec;
-		return String.valueOf(total);
 	}
 
 	public static String convertTrack(Number pIndex, int pLength) {
@@ -987,42 +461,6 @@ public final class General {
 		return result.toString();
 	}
 
-	public static boolean isNumerical(String str) {
-		if (str == null || str.isEmpty()) {
-			return false;
-		}
-
-		return str.matches("-?\\d+(\\.\\d+)?");
-	}
-
-	public static int intLittleEndian(byte[] buf) {
-		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getInt();
-	}
-
-	public static long longLittleEndian(byte[] buf) {
-		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getLong();
-	}
-
-	public static JPanel addVerticalButtons(String title, AbstractButton... buttons) {
-		final int max = buttons.length;
-		JPanel result = new JPanel(new GridBagLayout());
-		XGridBagConstraints c = new XGridBagConstraints();
-		ButtonGroup bGroup = new ButtonGroup();
-
-		for (int i = 0; i < max; i++) {
-			if (buttons[i] instanceof JRadioButton) {
-				bGroup.add(buttons[i]);
-			}
-			result.add(buttons[i], c.gridCell(1, i, 1, 0));
-		}
-
-		result.add(Box.createVerticalGlue(), c.gridCell(0, max, 0, 1));
-		if (title != null) {
-			result.setBorder(BorderFactory.createTitledBorder(title));
-		}
-		return result;
-	}
-
 	public static boolean copyFile(String fromFile, String toFile) throws Exception {
 		Path path = Paths.get(fromFile);
 		if (Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
@@ -1031,6 +469,49 @@ public final class General {
 			return true;
 		}
 		return false;
+	}
+
+	public static ImageIcon createImageIcon(String image) {
+		ImageIcon result = ICON_MAP.get(image);
+		if (result != null) {
+			return result;
+		}
+
+		try {
+			URL url = General.class.getResource("/images/" + image);
+			result = url == null ? new ImageIcon("/images/" + image) : new ImageIcon(url);
+			ICON_MAP.put(image, result);
+
+		} catch (Exception e) {
+		}
+		return result;
+	}
+
+	public static JButton createToolBarButton(String toolTip, String iconFile, ActionListener action) {
+		JButton result = new JButton();
+		result.addActionListener(action);
+		result.setToolTipText(toolTip);
+		result.setIcon(createImageIcon(iconFile));
+		result.setMargin(new Insets(2, 2, 2, 2));
+		return result;
+	}
+
+	public static String decryptPassword(String password) {
+		if (password == null || password.isEmpty()) {
+			return "";
+		}
+
+		String encrypted = new String(Base64.getMimeDecoder().decode(password));
+		return xor(encrypted.toCharArray());
+	}
+
+	public static String encryptPassword(char[] password) {
+		if (password == null || password.length == 0) {
+			return "";
+		}
+
+		String encryped = xor(password);
+		return Base64.getMimeEncoder().encodeToString(encryped.getBytes());
 	}
 
 	public static void errorMessage(Component parent, Throwable e, String title, String mesg) {
@@ -1044,61 +525,173 @@ public final class General {
 		JXErrorPane.showDialog(parent, info);
 	}
 
-	public static void showMessage(Component parent, String mesg, String title, boolean isError) {
-		if (isQuietMode) {
-			if (mesg == null) {
-				mesg = GUIFactory.getText("internalProgramError");
-			}
-			System.out.println(title + ": " + mesg);
-			return;
-		}
-		JOptionPane.showMessageDialog(parent, setDialogText(mesg), title,
-				isError ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	public static boolean showConfirmMessage(Component parent, String mesg, String title) {
-		return JOptionPane.showConfirmDialog(parent, setDialogText(mesg), title,
-				JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
-	}
-
-	public static String setDialogText(String text) {
-		return setDialogText(text, 120);
-	}
-
-	public static String setDialogText(String text, int maxLen) {
-		if (text == null) {
-			return "";
-		}
-
-		StringBuilder mesg = new StringBuilder(text);
+	/**
+	 * Executes another program within the current one
+	 *
+	 * @param pCmd array containing the program file and (optional) command line
+	 *             parameters
+	 * @throws an exception when the program returned any output message
+	 */
+	public static void executeProgram(String[] pCmd) throws FNProgException {
+		boolean isError = false;
 		String s = null;
-		if (text.length() > maxLen) {
-			mesg = new StringBuilder();
-			int start = 0;
-			int end = text.indexOf(' ', maxLen);
-			int index = 0;
+		StringBuilder errors = new StringBuilder();
 
-			while (end != -1) {
-				s = text.substring(start, ++end);
-				index = s.indexOf('\n');
-				if (index == -1) {
-					mesg.append(s + '\n');
-				} else {
-					mesg.append(s.substring(0, ++index));
-					end -= s.length() - index;
-				}
+		try {
+			Process p = Runtime.getRuntime().exec(pCmd);
 
-				start = end;
-				end = text.indexOf(' ', end + maxLen);
+			// Try to catch the output of the running program
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			while ((s = br.readLine()) != null) {
+				isError = true;
+				errors.append("\n" + s);
 			}
-			mesg.append(text.substring(start, text.length()));
+			p.waitFor();
+		} catch (Exception e) {
+			isError = true;
+			errors.append("\n" + e.getMessage());
 		}
-		return mesg.toString().trim();
+
+		if (isError) {
+			throw FNProgException.getException("programExecError", pCmd[0], errors.toString());
+		}
 	}
 
 	public static boolean existFile(String filename) {
 		File f = new File(filename);
 		return f.exists();
+	}
+
+	public static String getBaseName(String dbFile, ExportFile exp) {
+		int index = dbFile.lastIndexOf('.');
+
+		if (index == -1) {
+			return dbFile + exp.getFileExtention().get(0);
+		}
+		return dbFile.substring(0, index) + exp.getFileExtention().get(0);
+	}
+
+	public static String[] getCharacterSets() {
+		SortedMap<String, Charset> charSets = Charset.availableCharsets();
+		List<String> charList = new ArrayList<>(100);
+		charList.add(" ");
+		charSets.keySet().forEach(charList::add);
+		String[] result = new String[charList.size()];
+		charList.toArray(result);
+		return result;
+	}
+
+	public static long getChecksum(byte[] bytes) {
+		Checksum checksumEngine = new CRC32();
+		checksumEngine.update(bytes, 0, bytes.length);
+		return checksumEngine.getValue();
+	}
+
+	public static String getDefaultPDADatabase(ExportFile db) {
+		return mySettings.getDefaultFileFolder() + File.separator + db.getName() + db.getFileExtention().get(0);
+	}
+
+	public static int getID(String pNameID, String[] pIds) {
+		for (int i = 0; i < pIds.length; i++) {
+			if (pIds[i].equalsIgnoreCase(pNameID)) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
+	public static IniFile getIniFile(String file) {
+		IniFile result = new IniFile();
+
+		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
+			IniFileReader iniReader = new IniFileReader(result, reader);
+			iniReader.read();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return result;
+	}
+
+	private static Reader getInputStreamReader(String file) {
+		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+		InputStream is = classloader.getResourceAsStream(file);
+		return new InputStreamReader(is, StandardCharsets.UTF_8);
+	}
+
+	public static Properties getLanguages(String nodeName) {
+		return getPropertyFile(nodeName, true);
+	}
+
+	public static Map<String, String> getLookAndFeels() {
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("System", UIManager.getSystemLookAndFeelClassName());
+
+		for (UIManager.LookAndFeelInfo result : UIManager.getInstalledLookAndFeels()) {
+			map.putIfAbsent(result.getName(), result.getClassName());
+		}
+
+		return map;
+	}
+
+	/**
+	 * Converts a "normal" string to a byte array containing a fix length null
+	 * terminated string
+	 *
+	 * @see splitNullTerminatedString
+	 */
+	public static byte[] getNullTerminatedString(String field, int length, String encoding) {
+		if (field == null || field.isEmpty()) {
+			return new byte[length];
+		}
+
+		if (length == 0) {
+			length = field.length() + 1;
+		}
+
+		final int MAX_FIELD_LEN = length - 1; // Last char must be a null
+		if (field.length() > MAX_FIELD_LEN) {
+			field = field.substring(0, MAX_FIELD_LEN);
+		}
+
+		final int FIELD_LENGTH = field.length();
+		byte[] result = new byte[length];
+		System.arraycopy(convertString2Bytes(field, encoding), 0, result, 0, FIELD_LENGTH);
+		return result;
+	}
+
+	/** this painter draws a gradient fill */
+	public static MattePainter getPainter() {
+		if (painter != null) {
+			return painter;
+		}
+
+		int width = 100;
+		int height = 100;
+		Color color1 = Color.white;
+		Color color2 = Color.lightGray;
+
+		LinearGradientPaint gradientPaint = new LinearGradientPaint(0.0f, 0.0f, width, height,
+				new float[] { 0.0f, 1.0f }, new Color[] { color1, color2 });
+
+		painter = new MattePainter(gradientPaint);
+		return painter;
+	}
+
+	public static Properties getProperties(String nodeName) {
+		return getPropertyFile(nodeName, false);
+	}
+
+	private static Properties getPropertyFile(String nodeName, boolean isLanguage) {
+		String config = isLanguage ? ".lang" : ".config";
+		String file = (isLanguage ? "languages/" : "config/") + nodeName + config;
+		Properties result = new Properties();
+
+		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
+			result.load(reader);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return result;
 	}
 
 	public static void getSelectedFile(JDialog dialog, JTextField component, ExportFile file, String dir,
@@ -1185,13 +778,83 @@ public final class General {
 		}
 	}
 
-	public static String getBaseName(String dbFile, ExportFile exp) {
-		int index = dbFile.lastIndexOf('.');
+	/**
+	 * Returns the SimpleDateFormat used to convert a date in a 'readable' format
+	 */
+	public static DateTimeFormatter getSimpleDateFormat() {
+		return DateTimeFormatter.ofPattern(getDateFormat());
+	}
 
-		if (index == -1) {
-			return dbFile + exp.getFileExtention().get(0);
+	/**
+	 * Returns the SimpleDateFormat used to convert a time in a 'readable' format
+	 */
+	public static DateTimeFormatter getSimpleTimeFormat() {
+		return DateTimeFormatter.ofPattern(getTimeFormat());
+	}
+
+	/**
+	 * Returns the SimpleDateFormat used to convert a time stamp in a 'readable'
+	 * format
+	 */
+	public static DateTimeFormatter getSimpleTimestampFormat() {
+		return DateTimeFormatter.ofPattern(getTimestampFormat());
+	}
+
+	public static String getSoftwareTypeVersion(String software, String softwareVersion) {
+		StringBuilder result = new StringBuilder(software);
+		if (!softwareVersion.isEmpty()) {
+			result.append(" (vs ");
+			result.append(softwareVersion);
+			result.append(")");
 		}
-		return dbFile.substring(0, index) + exp.getFileExtention().get(0);
+		return result.toString();
+	}
+
+	/**
+	 * Returns the Date Format used to convert a date in a 'readable' format
+	 */
+	public static String getDateFormat() {
+		return mySettings.getDateFormat().replace(" ", mySettings.getDateDelimiter());
+	}
+
+	/**
+	 * Returns the Time Format used to convert a time in a 'readable' format
+	 */
+	public static String getTimeFormat() {
+		return mySettings.getTimeFormat().replace("am/pm", "aa");
+	}
+
+	/**
+	 * Returns the Timestamp Format used to convert a timestamp in a 'readable'
+	 * format
+	 */
+	public static String getTimestampFormat() {
+		return getDateFormat() + " " + getTimeFormat();
+	}
+
+	public static void gotoWebsite(String webpage) throws FNProgException {
+		Desktop desktop = null;
+		if (Desktop.isDesktopSupported()) {
+			desktop = Desktop.getDesktop();
+			if (!desktop.isSupported(Desktop.Action.BROWSE)) {
+				throw FNProgException.getException("websiteError", webpage,
+						"Unable to find an Internet browser on this computer");
+			}
+		} else {
+			throw FNProgException.getException("websiteError", webpage,
+					"This function is not supported on this platform");
+		}
+
+		try {
+			URI uri = new URI(webpage);
+			desktop.browse(uri);
+		} catch (Exception e) {
+			throw FNProgException.getException("websiteError", webpage, e.getMessage());
+		}
+	}
+
+	public static int intLittleEndian(byte[] buf) {
+		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getInt();
 	}
 
 	public static boolean isFileExtensionOk(String dbFile, ExportFile exp) {
@@ -1212,14 +875,73 @@ public final class General {
 		return isExtOK;
 	}
 
-	public static boolean writeObjectToDisk(Object myObject) {
-		// Write to disk with FileOutputStream
-		try (FileOutputStream fOut = new FileOutputStream(TEMP_DIR + File.separator + "myobject.data");
-				ObjectOutputStream oOut = new ObjectOutputStream(fOut)) {
-			oOut.writeObject(myObject);
-			return true;
-		} catch (Exception e) {
+	public static boolean isNumerical(String str) {
+		if (str == null || str.isEmpty()) {
 			return false;
+		}
+
+		return str.matches("-?\\d+(\\.\\d+)?");
+	}
+
+	public static long longLittleEndian(byte[] buf) {
+		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getLong();
+	}
+
+	/**
+	 * Sets the preferred width of the visible columns in a JTable. The columns will
+	 * be just wide enough to show the column head and the widest cell in the
+	 * column. Margin pixels are added to the left and right (resulting in an
+	 * additional width of 4 pixels).
+	 */
+	public static void packColumns(JTable table) {
+		final int MAXWIDTH = 300;
+		DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
+		int maxCols = colModel.getColumnCount();
+		int maxRows = table.getRowCount();
+
+		for (int vColIndex = 0; vColIndex < maxCols; vColIndex++) {
+			TableColumn col = colModel.getColumn(vColIndex);
+			int width = 0;
+
+			// Get width of column header
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			if (renderer == null) {
+				renderer = table.getTableHeader().getDefaultRenderer();
+			}
+
+			Component comp = renderer.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
+			width = comp.getPreferredSize().width;
+
+			if (maxRows > 0) {
+				renderer = table.getCellRenderer(0, vColIndex);
+				if (renderer instanceof BooleanRenderer) {
+					width = Math.max(width, 25);
+				} else {
+					// Get maximum width of column data
+					for (int r = 0; r < table.getRowCount(); r++) {
+						try {
+							comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, vColIndex), false,
+									false, r, vColIndex);
+							width = Math.max(width, comp.getPreferredSize().width);
+							if (width > MAXWIDTH) {
+								break;
+							}
+						} catch (Exception e) {
+							// Row contains an invalid object
+						}
+					}
+				}
+			}
+
+			// Add margin
+			width += 4;
+
+			if (width > MAXWIDTH) {
+				width = MAXWIDTH;
+			}
+
+			// Set the width
+			col.setPreferredWidth(width);
 		}
 	}
 
@@ -1235,35 +957,144 @@ public final class General {
 		return result;
 	}
 
-	public static String getDefaultPDADatabase(ExportFile db) {
-		return mySettings.getDefaultFileFolder() + File.separator + db.getName() + db.getFileExtention().get(0);
+	public static String setDialogText(String text) {
+		return setDialogText(text, 120);
 	}
 
-	public static String getSoftwareTypeVersion(String software, String softwareVersion) {
-		StringBuilder result = new StringBuilder(software);
-		if (!softwareVersion.isEmpty()) {
-			result.append(" (vs ");
-			result.append(softwareVersion);
-			result.append(")");
+	public static String setDialogText(String text, int maxLen) {
+		if (text == null) {
+			return "";
 		}
-		return result.toString();
+
+		StringBuilder mesg = new StringBuilder(text);
+		String s = null;
+		if (text.length() > maxLen) {
+			mesg = new StringBuilder();
+			int start = 0;
+			int end = text.indexOf(' ', maxLen);
+			int index = 0;
+
+			while (end != -1) {
+				s = text.substring(start, ++end);
+				index = s.indexOf('\n');
+				if (index == -1) {
+					mesg.append(s + '\n');
+				} else {
+					mesg.append(s.substring(0, ++index));
+					end -= s.length() - index;
+				}
+
+				start = end;
+				end = text.indexOf(' ', end + maxLen);
+			}
+			mesg.append(text.substring(start, text.length()));
+		}
+		return mesg.toString().trim();
 	}
 
-	/** this painter draws a gradient fill */
-	public static MattePainter getPainter() {
-		if (painter != null) {
-			return painter;
+	public static void setEnabled(Component component, boolean enable) {
+		if (component == null) {
+			return;
 		}
 
-		int width = 100;
-		int height = 100;
-		Color color1 = Color.white;
-		Color color2 = Color.lightGray;
+		component.setEnabled(enable);
+		if (enable) {
+			component.setCursor(null);
+		}
 
-		LinearGradientPaint gradientPaint = new LinearGradientPaint(0.0f, 0.0f, width, height,
-				new float[] { 0.0f, 1.0f }, new Color[] { color1, color2 });
+		// Check for instance of container.
+		if (component instanceof Container) {
+			// Continue setEnabled if there are more components.
+			Component[] components = ((Container) component).getComponents();
+			for (Component element : components) {
+				if (element != null) {
+					setEnabled(element, enable); // <- Here is the recursive
+													// call.
+				}
+			}
+		}
+	}
 
-		painter = new MattePainter(gradientPaint);
-		return painter;
+	public static void setQuietMode() {
+		isQuietMode = true;
+	}
+
+	public static boolean showConfirmMessage(Component parent, String mesg, String title) {
+		return JOptionPane.showConfirmDialog(parent, setDialogText(mesg), title,
+				JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION;
+	}
+
+	public static void showMessage(Component parent, String mesg, String title, boolean isError) {
+		if (isQuietMode) {
+			if (mesg == null) {
+				mesg = GUIFactory.getText("internalProgramError");
+			}
+			System.out.println(title + ": " + mesg);
+			return;
+		}
+		JOptionPane.showMessageDialog(parent, setDialogText(mesg), title,
+				isError ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Convert a byte array containing null terminated Strings to a ArrayList of
+	 * strings
+	 *
+	 * @see getNullTerminatedString
+	 */
+	public static List<String> splitNullTerminatedString(byte[] fields, int fieldLen) throws Exception {
+		List<String> result = null;
+		if (fields == null || fields.length == 0) {
+			return result;
+		}
+
+		final int max = fields.length / fieldLen;
+		ByteArrayInputStream bytes = new ByteArrayInputStream(fields);
+		byte[] field = new byte[fieldLen];
+
+		result = new ArrayList<>(max);
+		String s = null;
+
+		for (int i = 0; i < max; i++) {
+			bytes.read(field);
+			if (field[0] == 0) {
+				break;
+			}
+
+			s = new String(field);
+			int index = s.indexOf('\0');
+			result.add(index != -1 ? s.substring(0, index) : s);
+		}
+
+		return result;
+	}
+
+	public static boolean writeObjectToDisk(Object myObject) {
+		// Write to disk with FileOutputStream
+		try (FileOutputStream fOut = new FileOutputStream(TEMP_DIR + File.separator + "myobject.data");
+				ObjectOutputStream oOut = new ObjectOutputStream(fOut)) {
+			oOut.writeObject(myObject);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private static String xor(char[] password) {
+		String keyPhrase = "PasswordProtected";
+		char[] key = keyPhrase.toCharArray();
+		int textLength = password.length;
+		int keyLength = key.length;
+
+		// encryption
+		char[] result = new char[textLength];
+		for (int i = 0; i < textLength; i++) {
+			result[i] = (char) (password[i] ^ key[i % keyLength]);
+		}
+		return new String(result);
+	}
+
+	private General() {
+		// Hidden constructor
 	}
 }

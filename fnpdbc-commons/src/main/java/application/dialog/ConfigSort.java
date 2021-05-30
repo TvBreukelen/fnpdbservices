@@ -64,9 +64,6 @@ public class ConfigSort extends BasicDialog {
 		case LIST:
 			setHelpFile("sort_list");
 			break;
-		case REFERENCER:
-			setHelpFile("sort_referencer");
-			break;
 		case XML:
 			setHelpFile("sort_xml");
 			break;
@@ -110,10 +107,6 @@ public class ConfigSort extends BasicDialog {
 		case LIST:
 			ckSort = GUIFactory.getJCheckBox("reSortList", pdaSettings.isForceSort());
 			guiText = "sortFieldList";
-			break;
-		case REFERENCER:
-			ckSort = GUIFactory.getJCheckBox("reSortReferencer", pdaSettings.isForceSort());
-			guiText = "sortFieldReferencer";
 			break;
 		case XML:
 			guiText = "sortFieldXml";
@@ -179,7 +172,7 @@ public class ConfigSort extends BasicDialog {
 				String sortValue = cbSortField[i].getSelectedItem().toString();
 				if (!map.contains(sortValue)) {
 					map.add(sortValue);
-					pdaSettings.setSortField(myExportFile == ExportFile.REFERENCER ? i : index++, sortValue);
+					pdaSettings.setSortField(index++, sortValue);
 					isSortSelected = true;
 				}
 			}

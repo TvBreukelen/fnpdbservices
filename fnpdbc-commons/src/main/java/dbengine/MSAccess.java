@@ -2,7 +2,7 @@ package dbengine;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -295,7 +295,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<String> getTableNames() {
+	public List<String> getTableOrSheetNames() {
 		if (aTables == null) {
 			return new ArrayList<>();
 		}
@@ -387,12 +387,18 @@ public class MSAccess extends GeneralDB implements IConvert {
 		}
 
 		switch (field.getFieldType()) {
+		case DATE:
+			// FNProgramvare uses strings for dates
+			if (result instanceof String) {
+				return General.convertDate2DB(result.toString(), General.sdInternalDate);
+			}
+			return result;
+		case DURATION:
+			return Duration.ofSeconds((Integer) result);
 		case FLOAT:
 			return ((Number) result).doubleValue();
 		case NUMBER:
 			return ((Number) result).intValue();
-		case TIMESTAMP:
-			return General.convertTimestamp2DB((LocalDateTime) result);
 		default:
 			return result;
 		}

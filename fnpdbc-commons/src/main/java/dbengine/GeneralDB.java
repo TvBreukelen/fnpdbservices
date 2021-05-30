@@ -1,6 +1,10 @@
 package dbengine;
 
 import java.io.EOFException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +28,6 @@ import dbengine.export.JFile5;
 import dbengine.export.ListDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
-import dbengine.export.Referencer;
 import dbengine.export.SQLite;
 import dbengine.utils.DatabaseHelper;
 
@@ -58,8 +61,11 @@ public abstract class GeneralDB {
 	protected boolean useImages;
 	protected boolean useAppend;
 	protected boolean hasBackup;
+
 	private boolean isBooleanExport;
 	private boolean isDateExport;
+	private boolean isTimeExport;
+
 	protected boolean isInputFile;
 
 	protected String handbaseProgram;
@@ -87,6 +93,7 @@ public abstract class GeneralDB {
 
 		isBooleanExport = myExportFile.isBooleanExport();
 		isDateExport = myExportFile.isDateExport();
+		isTimeExport = myExportFile.isTimeExport();
 
 		GeneralSettings generalProps = GeneralSettings.getInstance();
 		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
@@ -137,7 +144,7 @@ public abstract class GeneralDB {
 		return null;
 	}
 
-	public List<String> getTableNames() {
+	public List<String> getTableOrSheetNames() {
 		// valid for MS-Access and SQL based databases only
 		return new ArrayList<>();
 	}
@@ -152,7 +159,7 @@ public abstract class GeneralDB {
 	}
 
 	public Object convertDataFields(Object dbValue, FieldDefinition field) {
-		if (dbValue == null) {
+		if (dbValue == null || dbValue.equals("")) {
 			return "";
 		}
 
@@ -160,38 +167,78 @@ public abstract class GeneralDB {
 			return dbValue;
 		}
 
+		String dbField = dbValue.toString();
 		switch (field.getFieldType()) {
 		case BOOLEAN:
-			boolean b = (Boolean) dbValue;
-			if (!isBooleanExport || field.isOutputAsText()) {
-				return b ? booleanTrue : booleanFalse;
-			}
-			return b;
+			return convertBoolean(dbValue, field);
 		case DATE:
-			if (!isDateExport || field.isOutputAsText()) {
-				return General.convertDate(dbValue.toString());
-			}
-			return convertDate(dbValue.toString());
+			return convertDate(dbValue, field);
 		case DURATION:
-			return General.convertDuration((Number) dbValue);
+			return convertDuration(dbValue, field);
+		case FLOAT:
+			return ((Number) dbValue).doubleValue();
 		case FUSSY_DATE:
-			return General.convertFussyDate(dbValue.toString());
+			return General.convertFussyDate(dbValue.toString().trim());
 		case MEMO:
-			// Check whether the value in field found doesn't exceed the maximum field size
-			if (dbValue.toString().length() > myExportFile.getMaxMemoSize()) {
-				// Truncate field
-				return dbValue.toString().substring(0, myExportFile.getMaxMemoSize() - 15) + " truncated...";
+			if (myExportFile == ExportFile.JSON) {
+				return General.convertStringToList(dbField);
 			}
-			return dbValue;
+
+			if (dbField.length() > myExportFile.getMaxMemoSize()) {
+				// Truncate field
+				return dbField.substring(0, myExportFile.getMaxMemoSize() - 15) + " truncated...";
+			}
+			return dbField;
+		case NUMBER:
+			return ((Number) dbValue).intValue();
 		case TIME:
-			return General.convertTime(dbValue.toString());
+			return convertTime(dbValue, field);
 		case TIMESTAMP:
-			return General.convertTimestamp(dbValue.toString());
+			return convertTimestamp(dbValue, field);
 		case UNKNOWN:
 			return "";
 		default:
-			return dbValue;
+			return convertString(dbValue);
 		}
+	}
+
+	protected Object convertBoolean(Object dbValue, FieldDefinition field) {
+		boolean b = (Boolean) dbValue;
+		if (!isBooleanExport || field.isOutputAsText()) {
+			return b ? booleanTrue : booleanFalse;
+		}
+		return b;
+	}
+
+	protected Object convertDate(Object dbValue, FieldDefinition field) {
+		return General.convertDate((LocalDate) dbValue,
+				!isDateExport || field.isOutputAsText() ? General.getSimpleDateFormat() : General.sdInternalDate);
+	}
+
+	protected Object convertDuration(Object dbValue, FieldDefinition field) {
+		return General.convertDuration((Duration) dbValue);
+	}
+
+	protected String convertString(Object dbValue) {
+		// Change Tabs to spaces, remove carriage returns and the trailing line feed
+		// char
+		String result = dbValue.toString().replace("\t", "  ");
+		result = result.replace("\r", "");
+		if (result.endsWith("\n")) {
+			result = result.substring(0, result.length() - 1);
+		}
+		return result;
+	}
+
+	protected Object convertTime(Object dbValue, FieldDefinition field) {
+		return General.convertTime((LocalTime) dbValue,
+				!isTimeExport || field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
+	}
+
+	protected Object convertTimestamp(Object dbValue, FieldDefinition field) {
+		return General.convertTimestamp((LocalDateTime) dbValue,
+				!isTimeExport || field.isOutputAsText() ? General.getSimpleTimestampFormat()
+						: General.sdInternalTimestamp);
 	}
 
 	public List<FieldDefinition> getTableModelFields() {
@@ -206,7 +253,7 @@ public abstract class GeneralDB {
 	}
 
 	protected Object convertDate(String pDate) {
-		return General.convertDate(pDate);
+		return General.convertDate2DB(pDate, General.sdInternalDate);
 	}
 
 	public void closeData() throws Exception {
@@ -219,6 +266,8 @@ public abstract class GeneralDB {
 			return new MSAccess(profile);
 		case CALC:
 			return new Calc(profile);
+		case JSON:
+			return new JsonFile(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
 		case JFILE5:
@@ -233,8 +282,6 @@ public abstract class GeneralDB {
 			return new MobileDB(profile);
 		case PILOTDB:
 			return new PilotDB(profile);
-		case REFERENCER:
-			return new Referencer(profile);
 		case EXCEL:
 			return new Excel(profile);
 		case TEXTFILE:

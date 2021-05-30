@@ -4,6 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -86,6 +89,7 @@ public class PilotDB extends PalmDB {
 				if (isNoTextExport) {
 					fieldTypes[i] = 4;
 				}
+				break;
 			default:
 				break;
 			}
@@ -158,9 +162,9 @@ public class PilotDB extends PalmDB {
 			}
 			return General.getNullTerminatedString(b ? booleanTrue : booleanFalse, 0, "");
 		case DATE:
-			return isNoTextExport ? (byte[]) convertDate(
-					dbValue)
-					: General.getNullTerminatedString(General.convertDate(dbValue), 0, "");
+			return isNoTextExport ? (byte[]) convertDate((LocalDate) dbField)
+					: General.getNullTerminatedString(General.convertDate((LocalDate) dbField, General.sdInternalDate),
+							0, "");
 		case FUSSY_DATE:
 			return General.getNullTerminatedString(General.convertFussyDate(dbValue), 0, "");
 		case FLOAT:
@@ -170,18 +174,17 @@ public class PilotDB extends PalmDB {
 		case NUMBER:
 			return INT((Integer) dbField);
 		case TIME:
-			dbValue = General.convertTime(dbValue);
+			dbValue = General.convertTime((LocalTime) dbField, General.sdInternalTime);
 			return isNoTextExport ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, 0, "");
 		case DURATION:
-			return General.getNullTerminatedString(General.convertDuration((Number) dbField), 0, "");
+			return General.getNullTerminatedString(General.convertDuration((Duration) dbField), 0, "");
 		default:
-			result = General.getNullTerminatedString(dbValue, 0, encoding);
-			if (result.length > myExportFile.getMaxTextSize()) {
-				throw FNProgException.getException("fieldLengthError", dbValue);
+			if (dbValue.length() > myExportFile.getMaxTextSize()) {
+				return convertMemo(dbValue);
+			} else {
+				return General.getNullTerminatedString(dbValue, 0, encoding);
 			}
 		}
-
-		return result;
 	}
 
 	@Override
@@ -377,9 +380,9 @@ public class PilotDB extends PalmDB {
 	/**
 	 * Converts a PilotDB date back to a YYYYMMDD database date format
 	 */
-	private String convertDate2DB(byte[] data) throws Exception {
+	private LocalDate convertDate2DB(byte[] data) throws Exception {
 		if (data == null || data.length < 2) {
-			return "";
+			return null;
 		}
 
 		ByteArrayInputStream bIn = new ByteArrayInputStream(data);
@@ -387,7 +390,7 @@ public class PilotDB extends PalmDB {
 
 		short year = dIn.readShort();
 		if (year == 0) {
-			return "";
+			return null;
 		}
 
 		byte month = dIn.readByte();
@@ -404,18 +407,17 @@ public class PilotDB extends PalmDB {
 			result.append("0");
 		}
 		result.append(day);
-		return result.toString();
+		return General.convertDate2DB(result.toString(), General.sdInternalDate);
 	}
 
-	@Override
-	protected Object convertDate(String pDate) {
+	protected Object convertDate(LocalDate pDate) {
 		byte[] result = new byte[4];
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream out = new DataOutputStream(bytes);
 		try {
-			out.writeShort(Integer.parseInt(pDate.substring(0, 4)));
-			out.writeByte(Integer.parseInt(pDate.substring(4, 6)));
-			out.writeByte(Integer.parseInt(pDate.substring(6, 8)));
+			out.writeShort(pDate.getYear());
+			out.writeByte(pDate.getMonthValue());
+			out.writeByte(pDate.getDayOfMonth());
 			return bytes.toByteArray();
 		} catch (Exception e) {
 			// Nothing to do
@@ -424,22 +426,12 @@ public class PilotDB extends PalmDB {
 		return result;
 	}
 
-	private String convertTime2DB(byte[] data) {
+	private LocalTime convertTime2DB(byte[] data) {
 		if (data == null || data[0] == 24) {
-			return "";
+			return null;
 		}
 
-		StringBuilder result = new StringBuilder();
-		if (data[0] < 10) {
-			result.append("0");
-		}
-		result.append(data[0]);
-		result.append(":");
-		if (data[1] < 10) {
-			result.append("0");
-		}
-		result.append(data[1]);
-		return General.convertTime2DB(result.toString());
+		return LocalTime.of(data[0], data[1]);
 	}
 
 	private byte[] convertTime(String pTime) {

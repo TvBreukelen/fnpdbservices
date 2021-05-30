@@ -1,6 +1,8 @@
 package dbengine.export;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -27,6 +29,7 @@ public class Excel extends ExcelFile {
 	private CellStyle format;
 	private CellStyle formatDate;
 	private CellStyle formatTime;
+	private CellStyle formatTimestamp;
 
 	public Excel(Profiles pref) {
 		super(pref);
@@ -62,6 +65,8 @@ public class Excel extends ExcelFile {
 		formatTime = wb.createCellStyle();
 		formatTime.setDataFormat(helper.createDataFormat().getFormat(General.getTimeFormat()));
 
+		formatTimestamp = wb.createCellStyle();
+		formatTimestamp.setDataFormat(helper.createDataFormat().getFormat(General.getTimestampFormat()));
 		excelRow = 0;
 
 		if (myPref.isUseHeader()) {
@@ -90,20 +95,19 @@ public class Excel extends ExcelFile {
 		// Read the user defined list of DB fields
 		Row row = sheet.createRow(excelRow);
 		for (FieldDefinition field : dbInfo2Write) {
-			Object dbField = dbRecord.get(field.getFieldAlias());
-			if (dbField == null || dbField.equals("")) {
+			Object dbValue = dbRecord.get(field.getFieldAlias());
+			if (dbValue == null || dbValue.equals("")) {
 				// Skip current column
 				excelCol++;
 				continue;
 			}
 
-			String dbValue = dbField.toString();
 			Cell cell = row.createCell(excelCol++);
 			cell.setCellStyle(format);
 
 			switch (field.getFieldType()) {
 			case BOOLEAN:
-				boolean b = (Boolean) dbField;
+				boolean b = (Boolean) dbValue;
 				if (field.isOutputAsText()) {
 					cell.setCellValue(b ? getBooleanTrue() : getBooleanFalse());
 				} else {
@@ -112,28 +116,23 @@ public class Excel extends ExcelFile {
 				break;
 			case DATE:
 				if (field.isOutputAsText()) {
-					cell.setCellValue(General.convertDate(dbValue));
+					cell.setCellValue(convertDate(dbValue, field).toString());
 				} else {
-					LocalDate date = General.convertDB2Date(dbValue);
-					if (date == null) {
-						cell.setCellValue(dbValue);
-					} else {
-						cell.setCellStyle(formatDate);
-						cell.setCellValue(date);
-					}
+					cell.setCellStyle(formatDate);
+					cell.setCellValue((LocalDate) dbValue);
 				}
 				break;
 			case FUSSY_DATE:
-				cell.setCellValue(General.convertFussyDate(dbValue));
+				cell.setCellValue(General.convertFussyDate(dbValue.toString()));
 				break;
 			case FLOAT:
-				cell.setCellValue((Double) dbField);
+				cell.setCellValue((Double) dbValue);
 				break;
 			case NUMBER:
-				cell.setCellValue((Integer) dbField);
+				cell.setCellValue((Integer) dbValue);
 				break;
 			case TIME:
-				String timeStr = General.convertTime(dbValue);
+				String timeStr = convertTime(dbValue, field).toString();
 				if (field.isOutputAsText()) {
 					cell.setCellValue(timeStr);
 				} else {
@@ -141,18 +140,19 @@ public class Excel extends ExcelFile {
 					cell.setCellValue(DateUtil.convertTime(timeStr));
 				}
 				break;
+			case TIMESTAMP:
+				if (field.isOutputAsText()) {
+					cell.setCellValue(convertTimestamp(dbValue, field).toString());
+				} else {
+					cell.setCellStyle(formatTimestamp);
+					cell.setCellValue((LocalDateTime) dbValue);
+				}
+				break;
 			case DURATION:
-				cell.setCellValue(General.convertDuration((Number) dbField));
+				cell.setCellValue(General.convertDuration((Duration) dbValue));
 				break;
 			default:
-				// Change Tabs to spaces, remove carriage returns and the trailing line feed
-				// char
-				dbValue = dbValue.replace("\t", "  ");
-				dbValue = dbValue.replace("\r", "");
-				if (dbValue.endsWith("\n")) {
-					dbValue = dbValue.substring(0, dbValue.length() - 1);
-				}
-				cell.setCellValue(dbValue);
+				cell.setCellValue(convertString(dbValue));
 			}
 		}
 

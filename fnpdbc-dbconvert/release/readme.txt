@@ -59,7 +59,6 @@ HanDBase        Palm/Pocket PC/iPhone/iPad
 List            Palm 
 MobileDB        Palm/PocketPC
 Pilot-DB        Palm  
-P. Referencer   Casio PocketViewer
 MS-Excel        Microsoft Windows / Mac OS X
 DBase3          MS-DOS
 DBase4          MS-DOS
@@ -141,6 +140,11 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 6.6
+-----------
+Removed support for P. Referencer
+
 
 Version 6.5
 -----------

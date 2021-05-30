@@ -2,9 +2,9 @@ package dbconvert.software;
 
 import java.awt.Component;
 import java.beans.PropertyChangeSupport;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -222,7 +222,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			validateUserFields(usrList, true);
 		}
 
-		// Add special fields for list, Referencer or Xml to the fields to
+		// Add special fields for list or Xml to the fields to
 		// export and to write, but deactivate their visibility
 		for (String dbField : pdaSettings.getSpecialFields()) {
 			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
@@ -235,7 +235,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				dbTableModelFields.add(new FieldDefinition(dbField, fieldDef.getFieldType(), false));
 			}
 		}
-		refreshSpecialFields(); // activate visibility in table model for list, Referencer or Xml
+		refreshSpecialFields(); // activate visibility in table model for list or Xml
 	}
 
 	@Override
@@ -365,16 +365,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		return result;
 	}
 
-	public List<String> getSheets() {
+	public List<String> getTableOrSheetNames() {
 		if (dbIn != null) {
-			return dbIn.getSheetNames();
-		}
-		return new ArrayList<>();
-	}
-
-	public List<String> getTables() {
-		if (dbIn != null) {
-			return dbIn.getTableNames();
+			return dbIn.getTableOrSheetNames();
 		}
 		return new ArrayList<>();
 	}
@@ -470,7 +463,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		// Save last export date
-		pdaSettings.setLastModified(General.convertTimestamp2DB(new Date()));
+		pdaSettings.setLastModified(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
 	}
 
 	public void setRecordsRead(String value) {

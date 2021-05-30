@@ -219,17 +219,16 @@ public class BookCAT extends FNProgramvare {
 	private String getBookContents(Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
+		StringBuilder result = new StringBuilder();
 
 		if (contentsList.isEmpty()) {
 			return "";
 		}
 
-		StringBuilder result = new StringBuilder();
+		StringBuilder newLine = new StringBuilder();
 
 		int item = 0;
 		int oldItem = 0;
-		int personIndex = 0;
-
 		String title = myTitle == null ? "" : myTitle.toUpperCase();
 
 		// Get Media
@@ -237,7 +236,11 @@ public class BookCAT extends FNProgramvare {
 
 		// Get Persons
 		List<Map<String, Object>> personList = hashTable.get(CONTENTS_PERSON);
-		int maxPersons = personList != null ? personList.size() : 0;
+		List<Map<String, Object>> linkList = hashTable.get("ContentsLink");
+
+		// Split ContentsPerson by ContentsID
+		Map<Integer, List<Map<String, Object>>> trackPersons = getContentsPersonIndex(linkList, personList,
+				"ContentsID");
 
 		// Sort Media by Contents.Item
 		if (useContentsItemTitle && mediaList != null && mediaList.size() > 1) {
@@ -255,9 +258,10 @@ public class BookCAT extends FNProgramvare {
 					String itemTitle = (String) mapItem.get(TITLE);
 					if (myItemCount > 1 || myItemCount == 1 && !itemTitle.equalsIgnoreCase(title)) {
 						if (item > 1) {
-							result.append("  \n");
+							addToList(newLine, result);
 						}
-						result.append(item + " - " + itemTitle + "\n");
+						newLine.append(item + " - " + itemTitle);
+						addToList(newLine, result);
 					}
 				}
 			}
@@ -272,48 +276,55 @@ public class BookCAT extends FNProgramvare {
 				}
 			}
 
-			result.append(contTitle);
+			newLine.append(contTitle);
 
-			if (useContentsAuthor && !personList.isEmpty() && personIndex < maxPersons) {
-				Map<String, Object> mapPerson = personList.get(personIndex);
-				boolean isPersonSet = false;
-				StringBuilder buf = new StringBuilder();
-
-				while (true) {
-					String persons = (String) mapPerson.get(useAuthorSort ? "SortBy" : "Name");
-					if (persons != null && !persons.isEmpty()) {
-						int roleID = useRoles ? ((Number) mapPerson.get("RoleID")).intValue() : 0;
-
-						if (isPersonSet) {
-							buf.append("; ");
-						}
-
-						buf.append(getPersonRole(AUTHOR, persons, roleID));
-						isPersonSet = true;
-					} else {
-						break;
-					}
-
-					if ((boolean) mapPerson.get("isAtEnd")) {
-						break;
-					}
-
-					personIndex++;
-					mapPerson = personList.get(personIndex);
-				}
-
-				String persons = buf.toString();
-				if (!persons.isEmpty() && !persons.equals(myPerson)) {
-					result.append(" [");
-					result.append(persons);
-					result.append("]");
-				}
+			String persons = getContentsPerson(trackPersons.get(map.get("ContentID")));
+			if (!persons.isEmpty() && !persons.equals(myPerson)) {
+				newLine.append(" [");
+				newLine.append(persons);
+				newLine.append("]");
 			}
 
-			result.append("\n");
+			addToList(newLine, result);
 			oldItem = item;
-			personIndex++;
 		}
 		return result.toString();
+	}
+
+	private String getContentsPerson(List<Map<String, Object>> personList) {
+		if (personList == null || personList.isEmpty() || !useContentsAuthor) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		boolean isSwapPersonAndRole = true;
+		boolean isFirstPerson = true;
+
+		for (Map<String, Object> mapPerson : personList) {
+			String persons = (String) mapPerson.get(useAuthorSort ? "SortBy" : "Name");
+			if (persons != null && !persons.isEmpty()) {
+				if (useRoles) {
+					String role = getPersonRole(AUTHOR, (Number) mapPerson.get("RoleID"));
+					if (role.isEmpty() && isFirstPerson) {
+						isSwapPersonAndRole = false;
+					}
+					if (isSwapPersonAndRole) {
+						sb.append(persons).append(" ").append(role).append(" ");
+					} else {
+						sb.append(role).append(" ").append(persons).append(" ");
+					}
+					isFirstPerson = false;
+				} else {
+					sb.append(persons);
+					sb.append(" & ");
+				}
+			}
+		}
+
+		int lastChar = sb.lastIndexOf("&");
+		if (lastChar != -1) {
+			sb.deleteCharAt(lastChar);
+		}
+		return sb.toString().trim();
 	}
 }

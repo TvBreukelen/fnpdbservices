@@ -49,14 +49,6 @@ public class CellEditor extends AbstractCellEditor implements TableCellEditor {
 			case FUSSY_DATE:
 				component.setText(General.convertFussyDate2DB(component.getText()));
 				break;
-			case DURATION:
-				component.setText(General.convertDuration2DB(component.getText()));
-				break;
-			case TIME:
-				component.setText(General.convertTime2DB(component.getText()));
-				break;
-			case TIMESTAMP:
-				component.setText(General.convertTimestamp2DB(component.getText()));
 			default:
 				break;
 			}

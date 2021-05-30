@@ -9,7 +9,7 @@ public enum FNPSoftware {
 	 */
 
 	ASSETCAT("AssetCAT", "Asset"), BOOKCAT("BookCAT", "Book", "Contents", "Person", "Wantlist"),
-	CATRAXX("CATraxx", "Album", "Artist", "Boxset", "Playlist", "Track", "Wantlist"),
+	CATRAXX("CATraxx", "Album", "Artist", "BoxSet", "Playlist", "Track", "Wantlist"),
 	CATVIDS("CATVids", "Contents", "Video", "Wantlist"), SOFTCAT("SoftCAT", "App"), STAMPCAT("StampCAT", "Stamp"),
 	UNDEFINED("undefined");
 

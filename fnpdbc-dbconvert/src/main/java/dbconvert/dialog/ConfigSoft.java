@@ -66,13 +66,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	private JButton btSortOrder;
 
 	private JComboBox<String> bDatabase;
-	private JComboBox<String> bWorkSheets;
-	private JComboBox<String> bTables;
-	private JLabel lWorksheet;
-	private JLabel lTable;
+	private JComboBox<String> bTablesWorksheets;
+	private JLabel lTablesWorkSheets;
 
-	transient ActionListener funcSelectWorksheet;
-	transient ActionListener funcSelectTable;
+	transient ActionListener funcSelectTableOrSheet;
 
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
@@ -124,8 +121,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		myImportFile = isNewProfile ? ExportFile.CALC : ExportFile.getExportFile(dbSettings.getDatabaseType());
 		dbFactory = new XConverter();
 
-		funcSelectWorksheet = e -> worksheetChanged();
-		funcSelectTable = e -> tableChanged();
+		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
@@ -206,13 +202,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			activateComponents();
 		});
 
-		lWorksheet = GUIFactory.getJLabel("worksheet");
-		bWorkSheets = new JComboBox<>();
-		bWorkSheets.setToolTipText(GUIFactory.getToolTip("worksheet"));
-
-		lTable = GUIFactory.getJLabel("table");
-		bTables = new JComboBox<>();
-		bTables.setToolTipText(GUIFactory.getToolTip("table"));
+		lTablesWorkSheets = GUIFactory.getJLabel(myImportFile.isSpreadSheet() ? "worksheet" : "table");
+		bTablesWorksheets = new JComboBox<>();
+		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? "worksheet" : "table"));
 
 		XGridBagConstraints c = new XGridBagConstraints();
 
@@ -225,10 +217,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		gPanel.add(fdDatabase, c.gridmultipleCell(1, 0, 2, 0, 4, 1));
 		gPanel.add(btBrowse, c.gridCell(5, 0, 0, 0));
 
-		gPanel.add(lTable, c.gridCell(0, 1, 0, 0));
-		gPanel.add(bTables, c.gridCell(1, 1, 0, 0));
-		gPanel.add(lWorksheet, c.gridCell(0, 1, 0, 0));
-		gPanel.add(bWorkSheets, c.gridCell(1, 1, 0, 0));
+		gPanel.add(lTablesWorkSheets, c.gridCell(0, 1, 0, 0));
+		gPanel.add(bTablesWorksheets, c.gridCell(1, 1, 0, 0));
 		gPanel.add(p2, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
 		gPanel.add(textImport, c.gridmultipleCell(1, 4, 2, 0, 4, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
@@ -278,14 +268,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		verifyDatabase(false);
 	}
 
-	private void worksheetChanged() {
-		pdaSettings.setTableName(bWorkSheets.getSelectedItem().toString(), false);
-		dbVerified.setDatabase("");
-		verifyDatabase(false);
-	}
-
-	private void tableChanged() {
-		pdaSettings.setTableName(bTables.getSelectedItem().toString(), false);
+	private void tableOrWorksheetChanged() {
+		pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), false);
 		dbVerified.setDatabase("");
 		verifyDatabase(false);
 	}
@@ -336,54 +320,26 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		fdEncoding.setText(encoding.isEmpty() ? GUIFactory.getText("default") : encoding);
 	}
 
-	private void setWorksheets() {
-		bWorkSheets.removeActionListener(funcSelectWorksheet);
-		bWorkSheets.removeAllItems();
+	private void setTablesOrWorksheets() {
+		bTablesWorksheets.removeActionListener(funcSelectTableOrSheet);
+		bTablesWorksheets.removeAllItems();
 
 		if (dbVerified.getDatabase().isEmpty()) {
 			return;
 		}
 
-		List<String> worksheets = dbFactory.getSheets();
-		if (worksheets.isEmpty()) {
+		List<String> names = dbFactory.getTableOrSheetNames();
+		if (names.isEmpty()) {
 			return;
 		}
 
-		for (String s : worksheets) {
-			bWorkSheets.addItem(s);
+		for (String s : names) {
+			bTablesWorksheets.addItem(s);
 		}
 
-		String worksheet = pdaSettings.getTableName();
-		if (worksheet.isEmpty()) {
-			bWorkSheets.setSelectedIndex(0);
-		} else {
-			bWorkSheets.setSelectedItem(worksheet);
-		}
-
-		bWorkSheets.setVisible(worksheets.size() > 1);
-		bWorkSheets.addActionListener(funcSelectWorksheet);
-	}
-
-	private void setTables() {
-		bTables.removeActionListener(funcSelectTable);
-		bTables.removeAllItems();
-
-		if (dbVerified.getDatabase().isEmpty()) {
-			return;
-		}
-
-		List<String> tables = dbFactory.getTables();
-		if (tables.isEmpty()) {
-			return;
-		}
-
-		for (String s : tables) {
-			bTables.addItem(s);
-		}
-
-		bTables.setVisible(tables.size() > 1);
-		bTables.setSelectedItem(pdaSettings.getTableName());
-		bTables.addActionListener(funcSelectTable);
+		bTablesWorksheets.setVisible(names.size() > 1);
+		bTablesWorksheets.setSelectedItem(pdaSettings.getTableName());
+		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
 	}
 
 	@Override
@@ -438,14 +394,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			break;
 		case CALC:
 		case EXCEL:
-			if (lWorksheet != null) {
-				pdaSettings.setTableName(bWorkSheets.getSelectedItem().toString(), true);
-			}
-			break;
 		case ACCESS:
 		case SQLITE:
-			if (lTable != null) {
-				pdaSettings.setTableName(bTables.getSelectedItem().toString(), true);
+			if (lTablesWorkSheets != null) {
+				pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), true);
 			}
 		default:
 			break;
@@ -469,7 +421,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	public void activateComponents() {
 		boolean isTextFile = myImportFile == ExportFile.TEXTFILE;
 		boolean isEncoding = myImportFile.isEncodingSupported();
-		boolean isSpreadsheet = myImportFile == ExportFile.EXCEL || myImportFile == ExportFile.CALC;
 		boolean isFileValid = false;
 		boolean isFurtherCheck = true;
 
@@ -514,14 +465,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		}
 
 		if (tabPane != null) {
-			setWorksheets();
-			setTables();
+			setTablesOrWorksheets();
 
 			tabPane.setEnabledAt(1, isFileValid);
-			bTables.setVisible(bTables.getItemCount() > 1);
-			lTable.setVisible(bTables.isVisible());
-			bWorkSheets.setVisible(isSpreadsheet && bWorkSheets.getItemCount() > 1);
-			lWorksheet.setVisible(bWorkSheets.isVisible());
+			bTablesWorksheets.setVisible(bTablesWorksheets.getItemCount() > 1);
+			lTablesWorkSheets.setVisible(bTablesWorksheets.isVisible());
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
 			btEncoding.setVisible(isEncoding);

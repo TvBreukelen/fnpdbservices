@@ -7,7 +7,6 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -93,12 +92,16 @@ public abstract class FNProgramvare extends BasicSoft {
 	private boolean isOutputFileOpen = false;
 	private boolean isNoImagePath = false;
 
-	private Set<FieldDefinition> hTextFields = new HashSet<>();
 	protected Map<String, Map<Integer, String>> myRoles = new HashMap<>(30);
 	protected static PrefFNProg pdaSettings = PrefFNProg.getInstance();
 
 	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
+
+	private static final String ROLE_ID = "RoleID";
+	private static final String THUMB = "Thumb";
+
+	private boolean isCatraxx;
 	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 
 	public FNProgramvare() {
@@ -137,7 +140,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		List<String> usrList = new ArrayList<>();
 		dbTableModelFields.clear();
 		dbSortList.clear();
-		hTextFields.clear();
 
 		for (BasisField field : dbUserFields) {
 			FieldDefinition dbField = dbFieldDefinition.get(field.getFieldAlias());
@@ -163,7 +165,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			validateUserFields(usrList, false);
 		}
 
-		// Add special fields for list, Referencer or XML to the fields to
+		// Add special fields for list or XML to the fields to
 		// export and to write
 		for (String dbField : pdaSettings.getSpecialFields()) {
 			if (addField(dbField, usrList, false, false) == null) {
@@ -230,6 +232,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		dbFactory.verifyDatabase(dbSettings.getDatabaseFile());
 		dbFactory.loadConfiguration(pdaSettings.getTableName());
 		isInputFileOpen = true;
+		isCatraxx = dbFactory.getDatabaseType() == FNPSoftware.CATRAXX;
 
 		// Get the total number of records to process
 		dbFactory.getMSAccess().verifyDatabase(null);
@@ -314,7 +317,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		Set<Object> keywordList = new HashSet<>();
 		Map<String, Object> hKeyword = new HashMap<>();
 		Map<Integer, FieldDefinition> hFilterTable = new LinkedHashMap<>();
-		final String separator = myTable.equals("BoxSet") ? "\n" : "; ";
+		final String separator = dbFactory.getPersonSeparator();
 
 		cursor = null;
 		setCurrentRecord(0);
@@ -375,7 +378,9 @@ public abstract class FNProgramvare extends BasicSoft {
 						continue;
 					}
 
-					String compDate = obj instanceof Date ? General.convertTimestamp2DB((Date) obj) : obj.toString();
+					String compDate = obj instanceof LocalDateTime
+							? General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp)
+							: obj.toString();
 					if (compDate.compareTo(myLastModified) < 0) {
 						continue;
 					}
@@ -428,37 +433,42 @@ public abstract class FNProgramvare extends BasicSoft {
 					}
 				} else if (field.isRoleField() || list.size() > 1) {
 					StringBuilder buf = new StringBuilder(100);
-					ArrayList<String> aList = new ArrayList<>();
+					Set<String> aList = new HashSet<>();
+
 					for (Map<String, Object> lObj : list) {
 						String s = msAccess.convertObject(lObj, field).toString();
 						if (!s.isEmpty() && !aList.contains(s)) {
 							if (isPersonRoles) {
-								buf.append(getPersonRole(field.getTable(), s, (Number) lObj.get("RoleID")));
+								String role = getPersonRole(field.getTable(), (Number) lObj.get(ROLE_ID));
+								if (role.isEmpty()) {
+									buf.append(s).append(" & ");
+								} else if (isCatraxx) {
+									buf.append(role).append(" ").append(s).append(" ");
+								} else {
+									buf.append(s).append(" ").append(role).append(" ");
+								}
 							} else {
-								buf.append(s);
+								buf.append(s).append(" & ");
 							}
-							buf.append(separator);
-							aList.add(s);
+						} else {
+							buf.append(s).append(separator);
 						}
-					}
-					if (buf.toString().endsWith(separator)) {
-						buf.delete(buf.length() - 2, buf.length());
+						aList.add(s);
 					}
 
-					dbRecord.put(field.getFieldAlias(), buf.toString());
-					hTextFields.add(field);
+					int lastChar = buf.lastIndexOf(" & ");
+					lastChar = Math.max(lastChar, buf.lastIndexOf(separator));
+					if (lastChar != -1) {
+						buf.delete(lastChar, buf.length());
+					}
+
+					dbRecord.put(field.getFieldAlias(), buf.toString().trim());
 				} else {
 					dbRecord.put(field.getFieldAlias(), msAccess.convertObject(list.get(0), field));
 				}
 			}
 
 			setTableRecord(dbRecord, hashTable, result);
-		}
-
-		if (!hTextFields.isEmpty()) {
-			for (FieldDefinition field : hTextFields) {
-				field.setFieldType(FieldTypes.TEXT);
-			}
 		}
 
 		if (!dbSortList.isEmpty()) {
@@ -490,7 +500,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		List<Map<String, Object>> linkList = getMainTableRecord(link, map, hashTable, linkKey);
 		hashTable.put(key, result);
 
-		if (linkList == null) {
+		if (linkList.isEmpty()) {
 			// Shit, now it gets really complicated since our linked table isn't directly
 			// linked to the main table
 			String linkedKey = link.getFromTable();
@@ -503,15 +513,15 @@ public abstract class FNProgramvare extends BasicSoft {
 			linkList = new ArrayList<>();
 			MSTable linkedLink = dbFactory.getMSTable(linkedKey);
 			List<Map<String, Object>> linkedList = getMainTableRecord(linkedLink, map, hashTable, linkedKey);
-			if (linkedList != null) {
+			if (!linkedList.isEmpty()) {
 				for (Map<String, Object> linkMap : linkedList) {
 					if (link.setColumnValues(linkMap)) {
-						Map<String, Object> lObj = msAccess.getSingleRecord(link.getName(), link.getIndex(),
+						List<Map<String, Object>> lList = msAccess.getMultipleRecords(link.getName(), link.getIndex(),
 								link.getColumnValues());
-						if (lObj != null && !lObj.isEmpty()) {
-							linkList.add(lObj);
+						if (!lList.isEmpty()) {
+							linkList.addAll(lList);
 						} else if (field.isRoleField()) {
-							lObj = new LinkedHashMap<>();
+							Map<String, Object> lObj = new LinkedHashMap<>();
 							lObj.put("AtEnd", true);
 							linkList.add(lObj);
 						}
@@ -536,9 +546,8 @@ public abstract class FNProgramvare extends BasicSoft {
 				}
 
 				for (Map<String, Object> lObj : list) {
-					lObj.put("isAtEnd", false);
 					if (isPersonRoles) {
-						lObj.put("RoleID", linkMap.get("RoleID"));
+						lObj.put(ROLE_ID, linkMap.get(ROLE_ID));
 					}
 
 					if (link.isNoDupIndex()) {
@@ -553,12 +562,6 @@ public abstract class FNProgramvare extends BasicSoft {
 
 					result.add(lObj);
 				}
-
-				if (result.isEmpty()) {
-					continue;
-				}
-
-				result.get(result.size() - 1).put("isAtEnd", linkMap.getOrDefault("isAtEnd", true));
 			}
 		}
 		return result;
@@ -597,7 +600,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		Map<String, Object> map = list.get(0);
 		boolean result = false;
 
-		if (field.startsWith("Thumb") || !((boolean) map.get("ImageExternal"))) {
+		if (field.startsWith(THUMB) || !((boolean) map.get("ImageExternal"))) {
 			result = check4InternalImage(field, dbRecord, map);
 		} else {
 			result = check4ExternalImage(field, dbRecord, map);
@@ -641,7 +644,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	private boolean check4InternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
 			throws Exception {
 		if (exportImages) {
-			Object obj = map.get(field.startsWith("Thumb") ? "ImageThumbnail" : "Image");
+			Object obj = map.get(field.startsWith(THUMB) ? "ImageThumbnail" : "Image");
 			if (obj != null) {
 				try {
 					BufferedImage image = ImageIO.read(new ByteArrayInputStream((byte[]) obj));
@@ -669,7 +672,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		buf.append(fileCounter++);
 		buf.append(types[pdaSettings.getImageOption()]);
 
-		if (General.convertImage(image, myExportFile, pdaSettings, buf.toString(), field.startsWith("Thumb"))) {
+		if (General.convertImage(image, myExportFile, pdaSettings, buf.toString(), field.startsWith(THUMB))) {
 			if (imageOption != 0 && myExportFile == ExportFile.HANDBASE) {
 				buf.delete(0, generalSettings.getDefaultImageFolder().length());
 				buf.insert(0, generalSettings.getDefaultPdaFolder());
@@ -923,7 +926,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		// Save last export date and record
 		if (myLastIndex > 0) {
 			pdaSettings.setLastIndex(myLastIndex);
-			pdaSettings.setLastModified(General.convertTimestamp2DB(LocalDateTime.now()));
+			pdaSettings.setLastModified(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
 		}
 	}
 
@@ -943,17 +946,33 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 	}
 
-	public String getPersonRole(String table, String person, Number pRoleID) {
+	public String getPersonRole(String table, Number pRoleID) {
 		if (pRoleID != null && pRoleID.intValue() > 0) {
 			Map<Integer, String> map = myRoles.get(table);
 			if (map != null) {
 				String role = map.get(pRoleID.intValue());
 				if (role != null) {
-					return table.equals("Artist") ? role + " " + person : person + " [" + role + "]";
+					return isCatraxx ? role : "[" + role + "]";
 				}
 			}
 		}
-		return person;
+		return "";
+	}
+
+	protected Map<Integer, List<Map<String, Object>>> getContentsPersonIndex(List<Map<String, Object>> linkList,
+			List<Map<String, Object>> personList, String key) {
+		Map<Integer, List<Map<String, Object>>> result = new HashMap<>();
+
+		if (linkList == null || personList == null) {
+			return result;
+		}
+
+		for (int i = 0; i < linkList.size(); i++) {
+			Integer cIndex = (Integer) linkList.get(i).get(key);
+			List<Map<String, Object>> mapPerson = result.computeIfAbsent(cIndex, ArrayList::new);
+			mapPerson.add(personList.get(i));
+		}
+		return result;
 	}
 
 	public static FNProgramvare getSoftware(FNPSoftware soft) {
@@ -973,6 +992,11 @@ public abstract class FNProgramvare extends BasicSoft {
 		default:
 			return null;
 		}
+	}
+
+	protected void addToList(StringBuilder newLine, StringBuilder result) {
+		result.append(newLine).append("\n");
+		newLine.setLength(0);
 	}
 
 	protected List<String> getSystemFields(List<String> userFields) {

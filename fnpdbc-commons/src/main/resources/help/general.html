@@ -45,30 +45,53 @@ Here you can select the date format to be used for the exported date fields. The
 
 <li><b>Time Format</b></li>
 Here you can choose a 24 hours or AM/PM time format, with or without seconds,
-<ol>
-<li><b>hh:mm</b> (= hours:minutes in 24 hour format)</li>
-<b>Examples:</b> 12:34 or "00:43"
+<table border="1">
+<tr>
+<th>Letter</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>h</td>
+<td>Hour in 12-hour clock without a leading zero, examples: <b>9</b>:12, <b>10</b>:12</td>
+</tr>
+<tr>
+<td>hh</td>
+<td>Hour in 12-hour clock with a leading zero, examples: <b>09</b>:12, <b>10</b>:12</td>
+</tr>
+<tr>
+<td>H</td>
+<td>Hour in 24-hour clock without a leading zero, examples: <b>9</b>:12, <b>20</b>:12</td>
+</tr>
+<tr>
+<td>HH</td>
+<td>Hour in 24-hour clock with a leading zero, examples: <b>09</b>:12, <b>20</b>:12</td>
+</tr>
+<tr>
+<td>mm</td>
+<td>Minutes, example: 10:<b>12</b>:20</td>
+</tr>
+<tr>
+<td>ss</td>
+<td>Seconds, example: 10:12:<b>20</b></td>
+</tr>
+<tr>
+<td>am/pm</td>
+<td>Suffixes for 12-hour clock, example: 01:15:14 <b>AM</b></td>
+</tr>
+</table>
 <br>
-<li><b>hh:mm:ss</b> (= hours:minutes:seconds in 24 hour format)</li>
-<b>Examples:</b> 12:34:25 or "00:43:15"
-<br>
-<li><b>h:mm am/pm</b> (= hours:minutes in AM/PM hour format)</li>
-<b>Examples:</b> 12:34 pm, "00:43 am"
-<br>
-<li><b>hh:mm</b> (= hours:minutes:seconds in AM/PM hour format)</li>
-<b>Examples:</b> 12:34:25 pm, or "00:43:15 am"
-<br>
-</ol>
-  
-<br>
+
 <li><b>Duration Format</b></li>
 Here you can choose a time format to be used for the exported duration fields:
 <ol>
-<li><b>h:mm.ss</b> (= hours, minutes and seconds)</li>
-<b>Examples:</b> 12:34:52, "2:39:05", "08:25" or "00:43"
-<br>
-<li><b>mmm.ss</b> (= minutes and seconds)</li>
-<b>Examples:</b> "125:25", "95:24", "18:50 or "00:16"
+<li><b>H:mm:ss</b> (= hours, minutes and seconds)</li>
+<b>Examples:</b> 10:34:52, "2:39:05", "0:08:25" or "0:00:43"
+<br><br>
+<li><b>mmm:ss</b> (= minutes and seconds)</li>
+<b>Examples:</b> "1123:54", "125:25", "018:50 or "000:16"
+<br><br>
+<li><b>mm:ss</b> (= minutes and seconds)</li>
+<b>Examples:</b> "123:54", "25:25", "08:50 or "00:16"
 <br> 
 </ol>
 
@@ -98,7 +121,7 @@ This folder is used as a default location for your DBConvert and FNProg2PDA back
 <br>
 <li><b>Image Folder</b></li>
 Here you can specify the default folder in which FNProg2PDA should create the image (bmp, jpeg or png) files for HanDBase or
- P. Referencer and CSV files on your PC
+ CSV files on your PC
 <br> 
 <li><b>Mobile Device Image Folder</b></li>
 When used, the program still creates the image files in the Image Folder, but writes the 

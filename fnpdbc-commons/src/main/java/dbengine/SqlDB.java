@@ -19,7 +19,6 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
@@ -212,7 +211,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<String> getTableNames() {
+	public List<String> getTableOrSheetNames() {
 		if (aTables == null) {
 			return new ArrayList<>();
 		}
@@ -306,7 +305,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			case Types.DOUBLE:
 				return rs.getDouble(colNo);
 			case Types.DATE:
-				return General.convertDate2DB(rs.getDate(colNo));
+				return rs.getDate(colNo).toLocalDate();
 			case Types.FLOAT:
 				return rs.getFloat(colNo);
 			case Types.INTEGER:
@@ -314,9 +313,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			case Types.SMALLINT:
 				return (int) rs.getShort(colNo);
 			case Types.TIMESTAMP:
-				return getTimestamp(rs, colNo);
+				return rs.getTimestamp(colNo).toLocalDateTime();
 			case Types.TIME:
-				return General.convertTime2DB(rs.getTime(colNo).toLocalTime());
+				return rs.getTime(colNo).toLocalTime();
 			case Types.VARCHAR:
 				String s = rs.getString(colNo);
 				return s == null ? "" : s;
@@ -326,10 +325,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} catch (Exception e) {
 			throw new Exception("Unable to read database field, due to " + e.toString());
 		}
-	}
-
-	protected String getTimestamp(ResultSet rs, int colNo) throws Exception {
-		return General.convertTimestamp2DB(rs.getTimestamp(colNo).toLocalDateTime());
 	}
 
 	private String readMemoField(ResultSet rs, int colNo) throws Exception {
@@ -381,6 +376,4 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected abstract String[] getConnectionStrings();
 
 	protected abstract Object getObject(int colType, int colNo, ResultSet rs) throws Exception;
-
-	protected abstract FieldTypes getFieldType(int type);
 }

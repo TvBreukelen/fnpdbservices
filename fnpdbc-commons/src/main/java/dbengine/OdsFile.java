@@ -4,6 +4,7 @@ import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -131,8 +132,12 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 			return FieldTypes.TIMESTAMP;
 		}
 
-		if (cell instanceof Duration) {
+		if (cell instanceof LocalTime) {
 			return FieldTypes.TIME;
+		}
+
+		if (cell instanceof Duration) {
+			return FieldTypes.DURATION;
 		}
 
 		if (cell instanceof Double) {
@@ -169,7 +174,7 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<String> getSheetNames() {
+	public List<String> getTableOrSheetNames() {
 		if (wb == null) {
 			return new ArrayList<>();
 		}
@@ -202,24 +207,6 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 		Object[][] cells = row.getValues();
 		for (Object cell : cells[0]) {
 			FieldDefinition field = dbDef.get(index++);
-			if (cell == null) {
-				cell = "";
-			} else {
-				switch (field.getFieldType()) {
-				case DATE:
-					cell = General.convertDate2DB((LocalDate) cell);
-					break;
-				case TIME:
-					cell = General.convertTime2DB((Duration) cell);
-					break;
-				case TIMESTAMP:
-					cell = General.convertTimestamp2DB((LocalDateTime) cell);
-					break;
-				default:
-					break;
-				}
-			}
-
 			result.put(field.getFieldAlias(), cell);
 		}
 		return result;

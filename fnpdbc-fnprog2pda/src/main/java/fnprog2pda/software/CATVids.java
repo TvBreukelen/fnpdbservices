@@ -69,12 +69,13 @@ public class CATVids extends FNProgramvare {
 	// method that returns the Video Contents as String
 	private String getVideoContents(int itemLength, Map<String, List<Map<String, Object>>> hashTable) {
 		StringBuilder result = new StringBuilder();
+		StringBuilder newLine = new StringBuilder();
 
 		String side = null;
 		String sideTitle = null;
-		Number sidePlaytime = null;
-		Number sideAPlaytime = null;
-		Number sideBPlaytime = null;
+		Integer sidePlaytime = null;
+		Integer sideAPlaytime = null;
+		Integer sideBPlaytime = null;
 		String sideATitle = null;
 		String sideBTitle = null;
 		String oldSide = "";
@@ -84,15 +85,15 @@ public class CATVids extends FNProgramvare {
 
 		boolean isDoubleSided = false;
 
-		// Get Media
-		List<Map<String, Object>> mediaList = hashTable.get("Media");
-
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
 
 		if (contentsList == null || contentsList.isEmpty()) {
 			return "";
 		}
+
+		// Get Media
+		List<Map<String, Object>> mediaList = hashTable.get("Media");
 
 		// Sort Media by Contents.Item
 		if (mediaList != null && mediaList.size() > 1) {
@@ -109,15 +110,15 @@ public class CATVids extends FNProgramvare {
 
 				if (item != oldItem) {
 					if (item > 1) {
-						result.append("\n");
+						newLine.append("\n");
 					}
 
 					sideTitle = (String) mapItem.get("Title");
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
 
-					sideAPlaytime = (Number) mapItem.get("SideALength");
-					sideBPlaytime = (Number) mapItem.get("SideBLength");
+					sideAPlaytime = (Integer) mapItem.get("SideALength");
+					sideBPlaytime = (Integer) mapItem.get("SideBLength");
 
 					if (sideTitle == null) {
 						sideTitle = "";
@@ -129,45 +130,46 @@ public class CATVids extends FNProgramvare {
 					}
 
 					if (useContentsItemTitle) {
-						result.append(item + " - ");
+						newLine.append(item + " - ");
 						if (useContentsLength) {
-							result.append("(" + General.convertDuration((Number) mapItem.get("Length")) + ") ");
+							newLine.append("(" + General.convertDuration((Integer) mapItem.get("Length")) + ") ");
 						}
 
-						result.append(sideTitle + "\n");
+						newLine.append(sideTitle);
+						addToList(newLine, result);
 					}
 				}
 
-				if (isDoubleSided && useContentsSide&& !side.equals(oldSide)) {
-						sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
-						sideTitle = side.equals("A") ? sideATitle : sideBTitle;
-						if (sideTitle == null) {
-							sideTitle = "";
-						}
+				if (isDoubleSided && useContentsSide && !side.equals(oldSide)) {
+					sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
+					sideTitle = side.equals("A") ? sideATitle : sideBTitle;
+					if (sideTitle == null) {
+						sideTitle = "";
+					}
 
-						if (useContentsLength) {
-							result.append(
-									side + " - (" + General.convertDuration(sidePlaytime) + ") " + sideTitle + "\n");
+					if (useContentsLength) {
+						newLine.append(side + " - (" + General.convertDuration(sidePlaytime) + ") " + sideTitle);
+					} else {
+						if (sideTitle.length() > 0) {
+							newLine.append(side + " - " + sideTitle);
 						} else {
-							if (sideTitle.length() > 0) {
-								result.append(side + " - " + sideTitle + "\n");
-							} else {
-								result.append(side + "\n");
-							}
+							newLine.append(side);
 						}
+					}
+					addToList(newLine, result);
 				}
 			}
 
 			if (useContentsIndex) {
-				result.append(General.convertTrack((Number) map.get("Index"), itemLength) + " ");
+				newLine.append(General.convertTrack((Number) map.get("Index"), itemLength) + " ");
 			}
 
 			if (useContentsLength) {
-				result.append("(" + General.convertDuration((Number) map.get("Length")) + ") ");
+				newLine.append("(" + General.convertDuration((Integer) map.get("Length")) + ") ");
 			}
 
-			result.append(title);
-			result.append("\n");
+			newLine.append(title);
+			addToList(newLine, result);
 			oldItem = item;
 			oldSide = side;
 		}

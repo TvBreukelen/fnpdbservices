@@ -25,28 +25,28 @@ public class ConfigClone extends BasicDialog {
 	private JTextField exportToFile;
 	private JComboBox<String> cbExportFile;
 
-	private Profiles _project;
-	private ProgramDialog _dialog;
+	private Profiles project;
+	private ProgramDialog dialog;
 	private static final long serialVersionUID = -6576646959544052585L;
 
 	public ConfigClone(Profiles project, ProgramDialog dialog) {
-		_project = project;
-		_dialog = dialog;
+		this.project = project;
+		this.dialog = dialog;
 		init();
 	}
 
 	@Override
 	protected void init() {
-		init(GUIFactory.getTitle("funcClone") + ": " + _project.getProfileID());
+		init(GUIFactory.getTitle("funcClone") + ": " + project.getProfileID());
 		setHelpFile("cloneprofile");
 
-		projectName = new JTextField(_project.getProfileID());
+		projectName = new JTextField(project.getProfileID());
 		projectName.getDocument().addDocumentListener(funcDocumentChange);
-		exportToFile = new JTextField(_project.getExportFile());
+		exportToFile = new JTextField(project.getExportFile());
 		exportToFile.getDocument().addDocumentListener(funcDocumentChange);
 
 		cbExportFile = new JComboBox<>(ExportFile.getExportFilenames(false));
-		cbExportFile.setSelectedItem(_project.getProjectID());
+		cbExportFile.setSelectedItem(project.getProjectID());
 		cbExportFile.addActionListener(arg0 -> activateComponents());
 
 		buildDialog();
@@ -96,10 +96,10 @@ public class ConfigClone extends BasicDialog {
 			copyToFile = General.getBaseName(copyToFile, exp);
 		}
 
-		_project.cloneCurrentProfile(projectCopyTo, profileID);
-		_project.setExportFile(copyToFile);
+		project.cloneCurrentProfile(projectCopyTo, profileID);
+		project.setExportFile(copyToFile);
 
-		_dialog.updateProfile(Action.CLONE);
+		dialog.updateProfile(Action.CLONE);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class ConfigClone extends BasicDialog {
 			String profileID = projectName.getText().trim();
 			isValid = !profileID.isEmpty();
 			if (isValid) {
-				isValid = !_project.profileExists(cbExportFile.getSelectedItem().toString(), profileID);
+				isValid = !project.profileExists(cbExportFile.getSelectedItem().toString(), profileID);
 			}
 		}
 

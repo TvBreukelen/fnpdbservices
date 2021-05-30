@@ -120,6 +120,7 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 			mySoftware.checkNumberOfFields();
 			tabModel = new ViewerModel(mySoftware.getTableModelFields());
 			mySoftware.openToFile();
+			mySoftware.addObserver(this);
 			mySoftware.loadInputFile();
 			mySoftware.processFiles(tabModel);
 			mySoftware.close(); // Close import file

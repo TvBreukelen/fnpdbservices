@@ -238,16 +238,16 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 					switch (field.getFieldType()) {
 					case DATE:
-						result.put(field.getFieldAlias(), General.convertDate2DB(date.toLocalDate()));
+						result.put(field.getFieldAlias(), date.toLocalDate());
 						break;
 					case TIME:
-						result.put(field.getFieldAlias(), General.convertTime2DB(date.toLocalTime()));
+						result.put(field.getFieldAlias(), date.toLocalTime());
 						break;
 					case TIMESTAMP:
-						result.put(field.getFieldAlias(), General.convertTimestamp2DB(date));
+						result.put(field.getFieldAlias(), date);
 						break;
 					default:
-						result.put(field.getFieldAlias(), General.convertDate2DB(date.toLocalDate()));
+						result.put(field.getFieldAlias(), date.toLocalDate());
 					}
 				} else {
 					double value = cell.getNumericCellValue();

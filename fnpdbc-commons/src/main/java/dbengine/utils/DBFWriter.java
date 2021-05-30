@@ -11,7 +11,7 @@ package dbengine.utils;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.Date;
+import java.time.LocalDate;
 
 import application.utils.FNProgException;
 import application.utils.General;
@@ -145,7 +145,7 @@ public class DBFWriter extends DBFBase {
 				}
 				break;
 			case DBFField.FIELD_TYPE_D:
-				if (!(values[i] instanceof Date)) {
+				if (!(values[i] instanceof LocalDate)) {
 					throw new Exception("Invalid value '" + values[i].toString() + "' for date field "
 							+ header.fieldArray[i].getName());
 				}
@@ -191,7 +191,9 @@ public class DBFWriter extends DBFBase {
 				}
 				break;
 			case DBFField.FIELD_TYPE_D:
-				raf.writeBytes(objectArray[j] != null ? General.convertDate2DB((Date) objectArray[j]) : "        ");
+				raf.writeBytes(
+						objectArray[j] != null ? General.convertDate((LocalDate) objectArray[j], General.sdInternalDate)
+								: "        ");
 				break;
 			case DBFField.FIELD_TYPE_F:
 			case DBFField.FIELD_TYPE_N:

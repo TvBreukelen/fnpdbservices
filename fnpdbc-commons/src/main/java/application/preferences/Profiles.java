@@ -2,7 +2,6 @@ package application.preferences;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,10 +64,6 @@ public abstract class Profiles extends Project implements IEncoding {
 	private boolean lockHeader;
 	private boolean lock1stColumn;
 	private boolean useHeader; // Also used by text files
-
-	// P.Referencer Settings
-	private boolean useParagraphHeader;
-	private boolean useTitleHeader;
 
 	// Text file Settings
 	private String fieldSeparator = ",";
@@ -148,10 +143,6 @@ public abstract class Profiles extends Project implements IEncoding {
 		lockHeader = child.getBoolean("lock.headers", true);
 		lock1stColumn = child.getBoolean("lock.firstcol", true);
 		useHeader = child.getBoolean("use.headers", true);
-
-		// P.Referencer
-		useParagraphHeader = child.getBoolean("use.paragraph.header", false);
-		useTitleHeader = child.getBoolean("use.title.header", false);
 
 		// Text files
 		fieldSeparator = child.get("field.separator", ",");
@@ -363,12 +354,7 @@ public abstract class Profiles extends Project implements IEncoding {
 	}
 
 	public void setLastSaved() {
-		lastSaved = General.convertTimestamp2DB(LocalDateTime.now());
-		PrefUtils.writePref(child, "last.saved", lastSaved, "", "");
-	}
-
-	public void setLastSaved(Date date) {
-		lastSaved = General.convertTimestamp2DB(date);
+		lastSaved = General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp);
 		PrefUtils.writePref(child, "last.saved", lastSaved, "", "");
 	}
 
@@ -504,25 +490,6 @@ public abstract class Profiles extends Project implements IEncoding {
 	public void setUseHeader(boolean useHeader) {
 		PrefUtils.writePref(child, "use.headers", useHeader, this.useHeader, true);
 		this.useHeader = useHeader;
-	}
-
-	// P.Referencer
-	public boolean isUseParagraphHeader() {
-		return useParagraphHeader;
-	}
-
-	public void setUseParagraphHeader(boolean useParagraphHeader) {
-		PrefUtils.writePref(child, "use.paragraph.header", useParagraphHeader, useParagraphHeader, false);
-		this.useParagraphHeader = useParagraphHeader;
-	}
-
-	public boolean isUseTitleHeader() {
-		return useTitleHeader;
-	}
-
-	public void setUseTitleHeader(boolean useTitleHeader) {
-		PrefUtils.writePref(child, "use.title.header", useTitleHeader, this.useTitleHeader, false);
-		this.useTitleHeader = useTitleHeader;
 	}
 
 	// Text export file

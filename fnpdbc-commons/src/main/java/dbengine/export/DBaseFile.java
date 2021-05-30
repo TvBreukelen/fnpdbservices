@@ -265,8 +265,9 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				}
 				break;
 			case DATE:
-				rowData[i] = field.isOutputAsText() ? General.convertDate(dbField.toString())
-						: General.convertDB2Date(dbField.toString());
+				rowData[i] = field.isOutputAsText()
+						? General.convertDate((LocalDate) dbField, General.getSimpleDateFormat())
+						: dbField;
 				break;
 			case FUSSY_DATE:
 				rowData[i] = General.convertFussyDate(dbField.toString());
@@ -293,11 +294,6 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			Object dbField = rowObjects[i] == null ? "" : rowObjects[i];
 
 			switch (field.getFieldType()) {
-			case DATE:
-				if (rowObjects[i] instanceof LocalDate) {
-					dbField = General.convertDate2DB((LocalDate) rowObjects[i]);
-				}
-				break;
 			case NUMBER:
 				if (rowObjects[i] instanceof Double) {
 					dbField = ((Double) dbField).intValue();

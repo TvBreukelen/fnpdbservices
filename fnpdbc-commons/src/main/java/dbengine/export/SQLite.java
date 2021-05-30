@@ -4,7 +4,6 @@ import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.sql.ResultSet;
 
-import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import dbengine.IConvert;
@@ -52,21 +51,7 @@ public class SQLite extends SqlDB implements IConvert {
 	}
 
 	@Override
-	protected String getTimestamp(ResultSet rs, int colNo) throws Exception {
-		String time = rs.getString(colNo);
-		if (time == null || time.isEmpty()) {
-			return "";
-		}
-		return time.substring(0, 19);
-	}
-
-	@Override
 	protected Object getObject(int colType, int colNo, ResultSet rs) throws Exception {
 		return rs.getString(colNo);
-	}
-
-	@Override
-	protected FieldTypes getFieldType(int type) {
-		return FieldTypes.TEXT;
 	}
 }

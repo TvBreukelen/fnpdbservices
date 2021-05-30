@@ -2,8 +2,9 @@ package application;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -233,8 +234,8 @@ public abstract class BasicSoft {
 			idx = obj.toString().compareTo(filterValue);
 			switch (field.getFieldType()) {
 			case DATE:
-				if (obj instanceof Date) {
-					idx = General.convertDate2DB((Date) obj).compareTo(filterValue);
+				if (obj instanceof LocalDate) {
+					idx = General.convertDate((LocalDate) obj, General.sdInternalDate).compareTo(filterValue);
 					break;
 				}
 				break;
@@ -245,8 +246,9 @@ public abstract class BasicSoft {
 				idx = ((Integer) obj).compareTo(Integer.valueOf(filterValue));
 				break;
 			case TIMESTAMP:
-				if (obj instanceof Date) {
-					idx = General.convertTimestamp2DB((Date) obj).compareTo(filterValue);
+				if (obj instanceof LocalDateTime) {
+					idx = General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp)
+							.compareTo(filterValue);
 					break;
 				}
 				break;

@@ -38,7 +38,6 @@ List             Freeware       http://www.magma.ca/~roo/list/list.html
 HanDBase         Commercial     http://www.ddhsoftware.com
 MobileDB         Commercial     http://www.handmark.com
 Pilot-DB         Open Source    http://pilot-db.sourceforge.net/main.htm
-P. Referencer    Freeware       http://www.casio-europe.com/de/pv/freeware/ 
 
 
 To be able to use the FNProg2PDA programs you'll need to have the following on your PC:
@@ -123,6 +122,10 @@ General Public License for more details.
 ===================================================================================================
 4. What is New?
 ===================================================================================================
+
+Version 9.1
+-----------
+Removed support for P. Referencer
 
 Version 9.0
 -----------

@@ -184,10 +184,11 @@ public class ConfigFilter extends BasicDialog {
 					formattedText[index].setValue(Double.valueOf(value.toString()));
 					break;
 				case DATE:
-					datePicker.setDate(General.convertDB2Date(filterValue[index]));
+					datePicker.setDate(General.convertDate2DB(filterValue[index], General.sdInternalDate));
 					break;
 				case TIMESTAMP:
-					dateTimePicker.setDateTimeStrict(General.convertDB2Timestamp(filterValue[index]));
+					dateTimePicker.setDateTimeStrict(
+							General.convertTimestamp2DB(filterValue[index], General.sdInternalTimestamp));
 					break;
 				default:
 					break;
@@ -283,11 +284,11 @@ public class ConfigFilter extends BasicDialog {
 		dateTimePicker = new DateTimePicker(date1, time);
 		dateTimePicker
 				.addDateTimeChangeListener(e -> filterValue[(Integer) dateTimePicker.getClientProperty(INDEX)] = General
-						.convertTimestamp2DB(dateTimePicker.getDateTimePermissive()));
+						.convertTimestamp(dateTimePicker.getDateTimePermissive(), General.sdInternalTimestamp));
 
 		datePicker = new DatePicker(date2);
 		datePicker.addDateChangeListener(e -> filterValue[(Integer) datePicker.getClientProperty(INDEX)] = General
-				.convertDate2DB(datePicker.getDate()));
+				.convertDate(datePicker.getDate(), General.sdInternalDate));
 
 		buildDialog();
 		activateComponents();
@@ -519,14 +520,15 @@ public class ConfigFilter extends BasicDialog {
 			break;
 		case TIMESTAMP:
 			dateTimePicker.putClientProperty(INDEX, index);
-			dateTimePicker.setDateTimePermissive(General.convertDB2Timestamp(filterValue[index]));
+			dateTimePicker.setDateTimePermissive(
+					General.convertTimestamp2DB(filterValue[index], General.sdInternalTimestamp));
 			comp.add(dateTimePicker);
 			comp.add(Box.createHorizontalStrut(10));
 			comp.add(button);
 			break;
 		case DATE:
 			datePicker.putClientProperty(INDEX, index);
-			datePicker.setDate(General.convertDB2Date(filterValue[index]));
+			datePicker.setDate(General.convertDate2DB(filterValue[index], General.sdInternalDate));
 			comp.add(datePicker);
 			comp.add(Box.createHorizontalStrut(10));
 			comp.add(button);
