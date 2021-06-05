@@ -175,6 +175,7 @@ public class MSTable {
 
 		for (FieldDefinition field : dbFields) {
 			String fieldAlias = field.getFieldAlias();
+
 			IniItem iniAlias = renameSection.getItem(fieldAlias);
 			String newAlias = iniAlias == null ? null : iniAlias.getValue();
 
@@ -229,9 +230,13 @@ public class MSTable {
 		this.isShowAll = isShowAll;
 	}
 
-	public void changeFieldAlias(String oldAlias, String newAlias, String type) {
+	public void changeFieldAlias(String oldAlias, String newAlias, String newTable, String type) {
 		FieldDefinition field = dbFieldsHash.get(oldAlias);
 		if (field != null) {
+			if (newTable != null && !newTable.equals(field.getTable())) {
+				newAlias = newTable + "." + newAlias;
+			}
+
 			dbFieldsHash.remove(oldAlias);
 			dbFieldsHash.remove(newAlias);
 
@@ -273,9 +278,11 @@ public class MSTable {
 			for (FieldDefinition field : dbFieldsHash.values()) {
 				FieldDefinition clone = field.copy();
 				if (!clone.isHideTable()) {
-					clone.setFieldAlias(alias
-							+ (clone.getTable().equals(clone.getFieldAlias()) ? "" : "." + clone.getFieldAlias()));
-					clone.setFieldHeader(clone.getFieldAlias());
+					if (clone.getFieldAlias().indexOf(".") == -1) {
+						clone.setFieldAlias(alias
+								+ (clone.getTable().equals(clone.getFieldAlias()) ? "" : "." + clone.getFieldAlias()));
+						clone.setFieldHeader(clone.getFieldAlias());
+					}
 				}
 				result.add(clone);
 			}

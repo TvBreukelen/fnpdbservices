@@ -65,6 +65,7 @@ public abstract class GeneralDB {
 	private boolean isBooleanExport;
 	private boolean isDateExport;
 	private boolean isTimeExport;
+	private String fileOpenWarning = "";
 
 	protected boolean isInputFile;
 
@@ -128,14 +129,19 @@ public abstract class GeneralDB {
 
 		myFilename = helper.getDatabase();
 		myDatabaseHelper = helper;
+		FNProgException exception = null;
 
 		try {
 			openFile(createBackup, isInputFile);
 		} catch (EOFException e) {
-			throw FNProgException.getException("fileOpenError", myFilename,
+			exception = FNProgException.getException("fileOpenError", myFilename,
 					"Cannot read file beyond EOF (File is empty or corrupt)");
 		} catch (Exception e) {
-			throw FNProgException.getException("fileOpenError", myFilename, e.getMessage());
+			exception = FNProgException.getException("fileOpenError", myFilename, e.getMessage());
+		}
+
+		if (exception != null) {
+			throw exception;
 		}
 	}
 
@@ -254,6 +260,14 @@ public abstract class GeneralDB {
 
 	protected Object convertDate(String pDate) {
 		return General.convertDate2DB(pDate, General.sdInternalDate);
+	}
+
+	public String getFileOpenWarning() {
+		return fileOpenWarning;
+	}
+
+	public void setFileOpenWarning(String fileOpenWarning) {
+		this.fileOpenWarning = fileOpenWarning;
 	}
 
 	public void closeData() throws Exception {

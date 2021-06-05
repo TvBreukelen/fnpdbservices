@@ -69,6 +69,10 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	protected boolean useRoles;
 	protected boolean useContents;
+	protected boolean useContentsPerson;
+	protected boolean useContentsOrigTitle = true;
+	protected boolean useContentsItemTitle = true;
+	protected boolean usePersonSort;
 
 	private MSTable msTable;
 	private Cursor cursor;
@@ -114,6 +118,9 @@ public abstract class FNProgramvare extends BasicSoft {
 		exportImages = pdaSettings.isExportImages();
 		useRoles = pdaSettings.isUseRoles();
 		useCategory = !pdaSettings.getCategoryField().isEmpty();
+		useContentsPerson = pdaSettings.isUseContentsPerson();
+		useContentsOrigTitle = pdaSettings.isUseContentsOrigTitle();
+		useContentsItemTitle = pdaSettings.isUseContentsItemTitle();
 
 		imageKey = pdaSettings.getProfileID();
 		imageOption = pdaSettings.getImageOption();
@@ -317,7 +324,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		Set<Object> keywordList = new HashSet<>();
 		Map<String, Object> hKeyword = new HashMap<>();
 		Map<Integer, FieldDefinition> hFilterTable = new LinkedHashMap<>();
-		final String separator = dbFactory.getPersonSeparator();
 
 		cursor = null;
 		setCurrentRecord(0);
@@ -432,32 +438,28 @@ public abstract class FNProgramvare extends BasicSoft {
 						}
 					}
 				} else if (field.isRoleField() || list.size() > 1) {
+					String separator = field.isRoleField() ? " & "
+							: field.getFieldType() == FieldTypes.MEMO ? "\n" : "; ";
 					StringBuilder buf = new StringBuilder(100);
-					Set<String> aList = new HashSet<>();
+					new HashSet<>();
 
 					for (Map<String, Object> lObj : list) {
 						String s = msAccess.convertObject(lObj, field).toString();
-						if (!s.isEmpty() && !aList.contains(s)) {
-							if (isPersonRoles) {
-								String role = getPersonRole(field.getTable(), (Number) lObj.get(ROLE_ID));
-								if (role.isEmpty()) {
-									buf.append(s).append(" & ");
-								} else if (isCatraxx) {
-									buf.append(role).append(" ").append(s).append(" ");
-								} else {
-									buf.append(s).append(" ").append(role).append(" ");
-								}
+						if (isPersonRoles) {
+							String role = getPersonRole(field.getTable(), (Number) lObj.get(ROLE_ID));
+							if (role.isEmpty()) {
+								buf.append(s).append(separator);
+							} else if (isCatraxx) {
+								buf.append(role).append(" ").append(s).append(" ");
 							} else {
-								buf.append(s).append(" & ");
+								buf.append(s).append(" ").append(role).append(" ");
 							}
 						} else {
 							buf.append(s).append(separator);
 						}
-						aList.add(s);
 					}
 
-					int lastChar = buf.lastIndexOf(" & ");
-					lastChar = Math.max(lastChar, buf.lastIndexOf(separator));
+					int lastChar = buf.lastIndexOf(separator);
 					if (lastChar != -1) {
 						buf.delete(lastChar, buf.length());
 					}
@@ -973,6 +975,36 @@ public abstract class FNProgramvare extends BasicSoft {
 			mapPerson.add(personList.get(i));
 		}
 		return result;
+	}
+
+	protected String getContentsPerson(List<Map<String, Object>> personList) {
+		if (personList == null || personList.isEmpty() || !useContentsPerson) {
+			return "";
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (Map<String, Object> mapPerson : personList) {
+			String persons = (String) mapPerson.get(usePersonSort ? "SortBy" : "Name");
+			if (persons != null && !persons.isEmpty()) {
+				if (useRoles) {
+					String role = getPersonRole(personField[0], (Number) mapPerson.get(ROLE_ID));
+					if (role.isEmpty()) {
+						sb.append(persons).append(" & ");
+					} else {
+						sb.append(persons).append(" ").append(role).append(" ");
+					}
+				} else {
+					sb.append(persons);
+					sb.append(" & ");
+				}
+			}
+		}
+
+		int lastChar = sb.lastIndexOf("&");
+		if (lastChar != -1) {
+			sb.deleteCharAt(lastChar);
+		}
+		return sb.toString().trim();
 	}
 
 	public static FNProgramvare getSoftware(FNPSoftware soft) {

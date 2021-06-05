@@ -12,7 +12,7 @@ import application.utils.FieldDefinition;
 public class ObjectRenderer extends DefaultTableCellRenderer {
 	/**
 	 * Title: ObjectRenderer Description: TableCellRenderer for Objects and
-	 * Components used by class Viewer Copyright: (c) 2004-2012
+	 * Components used by class Viewer
 	 *
 	 * @author Tom van Breukelen
 	 * @version 4.5

@@ -2,19 +2,15 @@ package application.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import application.model.ViewerModel;
 import application.table.BooleanRenderer;
-import application.table.CellEditor;
 import application.table.ETable;
 import application.table.ObjectRenderer;
 import application.utils.FieldDefinition;
@@ -31,11 +27,8 @@ public class Viewer extends BasicDialog {
 	 */
 	private static final long serialVersionUID = -965247421599148461L;
 	private JTable myTable;
-	private JButton btReload;
 	private ViewerModel myModel;
 	private List<FieldDefinition> dbFields;
-	private ActionListener funcRestoreValues;
-	private boolean isModelSaved;
 
 	public Viewer(List<FieldDefinition> dbFieldList) {
 		super();
@@ -50,18 +43,11 @@ public class Viewer extends BasicDialog {
 
 	@Override
 	protected void init() {
-		funcRestoreValues = e -> {
-			if (isModelSaved) {
-				restoreOldValues();
-			}
-		};
-
 		myTable.setDefaultRenderer(Object.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 		myTable.setDefaultRenderer(Number.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Float.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Double.class, new ObjectRenderer(dbFields));
-		myTable.setDefaultEditor(Object.class, new CellEditor(dbFields));
 
 		General.packColumns(myTable);
 
@@ -72,33 +58,15 @@ public class Viewer extends BasicDialog {
 	}
 
 	@Override
-	protected Component addToToolbar() {
-		btReload = General.createToolBarButton(GUIFactory.getToolTip("funcRestoreValues"), "Reload.png",
-				funcRestoreValues);
-
-		btSave.setVisible(false);
-		return btReload;
-	}
-
-	@Override
 	protected Component createCenterPanel() {
-		isModelSaved = General.writeObjectToDisk(myModel.getDataListMap());
+		btSave.setVisible(false);
 		JPanel result = new JPanel(new BorderLayout());
 		myTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		btReload.setEnabled(isModelSaved);
-
 		General.packColumns(myTable);
 		result.add(new JScrollPane(myTable), BorderLayout.CENTER);
 		result.setBorder(
 				BorderFactory.createTitledBorder(GUIFactory.getTitle("noOfRecords") + " " + myModel.getRowCount()));
 		return result;
-	}
-
-	@SuppressWarnings("unchecked")
-	private void restoreOldValues() {
-		myModel.setDataListMap((List<Map<String, Object>>) General.readObjectFromDisk());
-		myModel.fireTableDataChanged();
-		General.packColumns(myTable);
 	}
 
 	public ViewerModel getTableModel() {

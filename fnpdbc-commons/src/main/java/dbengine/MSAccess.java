@@ -23,6 +23,7 @@ import application.interfaces.FieldTypes;
 import application.interfaces.FilterOperator;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
+import application.utils.GUIFactory;
 import application.utils.General;
 import dbengine.utils.MSTable;
 
@@ -45,17 +46,24 @@ public class MSAccess extends GeneralDB implements IConvert {
 	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
 		// For the moment we only open the database file for input
 		database = DatabaseBuilder.open(new File(myFilename));
+		String error = "";
 
 		try {
 			isIndexSupported = database.getFileFormat() != FileFormat.V1997;
 		} catch (Exception e) {
-			e.printStackTrace();
+			error = e.getMessage();
 		}
 
 		getDBFieldNamesAndTypes();
 		myTable = myPref.getTableName();
 		if (myTable.isEmpty() || !aTables.contains(myTable)) {
 			myTable = aTables.get(0);
+		}
+
+		if (!error.isEmpty()) {
+			setFileOpenWarning(GUIFactory.getMessage("msAccessFormatError", error));
+		} else if (!isIndexSupported) {
+			setFileOpenWarning(GUIFactory.getMessage("msAccess97Format", ""));
 		}
 	}
 

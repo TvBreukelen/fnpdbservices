@@ -67,7 +67,6 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private DatabaseHelper dbHelper;
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
 	private boolean isConnected = false;
-	private String personSeparator = "\n";
 
 	private static final DatabaseFactory gInstance = new DatabaseFactory();
 
@@ -89,12 +88,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		dbHelper = helper;
 
 		// Try to obtain the database connection
-		try {
-			msAccess.openFile(helper, true);
-			isConnected = true;
-		} catch (Exception e) {
-			throw FNProgException.getException("cannotOpen", helper.getDatabase(), e.getMessage());
-		}
+		msAccess.openFile(helper, true);
+		isConnected = true;
 	}
 
 	@Override
@@ -151,10 +146,6 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		return isConnected;
 	}
 
-	public String getPersonSeparator() {
-		return personSeparator;
-	}
-
 	public void verifyDatabase(String pDatabase) throws Exception {
 		boolean isVersionNotFound = true;
 
@@ -178,10 +169,6 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		section = properties.getSection(databaseType.getName());
 		versions = section.getItem("versions").getValue().split(",");
 		maxVersions = versions.length;
-
-		if (section.hasItem("person.separator")) {
-			personSeparator = section.getItem("person.separator").getValue().replace("\"", "");
-		}
 
 		for (int i = 0; i < maxVersions; i++) {
 			String verify = section.getItem("version" + versions[i] + ".exists").getValue();
@@ -350,10 +337,12 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			hShowFields.add(field);
 
 			String oldAlias = entry.getValue();
-			String newAlias = entry.getKey();
+			String newAlias = field;
 
 			String type = null;
 			String table = currentTable;
+			String newTable = table;
+
 			String indexField = null;
 			int indexValue = 0;
 
@@ -374,14 +363,19 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 			index = field.indexOf('.');
 			if (index != -1) {
-				table = field.substring(0, index);
+				newTable = field.substring(0, index);
 				newAlias = newAlias.substring(index + 1);
+				table = newTable;
 			}
 
 			index = oldAlias.indexOf('.');
 			if (index != -1) {
 				table = oldAlias.substring(0, index);
 				oldAlias = oldAlias.substring(index + 1);
+			}
+
+			if (newTable.equals(currentTable)) {
+				newTable = null;
 			}
 
 			if (!table.isEmpty()) {
@@ -394,12 +388,12 @@ public final class DatabaseFactory implements IDatabaseFactory {
 						if (indexValue > 1) {
 							msTable.updateIndexFields(imageField, newAlias, indexField, indexValue);
 						} else {
-							msTable.changeFieldAlias(oldAlias, newAlias, type);
+							msTable.changeFieldAlias(oldAlias, newAlias, newTable, type);
 							msTable.updateIndexFields(newAlias, newAlias, indexField, indexValue);
 							imageField = newAlias;
 						}
 					} else {
-						msTable.changeFieldAlias(oldAlias, newAlias, type);
+						msTable.changeFieldAlias(oldAlias, newAlias, newTable, type);
 					}
 				}
 			}
@@ -418,11 +412,15 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				}
 
 				dbFieldDefinition.put(alias, field);
-				if (!hShowFields.contains(alias) && !table.isVisible()
-						|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
-								|| alias.equals(field.getTable()))
-						|| hHidden.contains(field.getFieldName()) || hHiddenColumns.contains(field.getFieldName())) {
-					continue;
+
+				if (!hShowFields.contains(alias)) {
+					if (!table.isVisible()
+							|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
+									|| alias.equals(field.getTable()))
+							|| hHidden.contains(field.getFieldName())
+							|| hHiddenColumns.contains(field.getFieldName())) {
+						continue;
+					}
 				}
 
 				dbSelectFields.add(field);

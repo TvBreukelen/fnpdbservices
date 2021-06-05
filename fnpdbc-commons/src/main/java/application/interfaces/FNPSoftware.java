@@ -8,9 +8,9 @@ public enum FNPSoftware {
 	 * @author Tom van Breukelen
 	 */
 
-	ASSETCAT("AssetCAT", "Asset"), BOOKCAT("BookCAT", "Book", "Contents", "Person", "Wantlist"),
-	CATRAXX("CATraxx", "Album", "Artist", "BoxSet", "Playlist", "Track", "Wantlist"),
-	CATVIDS("CATVids", "Contents", "Video", "Wantlist"), SOFTCAT("SoftCAT", "App"), STAMPCAT("StampCAT", "Stamp"),
+	ASSETCAT("AssetCAT", "Asset"), BOOKCAT("BookCAT", "Book", "Contents", "Person", "WantList"),
+	CATRAXX("CATraxx", "Album", "Artist", "BoxSet", "Playlist", "Track", "WantList"),
+	CATVIDS("CATVids", "Contents", "Video", "WantList"), SOFTCAT("SoftCAT", "App"), STAMPCAT("StampCAT", "Stamp"),
 	UNDEFINED("undefined");
 
 	private String name;

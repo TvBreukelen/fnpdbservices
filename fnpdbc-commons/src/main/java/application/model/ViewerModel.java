@@ -28,7 +28,7 @@ public class ViewerModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = -4971384644052737284L;
 	private List<FieldDefinition> fieldList;
-	private List<Map<String, Object>> tableData = new ArrayList<>();
+	transient List<Map<String, Object>> tableData = new ArrayList<>();
 
 	private Font font;
 	private boolean[] columnsVisible;
@@ -121,14 +121,7 @@ public class ViewerModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		int realCol = getNumber(col);
-		switch (fieldList.get(realCol).getFieldType()) {
-		case IMAGE:
-		case LIST:
-			return false;
-		default:
-			return true;
-		}
+		return false;
 	}
 
 	@Override
@@ -171,13 +164,6 @@ public class ViewerModel extends AbstractTableModel {
 			return createMemoField(s);
 		}
 		return s;
-	}
-
-	@Override
-	public void setValueAt(Object aValue, int row, int col) {
-		Map<String, Object> map = tableData.get(row);
-		FieldDefinition field = fieldList.get(getNumber(col));
-		map.put(field.getFieldAlias(), aValue);
 	}
 
 	private JTextArea createMemoField(String memo) {

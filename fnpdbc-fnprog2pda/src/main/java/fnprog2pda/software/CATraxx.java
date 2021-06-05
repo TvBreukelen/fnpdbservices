@@ -19,12 +19,9 @@ public class CATraxx extends FNProgramvare {
 	 * @version 8
 	 */
 	private String myPerson = "[None]";
-	private boolean useArtistSort;
-	private boolean useTrackArtist = true;
-	private boolean useTrackLength = true;
-	private boolean useTrackSide = true;
-	private boolean useTrackIndex = true;
-	private boolean useTrackItemTitle = true;
+	private boolean useContentsLength = true;
+	private boolean useContentsSide = true;
+	private boolean useContentsIndex = true;
 	private boolean isPlaylist = false;
 	private boolean isBoxSet = false;
 
@@ -41,11 +38,9 @@ public class CATraxx extends FNProgramvare {
 
 	public CATraxx() {
 		super();
-		useTrackArtist = pdaSettings.isUseContentsPerson();
-		useTrackLength = pdaSettings.isUseContentsLength();
-		useTrackSide = pdaSettings.isUseContentsSide();
-		useTrackIndex = pdaSettings.isUseContentsIndex();
-		useTrackItemTitle = pdaSettings.isUseContentsItemTitle();
+		useContentsLength = pdaSettings.isUseContentsLength();
+		useContentsSide = pdaSettings.isUseContentsSide();
+		useContentsIndex = pdaSettings.isUseContentsIndex();
 
 		personField = new String[] { ARTIST, "ArtistSort" };
 	}
@@ -56,14 +51,14 @@ public class CATraxx extends FNProgramvare {
 
 		boolean useArtist = userFields.contains(personField[0]);
 		isBoxSet = myTable.equals("BoxSet");
-		useTrackArtist = useTrackArtist || isBoxSet;
-		useArtistSort = userFields.contains(personField[1]);
+		useContentsPerson = useContentsPerson || isBoxSet;
+		usePersonSort = userFields.contains(personField[1]);
 		useContents = userFields.contains(TRACKS) || isBoxSet;
 		isPlaylist = myTable.equals("Playlist");
 
 		if (useContents) {
-			if (useTrackArtist) {
-				if (useArtist || useArtistSort) {
+			if (useContentsPerson) {
+				if (useArtist || usePersonSort) {
 					result.add(useArtist ? CONTENTS_PERSON : "ContentsPersonSort");
 				} else {
 					result.add(CONTENTS_PERSON);
@@ -79,16 +74,19 @@ public class CATraxx extends FNProgramvare {
 				return result;
 			}
 
-			sortList.put(TRACKS_ITEM, FieldTypes.NUMBER);
-			sortList.put("Index", FieldTypes.NUMBER);
-
 			result.add("NumberOfTracks");
 			result.add("ContentsLink.TrackID");
 			result.add(TRACKS_ITEM);
 
-			if (!isPlaylist) {
+			if (isPlaylist) {
+				result.add("PlaylistType");
+			} else {
 				result.add("Media.Item");
 			}
+
+			sortList.put(TRACKS_ITEM, FieldTypes.NUMBER);
+			sortList.put("Index", FieldTypes.NUMBER);
+
 		}
 		return result;
 	}
@@ -182,6 +180,11 @@ public class CATraxx extends FNProgramvare {
 		int myAlbumID = (Integer) dbDataRecord.get(myTableID);
 		myLastIndex = Math.max(myLastIndex, myAlbumID);
 
+		if (isPlaylist) {
+			Integer typeID = (Integer) dbDataRecord.get("PlaylistType");
+			dbDataRecord.put("Type", typeID == 0 ? "Manual" : "Dynamic");
+		}
+
 		if (useContents) {
 			if (isBoxSet) {
 				dbDataRecord.put(ALBUM, getBoxSetAlbums(hashTable));
@@ -191,7 +194,7 @@ public class CATraxx extends FNProgramvare {
 			String s = dbDataRecord.get("NumberOfTracks").toString();
 			if (Integer.parseInt(s) > 0) {
 				try {
-					myPerson = dbDataRecord.get(personField[useArtistSort ? 1 : 0]).toString();
+					myPerson = dbDataRecord.get(personField[usePersonSort ? 1 : 0]).toString();
 				} catch (Exception e) {
 					myPerson = "[None]";
 				}
@@ -299,7 +302,6 @@ public class CATraxx extends FNProgramvare {
 
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
-
 					sideAPlaytime = (Integer) mapItem.get("SideAPlayingTime");
 					sideBPlaytime = (Integer) mapItem.get("SideBPlayingTime");
 
@@ -308,9 +310,9 @@ public class CATraxx extends FNProgramvare {
 						isDoubleSided = (Boolean) mapItem.get("DoubleSided");
 					}
 
-					if (useTrackItemTitle) {
+					if (useContentsItemTitle) {
 						newLine.append(item + " - ");
-						if (useTrackLength) {
+						if (useContentsLength) {
 							newLine.append("(" + General.convertDuration((Integer) mapItem.get("PlayingTime")) + ") ");
 						}
 
@@ -319,14 +321,13 @@ public class CATraxx extends FNProgramvare {
 					}
 				}
 
-				if (isDoubleSided && useTrackSide && !side.equals(oldSide)) {
+				if (isDoubleSided && useContentsSide && !side.equals(oldSide)) {
 					sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
 					sideTitle = side.equals("A") ? sideATitle : sideBTitle;
 					if (sideTitle == null) {
 						sideTitle = "";
 					}
-
-					if (useTrackLength) {
+					if (useContentsLength) {
 						newLine.append(side + " - (" + General.convertDuration(sidePlaytime) + ") " + sideTitle + "\n");
 					} else {
 						if (!sideTitle.isEmpty()) {
@@ -339,7 +340,7 @@ public class CATraxx extends FNProgramvare {
 				}
 			}
 
-			if (useTrackIndex) {
+			if (useContentsIndex) {
 				if (isPlaylist) {
 					newLine.append(General.convertTrack(index + 1, itemLength) + " ");
 				} else {
@@ -347,7 +348,7 @@ public class CATraxx extends FNProgramvare {
 				}
 			}
 
-			if (useTrackLength) {
+			if (useContentsLength) {
 				newLine.append("(" + General.convertDuration((Integer) map.get("Length")) + ") ");
 			}
 
@@ -371,35 +372,5 @@ public class CATraxx extends FNProgramvare {
 			index++;
 		}
 		return result.toString();
-	}
-
-	private String getContentsPerson(List<Map<String, Object>> personList) {
-		if (personList == null || personList.isEmpty() || !useTrackArtist) {
-			return "";
-		}
-
-		StringBuilder sb = new StringBuilder();
-		for (Map<String, Object> mapPerson : personList) {
-			String persons = (String) mapPerson.get(useArtistSort ? "SortBy" : "Name");
-			if (persons != null && !persons.isEmpty()) {
-				if (useRoles) {
-					String role = getPersonRole(ARTIST, (Number) mapPerson.get("RoleID"));
-					if (role.isEmpty()) {
-						sb.append(persons).append(" & ");
-					} else {
-						sb.append(persons).append(" ").append(role).append(" ");
-					}
-				} else {
-					sb.append(persons);
-					sb.append(" & ");
-				}
-			}
-		}
-
-		int lastChar = sb.lastIndexOf("&");
-		if (lastChar != -1) {
-			sb.deleteCharAt(lastChar);
-		}
-		return sb.toString().trim();
 	}
 }

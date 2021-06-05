@@ -18,10 +18,6 @@ public class BookCAT extends FNProgramvare {
 	 * @version 8
 	 */
 	private boolean useAuthor;
-	private boolean useAuthorSort;
-	private boolean useContentsAuthor = true;
-	private boolean useContentsOrigTitle = true;
-	private boolean useContentsItemTitle = true;
 	private boolean useOriginalTitle;
 	private boolean useOriginalReleaseNo;
 	private boolean useReleaseNo;
@@ -44,11 +40,7 @@ public class BookCAT extends FNProgramvare {
 
 	public BookCAT() {
 		super();
-		useContentsAuthor = pdaSettings.isUseContentsPerson();
-		useContentsOrigTitle = pdaSettings.isUseContentsOrigTitle();
-		useContentsItemTitle = pdaSettings.isUseContentsItemTitle();
 		useOriginalTitle = pdaSettings.isUseOriginalTitle();
-
 		personField = new String[] { AUTHOR, "AuthorSort" };
 		sortList.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortList.put("Index", FieldTypes.NUMBER);
@@ -59,7 +51,7 @@ public class BookCAT extends FNProgramvare {
 		useOriginalReleaseNo = userFields.contains(ORIGINAL_RELEASE_NO);
 		useReleaseNo = userFields.contains(RELEASE_NO);
 		useAuthor = userFields.contains(personField[0]);
-		useAuthorSort = userFields.contains(personField[1]);
+		usePersonSort = userFields.contains(personField[1]);
 
 		List<String> result = new ArrayList<>();
 		if (useOriginalTitle && !userFields.contains(ORIGINAL_TITLE)) {
@@ -85,8 +77,8 @@ public class BookCAT extends FNProgramvare {
 			result.add("ContentsLink.ContentsID");
 			result.add(CONTENTS_ITEM);
 
-			if (useContentsAuthor) {
-				if (useAuthor || useAuthorSort) {
+			if (useContentsPerson) {
+				if (useAuthor || usePersonSort) {
 					result.add(useAuthor ? CONTENTS_PERSON : "ContentsPersonSort");
 				} else {
 					result.add(CONTENTS_PERSON);
@@ -194,7 +186,7 @@ public class BookCAT extends FNProgramvare {
 		if (useContents) {
 			myItemCount = ((Number) dbDataRecord.get("MediaCount")).intValue();
 			if (((Number) dbDataRecord.get("NumberOfSections")).intValue() > 0) {
-				myPerson = (String) dbDataRecord.get(personField[useAuthorSort ? 1 : 0]);
+				myPerson = (String) dbDataRecord.get(personField[usePersonSort ? 1 : 0]);
 				myTitle = (String) dbDataRecord.get(TITLE);
 				dbDataRecord.put(CONTENTS, getBookContents(hashTable));
 			}
@@ -289,42 +281,5 @@ public class BookCAT extends FNProgramvare {
 			oldItem = item;
 		}
 		return result.toString();
-	}
-
-	private String getContentsPerson(List<Map<String, Object>> personList) {
-		if (personList == null || personList.isEmpty() || !useContentsAuthor) {
-			return "";
-		}
-
-		StringBuilder sb = new StringBuilder();
-		boolean isSwapPersonAndRole = true;
-		boolean isFirstPerson = true;
-
-		for (Map<String, Object> mapPerson : personList) {
-			String persons = (String) mapPerson.get(useAuthorSort ? "SortBy" : "Name");
-			if (persons != null && !persons.isEmpty()) {
-				if (useRoles) {
-					String role = getPersonRole(AUTHOR, (Number) mapPerson.get("RoleID"));
-					if (role.isEmpty() && isFirstPerson) {
-						isSwapPersonAndRole = false;
-					}
-					if (isSwapPersonAndRole) {
-						sb.append(persons).append(" ").append(role).append(" ");
-					} else {
-						sb.append(role).append(" ").append(persons).append(" ");
-					}
-					isFirstPerson = false;
-				} else {
-					sb.append(persons);
-					sb.append(" & ");
-				}
-			}
-		}
-
-		int lastChar = sb.lastIndexOf("&");
-		if (lastChar != -1) {
-			sb.deleteCharAt(lastChar);
-		}
-		return sb.toString().trim();
 	}
 }

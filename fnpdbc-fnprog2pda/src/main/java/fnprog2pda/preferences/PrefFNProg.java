@@ -14,6 +14,7 @@ public class PrefFNProg extends Profiles {
 	private boolean useContentsPerson;
 	private boolean useContentsSide;
 	private boolean useOriginalTitle;
+
 	private boolean useRoles;
 
 	private PrefFNProg() {

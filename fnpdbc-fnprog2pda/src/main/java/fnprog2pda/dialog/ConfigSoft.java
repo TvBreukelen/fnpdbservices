@@ -39,6 +39,7 @@ import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
+import dbengine.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import fnprog2pda.model.MiscellaneousData;
 import fnprog2pda.preferences.PrefFNProg;
@@ -315,6 +316,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		try {
 			dbFactory.connect2DB(new DatabaseHelper(dbVerified));
 			dbFactory.verifyDatabase(dbVerified);
+
+			if (isFirstRun) {
+				MSAccess msAccess = dbFactory.getMSAccess();
+				if (!msAccess.getFileOpenWarning().isEmpty()) {
+					General.showMessage(this, msAccess.getFileOpenWarning(), GUIFactory.getTitle("warning"), false);
+					msAccess.setFileOpenWarning("");
+				}
+			}
 
 			if (dbFactory.getDatabaseType() != myImportFile) {
 				if (!isNewProfile) {

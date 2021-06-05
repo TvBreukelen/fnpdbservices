@@ -40,7 +40,7 @@ public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 			comp.setForeground(new Color(255, 0, 255));
 		}
 		if (isBoolean) {
-			setSelected(((Boolean) value));
+			setSelected((Boolean) value);
 		}
 
 		if (hasFocus) {
@@ -51,10 +51,4 @@ public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 
 		return comp;
 	}
-	// if (value instanceof Boolean) {
-	// setSelected((Boolean) value);
-	// return this;
-	// }
-	// return label;
-	// }
 }
