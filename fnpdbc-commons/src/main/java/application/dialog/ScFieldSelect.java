@@ -38,6 +38,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	 * @version 8
 	 * @since 2004
 	 */
+	private JButton btAdd;
 	private JButton btUp;
 	private JButton btDown;
 	private JButton btRemove;
@@ -117,6 +118,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 			activateComponents();
 		};
 
+		btAdd = createImageButton("ArrowR.png", GUIFactory.getToolTip("funcAddFields"), funcAddFields);
 		btRemove = createImageButton("ArrowL.png", GUIFactory.getToolTip("funcRemoveFields"), funcRemoveFields);
 		btUp = createImageButton("ArrowU.png", GUIFactory.getToolTip("funcMoveFieldsUp"), funcMoveFieldsUp);
 		btDown = createImageButton("ArrowD.png", GUIFactory.getToolTip("funcMoveFieldsDown"), funcMoveFieldsDown);
@@ -185,10 +187,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createVerticalStrut(20));
 
-		// Add "Add" Button
-		JButton btAdd = createImageButton("ArrowR.png", GUIFactory.getToolTip("funcAddFields"), funcAddFields);
 		panel.add(btAdd);
-
 		panel.add(Box.createVerticalStrut(2));
 		panel.add(btRemove);
 		panel.add(Box.createVerticalStrut(40));
@@ -212,6 +211,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	public void activateComponents() {
+		btAdd.setEnabled(!availableModel.isEmpty());
 		btUp.setEnabled(tbSelectedFields.getSelectedRow() != -1);
 		btDown.setEnabled(btUp.isEnabled());
 		btRemove.setEnabled(btUp.isEnabled());

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
-import java.util.Map;
 
 import application.interfaces.ExportFile;
 import application.preferences.Profiles;
@@ -179,7 +178,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	protected void gotoRecord(int record) {
 		myCurrentRecord = record;
-		offsetPos = 78 + myCurrentRecord * 8;
+		offsetPos = 78L + myCurrentRecord * 8;
 	}
 
 	protected void skipBytes(int bytes) throws IOException {
@@ -188,14 +187,14 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	protected void readAppInfo(int offset, byte[] byteArray) throws IOException {
 		long pointer = pdbRaf.getFilePointer();
-		pdbRaf.seek(appInfoId + offset);
+		pdbRaf.seek((long) appInfoId + offset);
 		pdbRaf.read(byteArray);
 		pdbRaf.seek(pointer); // Set file pointer back to original state
 	}
 
 	protected void writeAppInfo(int offset, byte[] byteArray) throws IOException {
 		long pointer = pdbRaf.getFilePointer();
-		pdbRaf.seek(appInfoId + offset);
+		pdbRaf.seek((long) appInfoId + offset);
 		pdbRaf.write(byteArray);
 		pdbRaf.seek(pointer); // Set file pointer back to original state
 	}
@@ -266,7 +265,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	public void closeFile() {
 		try {
 			pdbRaf.close();
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			// Nothing that can be done about this
 		}
 		pdbRaf = null;
@@ -331,7 +330,4 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	}
 
 	protected abstract void readAppInfo() throws Exception;
-
-	@Override
-	public abstract Map<String, Object> readRecord() throws Exception;
 }

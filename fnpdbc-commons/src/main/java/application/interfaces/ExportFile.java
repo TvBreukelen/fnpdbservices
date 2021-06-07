@@ -79,8 +79,6 @@ public enum ExportFile {
 		if (!isImport) {
 			exportList.remove(SQLITE.name);
 			exportList.remove(ACCESS.name);
-		} else {
-			exportList.remove(JSON.name);
 		}
 
 		String[] result = new String[exportList.size()];
@@ -100,7 +98,6 @@ public enum ExportFile {
 
 	public boolean isBooleanExport() {
 		switch (this) {
-		case JSON:
 		case LIST:
 		case TEXTFILE:
 		case XML:
@@ -112,7 +109,6 @@ public enum ExportFile {
 
 	public boolean isTextExport() {
 		switch (this) {
-		case JSON:
 		case LIST:
 		case TEXTFILE:
 		case XML:
@@ -179,22 +175,14 @@ public enum ExportFile {
 
 	public boolean isAppend() {
 		switch (this) {
-		case HANDBASE:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
-		case LIST:
-		case MOBILEDB:
-		case PILOTDB:
-		case ACCESS:
-		case SQLITE:
-			return true;
-		default:
+		case CALC:
+		case EXCEL:
+		case JSON:
+		case TEXTFILE:
+		case XML:
 			return false;
+		default:
+			return true;
 		}
 	}
 
