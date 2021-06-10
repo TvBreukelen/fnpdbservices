@@ -50,20 +50,20 @@ public class JsonFile extends GeneralDB implements IConvert {
 		if (isInputFile) {
 			Map<String, Object> map = mapper.readValue(outFile, Map.class);
 			if (!map.isEmpty()) {
-				for (Entry<String, Object> entry : map.entrySet()) {
-					dbName = entry.getKey();
-					if (entry.getValue() instanceof List) {
-						writeList = (List<Map<String, Object>>) entry.getValue();
-						myTotalRecords = writeList.size();
-						getDBFieldNamesAndTypes();
-						break;
-					}
-
-					if (entry.getValue() instanceof Map) {
-						writeList.add((Map<String, Object>) entry.getValue());
-						myTotalRecords = 1;
-						getDBFieldNamesAndTypes();
-					}
+				Entry<String, Object> entry = map.entrySet().iterator().next();
+				dbName = entry.getKey();
+				if (entry.getValue() instanceof List) {
+					writeList = (List<Map<String, Object>>) entry.getValue();
+					myTotalRecords = writeList.size();
+					getDBFieldNamesAndTypes();
+				} else if (entry.getValue() instanceof Map) {
+					writeList.add((Map<String, Object>) entry.getValue());
+					myTotalRecords = 1;
+					getDBFieldNamesAndTypes();
+				} else {
+					writeList.add(map);
+					myTotalRecords = 1;
+					getDBFieldNamesAndTypes();
 				}
 			}
 		}
