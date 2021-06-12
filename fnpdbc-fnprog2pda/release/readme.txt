@@ -25,19 +25,28 @@ FNProg2PDA is developed by
 1. What is FNProg2PDA?
 ===================================================================================================
 FNProg2PDA is a add-on tool for the FNProgramvare software to transfer information from the
-AssetCAT, BookCAT, CATraxx, CATVids, SoftCAT or StampCAT databases to your PDA Database, Microsoft
-Calc or Excel spreadsheet, csv textfile, xBase database (DBase 3,4,5 and Foxpro), Json or XML file.
+AssetCAT, BookCAT, CATraxx, CATVids, SoftCAT or StampCAT databases to one of the following file
+formats:
 
-The current version of FNProg2PDA supports the following PDA databases:
-
-
-Name             Type           Link  
--------------------------------------------------------------------------------------------
-JFile            Commercial     http://www.jfile.com and http://www.land-j.com
-List             Freeware       http://www.magma.ca/~roo/list/list.html
-HanDBase         Commercial     http://www.ddhsoftware.com
-MobileDB         Commercial     http://www.handmark.com
-Pilot-DB         Open Source    http://pilot-db.sourceforge.net/main.htm
+Name            OS            
+--------------------------------------------
+Calc            All platforms
+CSV             All platforms
+DBase3          MS-DOS
+DBase4          MS-DOS
+DBase5          Microsoft Windows
+Foxpro          Microsoft Windows 
+JFile 3         Palm
+JFile 4         Palm
+JFile 5+        Palm
+JSON            All Platforms
+HanDBase        Palm/Pocket PC/iPhone/iPad
+List            Palm 
+MobileDB        Palm/PocketPC
+MS-Excel        Microsoft Windows / Mac OS X
+Pilot-DB        Palm  
+TSV             All platforms
+XML	            All platforms
 
 
 To be able to use the FNProg2PDA programs you'll need to have the following on your PC:
@@ -122,6 +131,12 @@ General Public License for more details.
 ===================================================================================================
 4. What is New?
 ===================================================================================================
+
+Version 9.2
+-----------
+Improved the JSON export
+Included DBConvert with JSON file import
+
 
 Version 9.1
 -----------

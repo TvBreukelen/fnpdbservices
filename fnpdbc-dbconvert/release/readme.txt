@@ -26,46 +26,54 @@ Contents
 ============================================================
 
 DBConvert is a database cross converter for PDA- and PC Databases, user definable textfiles (csv) and other file formats.
-The current version of DBConvert can Import from:
+The current version of DBConvert can
+
+Import from:
 
 Name            OS            
 ----------------------------------
-Calc			All platforms
-JFile 3         Palm
-JFile 4         Palm
-JFile 5+        Palm
-List            Palm 
-MobileDB        Palm/PocketPC
-Pilot-DB        Palm  
-MS-Access       Microsoft Windows / Mac OS X
-MS-Excel        Microsoft Windows / Mac OS X
-SQLite			Cross platform (Mac, Windows, Android, etc.)
+Calc            All platforms
+CSV             All platforms
 DBase III       MS-DOS
 DBase IV        MS-DOS
 DBase V         Microsoft Windows
 Foxpro          Microsoft Windows 
+JFile 3         Palm
+JFile 4         Palm
+JFile 5+        Palm
+List            Palm 
+JSON            All Platforms
+MobileDB        Palm/PocketPC
+MS-Access       Microsoft Windows / Mac OS X
+MS-Excel        Microsoft Windows / Mac OS X
+Pilot-DB        Palm  
+SQLite          All Platforms
+TSV             All platforms
 Visual Foxpro   Microsoft Windows
-CSV Textfile    All platforms
-XML File        All platforms
+XML             All platforms
 
 
 and Export to:
 
 Name            OS            
 ----------------------------------
-Calc			All platforms
-JFile 5+        Palm
-HanDBase        Palm/Pocket PC/iPhone/iPad
-List            Palm 
-MobileDB        Palm/PocketPC
-Pilot-DB        Palm  
-MS-Excel        Microsoft Windows / Mac OS X
+Calc            All platforms
+CSV             All platforms
 DBase3          MS-DOS
 DBase4          MS-DOS
 DBase5          Microsoft Windows
 Foxpro          Microsoft Windows 
-CSV Textfile    All platforms
-XML File        All platforms
+JFile 3         Palm
+JFile 4         Palm
+JFile 5+        Palm
+JSON            All Platforms
+HanDBase        Palm/Pocket PC/iPhone/iPad
+List            Palm 
+MobileDB        Palm/PocketPC
+MS-Excel        Microsoft Windows / Mac OS X
+Pilot-DB        Palm  
+TSV             All platforms
+XML	            All platforms
 
 
 DBConvert is compatible with all operating systems that are able to run Java (version 8 or higher).
@@ -140,6 +148,11 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 6.7
+-----------
+Added import from JSON
+
 
 Version 6.6
 -----------
