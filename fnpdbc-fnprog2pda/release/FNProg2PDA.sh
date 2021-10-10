@@ -1,3 +1,2 @@
-﻿#! /bin/bash
-clear
-java -jar DBConvert.jar
+#!/bin/bash
+java -jar FNProg2PDA.jar

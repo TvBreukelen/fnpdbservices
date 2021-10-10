@@ -149,6 +149,12 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 6.7.1
+-------------
+Updated external libraries. With the Jackcess update to version 4.0.1, MS Access 2019 
+should now be supported.
+
+
 Version 6.7
 -----------
 Added import from JSON

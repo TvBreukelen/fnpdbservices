@@ -1,6 +1,4 @@
-#! /bin/bash
-clear
-
+#!/bin/bash
 <<COMMENTS
  *---------------------------------------------------------------*
  * FNProg2PDA Batch file                                         *
