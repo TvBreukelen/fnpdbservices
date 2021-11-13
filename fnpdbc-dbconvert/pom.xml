@@ -55,32 +55,6 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<plugin>
-				<!-- Builds a DMG file (works only on a Mac) Run clean package appbundle:bundle -->
-				<groupId>sh.tak.appbundler</groupId>
-				<artifactId>appbundle-maven-plugin</artifactId>
-				<version>1.2.0</version>
-				<configuration>
-					<mainClass>dbconvert.DBConvert</mainClass>
-					<generateDiskImageFile>true</generateDiskImageFile>
-					<bundleName>DBConvert</bundleName>
-					<iconFile>DBConvert.icns</iconFile>
-					<additionalClasspath>:$APP_ROOT/../libs/</additionalClasspath>
-					<additionalResources>
-						<fileSet>
-							<directory>${project.basedir}/dist</directory>
-						</fileSet>
-					</additionalResources>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 </project>

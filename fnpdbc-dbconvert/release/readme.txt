@@ -34,13 +34,9 @@ Name            OS
 ----------------------------------
 Calc            All platforms
 CSV             All platforms
-DBase III       MS-DOS
-DBase IV        MS-DOS
-DBase V         Microsoft Windows
+DBase           Microsoft Windows
 Foxpro          Microsoft Windows 
-JFile 3         Palm
-JFile 4         Palm
-JFile 5+        Palm
+JFile           Palm
 List            Palm 
 JSON            All Platforms
 MobileDB        Palm/PocketPC
@@ -51,6 +47,7 @@ SQLite          All Platforms
 TSV             All platforms
 Visual Foxpro   Microsoft Windows
 XML             All platforms
+YAML            All platforms
 
 
 and Export to:
@@ -59,13 +56,9 @@ Name            OS
 ----------------------------------
 Calc            All platforms
 CSV             All platforms
-DBase3          MS-DOS
-DBase4          MS-DOS
-DBase5          Microsoft Windows
+DBase           MS-DOS
 Foxpro          Microsoft Windows 
-JFile 3         Palm
-JFile 4         Palm
-JFile 5+        Palm
+JFile           Palm
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
 List            Palm 
@@ -74,6 +67,7 @@ MS-Excel        Microsoft Windows / Mac OS X
 Pilot-DB        Palm  
 TSV             All platforms
 XML	            All platforms
+YAML            All platforms
 
 
 DBConvert is compatible with all operating systems that are able to run Java (version 8 or higher).
@@ -149,10 +143,11 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
-Version 6.7.1
--------------
-Updated external libraries. With the Jackcess update to version 4.0.1, MS Access 2019 
-should now be supported.
+Version 6.8
+-----------
+Added support for YAML files
+Updated 3rd party libraries
+Corrected Linux bash files
 
 
 Version 6.7

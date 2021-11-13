@@ -20,6 +20,7 @@ public enum ExportFile {
 	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
 	XML("Xml", "", "", "true", "false", FileType.XML, 32767, 32767, 32767),
 	JSON("Json", "", "", "true", "false", FileType.JSON, 32767, 32767, 32767),
+	YAML("Yaml", "", "", "true", "false", FileType.YAML, 32767, 32767, 32767),
 	DBASE3("DBase3", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
 	DBASE4("DBase4", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
 	DBASE5("DBase5", "", "", "T", "F", FileType.DBF, 254, 32767, 1024),
@@ -129,6 +130,7 @@ public enum ExportFile {
 		case LIST:
 		case TEXTFILE:
 		case XML:
+		case YAML:
 			return false;
 		default:
 			return true;
@@ -178,6 +180,7 @@ public enum ExportFile {
 		case CALC:
 		case EXCEL:
 		case JSON:
+		case YAML:
 		case TEXTFILE:
 		case XML:
 			return false;

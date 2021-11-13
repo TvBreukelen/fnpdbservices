@@ -32,13 +32,9 @@ Name            OS
 --------------------------------------------
 Calc            All platforms
 CSV             All platforms
-DBase3          MS-DOS
-DBase4          MS-DOS
-DBase5          Microsoft Windows
+DBase           Microsoft Windows
 Foxpro          Microsoft Windows 
-JFile 3         Palm
-JFile 4         Palm
-JFile 5+        Palm
+JFile           Palm
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
 List            Palm 
@@ -47,7 +43,7 @@ MS-Excel        Microsoft Windows / Mac OS X
 Pilot-DB        Palm  
 TSV             All platforms
 XML	            All platforms
-
+YAML            All Platforms
 
 To be able to use the FNProg2PDA programs you'll need to have the following on your PC:
 
@@ -132,6 +128,13 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+Version 9.3
+-----------
+Added support for YAML files
+Updated 3rd party libraries
+Corrected Linux bash files
+
+
 Version 9.2
 -----------
 Improved the JSON export
@@ -141,7 +144,7 @@ Included DBConvert with JSON file import
 Version 9.1
 -----------
 Improved WantList, PlayList and BoxSet exports.
-Added support for Json files,
+Added support for JSON files,
 Removed support for P. Referencer.
 Minor bug fixes.
 

@@ -29,6 +29,7 @@ import dbengine.export.ListDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
 import dbengine.export.SQLite;
+import dbengine.export.YamlFile;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class GeneralDB {
@@ -282,6 +283,8 @@ public abstract class GeneralDB {
 			return new Calc(profile);
 		case JSON:
 			return new JsonFile(profile);
+		case YAML:
+			return new YamlFile(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
 		case JFILE5:

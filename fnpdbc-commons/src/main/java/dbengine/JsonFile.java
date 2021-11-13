@@ -21,8 +21,8 @@ import application.utils.General;
 public class JsonFile extends GeneralDB implements IConvert {
 	private File outFile;
 	private File backupFile;
-	private ObjectMapper mapper = new ObjectMapper();
-	private ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+	protected ObjectMapper mapper;
+	protected ObjectWriter writer;
 	private List<Map<String, Object>> writeList = new ArrayList<>();
 	private List<FieldDefinition> dbFields = new ArrayList<>();
 
@@ -31,6 +31,8 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	public JsonFile(Profiles pref) {
 		super(pref);
+		mapper = new ObjectMapper();
+		writer = mapper.writerWithDefaultPrettyPrinter();
 	}
 
 	@SuppressWarnings("unchecked")
