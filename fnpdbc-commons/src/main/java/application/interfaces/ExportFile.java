@@ -21,6 +21,7 @@ public enum ExportFile {
 	XML("Xml", "", "", "true", "false", FileType.XML, 32767, 32767, 32767),
 	JSON("Json", "", "", "true", "false", FileType.JSON, 32767, 32767, 32767),
 	YAML("Yaml", "", "", "true", "false", FileType.YAML, 32767, 32767, 32767),
+	DBASE("xBase", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
 	DBASE3("DBase3", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
 	DBASE4("DBase4", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
 	DBASE5("DBase5", "", "", "T", "F", FileType.DBF, 254, 32767, 1024),
@@ -44,7 +45,7 @@ public enum ExportFile {
 	private int maxMemoSize;
 	private int maxFields;
 
-	private ExportFile(String name, String dbType, String creator, String trueValue, String falseValue, FileType type,
+	ExportFile(String name, String dbType, String creator, String trueValue, String falseValue, FileType type,
 			int maxTextSize, int maxMemoSize, int maxFields) {
 		this.name = name;
 		this.dbType = dbType;
@@ -77,7 +78,13 @@ public enum ExportFile {
 			exportList.remove(HANDBASE.name);
 		}
 
-		if (!isImport) {
+		if (isImport) {
+			exportList.remove(DBASE3.name);
+			exportList.remove(DBASE4.name);
+			exportList.remove(DBASE5.name);
+			exportList.remove(FOXPRO.name);
+		} else {
+			exportList.remove(DBASE.name);
 			exportList.remove(SQLITE.name);
 			exportList.remove(ACCESS.name);
 		}
@@ -196,6 +203,8 @@ public enum ExportFile {
 	public boolean isSpecialFieldSort() {
 		switch (this) {
 		case LIST:
+		case JSON:
+		case YAML:
 		case XML:
 			return true;
 		default:

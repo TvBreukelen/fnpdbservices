@@ -343,6 +343,9 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			case DBFField.FIELD_TYPE_M:
 				dbFieldTypes.add(FieldTypes.MEMO);
 				break;
+			case DBFField.FIELD_TYPE_T:
+				dbFieldTypes.add(FieldTypes.TIMESTAMP);
+				break;
 			default:
 				dbFieldTypes.add(FieldTypes.TEXT);
 			}

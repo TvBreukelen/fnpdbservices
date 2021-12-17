@@ -15,6 +15,9 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.JulianFields;
 
 import application.utils.General;
 
@@ -43,12 +46,6 @@ public class DBFReader extends DBFBase {
 
 		if (header.hasMemoFile()) {
 			memo.openMemoFile();
-		}
-
-		/* it might be required to leap to the start of records at times */
-		int startIndex = header.headerLength - (32 + 32 * header.fieldArray.length) - 1;
-		if (startIndex > 0) {
-			dataInputStream.skip(startIndex);
 		}
 	}
 
@@ -118,10 +115,10 @@ public class DBFReader extends DBFBase {
 					break;
 				case DBFField.FIELD_TYPE_D:
 					byte[] bYear = new byte[4];
-					dataInputStream.read(bYear);
 					byte[] bMonth = new byte[2];
-					dataInputStream.read(bMonth);
 					byte[] bDay = new byte[2];
+					dataInputStream.read(bYear);
+					dataInputStream.read(bMonth);
 					dataInputStream.read(bDay);
 					try {
 						recordObjects[i] = LocalDate.of(Integer.parseInt(new String(bYear)),
@@ -176,6 +173,24 @@ public class DBFReader extends DBFBase {
 							}
 						}
 						recordObjects[i] = index == 0 ? null : memo.readMemo(index);
+					}
+					break;
+				case DBFField.FIELD_TYPE_T:
+					// case DBFField.FIELD_TYPE_TS:
+					byte[] bDatetime = new byte[header.fieldArray[i].getFieldLength()];
+					recordObjects[i] = null;
+					dataInputStream.read(bDatetime);
+					if (bDatetime.length > 7) {
+						byte[] bDate = { bDatetime[0], bDatetime[1], bDatetime[2], bDatetime[3] };
+						byte[] bTime = { bDatetime[4], bDatetime[5], bDatetime[6], bDatetime[7] };
+						long date = General.intLittleEndian(bDate);
+						long time = General.intLittleEndian(bTime);
+						if (date != time) {
+							LocalDate ld = LocalDate.MAX.with(JulianFields.JULIAN_DAY, date);
+							LocalTime lt = LocalTime.ofNanoOfDay(time * 1000000);
+							LocalDateTime dt = LocalDateTime.of(ld, lt);
+							recordObjects[i] = dt;
+						}
 					}
 					break;
 				case DBFField.FIELD_TYPE_Y:

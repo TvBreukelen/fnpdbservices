@@ -10,7 +10,7 @@ public enum TvBSoftware {
 	 * @author Tom van Breukelen
 	 */
 
-	DBCONVERT("DBConvert", "6.8", "dbconvert", "dbconvert/files", "dbconvert/best_release.json"),
+	DBCONVERT("DBConvert", "6.9", "dbconvert", "dbconvert/files", "dbconvert/best_release.json"),
 	FNPROG2PDA("FNProg2PDA", "9.3", "fnprog2pda", "fnprog2pda/files", "fnprog2pda/best_release.json");
 
 	private static final String SOURCEFORGE = "https://sourceforge.net/projects/";
@@ -21,7 +21,7 @@ public enum TvBSoftware {
 	private String download;
 	private String releaseInfo;
 
-	private TvBSoftware(String name, String version, String support, String download, String releaseInfo) {
+	TvBSoftware(String name, String version, String support, String download, String releaseInfo) {
 		this.name = name;
 		this.version = version;
 		this.support = SOURCEFORGE + support;

@@ -58,7 +58,7 @@ public abstract class BasicSoft {
 
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-	public BasicSoft(Profiles profile) {
+	protected BasicSoft(Profiles profile) {
 		pdaSettings = profile;
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 	}
@@ -112,9 +112,8 @@ public abstract class BasicSoft {
 		totalRecords = table.size();
 
 		dbOut.createDbHeader();
-		Map<String, Object> dbRecord = new HashMap<>();
 		for (Map<String, Object> rowData : table) {
-			dbRecord.clear();
+			Map<String, Object> dbRecord = new HashMap<>();
 			dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
 					rowData.getOrDefault(field.getFieldAlias(), "")));
 			dbOut.processData(dbRecord);

@@ -303,6 +303,7 @@ public abstract class GeneralDB {
 			return new Excel(profile);
 		case TEXTFILE:
 			return new CsvFile(profile);
+		case DBASE:
 		case DBASE3:
 		case DBASE4:
 		case DBASE5:

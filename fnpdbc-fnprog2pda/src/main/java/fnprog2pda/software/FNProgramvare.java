@@ -193,18 +193,13 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		// Add the sort fields to the fields to export
-		for (int i = 0; i < 4; i++) {
-			String dbField = pdaSettings.getSortField(i);
-			if (dbField.isEmpty()) {
-				break;
-			}
-
+		pdaSettings.getSortFields().forEach(dbField -> {
 			FieldDefinition field = dbFieldDefinition.get(dbField);
 			if (field != null) {
 				addField(dbField, usrList, true, false);
 				dbSortList.put(field.getFieldAlias(), field.getFieldType());
 			}
-		}
+		});
 	}
 
 	private FieldDefinition addField(String dbField, List<String> usrList, boolean isSystemField,

@@ -1,6 +1,8 @@
 package dbconvert.utils;
 
+import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
+import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 
 public class ConvertOldVersion {
@@ -9,17 +11,41 @@ public class ConvertOldVersion {
 	}
 
 	public static void convert() {
-		GeneralSettings myGeneralSettings = GeneralSettings.getInstance();
-		String version = myGeneralSettings.getDbcVersion();
+		GeneralSettings settings = GeneralSettings.getInstance();
+		String version = settings.getDbcVersion();
 
 		if (version.equals(TvBSoftware.DBCONVERT.getVersion())) {
 			return;
 		}
 
-		if (!myGeneralSettings.isNoVersionCheck()) {
-			myGeneralSettings.setCheckVersionDate();
+		if (!settings.isNoVersionCheck()) {
+			settings.setCheckVersionDate();
 		}
 
-		myGeneralSettings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
+		double vs = Double.parseDouble(version.substring(0, 3));
+		if (vs <= 6.8) {
+			// Rename DBase and FoxPro input files to xBase
+			convertToXBase();
+		}
+
+		settings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
+	}
+
+	private static void convertToXBase() {
+		Databases dbases = Databases.getInstance(TvBSoftware.DBCONVERT);
+		String[] bases = dbases.getDatabases();
+		for (String db : bases) {
+			dbases.setNode(db);
+			switch (ExportFile.getExportFile(dbases.getDatabaseType())) {
+			case DBASE3:
+			case DBASE4:
+			case DBASE5:
+			case FOXPRO:
+				dbases.setDatabaseType(ExportFile.DBASE.getName());
+				break;
+			default:
+				continue;
+			}
+		}
 	}
 }

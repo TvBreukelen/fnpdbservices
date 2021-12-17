@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,9 +34,7 @@ public class ConfigSort extends BasicDialog {
 	private JComboBox<String> cbCategoryField;
 	private JComboBox<String>[] cbSortField;
 	private JLabel[] lbSortField;
-	private JCheckBox ckSort;
 	private final int numSort;
-	private boolean isDbConvert;
 
 	private String[] dbFilterFields;
 	private ExportFile myExportFile;
@@ -46,7 +43,6 @@ public class ConfigSort extends BasicDialog {
 
 	@SuppressWarnings("unchecked")
 	public ConfigSort(IDatabaseFactory dbFactory, SortData data) {
-		isDbConvert = dbFactory.isDbConvert();
 		myExportFile = dbFactory.getExportFile();
 		pdaSettings = data;
 		dbFilterFields = dbFactory.getDbFilterFields();
@@ -63,6 +59,12 @@ public class ConfigSort extends BasicDialog {
 		switch (myExportFile) {
 		case LIST:
 			setHelpFile("sort_list");
+			break;
+		case JSON:
+			setHelpFile("sort_json");
+			break;
+		case YAML:
+			setHelpFile("sort_json");
 			break;
 		case XML:
 			setHelpFile("sort_xml");
@@ -105,19 +107,17 @@ public class ConfigSort extends BasicDialog {
 
 		switch (myExportFile) {
 		case LIST:
-			ckSort = GUIFactory.getJCheckBox("reSortList", pdaSettings.isForceSort());
 			guiText = "sortFieldList";
 			break;
 		case XML:
 			guiText = "sortFieldXml";
-			ckSort = GUIFactory.getJCheckBox("reSortXml", pdaSettings.isForceSort());
 			break;
+		case JSON:
+		case YAML:
+			guiText = "sortFieldJson";
 		default:
-			ckSort = GUIFactory.getJCheckBox("reSortReferencer", pdaSettings.isForceSort());
+			break;
 		}
-
-		result.add(ckSort, c.gridCell(0, index++, 0, 0));
-		ckSort.setVisible(isDbConvert && myExportFile.isSpecialFieldSort());
 
 		cbCategoryField = new JComboBox<>(dbFilterFields);
 		cbCategoryField.setSelectedItem(findFilterField(pdaSettings.getCategoryField()));
@@ -161,7 +161,6 @@ public class ConfigSort extends BasicDialog {
 
 	@Override
 	protected void save() throws Exception {
-		boolean isSortSelected = false;
 		Set<String> map = new HashSet<>();
 		int index = 0;
 
@@ -173,26 +172,10 @@ public class ConfigSort extends BasicDialog {
 				if (!map.contains(sortValue)) {
 					map.add(sortValue);
 					pdaSettings.setSortField(index++, sortValue);
-					isSortSelected = true;
 				}
 			}
 		}
 
-		if (myExportFile.isSpecialFieldSort()) {
-			pdaSettings.setForceSort(ckSort.isVisible() ? isSortSelected && ckSort.isSelected() : isSortSelected);
-		} else {
-			pdaSettings.setForceSort(isSortSelected);
-		}
-
 		pdaSettings.setCategoryField(cbCategoryField.isVisible() ? cbCategoryField.getSelectedItem().toString() : "");
-	}
-
-	@Override
-	public void activateComponents() {
-		if (!ckSort.isVisible()) {
-			return;
-		}
-
-		ckSort.setEnabled(Arrays.stream(cbSortField).anyMatch(cb -> cb.getSelectedIndex() > 0));
 	}
 }

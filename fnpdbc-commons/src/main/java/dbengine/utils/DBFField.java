@@ -30,6 +30,7 @@ public class DBFField {
 	public static final byte FIELD_TYPE_F = (byte) 'F';
 	public static final byte FIELD_TYPE_D = (byte) 'D';
 	public static final byte FIELD_TYPE_M = (byte) 'M';
+	public static final byte FIELD_TYPE_T = (byte) 'T'; // Foxpro DateTime
 	public static final byte FIELD_TYPE_Y = (byte) 'Y'; // Foxpro currency format
 
 	/* Field struct variables start here */
@@ -59,7 +60,7 @@ public class DBFField {
 	 * @return Returns the created DBFField object.
 	 * @throws IOException If any stream reading problems occurs.
 	 */
-	protected static DBFField createField(DataInput in) throws IOException {
+	protected static DBFField createField(DataInput in, boolean isDbase7) throws IOException {
 		DBFField field = new DBFField();
 		byte tByte = in.readByte(); /* 0 */
 
@@ -67,7 +68,11 @@ public class DBFField {
 			return null;
 		}
 
-		in.readFully(field.fieldName, 1, 10); /* 1-10 */
+		if (isDbase7) {
+			field.fieldName = new byte[32];
+		}
+
+		in.readFully(field.fieldName, 1, isDbase7 ? 31 : 10); /* 1-10 or 32 */
 		field.fieldName[0] = tByte;
 
 		for (int i = 0; i < field.fieldName.length; i++) {
@@ -78,7 +83,9 @@ public class DBFField {
 		}
 
 		field.dataType = in.readByte(); /* 11 */
-		field.reserv1 = Integer.reverseBytes(in.readInt()); /* 12-15 */
+		if (!isDbase7) {
+			field.reserv1 = Integer.reverseBytes(in.readInt()); /* 12-15 */
+		}
 		field.fieldLength = in.readUnsignedByte(); /* 16 */
 		field.decimalCount = in.readByte(); /* 17 */
 		field.reserv2 = Short.reverseBytes(in.readShort()); /* 18-19 */
@@ -86,7 +93,9 @@ public class DBFField {
 		field.reserv3 = Short.reverseBytes(in.readShort()); /* 21-22 */
 		field.setFieldsFlag = in.readByte(); /* 23 */
 		in.readFully(field.reserv4); /* 24-30 */
-		field.indexFieldFlag = in.readByte(); /* 31 */
+		if (!isDbase7) {
+			field.indexFieldFlag = in.readByte(); /* 31 */
+		}
 		return field;
 	}
 
@@ -196,6 +205,7 @@ public class DBFField {
 		case FIELD_TYPE_N:
 		case FIELD_TYPE_F:
 			break;
+		case FIELD_TYPE_T:
 		case FIELD_TYPE_Y:
 			fieldLength = 8;
 			break;

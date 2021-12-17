@@ -30,6 +30,8 @@ public class DBFHeader {
 	public static final byte SIG_FOXPRO_WITH_MEMO = (byte) 0xF5;
 	public static final byte SIG_VISUAL_FOXPRO_WITH_MEMO = (byte) 0x31;
 
+	private static final int DBASE_LEVEL_7 = 4;
+
 	/* DBF structure start here */
 	byte signature; /* 0 */
 	byte year; /* 1 */
@@ -47,7 +49,7 @@ public class DBFHeader {
 	byte mdxFlag; /* 28 */
 	byte languageDriver; /* 29 */
 	short reserv4; /* 30-31 */
-	DBFField[] fieldArray; /* each 32 bytes */
+	DBFField[] fieldArray; /* each 32 or 48 bytes */
 	byte terminator1; /* n+1 */
 	/* DBF structure ends here */
 
@@ -77,17 +79,37 @@ public class DBFHeader {
 		mdxFlag = in.readByte(); /* 28 */
 		languageDriver = in.readByte(); /* 29 */
 		reserv4 = Short.reverseBytes(in.readShort()); /* 30-31 */
+		int read = 32;
+
+		if (isDB7()) {
+			// Skip language drive name (32 bytes) and reserved (4 bytes)
+			in.skipBytes(36);
+			read += 36;
+		}
+
+		int fieldLen = isDB7() ? 48 : 32;
 
 		List<DBFField> vFields = new ArrayList<>();
-
-		DBFField field = DBFField.createField(in); /* 32 each */
-		while (field != null) {
-			vFields.add(field);
-			field = DBFField.createField(in);
+		while (read <= this.headerLength - fieldLen) {
+			DBFField field = DBFField.createField(in, isDB7());
+			if (field != null) {
+				vFields.add(field);
+				read += fieldLen;
+			} else {
+				// field descriptor array terminator found
+				read += 1;
+				break;
+			}
 		}
 
 		fieldArray = new DBFField[vFields.size()];
 		vFields.toArray(fieldArray);
+
+		/* it might be required to leap to the start of records at times */
+		int skip = headerLength - read;
+		if (skip > 0) {
+			in.skipBytes(skip);
+		}
 
 		switch (signature) {
 		case SIG_DBASE_III_WITH_MEMO:
@@ -100,6 +122,10 @@ public class DBFHeader {
 		default:
 			hasMemoFile = false;
 		}
+	}
+
+	public boolean isDB7() {
+		return (signature & 0x7) == DBASE_LEVEL_7;
 	}
 
 	public void write(DataOutput dataOutput) throws IOException {
@@ -142,6 +168,9 @@ public class DBFHeader {
 	}
 
 	private short findHeaderLength() {
+		if (isDB7()) {
+			return (short) (48 + 48 * fieldArray.length + 1);
+		}
 		return (short) (32 + 32 * fieldArray.length + 1);
 	}
 

@@ -40,7 +40,6 @@ public abstract class Profiles extends Project implements IEncoding {
 	private boolean appendRecords;
 	private boolean createBackup;
 	private boolean exportImages;
-	private boolean forceSort;
 
 	private int imageOption;
 	private int imageHeight;
@@ -114,7 +113,6 @@ public abstract class Profiles extends Project implements IEncoding {
 		categoryField = child.get("category.field", "");
 		createBackup = child.getBoolean("create.backup", false);
 		exportImages = child.getBoolean("export.images", false);
-		forceSort = child.getBoolean("force.sort", true);
 		imageOption = child.getInt("export.image.option", 0);
 		imageHeight = child.getInt("export.image.height", 0);
 		imageWidth = child.getInt("export.image.width", 0);
@@ -295,15 +293,6 @@ public abstract class Profiles extends Project implements IEncoding {
 		this.exportImages = exportImages;
 	}
 
-	public boolean isForceSort() {
-		return forceSort;
-	}
-
-	public void setForceSort(boolean forceSort) {
-		PrefUtils.writePref(child, "force.sort", forceSort, this.forceSort, true);
-		this.forceSort = forceSort;
-	}
-
 	public int getImageOption() {
 		return imageOption;
 	}
@@ -369,6 +358,16 @@ public abstract class Profiles extends Project implements IEncoding {
 
 	public String getSortField(int index) {
 		return sortField[index];
+	}
+
+	public List<String> getSortFields() {
+		List<String> result = new ArrayList<>();
+		for (String s : sortField) {
+			if (!s.isEmpty()) {
+				result.add(s);
+			}
+		}
+		return result;
 	}
 
 	public boolean isSortFieldDefined() {
@@ -679,10 +678,17 @@ public abstract class Profiles extends Project implements IEncoding {
 			return result;
 		}
 
-		HashSet<String> set = new HashSet<>();
+		Set<String> set = new HashSet<>();
 		for (BasisField field : userList) {
 			set.add(field.getFieldAlias());
 		}
+
+		// Add sort fields to user fields
+		getSortFields().forEach(field -> {
+			if (!set.contains(field)) {
+				result.add(field);
+			}
+		});
 
 		// Add Category field to user fields
 		if (!categoryField.isEmpty() && !set.contains(categoryField)) {

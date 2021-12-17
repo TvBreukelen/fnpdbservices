@@ -117,7 +117,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		if (myPref.isForceSort()) {
+		if (myPref.isSortFieldDefined()) {
 			int i = -1;
 			for (Entry<String, String> entry : hElements.entrySet()) {
 				i++;
@@ -162,7 +162,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 			nodes[index].appendChild(el);
 		}
 
-		if (!myPref.isForceSort()) {
+		if (!myPref.isSortFieldDefined()) {
 			results.appendChild(nodes[index]);
 		}
 	}
@@ -184,15 +184,10 @@ public class XmlFile extends GeneralDB implements IConvert {
 		doc.appendChild(results);
 		hElements.clear();
 
-		if (myPref.isForceSort()) {
+		if (myPref.isSortFieldDefined()) {
 			// Load hElements with all sort fields
 			nodes = new Element[4];
-			for (int i = 0; i < 4; i++) {
-				String sort = myPref.getSortField(i);
-				if (!sort.equals("")) {
-					hElements.put(sort, "");
-				}
-			}
+			myPref.getSortFields().forEach(s -> hElements.put(s, ""));
 		} else {
 			nodes = new Element[1];
 		}
@@ -201,7 +196,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 	}
 
 	private void splitDbInfoToWrite() {
-		boolean isSortFields = !isInputFile && myPref.isForceSort();
+		boolean isSortFields = !isInputFile && myPref.isSortFieldDefined();
 		hFields.clear();
 		dbWrite.clear();
 

@@ -172,19 +172,17 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 
 		// Load all fields to be sorted in sortList
-		if (pdaSettings.isForceSort()) {
+		if (pdaSettings.isSortFieldDefined()) {
 			Set<String> aDuplicate = new HashSet<>();
-			for (int i = 0; i < 4; i++) {
-				String dbField = pdaSettings.getSortField(i);
+			pdaSettings.getSortFields().forEach(dbField -> {
 				if (!dbField.isEmpty() && !aDuplicate.contains(dbField)) {
 					FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
-					if (fieldDef == null) {
-						continue;
+					if (fieldDef != null) {
+						sortList.put(fieldDef.getFieldAlias(), fieldDef.getFieldType());
+						aDuplicate.add(dbField);
 					}
-					sortList.put(fieldDef.getFieldAlias(), fieldDef.getFieldType());
-					aDuplicate.add(dbField);
 				}
-			}
+			});
 		}
 
 		if (!sortList.isEmpty()) {

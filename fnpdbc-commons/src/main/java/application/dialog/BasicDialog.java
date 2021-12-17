@@ -43,12 +43,12 @@ public abstract class BasicDialog extends JDialog {
 
 	private static final long serialVersionUID = -4427269633857070104L;
 
-	public BasicDialog() {
+	protected BasicDialog() {
 		setModal(true);
 		isMainScreen = true;
 	}
 
-	public BasicDialog(Component dialog) {
+	protected BasicDialog(Component dialog) {
 		setModal(true);
 		setLocationRelativeTo(dialog);
 		isMainScreen = false;
@@ -88,8 +88,8 @@ public abstract class BasicDialog extends JDialog {
 			} catch (Exception ex) {
 				General.errorMessage(BasicDialog.this, ex, GUIFactory.getTitle("configError"), null);
 			}
-		}; 
-		
+		};
+
 		btSave = General.createToolBarButton(GUIFactory.getToolTip("menuSave"), "Save.png", funcSave);
 		btHelp = General.createToolBarButton(GUIFactory.getToolTip("menuHelp"), "Help.png", e -> showHelp());
 		btExit = General.createToolBarButton(GUIFactory.getToolTip("menuExitScr"), "Exit.png", e -> close());
