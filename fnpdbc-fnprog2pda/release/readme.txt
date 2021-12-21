@@ -128,6 +128,15 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+
+Version 9.4
+-----------
+Improved export to JSON and YAML files
+Updated help files
+Minor bug fixes
+Included DBConvert with dBase version 7 support
+
+
 Version 9.3
 -----------
 Added support for YAML files
@@ -154,140 +163,3 @@ Version 9.0
 Added support for OpenOffice/LibreOffice Calc spreadsheet (ODS files).
 Changed the order of the export files (moved legacy formats to the end of the list).
 Updated external libraries.
-
-
-Version 8.9.1
--------------
-New DBConvert version (SQLite import improvements). 
-External libraries update.
-Fixed check for new version each month could not be saved and other minor bugs.
-
-
-Version 8.9
------------
-Updated help files. Added Delete button to the Sort dialog. Updated deprecated code.
-Minor bug fixes.
-
-
-Version 8.8.1
--------------
-Added bash startup scripts for running FNProg2PDA under Linux in standard and batch mode
-Renamed FNProg2PDA_NoGUI to FNProg2PDA_batch
-Bug Fix: problem with running FNProg2PDA_NoGUI
-
-
-Version 8.8
------------
-Bug Fix: under Linux icons were not shown
-
-
-Version 8.7.1
--------------
-The rather confusing conversion settings for booleans, times and dates has disappeared. It is now
-possible to change the export for these values on a field by field basis.
-A bug prevented to include author roles in the BookCAT export, this has been fixed. 
-
-
-Version 8.7
------------
-Cleaned up General Config dialog.
-Used SonarCube to improve code quality
-Fixed MS-Excel empty cells bug
-Added more fields to export for BookCAT
-Used Restful Service API to perform SourceForge version check
-
-
-Version 8.6.2
--------------
-Removed "Replace Records in Database" feature for non HanDBase exports
-Added field name, type and size checks for DBase and Foxpro exports
-Replaced "Save" by "Apply" button in the sort, filter and miscellaneous dialogs. 
-Added an application icon
-
-
-Version 8.6.1
--------------
-Fixed a DBase/Foxpro export error
-
-
-Version 8.6
------------
-Removed deprecated Apple Java extensions
-Fixed an Artist Name bug (CATraxx)
-Image export is now possible for all formats
-More consistent GUI design (incl. a better date picker)
-Converted program to Java 8
-Updated external libraries
-
-
-Version 8.5
------------
-Added support for author- and artist's information
-Updated 3rd party libraries
-Added logging
-
-
-Version 8.4
------------
-Added support for all images (covers, screenshots, images and thumbnails)
-
-
-Version 8.3
------------
-Removed the external image file existence check, in case only the image filenames have to be
-exported. 
-Added the General Setting option to exclude the path from the image filename. 
-
-
-Version 8.2.4
--------------
-FNProg2PDA can now check every x. no of days for a new version.
-Added "Friends of FNProgramvare" web site links (Facebook and Forum)
-Added support for SQLite export in DBConvert
-Updated 3rd party libraries
-Migrated from Java 6 to Java 7 
-Removed FNProgramvare web sites
-Removed support for SmartList to Go
-
-
-Version 8.2.3
--------------
-Bug fix: double click on DBConvert.jar wasn't supported under Linux
-Bug fix: you had to click the OK button twice to close the About dialog.
-
-
-Version 8.2.2
--------------
-Bug fix: Tracks without an Artist, caused an IndexOutOfRange exception in case the Track Artist had
-to be exported 
-
-
-Version 8.2.1
--------------
-Added Tag field to AssetCAT export
-Bugfix: Misc. Settings were no longer displayed
-Bugfix: xViewer wouldn't edit
-
-
-Version 8.2
------------
-Added AssetCAT support
-Added online version checking
-Added Excel 2007+ support (.xlsx files)
-Added password support to HanDBase export
-
-
-Version 8.1
------------
-Added WantList support for BookCAT, CATraxx and CATVids
-Added Boxset and PlayList support for CATraxx
-Bugfix: timestamp wasn't set when cloning/copying a profile
-Bugfix: couldn't save alternative field name
-Bugfix: a couple of one-to-many relationships between tables were not properly supported
-Bugfix: CATraxx and CATVids media field wasn't sorted
-Several small bug fixes, mainly related to the GUI
-
-
-Version 8.0 
------------
-ODBC driverless (OS independent) and Unicode compatible version

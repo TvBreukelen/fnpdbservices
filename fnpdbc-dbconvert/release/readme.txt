@@ -143,6 +143,15 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 6.9
+-----------
+Added support for dBase version 7 import
+xBase is now used as common name for all dBase and Foxpro imports
+Export to JSON and YAML files now supports arrays for object sorting    
+The "Force Sort" checkbox has been removed
+Minor bug fixes
+
+
 Version 6.8
 -----------
 Added support for YAML files

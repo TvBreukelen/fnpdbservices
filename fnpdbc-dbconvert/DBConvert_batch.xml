@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>console</headerType>
-  <jar>E:\eclipse-workspace\fnpdbservices\fnpdbc-dbconvert\target\fnpdbc-dbconvert-9.0.0.jar</jar>
-  <outfile>E:\eclipse-workspace\fnpdbservices\fnpdbc-dbconvert\release\DBConvert_batch.exe</outfile>
+  <jar>D:\eclipse-workspace\fnpdbservices\fnpdbc-dbconvert\target\fnpdbc-dbconvert-9.0.0.jar</jar>
+  <outfile>D:\eclipse-workspace\fnpdbservices\fnpdbc-dbconvert\release\DBConvert_batch.exe</outfile>
   <errTitle>DBConvert Program Error</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>E:\eclipse-workspace\fnpdbservices\fnpdbc-commons\src\main\resources\icons\Tools.ico</icon>
+  <icon>D:\eclipse-workspace\fnpdbservices\fnpdbc-commons\src\main\resources\icons\Tools.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>6.8.0.0</fileVersion>
-    <txtFileVersion>Version 6.8</txtFileVersion>
+    <fileVersion>6.9.0.0</fileVersion>
+    <txtFileVersion>Version 6.9</txtFileVersion>
     <fileDescription>DBConvert Batch program</fileDescription>
-    <copyright>Tom van Breukelen 2004-2021</copyright>
-    <productVersion>6.8.0.0</productVersion>
-    <txtProductVersion>Version 6.8</txtProductVersion>
+    <copyright>Tom van Breukelen 2004-2022</copyright>
+    <productVersion>6.9.0.0</productVersion>
+    <txtProductVersion>Version 6.9</txtProductVersion>
     <productName>DBConvert</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>DBConvert</internalName>

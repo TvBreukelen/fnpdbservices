@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>E:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\target\fnpdbc-fnprog2pda-9.0.0.jar</jar>
-  <outfile>E:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\release\FNProg2PDA.exe</outfile>
+  <jar>D:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\target\fnpdbc-fnprog2pda-9.0.0.jar</jar>
+  <outfile>D:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\release\FNProg2PDA.exe</outfile>
   <errTitle>FNProg2PDA Program Error</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>E:\eclipse-workspace\fnpdbservices\fnpdbc-commons\src\main\resources\icons\Ac003632.ico</icon>
+  <icon>D:\eclipse-workspace\fnpdbservices\fnpdbc-commons\src\main\resources\icons\Ac003632.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>9.3.0.0</fileVersion>
-    <txtFileVersion>Version 9.3</txtFileVersion>
+    <fileVersion>9.4.0.0</fileVersion>
+    <txtFileVersion>Version 9.4</txtFileVersion>
     <fileDescription>FNProg2PDA</fileDescription>
-    <copyright>Tom van Breukelen 2003-2021</copyright>
-    <productVersion>9.3.0.0</productVersion>
-    <txtProductVersion>Version 9.3</txtProductVersion>
+    <copyright>Tom van Breukelen 2003-2022</copyright>
+    <productVersion>9.4.0.0</productVersion>
+    <txtProductVersion>Version 9.4</txtProductVersion>
     <productName>FNProg2PDA</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>FNProg2PDA</internalName>
