@@ -49,7 +49,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 		outFile = new File(myFilename);
 		backupFile = new File(myFilename + ".bak");
 		myCurrentRecord = 0;
-		hElements = myPref.getSortFields();
 
 		this.isInputFile = isInputFile;
 		if (isInputFile) {
@@ -71,6 +70,13 @@ public class JsonFile extends GeneralDB implements IConvert {
 					getDBFieldNamesAndTypes();
 				}
 			}
+		} else {
+			hElements = new ArrayList<>();
+			Map<String, String> map = new HashMap<>();
+			dbInfo2Write.forEach(field -> map.putIfAbsent(field.getFieldAlias(), field.getFieldHeader()));
+			myPref.getSortFields().forEach(field -> {
+				hElements.add(map.getOrDefault(field, field));
+			});
 		}
 	}
 
@@ -180,9 +186,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 		dbInfo2Write.forEach(field -> {
 			Object obj = convertDataFields(dbRecord.get(field.getFieldAlias()), field);
-			if (!obj.equals("")) {
-				map.putIfAbsent(field.getFieldHeader(), obj);
-			}
+			map.putIfAbsent(field.getFieldHeader(), obj);
 		});
 
 		if (!map.isEmpty()) {
@@ -191,86 +195,56 @@ public class JsonFile extends GeneralDB implements IConvert {
 				return;
 			}
 
-			if (writeList.isEmpty()) {
-				createSortedMap(dbRecord);
-			} else {
-				evaluateSortedMap(dbRecord);
-			}
+			createSortedMap(map);
 		}
-	}
-
-	private void createSortedMap(Map<String, Object> dbRecord) {
-		Map<String, Object> result = new LinkedHashMap<>();
-		List<Map<String, Object>> list = new ArrayList<>();
-		Map<String, Object> map = new LinkedHashMap<>();
-		oldRecord = new HashMap<>();
-		oldRecord.putAll(dbRecord);
-
-		boolean isFirst = true;
-		for (String element : hElements) {
-			Object value = dbRecord.get(element);
-			dbRecord.remove(element);
-
-			if (isFirst) {
-				result.put(element, list);
-				isFirst = false;
-			} else {
-				list.add(map);
-				list = new ArrayList<>();
-				map.put(element, list);
-				map = new LinkedHashMap<>();
-			}
-
-			map.put(value.toString(), list);
-		}
-
-		list.add(dbRecord);
-		writeList.add(result);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void evaluateSortedMap(Map<String, Object> dbRecord) {
-		Map<String, Object> lastResult = writeList.get(writeList.size() - 1);
-		List<Map<String, Object>> list = new ArrayList<>();
+	private void createSortedMap(Map<String, Object> dbRecord) {
 		Map<String, Object> copyMap = new HashMap<>();
+		Map<String, Object> result = new LinkedHashMap<>();
+
+		Map<String, Object> map;
+		if (writeList.isEmpty()) {
+			// Create our first entry in the tree
+			map = new LinkedHashMap<>();
+			writeList.add(map);
+			oldRecord = new LinkedHashMap<>();
+			map.put(hElements.get(0), new LinkedHashMap<>());
+		} else {
+			map = writeList.get(0);
+		}
+
 		copyMap.putAll(dbRecord);
 
-		boolean isFirst = true;
-		List<String> oldValues = new ArrayList<>();
+		String lastElement = hElements.get(hElements.size() - 1);
+		String walkThru = hElements.get(0);
 
 		for (String element : hElements) {
-			String oldValue = oldRecord.get(element).toString();
+			boolean isLast = element.equals(lastElement);
+			String oldValue = oldRecord.getOrDefault(element, "|<<>>|").toString();
 			String newValue = dbRecord.get(element).toString();
-			oldValues.add(oldValue);
+			dbRecord.remove(element);
+
+			result = (Map<String, Object>) map.getOrDefault(walkThru, new LinkedHashMap<>());
+			map = result;
+			walkThru = newValue;
 
 			if (oldValue.equals(newValue)) {
-				isFirst = false;
 				continue;
 			}
 
-			if (isFirst) {
-				isFirst = false;
-				createSortedMap(dbRecord);
-				return;
+			if (isLast) {
+				List<Map<String, Object>> list = (List<Map<String, Object>>) map.computeIfAbsent(element,
+						k -> new ArrayList<LinkedHashMap<String, Object>>());
+				map = new LinkedHashMap<>();
+				list.add(map);
 			}
 
-			// Seek List
-			oldValues.remove(oldValues.size() - 1);
-			for (String value : oldValues) {
-				list = (List<Map<String, Object>>) lastResult.get(value);
-				lastResult = list.get(list.size() - 1);
-			}
-
-			oldValues.clear();
-			dbRecord.remove(element);
-
-			Map<String, Object> map = new LinkedHashMap<>();
-			list.add(map);
-			list = new ArrayList<>();
-			map.put(newValue, list);
+			result = new LinkedHashMap<>();
+			map.put(newValue, result);
 		}
-
-		list.add(dbRecord);
+		result.putAll(dbRecord);
 		oldRecord = copyMap;
 	}
 

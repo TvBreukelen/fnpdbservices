@@ -107,7 +107,7 @@ public class ProjectModel extends AbstractTableModel {
 		case HEADER_EXPORTFILE:
 			return profile.getExportFile();
 		case HEADER_LASTEXPORT:
-			return General.convertTimestamp2DB(profile.getLastModified(), General.getSimpleTimestampFormat());
+			return General.convertTimestamp2DB(profile.getLastModified(), General.sdInternalTimestamp);
 		case HEADER_NOTES:
 			return profile.getNotes();
 		default:

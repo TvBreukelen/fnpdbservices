@@ -64,7 +64,7 @@ public class ConfigSort extends BasicDialog {
 			setHelpFile("sort_json");
 			break;
 		case YAML:
-			setHelpFile("sort_json");
+			setHelpFile("sort_yaml");
 			break;
 		case XML:
 			setHelpFile("sort_xml");
