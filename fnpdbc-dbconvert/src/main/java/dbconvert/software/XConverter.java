@@ -271,7 +271,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// Write all records into the table model
 		for (int i = 0; i < totalRecords; i++) {
 			Map<String, Object> pRead = dbIn.readRecord();
-			if (pRead == null) {
+			if (pRead.isEmpty()) {
 				emptyRecord++;
 				continue;
 			}
@@ -400,7 +400,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		setCurrentRecord(0);
 		for (Map<String, Object> tableRecord : listMap) {
-			if ((Boolean) tableRecord.get(FILTER_FIELD)) {
+			if ((boolean) tableRecord.get(FILTER_FIELD)) {
 				continue;
 			}
 			result.add(tableRecord);

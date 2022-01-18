@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import application.interfaces.FieldTypes;
 import application.utils.General;
 import application.utils.XComparator;
@@ -88,7 +90,7 @@ public class CATVids extends FNProgramvare {
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
 
-		if (contentsList == null || contentsList.isEmpty()) {
+		if (CollectionUtils.isEmpty(contentsList)) {
 			return "";
 		}
 

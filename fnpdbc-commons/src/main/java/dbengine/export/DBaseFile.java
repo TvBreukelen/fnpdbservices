@@ -286,21 +286,14 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 		Object[] rowObjects = reader.nextRecord();
 		if (rowObjects.length == 0) {
-			return null;
+			return result;
 		}
 
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbDef.get(i);
 			Object dbField = rowObjects[i] == null ? "" : rowObjects[i];
-
-			switch (field.getFieldType()) {
-			case NUMBER:
-				if (rowObjects[i] instanceof Double) {
-					dbField = ((Double) dbField).intValue();
-				}
-				break;
-			default:
-				break;
+			if (field.getFieldType() == FieldTypes.NUMBER && rowObjects[i] instanceof Double) {
+				dbField = ((Double) dbField).intValue();
 			}
 			result.put(dbFieldNames.get(i), dbField);
 		}

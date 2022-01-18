@@ -36,7 +36,7 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 	protected SpreadSheet wb;
 	protected Sheet sheet;
 
-	public OdsFile(Profiles pref) {
+	protected OdsFile(Profiles pref) {
 		super(pref);
 	}
 

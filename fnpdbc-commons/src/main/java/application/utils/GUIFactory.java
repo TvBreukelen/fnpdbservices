@@ -20,6 +20,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.text.NumberFormatter;
 
+import org.apache.commons.lang3.StringUtils;
+
 import application.preferences.GeneralSettings;
 import application.utils.gui.JHyperLink;
 
@@ -71,7 +73,7 @@ public final class GUIFactory {
 
 	public static JTextField getJTextField(String resourceID, String text) {
 		JTextField result;
-		if (text == null || text.isEmpty()) {
+		if (StringUtils.isEmpty(text)) {
 			result = new JTextField(6);
 		} else {
 			result = new JTextField(text);
@@ -91,7 +93,7 @@ public final class GUIFactory {
 		numberFormatter.setMaximum(max);
 
 		JFormattedTextField result = new JFormattedTextField(numberFormatter);
-		if (text != null && !text.isEmpty()) {
+		if (StringUtils.isNotEmpty(text)) {
 			result.setText(text);
 		}
 
@@ -108,7 +110,7 @@ public final class GUIFactory {
 		numberFormatter.setMinimum(min); // Optional
 
 		JFormattedTextField result = new JFormattedTextField(numberFormatter);
-		if (text != null && !text.isEmpty()) {
+		if (StringUtils.isNotEmpty(text)) {
 			result.setText(text);
 		}
 
@@ -143,6 +145,7 @@ public final class GUIFactory {
 		result.setActionCommand(actionCommand);
 		return result;
 	}
+
 	public static JCheckBox getJCheckBox(String resourceID, boolean value) {
 		JCheckBox result = new JCheckBox(getText(resourceID));
 		result.setToolTipText(getToolTip(resourceID));

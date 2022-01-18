@@ -1,5 +1,6 @@
 package application.preferences;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -21,19 +22,21 @@ public class Databases implements IEncoding {
 	private String textFileFormat = "";
 	private String encoding = "";
 
+	private static final String DB_FILE = "database.file";
+
 	private TvBSoftware mySoftware;
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 	private Map<String, String> nodes = new HashMap<>();
 
 	protected Preferences myPref;
 	private Preferences parent;
-	
-	private static Map<TvBSoftware, Databases> mapDB = new HashMap<>();
-	
+
+	private static EnumMap<TvBSoftware, Databases> mapDB = new EnumMap<>(TvBSoftware.class);
+
 	public static Databases getInstance(TvBSoftware software) {
 		return mapDB.computeIfAbsent(software, Databases::new);
 	}
-	
+
 	private Databases(TvBSoftware software) {
 		mySoftware = software;
 		parent = Preferences.userRoot().node(mySoftware.getName().toLowerCase());
@@ -56,7 +59,7 @@ public class Databases implements IEncoding {
 
 		myPref = parent.node(databaseID);
 		this.databaseID = databaseID;
-		databaseFile = myPref.get("database.file", "");
+		databaseFile = myPref.get(DB_FILE, "");
 		databasePassword = myPref.get("database.password", "");
 		databaseType = myPref.get("database.type", "");
 		databaseUser = myPref.get("database.user", "");
@@ -108,7 +111,7 @@ public class Databases implements IEncoding {
 	}
 
 	public void setDatabaseFile(String databaseFile) {
-		PrefUtils.writePref(myPref, "database.file", databaseFile, this.databaseFile, "");
+		PrefUtils.writePref(myPref, DB_FILE, databaseFile, this.databaseFile, "");
 		this.databaseFile = databaseFile;
 		fillNodes();
 	}
@@ -192,7 +195,7 @@ public class Databases implements IEncoding {
 			String[] child = parent.childrenNames();
 			for (String element : child) {
 				Preferences p = parent.node(element);
-				String dbFile = p.get("database.file", "");
+				String dbFile = p.get(DB_FILE, "");
 				if (dbFile.isEmpty()) {
 					PrefUtils.deleteNode(parent, element);
 					pdaSettings.removeDatabase(element);
@@ -212,7 +215,7 @@ public class Databases implements IEncoding {
 			String[] child = parent.childrenNames();
 			for (String element : child) {
 				Preferences p = parent.node(element);
-				final String dbFile = p.get("database.file", "");
+				final String dbFile = p.get(DB_FILE, "");
 				nodes.put(dbFile.toUpperCase(), element);
 			}
 		} catch (Exception e) {

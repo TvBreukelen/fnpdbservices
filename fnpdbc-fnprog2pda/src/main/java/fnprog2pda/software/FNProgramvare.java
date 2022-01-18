@@ -19,6 +19,9 @@ import java.util.function.Predicate;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.Row;
 
@@ -108,7 +111,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	private boolean isCatraxx;
 	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 
-	public FNProgramvare() {
+	protected FNProgramvare() {
 		super(pdaSettings);
 
 		isNoImagePath = generalSettings.isNoImagePath();
@@ -300,7 +303,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		int count = 1;
 		for (int i = 0; i < MAX_RECORDS && count < MAX_CATEGORIES; i++, count++) {
 			String category = fieldData.get(i).toString();
-			if (category == null || category.isEmpty()) {
+			if (StringUtils.isEmpty(category)) {
 				continue;
 			}
 
@@ -436,7 +439,6 @@ public abstract class FNProgramvare extends BasicSoft {
 					String separator = field.isRoleField() ? " & "
 							: field.getFieldType() == FieldTypes.MEMO ? "\n" : "; ";
 					StringBuilder buf = new StringBuilder(100);
-					new HashSet<>();
 
 					for (Map<String, Object> lObj : list) {
 						String s = msAccess.convertObject(lObj, field).toString();
@@ -444,8 +446,6 @@ public abstract class FNProgramvare extends BasicSoft {
 							String role = getPersonRole(field.getTable(), (Number) lObj.get(ROLE_ID));
 							if (role.isEmpty()) {
 								buf.append(s).append(separator);
-							} else if (isCatraxx) {
-								buf.append(role).append(" ").append(s).append(" ");
 							} else {
 								buf.append(s).append(" ").append(role).append(" ");
 							}
@@ -858,7 +858,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	private boolean setIdFilter(Set<Object> idSet, List<Map<String, Object>> list) {
-		if (list == null || list.isEmpty()) {
+		if (CollectionUtils.isEmpty(list)) {
 			return false;
 		}
 
@@ -973,14 +973,14 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	protected String getContentsPerson(List<Map<String, Object>> personList) {
-		if (personList == null || personList.isEmpty() || !useContentsPerson) {
+		if (CollectionUtils.isEmpty(personList) || !useContentsPerson) {
 			return "";
 		}
 
 		StringBuilder sb = new StringBuilder();
 		for (Map<String, Object> mapPerson : personList) {
 			String persons = (String) mapPerson.get(usePersonSort ? "SortBy" : "Name");
-			if (persons != null && !persons.isEmpty()) {
+			if (StringUtils.isNotEmpty(persons)) {
 				if (useRoles) {
 					String role = getPersonRole(personField[0], (Number) mapPerson.get(ROLE_ID));
 					if (role.isEmpty()) {

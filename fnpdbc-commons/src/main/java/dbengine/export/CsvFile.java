@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.StringUtils;
+
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
@@ -43,7 +45,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 	private List<Map<String, Object>> dbRecords;
 	private List<Integer> dbFieldSize = new ArrayList<>();
 	private List<String> exportFiles;
-	
+
 	public CsvFile(Profiles pref) {
 		super(pref);
 	}
@@ -215,7 +217,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 		// Read the Category
 		if (useCategory) {
 			String dbField = dbRecord.get(categoryField).toString();
-			if (dbField == null || dbField.isEmpty()) {
+			if (StringUtils.isEmpty(dbField)) {
 				writer.write("Unfiled");
 			} else {
 				writer.write(dbField);

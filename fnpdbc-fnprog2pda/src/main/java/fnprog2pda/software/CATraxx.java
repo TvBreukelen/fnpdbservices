@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import application.interfaces.FieldTypes;
 import application.utils.General;
 import application.utils.XComparator;
@@ -245,12 +248,12 @@ public class CATraxx extends FNProgramvare {
 	private String getAlbumTracks(int itemLength, Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get(TRACKS);
-		StringBuilder result = new StringBuilder();
 
-		if (contentsList.isEmpty()) {
+		if (CollectionUtils.isEmpty(contentsList)) {
 			return "";
 		}
 
+		StringBuilder result = new StringBuilder();
 		StringBuilder newLine = new StringBuilder();
 
 		String side = null;
@@ -360,7 +363,7 @@ public class CATraxx extends FNProgramvare {
 
 			String persons = getContentsPerson(trackPersons.get(map.get("TrackID")));
 
-			if (!persons.isEmpty() && !persons.equals(myPerson)) {
+			if (StringUtils.isNotEmpty(persons) && !persons.equals(myPerson)) {
 				newLine.append(" [");
 				newLine.append(persons);
 				newLine.append("]");

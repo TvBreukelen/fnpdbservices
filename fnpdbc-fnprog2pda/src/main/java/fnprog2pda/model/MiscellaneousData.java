@@ -10,6 +10,7 @@ public class MiscellaneousData {
 	private boolean useContentsPerson = false;
 	private boolean useContentsSide = false;
 	private boolean useOriginalTitle = false;
+	private boolean useReleaseNo = false;
 	private boolean useRoles = false;
 
 	private String tableName;
@@ -22,6 +23,7 @@ public class MiscellaneousData {
 		useContentsOrigTitle = profile.isUseContentsOrigTitle();
 		useContentsPerson = profile.isUseContentsPerson();
 		useOriginalTitle = profile.isUseOriginalTitle();
+		useReleaseNo = profile.isUseReleaseNo();
 
 		useRoles = profile.isUseRoles();
 		tableName = profile.getTableName();
@@ -35,6 +37,7 @@ public class MiscellaneousData {
 		profile.setUseContentsOrigTitle(useContentsOrigTitle);
 		profile.setUseContentsPerson(useContentsPerson);
 		profile.setUseOriginalTitle(useOriginalTitle);
+		profile.setUseReleaseNo(useReleaseNo);
 		profile.setUseRoles(useRoles);
 	}
 
@@ -108,6 +111,14 @@ public class MiscellaneousData {
 
 	public void setUseOriginalTitle(boolean useOriginalTitle) {
 		this.useOriginalTitle = useOriginalTitle;
+	}
+
+	public boolean isUseReleaseNo() {
+		return useReleaseNo;
+	}
+
+	public void setUseReleaseNo(boolean useReleaseNo) {
+		this.useReleaseNo = useReleaseNo;
 	}
 
 	public boolean isUseRoles() {

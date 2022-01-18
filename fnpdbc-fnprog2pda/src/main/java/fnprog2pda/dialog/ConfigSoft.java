@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.StringUtils;
+
 import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
 import application.dialog.ConfigSort;
@@ -367,7 +369,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		boolean isFileValid;
 
 		String docValue = fdDatabase == null ? null : fdDatabase.getText().trim();
-		if (docValue == null || docValue.isEmpty() || docValue.equals(dbVerified)) {
+		if (StringUtils.isEmpty(docValue) || docValue.equals(dbVerified)) {
 			isFileValid = dbFactory.isConnected();
 		} else {
 			isFileValid = docValue.toLowerCase().endsWith("mdb") && General.existFile(docValue);

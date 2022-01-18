@@ -37,7 +37,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	private PilotHeader header;
 
-	public PalmDB(Profiles pref) {
+	protected PalmDB(Profiles pref) {
 		super(pref);
 	}
 
@@ -271,17 +271,17 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		pdbRaf = null;
 	}
 
-	protected double DOUBLE(byte[] b) {
+	protected double getDouble(byte[] b) {
 		long l = 0L;
-		l += UBYTE(b[0]);
+		l += getUByte(b[0]);
 		for (int i = 1; i < 8; i++) {
 			l <<= 8;
-			l += UBYTE(b[i]);
+			l += getUByte(b[i]);
 		}
 		return Double.longBitsToDouble(l);
 	}
 
-	protected byte[] DOUBLE(double d) {
+	protected byte[] getDouble(double d) {
 		long l = Double.doubleToRawLongBits(d);
 		byte[] result = new byte[8];
 
@@ -296,19 +296,19 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		return result;
 	}
 
-	protected int INT(byte[] b) {
+	protected int getInt(byte[] b) {
 		int i = 0;
-		i += UBYTE(b[0]);
+		i += getUByte(b[0]);
 		i <<= 8;
-		i += UBYTE(b[1]);
+		i += getUByte(b[1]);
 		i <<= 8;
-		i += UBYTE(b[2]);
+		i += getUByte(b[2]);
 		i <<= 8;
-		i += UBYTE(b[3]);
+		i += getUByte(b[3]);
 		return i;
 	}
 
-	protected byte[] INT(int i) {
+	protected byte[] getInt(int i) {
 		byte[] result = new byte[4];
 		result[0] = (byte) ((i & 0xff000000) >> 24);
 		result[1] = (byte) ((i & 0xff0000) >> 16);
@@ -317,15 +317,15 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		return result;
 	}
 
-	protected short SHORT(byte[] b) {
+	protected short getShort(byte[] b) {
 		short s = 0;
-		s += UBYTE(b[0]);
+		s += getUByte(b[0]);
 		s <<= 8;
-		s += UBYTE(b[1]);
+		s += getUByte(b[1]);
 		return s;
 	}
 
-	protected short UBYTE(byte b) {
+	protected short getUByte(byte b) {
 		return b >= 0 ? b : (short) (256 + b);
 	}
 

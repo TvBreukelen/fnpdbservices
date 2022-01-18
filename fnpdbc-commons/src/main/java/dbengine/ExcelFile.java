@@ -53,7 +53,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	protected int maxRowsInSheet;
 
-	public ExcelFile(Profiles pref) {
+	protected ExcelFile(Profiles pref) {
 		super(pref);
 	}
 

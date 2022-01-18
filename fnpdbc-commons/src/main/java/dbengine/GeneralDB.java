@@ -73,7 +73,7 @@ public abstract class GeneralDB {
 	protected String handbaseProgram;
 	protected Profiles myPref;
 
-	public GeneralDB(Profiles pref) {
+	protected GeneralDB(Profiles pref) {
 		myPref = pref;
 	}
 

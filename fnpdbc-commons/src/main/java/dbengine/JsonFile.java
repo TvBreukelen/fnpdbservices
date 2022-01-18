@@ -74,9 +74,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 			hElements = new ArrayList<>();
 			Map<String, String> map = new HashMap<>();
 			dbInfo2Write.forEach(field -> map.putIfAbsent(field.getFieldAlias(), field.getFieldHeader()));
-			myPref.getSortFields().forEach(field -> {
-				hElements.add(map.getOrDefault(field, field));
-			});
+			myPref.getSortFields().forEach(field -> hElements.add(map.getOrDefault(field, field)));
 		}
 	}
 
@@ -116,11 +114,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 		Map<String, Object> map = writeList.get(0);
 		Map<String, Object> newMap = new LinkedHashMap<>();
 
-		for (Entry<String, Object> entry : map.entrySet()) {
-			String name = entry.getKey();
-			addFieldDefinition(name, entry.getValue(), newMap, memoFields);
-		}
-
+		map.entrySet().forEach(entry -> addFieldDefinition(entry.getKey(), entry.getValue(), newMap, memoFields));
 		map.putAll(newMap);
 
 		// Convert Array fields to Memo fields

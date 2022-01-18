@@ -70,13 +70,13 @@ public class ConfigMiscellaneous extends BasicDialog {
 
 		final String[][] miscText = {
 				{ "inclContentsAuthor", "inclAuthorRoles", "inclContentsOrigTitle", "useOrigTitle",
-						"inclContentsItemTitle" },
+						"inclContentsItemTitle", "inclReleaseNo" },
 				{ "inclTrackArtist", "inclArtistRoles", "inclTrackItemTitle", "inclTrackSide", "inclTrackIndex",
 						"inclTrackLength" },
 				{ "inclContentsItemTitle", "inclContentsSide", "inclContentsIndex", "inclContentsLength" } };
 		final boolean[][] miscValues = {
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsOrigTitle(),
-						data.isUseOriginalTitle(), data.isUseContentsItemTitle() },
+						data.isUseOriginalTitle(), data.isUseContentsItemTitle(), data.isUseReleaseNo() },
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsItemTitle(),
 						data.isUseContentsSide(), data.isUseContentsIndex(), data.isUseContentsLength() },
 				{ data.isUseContentsSide(), data.isUseContentsItemTitle(), data.isUseContentsIndex(),
@@ -116,6 +116,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 				booleanFields[i].setEnabled(false);
 				booleanFields[i].setSelected(false);
 			}
+			break;
 		default:
 			break;
 		}
@@ -138,6 +139,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 			data.setUseContentsOrigTitle(booleanFields[2].isSelected());
 			data.setUseOriginalTitle(booleanFields[3].isSelected());
 			data.setUseContentsItemTitle(booleanFields[4].isSelected());
+			data.setUseReleaseNo(booleanFields[5].isSelected());
 			data.setUseContentsSide(false);
 			data.setUseContentsIndex(false);
 			data.setUseContentsLength(false);
@@ -161,6 +163,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 			data.setUseContentsOrigTitle(false);
 			data.setUseOriginalTitle(false);
 			data.setUseContentsPerson(false);
+			break;
 		default:
 			break;
 		}

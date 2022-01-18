@@ -145,7 +145,7 @@ public class PilotDB extends PalmDB {
 		pdbBaos.reset();
 	}
 
-	private byte[] convertData(Object dbField, FieldTypes pIndex, boolean isNoTextExport) throws Exception {
+	private byte[] convertData(Object dbField, FieldTypes pIndex, boolean isNoTextExport) {
 		byte[] result = new byte[1];
 
 		if (dbField == null || dbField.equals("")) {
@@ -168,11 +168,11 @@ public class PilotDB extends PalmDB {
 		case FUSSY_DATE:
 			return General.getNullTerminatedString(General.convertFussyDate(dbValue), 0, "");
 		case FLOAT:
-			return DOUBLE((Double) dbField);
+			return getDouble((Double) dbField);
 		case MEMO:
 			return convertMemo(dbValue);
 		case NUMBER:
-			return INT((Integer) dbField);
+			return getInt((Integer) dbField);
 		case TIME:
 			dbValue = General.convertTime((LocalTime) dbField, General.sdInternalTime);
 			return isNoTextExport ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, 0, "");
@@ -197,14 +197,14 @@ public class PilotDB extends PalmDB {
 			byte[] fieldData = new byte[2];
 			System.arraycopy(data, pos, fieldData, 0, 2);
 
-			int chunkType = SHORT(fieldData);
+			int chunkType = getShort(fieldData);
 			if (chunkType > 512) {
 				throw FNProgException.getException("fileheaderCorrupt", myFilename);
 			}
 
 			pos += 2;
 			System.arraycopy(data, pos, fieldData, 0, 2);
-			int dataSize = SHORT(fieldData);
+			int dataSize = getShort(fieldData);
 
 			if (dataSize < 1 || dataSize > appInfoDataLength) {
 				throw FNProgException.getException("fileheaderCorrupt", myFilename);
@@ -287,7 +287,7 @@ public class PilotDB extends PalmDB {
 	private void parseFieldDataChunk(byte[] data) {
 		byte[] fieldData = new byte[2];
 		System.arraycopy(data, 0, fieldData, 0, 2);
-		short fieldNum = SHORT(fieldData);
+		short fieldNum = getShort(fieldData);
 
 		FieldTypes fieldType = dbFieldTypes.get(fieldNum);
 		if (fieldType == FieldTypes.LIST) {
@@ -480,7 +480,7 @@ public class PilotDB extends PalmDB {
 			return header;
 		}
 
-		offSet = SHORT(new byte[] { fieldData[index0 + 1], fieldData[index0 + 2] });
+		offSet = getShort(new byte[] { fieldData[index0 + 1], fieldData[index0 + 2] });
 		if (offSet == 0) {
 			// No additonal memo lines were found
 			return header;
@@ -552,13 +552,13 @@ public class PilotDB extends PalmDB {
 		if (data == null || data.length < 4) {
 			return 0D;
 		}
-		return DOUBLE(data);
+		return getDouble(data);
 	}
 
 	private Integer convertNumeric2DB(byte[] data) {
 		if (data == null || data.length < 4) {
 			return 0;
 		}
-		return INT(data);
+		return getInt(data);
 	}
 }

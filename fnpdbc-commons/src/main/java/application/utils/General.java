@@ -72,6 +72,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -162,7 +163,7 @@ public final class General {
 	 * @param pDate : the date in the database table to be converted
 	 */
 	public static LocalDate convertDate2DB(String pDate, DateTimeFormatter format) {
-		if (pDate == null || pDate.isEmpty()) {
+		if (StringUtils.isEmpty(pDate)) {
 			return null;
 		}
 
@@ -202,7 +203,7 @@ public final class General {
 	 * database date format
 	 */
 	public static Duration convertDuration2DB(String pTime) {
-		if (pTime == null || pTime.isEmpty()) {
+		if (StringUtils.isEmpty(pTime)) {
 			return null;
 		}
 
@@ -412,7 +413,7 @@ public final class General {
 	}
 
 	public static LocalTime convertTime2DB(String pTime, DateTimeFormatter format) {
-		if (pTime == null || pTime.isEmpty()) {
+		if (StringUtils.isEmpty(pTime)) {
 			return null;
 		}
 		try {
@@ -440,7 +441,7 @@ public final class General {
 	 * date format
 	 */
 	public static LocalDateTime convertTimestamp2DB(String pDate, DateTimeFormatter format) {
-		if (pDate == null || pDate.isEmpty()) {
+		if (StringUtils.isEmpty(pDate)) {
 			return null;
 		}
 
@@ -497,7 +498,7 @@ public final class General {
 	}
 
 	public static String decryptPassword(String password) {
-		if (password == null || password.isEmpty()) {
+		if (StringUtils.isEmpty(password)) {
 			return "";
 		}
 
@@ -640,7 +641,7 @@ public final class General {
 	 * @see splitNullTerminatedString
 	 */
 	public static byte[] getNullTerminatedString(String field, int length, String encoding) {
-		if (field == null || field.isEmpty()) {
+		if (StringUtils.isEmpty(field)) {
 			return new byte[length];
 		}
 
@@ -876,7 +877,7 @@ public final class General {
 	}
 
 	public static boolean isNumerical(String str) {
-		if (str == null || str.isEmpty()) {
+		if (StringUtils.isEmpty(str)) {
 			return false;
 		}
 

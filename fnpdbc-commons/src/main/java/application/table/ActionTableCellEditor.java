@@ -16,7 +16,7 @@ public abstract class ActionTableCellEditor extends DefaultCellEditor {
 	private int row;
 	private int column;
 
-	public ActionTableCellEditor(JCheckBox checkBox) {
+	protected ActionTableCellEditor(JCheckBox checkBox) {
 		super(checkBox);
 		button = new JButton();
 		button.setOpaque(true);

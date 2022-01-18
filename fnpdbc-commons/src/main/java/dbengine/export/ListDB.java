@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
@@ -259,7 +261,7 @@ public class ListDB extends PalmDB {
 
 			// Append latest Categories to the list
 			List<String> newCat = mySoft.getCategories();
-			if (newCat == null || newCat.isEmpty()) {
+			if (CollectionUtils.isEmpty(newCat)) {
 				// There are no categories to be added
 				return;
 			}

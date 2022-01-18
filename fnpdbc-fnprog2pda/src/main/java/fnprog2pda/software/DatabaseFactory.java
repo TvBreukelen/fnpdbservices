@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.healthmarketscience.jackcess.Cursor;
 
 import application.interfaces.ExportFile;
@@ -483,7 +485,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			Map<String, Object> linkMap = new HashMap<>();
 
 			List<Map<String, Object>> list = msAccess.getMultipleRecords(table.getName());
-			if (!list.isEmpty()) {
+			if (CollectionUtils.isNotEmpty(list)) {
 				for (Map<String, Object> map : list) {
 					Object obj = msAccess.convertObject(map, dbField);
 					if (!obj.equals("") && !result.contains(obj)) {

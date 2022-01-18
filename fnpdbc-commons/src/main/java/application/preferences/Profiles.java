@@ -74,7 +74,7 @@ public abstract class Profiles extends Project implements IEncoding {
 	private Preferences child;
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 
-	public Profiles(TvBSoftware software) {
+	protected Profiles(TvBSoftware software) {
 		super(software);
 	}
 

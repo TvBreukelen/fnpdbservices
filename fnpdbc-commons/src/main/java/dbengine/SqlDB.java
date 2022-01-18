@@ -34,7 +34,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private ResultSet dbResultSet;
 	private Statement dbStatement;
 
-	public SqlDB(Profiles pref) {
+	protected SqlDB(Profiles pref) {
 		super(pref);
 	}
 

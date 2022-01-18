@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.CursorBuilder;
@@ -92,7 +94,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 				MSTable msTable = new MSTable(s, s);
 
 				List<? extends Index> lIndex = table.getIndexes();
-				if (lIndex != null && !lIndex.isEmpty()) {
+				if (CollectionUtils.isNotEmpty(lIndex)) {
 					msTable.setIndexes(lIndex);
 				} else if (isIndexSupported) {
 					continue;

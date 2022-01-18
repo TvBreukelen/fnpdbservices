@@ -14,6 +14,7 @@ public class PrefFNProg extends Profiles {
 	private boolean useContentsPerson;
 	private boolean useContentsSide;
 	private boolean useOriginalTitle;
+	private boolean useReleaseNo;
 
 	private boolean useRoles;
 
@@ -35,6 +36,7 @@ public class PrefFNProg extends Profiles {
 		useContentsPerson = getChild().getBoolean("use.contents.person", false);
 		useContentsSide = getChild().getBoolean("use.contents.side", false);
 		useOriginalTitle = getChild().getBoolean("use.original.title", false);
+		useReleaseNo = getChild().getBoolean("use.releaseno", false);
 		useRoles = getChild().getBoolean("use.roles", false);
 	}
 
@@ -101,6 +103,15 @@ public class PrefFNProg extends Profiles {
 	public void setUseContentsPerson(boolean useContentsPerson) {
 		PrefUtils.writePref(getChild(), "use.contents.person", useContentsPerson, this.useContentsPerson, false);
 		this.useContentsPerson = useContentsPerson;
+	}
+
+	public boolean isUseReleaseNo() {
+		return useReleaseNo;
+	}
+
+	public void setUseReleaseNo(boolean useReleaseNo) {
+		PrefUtils.writePref(getChild(), "use.releaseno", useReleaseNo, this.useReleaseNo, false);
+		this.useReleaseNo = useReleaseNo;
 	}
 
 	public boolean isUseRoles() {

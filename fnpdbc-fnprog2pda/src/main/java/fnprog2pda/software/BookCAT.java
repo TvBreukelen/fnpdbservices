@@ -7,20 +7,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import application.interfaces.FieldTypes;
 import application.utils.XComparator;
 
 public class BookCAT extends FNProgramvare {
 	/**
-	 * Title: BookCAT Description: BookCAT Class Copyright: (c) 2003-2011
+	 * BookCAT
 	 *
 	 * @author Tom van Breukelen
-	 * @version 8
+	 * @version 10
 	 */
 	private boolean useAuthor;
 	private boolean useOriginalTitle;
 	private boolean useOriginalReleaseNo;
 	private boolean useReleaseNo;
+	private boolean inclReleaseNo;
 
 	private int myItemCount = 0;
 	private String myPerson = "[None]";
@@ -31,8 +35,10 @@ public class BookCAT extends FNProgramvare {
 	private static final String CONTENTS_ITEM = "Contents.Item";
 	private static final String CONTENTS_PERSON = "ContentsPerson";
 	private static final String ORIGINAL_RELEASE_NO = "OriginalReleaseNo";
+	private static final String ORIGINAL_SERIES = "OriginalSeries";
 	private static final String ORIGINAL_TITLE = "OriginalTitle";
 	private static final String RELEASE_NO = "ReleaseNo";
+	private static final String SERIES = "Series";
 	private static final String TITLE = "Title";
 
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
@@ -41,6 +47,7 @@ public class BookCAT extends FNProgramvare {
 	public BookCAT() {
 		super();
 		useOriginalTitle = pdaSettings.isUseOriginalTitle();
+		inclReleaseNo = pdaSettings.isUseReleaseNo();
 		personField = new String[] { AUTHOR, "AuthorSort" };
 		sortList.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortList.put("Index", FieldTypes.NUMBER);
@@ -48,12 +55,30 @@ public class BookCAT extends FNProgramvare {
 
 	@Override
 	protected List<String> getSystemFields(List<String> userFields) {
+		List<String> result = new ArrayList<>();
+		boolean useOriginalSeries = userFields.contains(ORIGINAL_SERIES);
+		boolean useSeries = userFields.contains(SERIES);
 		useOriginalReleaseNo = userFields.contains(ORIGINAL_RELEASE_NO);
 		useReleaseNo = userFields.contains(RELEASE_NO);
+
+		if (inclReleaseNo) {
+			inclReleaseNo = false;
+			if (useOriginalSeries && !useOriginalReleaseNo) {
+				result.add(ORIGINAL_RELEASE_NO);
+				useOriginalReleaseNo = true;
+				inclReleaseNo = true;
+			}
+
+			if (useSeries && !useReleaseNo) {
+				result.add(RELEASE_NO);
+				useReleaseNo = true;
+				inclReleaseNo = true;
+			}
+		}
+
 		useAuthor = userFields.contains(personField[0]);
 		usePersonSort = userFields.contains(personField[1]);
 
-		List<String> result = new ArrayList<>();
 		if (useOriginalTitle && !userFields.contains(ORIGINAL_TITLE)) {
 			result.add(ORIGINAL_TITLE);
 		} else {
@@ -192,31 +217,55 @@ public class BookCAT extends FNProgramvare {
 			}
 		}
 
-		if (useReleaseNo && ((Number) dbDataRecord.get(RELEASE_NO)).intValue() == 0) {
-			dbDataRecord.put(RELEASE_NO, "");
+		if (useOriginalReleaseNo) {
+			convertSeries(dbDataRecord, ORIGINAL_SERIES, ORIGINAL_RELEASE_NO);
 		}
 
-		if (useOriginalReleaseNo && ((Number) dbDataRecord.get(ORIGINAL_RELEASE_NO)).intValue() == 0) {
-			dbDataRecord.put(ORIGINAL_RELEASE_NO, "");
+		if (useReleaseNo) {
+			convertSeries(dbDataRecord, SERIES, RELEASE_NO);
 		}
 
 		if (useOriginalTitle) {
 			String s = (String) dbDataRecord.get(ORIGINAL_TITLE);
-			if (s != null && !s.isEmpty()) {
+			if (StringUtils.isNotEmpty(s)) {
 				dbDataRecord.put(TITLE, s);
 			}
 		}
 	}
 
+	private void convertSeries(Map<String, Object> dbDataRecord, String seriesId, String releaseId) {
+		int releaseNo = ((Number) dbDataRecord.get(releaseId)).intValue();
+		dbDataRecord.put(releaseId, releaseNo == 0 ? "" : releaseNo);
+
+		if (releaseNo == 0) {
+			// Nothing more to do
+			return;
+		}
+
+		if (!inclReleaseNo) {
+			// Nothing more to do
+			return;
+		}
+
+		String s1 = dbDataRecord.get(seriesId).toString();
+		if (s1.isBlank()) {
+			// Nothing more to do
+			return;
+		}
+
+		StringBuilder b = new StringBuilder(s1).append(" (").append(releaseNo).append(")");
+		dbDataRecord.put(seriesId, b.toString());
+	}
+
 	private String getBookContents(Map<String, List<Map<String, Object>>> hashTable) {
 		// Get Contents
 		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
-		StringBuilder result = new StringBuilder();
 
-		if (contentsList.isEmpty()) {
+		if (CollectionUtils.isEmpty(contentsList)) {
 			return "";
 		}
 
+		StringBuilder result = new StringBuilder();
 		StringBuilder newLine = new StringBuilder();
 
 		int item = 0;
@@ -258,7 +307,7 @@ public class BookCAT extends FNProgramvare {
 				}
 			}
 
-			if (origTitle != null && !origTitle.isEmpty() && !origTitle.equals(contTitle)) {
+			if (StringUtils.isNotEmpty(origTitle) && !origTitle.equals(contTitle)) {
 				if (useContentsOrigTitle) {
 					contTitle += " / " + origTitle;
 				} else {
@@ -271,7 +320,7 @@ public class BookCAT extends FNProgramvare {
 			newLine.append(contTitle);
 
 			String persons = getContentsPerson(trackPersons.get(map.get("ContentID")));
-			if (!persons.isEmpty() && !persons.equals(myPerson)) {
+			if (StringUtils.isNotEmpty(persons) && !persons.equals(myPerson)) {
 				newLine.append(" [");
 				newLine.append(persons);
 				newLine.append("]");
