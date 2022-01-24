@@ -242,7 +242,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		btExport = GUIFactory.getJButton("funcExport", e -> {
 			try {
-				if (myExportFile.isSpecialFieldSort() && !pdaSettings.isSortFieldDefined()) {
+				if (myExportFile == ExportFile.LIST && !pdaSettings.isSortFieldDefined()) {
 					throw FNProgException.getException("noSortfieldDefined", myExportFile.getName());
 				}
 				enableForm(false);

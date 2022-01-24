@@ -180,6 +180,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		for (String dbField : pdaSettings.getSpecialFields()) {
 			if (addField(dbField, usrList, false, false) == null) {
 				pdaSettings.removeSortField(dbField);
+				pdaSettings.removeGroupField(dbField);
 			}
 		}
 

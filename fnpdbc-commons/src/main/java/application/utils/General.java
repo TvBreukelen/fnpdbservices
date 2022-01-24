@@ -382,6 +382,21 @@ public final class General {
 		return true;
 	}
 
+	public static String eliminateIllegalXmlCharacters(String element) {
+		StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < element.length(); i++) {
+			char c = element.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				buf.append(element.charAt(i));
+			} else {
+				if (c == ' ') {
+					buf.append("_");
+				}
+			}
+		}
+		return buf.toString();
+	}
+
 	public static byte[] convertString2Bytes(String s, String encoding) {
 		if (encoding.isEmpty()) {
 			return s.getBytes();

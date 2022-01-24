@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.xml.sax.Attributes;
@@ -16,8 +17,8 @@ public class XmlReader extends DefaultHandler {
 	private List<String> fieldNames = new ArrayList<>();
 	private List<FieldTypes> fieldTypes = new ArrayList<>();
 	private Set<String> fieldSet = new HashSet<>();
-	private List<HashMap<String, Object>> dbRecords = new ArrayList<>();
-	private HashMap<String, Object> workRecord = new HashMap<>();
+	private List<Map<String, Object>> dbRecords = new ArrayList<>();
+	private Map<String, Object> workRecord = new HashMap<>();
 	private Set<String> processList = new HashSet<>();
 	private StringBuilder buf = new StringBuilder();
 	private String rootElement = "";
@@ -48,41 +49,40 @@ public class XmlReader extends DefaultHandler {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void startElement(String uri, String name, String qName, Attributes atts) {
 		if (rootElement.equals("")) {
 			rootElement = qName;
 			return;
 		}
 
-		if (processList.contains(qName)) {
+		String sName = qName;
+		if (atts.getLength() > 0) {
+			sName += "." + atts.getLocalName(0);
+		}
+
+		if (processList.contains(sName)) {
 			// New block
-			dbRecords.add((HashMap<String, Object>) workRecord.clone());
-			processList.clear();
+			dbRecords.add(new HashMap<>(workRecord));
 
-			int index = fieldNames.indexOf(qName);
+			int index = fieldNames.indexOf(sName);
 			if (index == -1) {
-				if (atts.getLength() > 0) {
-					index = fieldNames.indexOf(qName + "." + atts.getLocalName(0));
-				}
-
-				if (index == -1) {
-					index = 0;
-				}
+				index = 0;
 			}
 
 			for (int i = index; i < fieldNames.size(); i++) {
-				workRecord.put(fieldNames.get(i), "");
+				String element = fieldNames.get(i);
+				workRecord.put(element, "");
+				processList.remove(element);
 			}
 		}
-
-		processList.add(qName);
 
 		for (int i = 0; i < atts.getLength(); i++) {
 			String s = qName + "." + atts.getLocalName(i);
 			fillFieldNamesAndTypes(s);
 			workRecord.put(s, atts.getValue(i));
 		}
+
+		processList.add(sName);
 	}
 
 	private void fillFieldNamesAndTypes(String name) {
@@ -98,14 +98,13 @@ public class XmlReader extends DefaultHandler {
 		if (buf.length() > 0) {
 			fillFieldNamesAndTypes(qName);
 			workRecord.put(qName, buf.toString());
-			buf = new StringBuilder();
+			buf.setLength(0);
 		}
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void endDocument() {
-		dbRecords.add((HashMap<String, Object>) workRecord.clone());
+		dbRecords.add(new HashMap<>(workRecord));
 	}
 
 	public String getRootElement() {
@@ -120,7 +119,7 @@ public class XmlReader extends DefaultHandler {
 		return fieldTypes;
 	}
 
-	public List<HashMap<String, Object>> getDbRecords() {
+	public List<Map<String, Object>> getDbRecords() {
 		return dbRecords;
 	}
 }

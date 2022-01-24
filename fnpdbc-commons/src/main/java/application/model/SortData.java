@@ -6,13 +6,14 @@ public class SortData {
 
 	private String categoryField = "";
 	private String[] sortField = new String[] { "", "", "", "" };
+	private String[] groupField = new String[] { "", "", "", "" };
 
 	public void loadProfile(Profiles profile) {
 		categoryField = profile.getCategoryField();
-		sortField[0] = profile.getSortField(0);
-		sortField[1] = profile.getSortField(1);
-		sortField[2] = profile.getSortField(2);
-		sortField[3] = profile.getSortField(3);
+		for (int i = 0; i < 4; i++) {
+			sortField[i] = profile.getSortField(i);
+			groupField[i] = profile.getGroupField(i);
+		}
 	}
 
 	public String getCategoryField() {
@@ -37,11 +38,25 @@ public class SortData {
 		}
 	}
 
+	public String getGroupField(int index) {
+		return groupField[index];
+	}
+
+	public void setGroupField(int index, String groupField) {
+		this.groupField[index] = groupField;
+	}
+
+	public void clearGroupFields() {
+		for (int i = 0; i < 4; i++) {
+			setGroupField(i, "");
+		}
+	}
+
 	public void saveProfile(Profiles profile) {
 		profile.setCategoryField(categoryField);
-		profile.setSortField(0, sortField[0]);
-		profile.setSortField(1, sortField[1]);
-		profile.setSortField(2, sortField[2]);
-		profile.setSortField(3, sortField[3]);
+		for (int i = 0; i < 4; i++) {
+			profile.setSortField(i, sortField[i]);
+			profile.setGroupField(i, groupField[i]);
+		}
 	}
 }

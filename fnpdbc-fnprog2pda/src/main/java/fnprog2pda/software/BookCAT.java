@@ -36,9 +36,11 @@ public class BookCAT extends FNProgramvare {
 	private static final String CONTENTS_PERSON = "ContentsPerson";
 	private static final String ORIGINAL_RELEASE_NO = "OriginalReleaseNo";
 	private static final String ORIGINAL_SERIES = "OriginalSeries";
+	private static final String ORIGINAL_SERIES_SORT = "OriginalSeriesSort";
 	private static final String ORIGINAL_TITLE = "OriginalTitle";
 	private static final String RELEASE_NO = "ReleaseNo";
 	private static final String SERIES = "Series";
+	private static final String SERIES_SORT = "SeriesSort";
 	private static final String TITLE = "Title";
 
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
@@ -56,23 +58,21 @@ public class BookCAT extends FNProgramvare {
 	@Override
 	protected List<String> getSystemFields(List<String> userFields) {
 		List<String> result = new ArrayList<>();
-		boolean useOriginalSeries = userFields.contains(ORIGINAL_SERIES);
-		boolean useSeries = userFields.contains(SERIES);
+		boolean useOriginalSeries = userFields.contains(ORIGINAL_SERIES) || userFields.contains(ORIGINAL_SERIES_SORT);
+		boolean useSeries = userFields.contains(SERIES) || userFields.contains(SERIES_SORT);
 		useOriginalReleaseNo = userFields.contains(ORIGINAL_RELEASE_NO);
 		useReleaseNo = userFields.contains(RELEASE_NO);
+		inclReleaseNo = inclReleaseNo && (useOriginalSeries || useSeries);
 
 		if (inclReleaseNo) {
-			inclReleaseNo = false;
 			if (useOriginalSeries && !useOriginalReleaseNo) {
 				result.add(ORIGINAL_RELEASE_NO);
 				useOriginalReleaseNo = true;
-				inclReleaseNo = true;
 			}
 
 			if (useSeries && !useReleaseNo) {
 				result.add(RELEASE_NO);
 				useReleaseNo = true;
-				inclReleaseNo = true;
 			}
 		}
 
@@ -218,11 +218,11 @@ public class BookCAT extends FNProgramvare {
 		}
 
 		if (useOriginalReleaseNo) {
-			convertSeries(dbDataRecord, ORIGINAL_SERIES, ORIGINAL_RELEASE_NO);
+			convertSeries(dbDataRecord, ORIGINAL_SERIES, ORIGINAL_SERIES_SORT, ORIGINAL_RELEASE_NO);
 		}
 
 		if (useReleaseNo) {
-			convertSeries(dbDataRecord, SERIES, RELEASE_NO);
+			convertSeries(dbDataRecord, SERIES, SERIES_SORT, RELEASE_NO);
 		}
 
 		if (useOriginalTitle) {
@@ -233,28 +233,24 @@ public class BookCAT extends FNProgramvare {
 		}
 	}
 
-	private void convertSeries(Map<String, Object> dbDataRecord, String seriesId, String releaseId) {
+	private void convertSeries(Map<String, Object> dbDataRecord, String seriesId, String seriesSortId,
+			String releaseId) {
+
 		int releaseNo = ((Number) dbDataRecord.get(releaseId)).intValue();
 		dbDataRecord.put(releaseId, releaseNo == 0 ? "" : releaseNo);
 
-		if (releaseNo == 0) {
+		if (!inclReleaseNo || releaseNo == 0) {
 			// Nothing more to do
 			return;
 		}
 
-		if (!inclReleaseNo) {
-			// Nothing more to do
-			return;
+		String[] searchId = { seriesId, seriesSortId };
+		for (String id : searchId) {
+			String s1 = (String) dbDataRecord.get(id);
+			if (StringUtils.isNotBlank(s1)) {
+				dbDataRecord.put(id, s1 + " (" + releaseNo + ")");
+			}
 		}
-
-		String s1 = dbDataRecord.get(seriesId).toString();
-		if (s1.isBlank()) {
-			// Nothing more to do
-			return;
-		}
-
-		StringBuilder b = new StringBuilder(s1).append(" (").append(releaseNo).append(")");
-		dbDataRecord.put(seriesId, b.toString());
 	}
 
 	private String getBookContents(Map<String, List<Map<String, Object>>> hashTable) {

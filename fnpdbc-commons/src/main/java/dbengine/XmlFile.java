@@ -23,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -44,7 +45,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 	private XmlReader handler;
 	private int myCurrentRecord = 0;
 
-	protected List<HashMap<String, Object>> dbRecords;
+	protected List<Map<String, Object>> dbRecords;
 
 	public XmlFile(Profiles pref) {
 		super(pref);
@@ -117,7 +118,9 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		if (myPref.isSortFieldDefined()) {
+		if (hElements.isEmpty()) {
+			nodes[index] = doc.createElement("Row");
+		} else {
 			int i = -1;
 			for (Entry<String, String> entry : hElements.entrySet()) {
 				i++;
@@ -144,8 +147,6 @@ public class XmlFile extends GeneralDB implements IConvert {
 					index = i;
 				}
 			}
-		} else {
-			nodes[index] = doc.createElement("Row");
 		}
 
 		createXmlDocument(dbRecord);
@@ -153,16 +154,17 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	private void createXmlDocument(Map<String, Object> dbRecord) {
 		for (FieldDefinition field : dbWrite) {
-			Object dbField = convertDataFields(dbRecord.get(field.getFieldName()), field);
-			if (dbField == null) {
+			Object dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field);
+			if (StringUtils.isEmpty(dbField.toString())) {
 				continue;
 			}
+
 			Element el = doc.createElement(field.getFieldHeader());
 			el.appendChild(doc.createTextNode(dbField.toString()));
 			nodes[index].appendChild(el);
 		}
 
-		if (!myPref.isSortFieldDefined()) {
+		if (hElements.isEmpty()) {
 			results.appendChild(nodes[index]);
 		}
 	}
@@ -182,21 +184,15 @@ public class XmlFile extends GeneralDB implements IConvert {
 		doc = builder.newDocument();
 		results = doc.createElement(xmlRoot);
 		doc.appendChild(results);
+
 		hElements.clear();
-
-		if (myPref.isSortFieldDefined()) {
-			// Load hElements with all sort fields
-			nodes = new Element[4];
-			myPref.getSortFields().forEach(s -> hElements.put(s, ""));
-		} else {
-			nodes = new Element[1];
-		}
+		myPref.getGroupFields().forEach(s -> hElements.put(s, ""));
+		nodes = new Element[hElements.isEmpty() ? 1 : 4];
 		splitDbInfoToWrite();
-
 	}
 
 	private void splitDbInfoToWrite() {
-		boolean isSortFields = !isInputFile && myPref.isSortFieldDefined();
+		boolean isSortFields = !isInputFile && myPref.isGroupFieldDefined();
 		hFields.clear();
 		dbWrite.clear();
 

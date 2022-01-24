@@ -10,6 +10,5 @@ public class YamlFile extends JsonFile {
 	public YamlFile(Profiles pref) {
 		super(pref);
 		mapper = new ObjectMapper(new YAMLFactory());
-		writer = mapper.writerWithDefaultPrettyPrinter();
 	}
 }

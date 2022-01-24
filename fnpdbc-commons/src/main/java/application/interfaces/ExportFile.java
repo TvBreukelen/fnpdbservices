@@ -212,10 +212,6 @@ public enum ExportFile {
 		}
 	}
 
-	public boolean hasCategories() {
-		return this == LIST;
-	}
-
 	public String getCreator() {
 		return creator;
 	}

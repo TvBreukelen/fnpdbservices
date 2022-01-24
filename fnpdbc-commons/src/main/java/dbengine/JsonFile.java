@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -22,9 +24,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 	private File outFile;
 	private File backupFile;
 	protected ObjectMapper mapper;
-	protected ObjectWriter writer;
 	private List<Map<String, Object>> writeList = new ArrayList<>();
-	private Map<String, Object> oldRecord;
 	private List<FieldDefinition> dbFields = new ArrayList<>();
 	private List<String> hElements;
 
@@ -34,7 +34,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 	public JsonFile(Profiles pref) {
 		super(pref);
 		mapper = new ObjectMapper();
-		writer = mapper.writerWithDefaultPrettyPrinter();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -74,7 +73,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 			hElements = new ArrayList<>();
 			Map<String, String> map = new HashMap<>();
 			dbInfo2Write.forEach(field -> map.putIfAbsent(field.getFieldAlias(), field.getFieldHeader()));
-			myPref.getSortFields().forEach(field -> hElements.add(map.getOrDefault(field, field)));
+			myPref.getGroupFields().forEach(field -> hElements.add(map.getOrDefault(field, field)));
 		}
 	}
 
@@ -82,6 +81,11 @@ public class JsonFile extends GeneralDB implements IConvert {
 	public void closeFile() {
 		try {
 			if (!isInputFile && !writeList.isEmpty()) {
+				// Indent arrays with a line feed
+				DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+				prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+				ObjectWriter writer = mapper.writer(prettyPrinter);
+
 				Map<String, List<Map<String, Object>>> map = new HashMap<>();
 				map.put(myPref.getPdaDatabaseName(), writeList);
 				writer.writeValue(outFile, map);
@@ -195,51 +199,38 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@SuppressWarnings("unchecked")
 	private void createSortedMap(Map<String, Object> dbRecord) {
-		Map<String, Object> copyMap = new HashMap<>();
-		Map<String, Object> result = new LinkedHashMap<>();
-
 		Map<String, Object> map;
 		if (writeList.isEmpty()) {
 			// Create our first entry in the tree
 			map = new LinkedHashMap<>();
 			writeList.add(map);
-			oldRecord = new LinkedHashMap<>();
-			map.put(hElements.get(0), new LinkedHashMap<>());
 		} else {
 			map = writeList.get(0);
 		}
 
-		copyMap.putAll(dbRecord);
-
-		String lastElement = hElements.get(hElements.size() - 1);
-		String walkThru = hElements.get(0);
-
 		for (String element : hElements) {
-			boolean isLast = element.equals(lastElement);
-			String oldValue = oldRecord.getOrDefault(element, "|<<>>|").toString();
-			String newValue = dbRecord.get(element).toString();
+			String value = dbRecord.get(element).toString();
 			dbRecord.remove(element);
 
-			result = (Map<String, Object>) map.getOrDefault(walkThru, new LinkedHashMap<>());
-			map = result;
-			walkThru = newValue;
+			// Get the element list
+			List<Map<String, Object>> elementList = (List<Map<String, Object>>) map.computeIfAbsent(element,
+					k -> new ArrayList<LinkedHashMap<String, Object>>());
 
-			if (oldValue.equals(newValue)) {
-				continue;
+			if (!elementList.isEmpty()) {
+				// Get last map in the list
+				map = elementList.get(elementList.size() - 1);
+				if (map.get(element).equals(value)) {
+					// Element value hasn't changed
+					continue;
+				}
 			}
 
-			if (isLast) {
-				List<Map<String, Object>> list = (List<Map<String, Object>>) map.computeIfAbsent(element,
-						k -> new ArrayList<LinkedHashMap<String, Object>>());
-				map = new LinkedHashMap<>();
-				list.add(map);
-			}
-
-			result = new LinkedHashMap<>();
-			map.put(newValue, result);
+			// Create new map because element value has changed
+			map = new LinkedHashMap<>();
+			map.put(element, value);
+			elementList.add(map);
 		}
-		result.putAll(dbRecord);
-		oldRecord = copyMap;
+		map.putAll(dbRecord);
 	}
 
 	@Override

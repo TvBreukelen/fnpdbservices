@@ -226,6 +226,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
 			if (fieldDef == null) {
 				pdaSettings.removeSortField(dbField);
+				pdaSettings.removeGroupField(dbField);
 				continue;
 			}
 

@@ -36,6 +36,7 @@ public abstract class Profiles extends Project implements IEncoding {
 	private FilterOperator[] filterOperator = new FilterOperator[2];
 	private String[] filterValue = new String[] { "", "" };
 	private String[] sortField = new String[] { "", "", "", "" };
+	private String[] groupField = new String[] { "", "", "", "" };
 
 	private boolean appendRecords;
 	private boolean createBackup;
@@ -126,6 +127,11 @@ public abstract class Profiles extends Project implements IEncoding {
 		sortField[1] = child.get("sort.field1", "");
 		sortField[2] = child.get("sort.field2", "");
 		sortField[3] = child.get("sort.field3", "");
+
+		groupField[0] = child.get("group.field0", "");
+		groupField[1] = child.get("group.field1", "");
+		groupField[2] = child.get("group.field2", "");
+		groupField[3] = child.get("group.field3", "");
 
 		userList.clear();
 
@@ -361,22 +367,11 @@ public abstract class Profiles extends Project implements IEncoding {
 	}
 
 	public List<String> getSortFields() {
-		List<String> result = new ArrayList<>();
-		for (String s : sortField) {
-			if (!s.isEmpty()) {
-				result.add(s);
-			}
-		}
-		return result;
+		return getStringList(sortField);
 	}
 
 	public boolean isSortFieldDefined() {
-		for (String s : sortField) {
-			if (!s.isEmpty()) {
-				return true;
-			}
-		}
-		return false;
+		return !getSortFields().isEmpty();
 	}
 
 	public void setSortField(int index, String sortField) {
@@ -395,6 +390,47 @@ public abstract class Profiles extends Project implements IEncoding {
 
 		for (int i = 0; i < aSortfield.size(); i++) {
 			setSortField(i, aSortfield.get(i));
+		}
+	}
+
+	public List<String> getGroupFields() {
+		return getStringList(groupField);
+	}
+
+	public boolean isGroupFieldDefined() {
+		return !getGroupFields().isEmpty();
+	}
+
+	public String getGroupField(int index) {
+		return groupField[index];
+	}
+
+	public void setGroupField(int index, String groupField) {
+		PrefUtils.writePref(child, "group.field" + index, groupField, this.groupField[index], "");
+		this.groupField[index] = groupField;
+	}
+
+	private List<String> getStringList(String[] array) {
+		List<String> result = new ArrayList<>();
+		for (String s : array) {
+			if (!s.isEmpty()) {
+				result.add(s);
+			}
+		}
+		return result;
+	}
+
+	public void removeGroupField(String groupField) {
+		List<String> aGroupfield = new ArrayList<>();
+		for (int i = 0; i < this.groupField.length; i++) {
+			if (!this.groupField[i].equals(groupField)) {
+				aGroupfield.add(this.groupField[i]);
+			}
+			setGroupField(i, "");
+		}
+
+		for (int i = 0; i < aGroupfield.size(); i++) {
+			setGroupField(i, aGroupfield.get(i));
 		}
 	}
 
@@ -683,8 +719,9 @@ public abstract class Profiles extends Project implements IEncoding {
 			set.add(field.getFieldAlias());
 		}
 
-		// Add sort fields to user fields
-		getSortFields().forEach(field -> {
+		// Add sort (or grouping) fields to user fieldList
+		List<String> sortList = exp == ExportFile.LIST ? getSortFields() : getGroupFields();
+		sortList.forEach(field -> {
 			if (!set.contains(field)) {
 				result.add(field);
 			}
