@@ -7,12 +7,14 @@ public class SortData {
 	private String categoryField = "";
 	private String[] sortField = new String[] { "", "", "", "" };
 	private String[] groupField = new String[] { "", "", "", "" };
+	private String[] groupingField = new String[] { "", "", "", "" };
 
 	public void loadProfile(Profiles profile) {
 		categoryField = profile.getCategoryField();
 		for (int i = 0; i < 4; i++) {
 			sortField[i] = profile.getSortField(i);
 			groupField[i] = profile.getGroupField(i);
+			groupingField[i] = profile.getGroupingField(i);
 		}
 	}
 
@@ -35,6 +37,8 @@ public class SortData {
 	public void clearSortFields() {
 		for (int i = 0; i < 4; i++) {
 			setSortField(i, "");
+			setGroupField(i, "");
+			setGroupingField(i, "");
 		}
 	}
 
@@ -46,10 +50,12 @@ public class SortData {
 		this.groupField[index] = groupField;
 	}
 
-	public void clearGroupFields() {
-		for (int i = 0; i < 4; i++) {
-			setGroupField(i, "");
-		}
+	public String getGroupingField(int index) {
+		return groupingField[index];
+	}
+
+	public void setGroupingField(int index, String groupingField) {
+		this.groupingField[index] = groupingField;
 	}
 
 	public void saveProfile(Profiles profile) {
@@ -57,6 +63,7 @@ public class SortData {
 		for (int i = 0; i < 4; i++) {
 			profile.setSortField(i, sortField[i]);
 			profile.setGroupField(i, groupField[i]);
+			profile.setGroupingField(i, groupingField[i]);
 		}
 	}
 }

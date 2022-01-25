@@ -160,6 +160,7 @@ funcSelectProgram.text=Programma bestand (*.exe)
 funcViewer.tooltip=Bekijk of bewerk de gegevens die geëxporteerd gaan worden
 generalSettings.title=Algemene instellingen
 groupby.text=Groeperen naar
+groupby.tooltip=Groepnaam voor het sorteer veld (bijv. Boeken voor Boek)  
 handbaseDesktopError.mesg=HanDBase Desktop programma '%0' kon database '%1' niet aanmaken.
 handbaseImport.title=HanDBase Import
 headerSettings.title=Kopregel instellingen

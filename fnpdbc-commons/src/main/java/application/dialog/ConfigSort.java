@@ -15,6 +15,7 @@ import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
@@ -32,8 +33,9 @@ public class ConfigSort extends BasicDialog {
 	 */
 	private static final long serialVersionUID = -1957596896864461526L;
 
-	private JComboBox<String> cbCategoryField;
-	private JComboBox<String>[] cbSortField;
+	private JComboBox<String> jcCategoryField;
+	private JComboBox<String>[] jcSortField;
+	private JTextField[] txGroupingField;
 	private JCheckBox[] cbGroupField;
 	private final int numSort;
 
@@ -48,8 +50,9 @@ public class ConfigSort extends BasicDialog {
 		pdaSettings = data;
 		dbFilterFields = dbFactory.getDbFilterFields();
 		numSort = myExportFile.getMaxSortFields();
-		cbSortField = new JComboBox[numSort];
+		jcSortField = new JComboBox[numSort];
 		cbGroupField = new JCheckBox[numSort];
+		txGroupingField = new JTextField[numSort];
 		init();
 	}
 
@@ -93,7 +96,7 @@ public class ConfigSort extends BasicDialog {
 	@Override
 	protected Component addToToolbar() {
 		return General.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png",
-				e -> Arrays.stream(cbSortField).forEach(cb -> cb.setSelectedItem("")));
+				e -> Arrays.stream(jcSortField).forEach(cb -> cb.setSelectedItem("")));
 	}
 
 	@Override
@@ -106,14 +109,17 @@ public class ConfigSort extends BasicDialog {
 		String guiText = "sortField";
 		boolean isGroupBy = myExportFile.isSpecialFieldSort();
 		boolean hasCategories = myExportFile == ExportFile.LIST;
+		boolean hasGrouping = isGroupBy;
 
 		switch (myExportFile) {
 		case LIST:
 			guiText = "sortFieldList";
 			isGroupBy = false;
+			hasGrouping = false;
 			break;
 		case XML:
 			guiText = "sortFieldXml";
+			hasGrouping = false;
 			break;
 		case JSON:
 		case YAML:
@@ -123,41 +129,47 @@ public class ConfigSort extends BasicDialog {
 		}
 
 		if (hasCategories) {
-			cbCategoryField = new JComboBox<>(dbFilterFields);
-			cbCategoryField.setSelectedItem(findFilterField(pdaSettings.getCategoryField()));
+			jcCategoryField = new JComboBox<>(dbFilterFields);
+			jcCategoryField.setSelectedItem(findFilterField(pdaSettings.getCategoryField()));
 			result.add(GUIFactory.getJLabel("category"), c.gridCell(1, index, 0, 0));
-			result.add(cbCategoryField, c.gridCell(2, index++, 2, 0));
+			result.add(jcCategoryField, c.gridCell(2, index++, 2, 0));
 		} else {
 			result.add(GUIFactory.getJLabel("sortby", new Font("serif", Font.BOLD, 14)), c.gridCell(2, index, 2, 0));
 			if (isGroupBy) {
 				result.add(GUIFactory.getJLabel("groupby", new Font("serif", Font.BOLD, 14)),
-						c.gridCell(3, index, 0, 0));
+						c.gridmultipleCell(3, index, 0, 0, 2, 1));
 			}
 			index++;
 		}
 
 		for (int i = 0; i < numSort; i++) {
 			String sortField = findFilterField(pdaSettings.getSortField(i));
-			cbSortField[i] = new JComboBox<>(dbFilterFields);
-			cbSortField[i].setSelectedItem(sortField);
-			cbSortField[i].addActionListener(e -> activateComponents());
+			jcSortField[i] = new JComboBox<>(dbFilterFields);
+			jcSortField[i].setSelectedItem(sortField);
+			jcSortField[i].addActionListener(e -> activateComponents());
 
 			cbGroupField[i] = new JCheckBox();
 			cbGroupField[i].setVisible(isGroupBy);
+			cbGroupField[i].addActionListener(e -> activateComponents());
+
+			txGroupingField[i] = GUIFactory.getJTextField("groupby", "");
+			txGroupingField[i].setVisible(hasGrouping);
 
 			if (isGroupBy && !sortField.isEmpty()) {
 				for (int j = 0; j < 4; j++) {
 					if (pdaSettings.getGroupField(j).equals(sortField)) {
 						cbGroupField[i].setSelected(true);
+						txGroupingField[i].setText(pdaSettings.getGroupingField(j));
 						break;
 					}
 				}
 			}
 
 			result.add(GUIFactory.getJLabel(guiText + i), c.gridCell(1, index, 0, 0));
-			result.add(cbSortField[i], c.gridCell(2, index, 2, 0));
-			result.add(cbGroupField[i], c.gridCell(3, index, 2, 0));
-			result.add(Box.createHorizontalGlue(), c.gridCell(4, index++, 3, 0));
+			result.add(jcSortField[i], c.gridCell(2, index, 2, 0));
+			result.add(cbGroupField[i], c.gridCell(3, index, 1, 0));
+			result.add(txGroupingField[i], c.gridCell(4, index, 3, 0));
+			result.add(Box.createHorizontalGlue(), c.gridCell(5, index++, 3, 0));
 		}
 
 		result.setBorder(BorderFactory.createTitledBorder(myExportFile.getName() + " "
@@ -187,14 +199,17 @@ public class ConfigSort extends BasicDialog {
 		int groupIndex = 0;
 
 		pdaSettings.clearSortFields();
-		pdaSettings.clearGroupFields();
 
 		for (int i = 0; i < numSort; i++) {
-			if (cbSortField[i].getSelectedIndex() > 0) {
-				String sortValue = cbSortField[i].getSelectedItem().toString();
+			if (jcSortField[i].getSelectedIndex() > 0) {
+				String sortValue = jcSortField[i].getSelectedItem().toString();
 				if (!map.contains(sortValue)) {
 					map.add(sortValue);
 					if (cbGroupField[i].isSelected()) {
+						if (!txGroupingField[i].getText().isBlank()) {
+							pdaSettings.setGroupingField(groupIndex, txGroupingField[i].getText());
+						}
+
 						pdaSettings.setGroupField(groupIndex++, sortValue);
 					}
 					pdaSettings.setSortField(sortIndex++, sortValue);
@@ -202,6 +217,22 @@ public class ConfigSort extends BasicDialog {
 			}
 		}
 
-		pdaSettings.setCategoryField(cbCategoryField != null ? cbCategoryField.getSelectedItem().toString() : "");
+		pdaSettings.setCategoryField(jcCategoryField != null ? jcCategoryField.getSelectedItem().toString() : "");
 	}
+
+	@Override
+	public void activateComponents() {
+		for (int i = 0; i < numSort; i++) {
+			if (jcSortField[i].getSelectedIndex() < 1) {
+				cbGroupField[i].setSelected(false);
+				cbGroupField[i].setEnabled(false);
+				txGroupingField[i].setText("");
+				txGroupingField[i].setEnabled(false);
+			} else {
+				cbGroupField[i].setEnabled(true);
+				txGroupingField[i].setEnabled(cbGroupField[i].isSelected());
+			}
+		}
+	}
+
 }

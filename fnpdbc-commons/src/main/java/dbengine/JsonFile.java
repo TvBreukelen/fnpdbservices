@@ -26,9 +26,10 @@ public class JsonFile extends GeneralDB implements IConvert {
 	protected ObjectMapper mapper;
 	private List<Map<String, Object>> writeList = new ArrayList<>();
 	private List<FieldDefinition> dbFields = new ArrayList<>();
-	private List<String> hElements;
+	private Map<String, String> hElements;
 
 	private String dbName;
+	private String lastElement;
 	private int myCurrentRecord;
 
 	public JsonFile(Profiles pref) {
@@ -70,10 +71,16 @@ public class JsonFile extends GeneralDB implements IConvert {
 				}
 			}
 		} else {
-			hElements = new ArrayList<>();
+			hElements = new LinkedHashMap<>();
 			Map<String, String> map = new HashMap<>();
 			dbInfo2Write.forEach(field -> map.putIfAbsent(field.getFieldAlias(), field.getFieldHeader()));
-			myPref.getGroupFields().forEach(field -> hElements.add(map.getOrDefault(field, field)));
+			myPref.getGrouping().entrySet()
+					.forEach(e -> hElements.put(map.getOrDefault(e.getKey(), e.getKey()), e.getValue()));
+
+			if (!hElements.isEmpty()) {
+				List<String> list = new ArrayList<>(hElements.keySet());
+				lastElement = list.get(list.size() - 1);
+			}
 		}
 	}
 
@@ -208,12 +215,14 @@ public class JsonFile extends GeneralDB implements IConvert {
 			map = writeList.get(0);
 		}
 
-		for (String element : hElements) {
+		for (Entry<String, String> entry : hElements.entrySet()) {
+			String element = entry.getKey();
+			String group = entry.getValue();
 			String value = dbRecord.get(element).toString();
 			dbRecord.remove(element);
 
 			// Get the element list
-			List<Map<String, Object>> elementList = (List<Map<String, Object>>) map.computeIfAbsent(element,
+			List<Map<String, Object>> elementList = (List<Map<String, Object>>) map.computeIfAbsent(group,
 					k -> new ArrayList<LinkedHashMap<String, Object>>());
 
 			if (!elementList.isEmpty()) {
@@ -221,6 +230,24 @@ public class JsonFile extends GeneralDB implements IConvert {
 				map = elementList.get(elementList.size() - 1);
 				if (map.get(element).equals(value)) {
 					// Element value hasn't changed
+					if (element.equals(lastElement)) {
+						// This is a problem, because we now have to put the remainder of our data in a
+						// separate list
+						List<Map<String, Object>> mapList = (List<Map<String, Object>>) map.computeIfAbsent("values",
+								k -> new ArrayList<LinkedHashMap<String, Object>>());
+
+						if (mapList.isEmpty()) {
+							// Migrate previous map entry to the list
+							Map<String, Object> mapCopy = new LinkedHashMap<>(map);
+							mapCopy.remove(element);
+							mapCopy.remove("values");
+							mapCopy.keySet().forEach(map::remove);
+							mapList.add(mapCopy);
+						}
+
+						map = new LinkedHashMap<>();
+						mapList.add(map);
+					}
 					continue;
 				}
 			}

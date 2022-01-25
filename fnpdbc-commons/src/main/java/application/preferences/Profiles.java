@@ -3,7 +3,9 @@ package application.preferences;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.prefs.Preferences;
 
@@ -37,6 +39,7 @@ public abstract class Profiles extends Project implements IEncoding {
 	private String[] filterValue = new String[] { "", "" };
 	private String[] sortField = new String[] { "", "", "", "" };
 	private String[] groupField = new String[] { "", "", "", "" };
+	private String[] groupingField = new String[] { "", "", "", "" };
 
 	private boolean appendRecords;
 	private boolean createBackup;
@@ -132,6 +135,11 @@ public abstract class Profiles extends Project implements IEncoding {
 		groupField[1] = child.get("group.field1", "");
 		groupField[2] = child.get("group.field2", "");
 		groupField[3] = child.get("group.field3", "");
+
+		groupingField[0] = child.get("grouping.field0", "");
+		groupingField[1] = child.get("grouping.field1", "");
+		groupingField[2] = child.get("grouping.field2", "");
+		groupingField[3] = child.get("grouping.field3", "");
 
 		userList.clear();
 
@@ -420,18 +428,47 @@ public abstract class Profiles extends Project implements IEncoding {
 		return result;
 	}
 
+	public Map<String, String> getGrouping() {
+		Map<String, String> result = new LinkedHashMap<>();
+		for (int i = 0; i < 4; i++) {
+			String group = getGroupField(i);
+			String grouping = getGroupingField(i);
+			if (!group.isEmpty()) {
+				result.put(group, grouping.isEmpty() ? group : grouping);
+			}
+		}
+		return result;
+	}
+
 	public void removeGroupField(String groupField) {
 		List<String> aGroupfield = new ArrayList<>();
+		List<String> aGroupingfield = new ArrayList<>();
 		for (int i = 0; i < this.groupField.length; i++) {
 			if (!this.groupField[i].equals(groupField)) {
 				aGroupfield.add(this.groupField[i]);
+				aGroupingfield.add(this.groupingField[i]);
 			}
 			setGroupField(i, "");
+			setGroupingField(i, "");
 		}
 
 		for (int i = 0; i < aGroupfield.size(); i++) {
 			setGroupField(i, aGroupfield.get(i));
+			setGroupingField(i, aGroupingfield.get(i));
 		}
+	}
+
+	public String getGroupingField(int index) {
+		return groupingField[index];
+	}
+
+	public void setGroupingField(int index, String groupingField) {
+		PrefUtils.writePref(child, "grouping.field" + index, groupingField, this.groupingField[index], "");
+		this.groupingField[index] = groupingField;
+	}
+
+	public List<String> getGroupingFields() {
+		return getStringList(groupingField);
 	}
 
 	public String getTableName() {

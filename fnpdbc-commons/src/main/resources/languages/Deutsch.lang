@@ -160,6 +160,7 @@ funcSelectProgram.text=Programm Datei (*.exe)
 funcViewer.tooltip=Betrachte oder editiere die zu exportieren Daten
 generalSettings.title=Allgemeine Einstellungen
 groupby.text=Gruppiere nach
+groupby.tooltip=Gruppenname für das Sortier Feld (z.B. Bücher für Buch)  
 handbaseDesktopError.mesg=HanDBase Desktop Programm '%0' konnte Datenbank '%1' nicht anlegen.
 handbaseImport.title=HanDBase Import
 headerSettings.title=Kopfzeile Einstellungen
