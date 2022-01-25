@@ -30,6 +30,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	private String dbName;
 	private String lastElement;
+	private String remainderGroup;
 	private int myCurrentRecord;
 
 	public JsonFile(Profiles pref) {
@@ -69,17 +70,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 					myTotalRecords = 1;
 					getDBFieldNamesAndTypes();
 				}
-			}
-		} else {
-			hElements = new LinkedHashMap<>();
-			Map<String, String> map = new HashMap<>();
-			dbInfo2Write.forEach(field -> map.putIfAbsent(field.getFieldAlias(), field.getFieldHeader()));
-			myPref.getGrouping().entrySet()
-					.forEach(e -> hElements.put(map.getOrDefault(e.getKey(), e.getKey()), e.getValue()));
-
-			if (!hElements.isEmpty()) {
-				List<String> list = new ArrayList<>(hElements.keySet());
-				lastElement = list.get(list.size() - 1);
 			}
 		}
 	}
@@ -233,14 +223,14 @@ public class JsonFile extends GeneralDB implements IConvert {
 					if (element.equals(lastElement)) {
 						// This is a problem, because we now have to put the remainder of our data in a
 						// separate list
-						List<Map<String, Object>> mapList = (List<Map<String, Object>>) map.computeIfAbsent("values",
-								k -> new ArrayList<LinkedHashMap<String, Object>>());
+						List<Map<String, Object>> mapList = (List<Map<String, Object>>) map
+								.computeIfAbsent(remainderGroup, k -> new ArrayList<LinkedHashMap<String, Object>>());
 
 						if (mapList.isEmpty()) {
 							// Migrate previous map entry to the list
 							Map<String, Object> mapCopy = new LinkedHashMap<>(map);
 							mapCopy.remove(element);
-							mapCopy.remove("values");
+							mapCopy.remove(remainderGroup);
 							mapCopy.keySet().forEach(map::remove);
 							mapList.add(mapCopy);
 						}
@@ -262,7 +252,22 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void createDbHeader() throws Exception {
-		// Not used
+		hElements = new LinkedHashMap<>();
+		Map<String, String> map = new HashMap<>();
+		dbInfo2Write.forEach(field -> map.putIfAbsent(field.getFieldAlias(), field.getFieldHeader()));
+
+		myPref.getGrouping().entrySet().forEach(e -> {
+			String key = map.getOrDefault(e.getKey(), e.getKey());
+			String value = e.getKey().equals(e.getValue()) ? key : e.getValue();
+			hElements.put(key, value);
+		});
+
+		if (!hElements.isEmpty()) {
+			List<String> list = new ArrayList<>(hElements.keySet());
+			lastElement = list.get(list.size() - 1);
+		}
+
+		remainderGroup = myPref.getRemainingField().isEmpty() ? "Values" : myPref.getRemainingField();
 	}
 
 	@Override

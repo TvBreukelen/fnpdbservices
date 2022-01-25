@@ -2,6 +2,8 @@
 <body>
 <h1>JSON Sort Order</h2>
 
+<img src="../images/JsonSort.gif">
+
 <h2>Buttons</h2>
 <table border="1">
 <tr>
@@ -36,17 +38,24 @@ JSON is an open standard file format and data interchange format that uses human
 
 <h3>Objects</h3>
 In this screen you can define up to 4 fields to be used as sorted object. Each field you choose here, acts as an container
- for the objects to follow.
-<br><br>
+ for the objects to follow. If you've defined the same field on the "Export Fields" tab, the program will use the field
+ header instead of the field name itself. 
+<br>
 
-<h3>Example</h3>
-Imagine that you are exporting a Books database, a logical element sort order would then be:<br><br>
+<h3>Group by</h3>
+If you not only want to sort the objects, but group them as well together under a certain name. You can activate the checkbox
+ that follows the sorted object fields. Optionally, you group them by the name you'd specify in the text field next to it.
+ In the example above, I've sorted my books by Author with Authors as group name. If the name field is left blank, the program
+ uses the same name as the sorted object field.  
+<br>
 
-Object 1: Author<br>
-Object 2: Title
+<h3>Remaining</h3>
+Normally the last object to be sorted should be unique for each record. If there are duplicates then the program will group
+ the remaining fields to be exported under the name you specify here in this field. If you leave it blank then "Values" will
+ be used as default.  
+<br>
 
-<p>The result would then be something like this:</p>
-
+<h4>Example</h4>
 <img src="../images/JsonExample.gif">
 
 </body>

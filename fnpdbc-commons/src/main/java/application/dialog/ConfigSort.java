@@ -36,11 +36,16 @@ public class ConfigSort extends BasicDialog {
 	private JComboBox<String> jcCategoryField;
 	private JComboBox<String>[] jcSortField;
 	private JTextField[] txGroupingField;
+	private JTextField txRemainField;
 	private JCheckBox[] cbGroupField;
 	private final int numSort;
 
 	private String[] dbFilterFields;
 	private ExportFile myExportFile;
+
+	private boolean isGroupBy;
+	private boolean hasCategories;
+	private boolean hasGrouping;
 
 	private transient SortData pdaSettings;
 
@@ -53,6 +58,7 @@ public class ConfigSort extends BasicDialog {
 		jcSortField = new JComboBox[numSort];
 		cbGroupField = new JCheckBox[numSort];
 		txGroupingField = new JTextField[numSort];
+		txRemainField = GUIFactory.getJTextField("remainderGroup", pdaSettings.getRemainingField());
 		init();
 	}
 
@@ -107,9 +113,9 @@ public class ConfigSort extends BasicDialog {
 		XGridBagConstraints c = new XGridBagConstraints();
 
 		String guiText = "sortField";
-		boolean isGroupBy = myExportFile.isSpecialFieldSort();
-		boolean hasCategories = myExportFile == ExportFile.LIST;
-		boolean hasGrouping = isGroupBy;
+		isGroupBy = myExportFile.isSpecialFieldSort();
+		hasCategories = myExportFile == ExportFile.LIST;
+		hasGrouping = isGroupBy;
 
 		switch (myExportFile) {
 		case LIST:
@@ -172,6 +178,15 @@ public class ConfigSort extends BasicDialog {
 			result.add(Box.createHorizontalGlue(), c.gridCell(5, index++, 3, 0));
 		}
 
+		if (hasGrouping) {
+			Box box = Box.createHorizontalBox();
+			box.add(GUIFactory.getJLabel("remainderGroup", new Font("serif", Font.BOLD, 14)));
+			box.add(Box.createHorizontalStrut(5));
+			box.add(Box.createHorizontalGlue());
+			box.add(txRemainField);
+			result.add(box, c.gridmultipleCell(2, index, 0, 0, 2, 1));
+		}
+
 		result.setBorder(BorderFactory.createTitledBorder(myExportFile.getName() + " "
 				+ GUIFactory.getTitle(myExportFile.isSpecialFieldSort() ? "fieldDefinition" : "sortOrder")));
 		return result;
@@ -218,21 +233,39 @@ public class ConfigSort extends BasicDialog {
 		}
 
 		pdaSettings.setCategoryField(jcCategoryField != null ? jcCategoryField.getSelectedItem().toString() : "");
+		pdaSettings
+				.setRemainingField(txRemainField != null && txRemainField.isEnabled() ? txRemainField.getText() : "");
 	}
 
 	@Override
 	public void activateComponents() {
+		if (!isGroupBy) {
+			return;
+		}
+
+		boolean isShowRemainder = false;
 		for (int i = 0; i < numSort; i++) {
 			if (jcSortField[i].getSelectedIndex() < 1) {
 				cbGroupField[i].setSelected(false);
 				cbGroupField[i].setEnabled(false);
-				txGroupingField[i].setText("");
-				txGroupingField[i].setEnabled(false);
+				if (hasGrouping) {
+					txGroupingField[i].setText("");
+					txGroupingField[i].setEnabled(false);
+				}
 			} else {
 				cbGroupField[i].setEnabled(true);
-				txGroupingField[i].setEnabled(cbGroupField[i].isSelected());
+				if (hasGrouping) {
+					txGroupingField[i].setEnabled(cbGroupField[i].isSelected());
+					if (txGroupingField[i].isEnabled()) {
+						isShowRemainder = true;
+					}
+				}
 			}
 		}
-	}
 
+		if (hasGrouping) {
+			txRemainField.setEnabled(isShowRemainder);
+		}
+
+	}
 }

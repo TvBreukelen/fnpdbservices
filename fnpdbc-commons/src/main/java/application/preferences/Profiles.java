@@ -32,6 +32,7 @@ public abstract class Profiles extends Project implements IEncoding {
 	private String lastSaved;
 	private String notes;
 	private String pdaDatabaseName = "";
+	private String remainingField = "";
 	private String tableName = "";
 
 	private String[] filterField = new String[] { "", "" };
@@ -126,6 +127,7 @@ public abstract class Profiles extends Project implements IEncoding {
 		lastSaved = child.get("last.saved", "");
 
 		this.profileID = profileID;
+		remainingField = child.get("remaining.field", "");
 		sortField[0] = child.get("sort.field0", "");
 		sortField[1] = child.get("sort.field1", "");
 		sortField[2] = child.get("sort.field2", "");
@@ -368,6 +370,15 @@ public abstract class Profiles extends Project implements IEncoding {
 	public void setNotes(String notes) {
 		PrefUtils.writePref(child, "export.notes", notes, this.notes, "");
 		this.notes = notes;
+	}
+
+	public String getRemainingField() {
+		return remainingField;
+	}
+
+	public void setRemainingField(String remainingField) {
+		PrefUtils.writePref(child, "remaining.field", remainingField, this.remainingField, "");
+		this.remainingField = remainingField;
 	}
 
 	public String getSortField(int index) {

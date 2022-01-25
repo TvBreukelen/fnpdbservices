@@ -74,7 +74,7 @@ public final class GUIFactory {
 	public static JTextField getJTextField(String resourceID, String text) {
 		JTextField result;
 		if (StringUtils.isEmpty(text)) {
-			result = new JTextField(6);
+			result = new JTextField(10);
 		} else {
 			result = new JTextField(text);
 

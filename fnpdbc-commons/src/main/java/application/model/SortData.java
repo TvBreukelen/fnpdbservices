@@ -5,12 +5,14 @@ import application.preferences.Profiles;
 public class SortData {
 
 	private String categoryField = "";
+	private String remainingField = "";
 	private String[] sortField = new String[] { "", "", "", "" };
 	private String[] groupField = new String[] { "", "", "", "" };
 	private String[] groupingField = new String[] { "", "", "", "" };
 
 	public void loadProfile(Profiles profile) {
 		categoryField = profile.getCategoryField();
+		remainingField = profile.getRemainingField();
 		for (int i = 0; i < 4; i++) {
 			sortField[i] = profile.getSortField(i);
 			groupField[i] = profile.getGroupField(i);
@@ -60,10 +62,19 @@ public class SortData {
 
 	public void saveProfile(Profiles profile) {
 		profile.setCategoryField(categoryField);
+		profile.setRemainingField(remainingField);
 		for (int i = 0; i < 4; i++) {
 			profile.setSortField(i, sortField[i]);
 			profile.setGroupField(i, groupField[i]);
 			profile.setGroupingField(i, groupingField[i]);
 		}
+	}
+
+	public String getRemainingField() {
+		return remainingField;
+	}
+
+	public void setRemainingField(String remainingField) {
+		this.remainingField = remainingField;
 	}
 }
