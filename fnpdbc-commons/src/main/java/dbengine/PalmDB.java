@@ -22,9 +22,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	 * @version 4.5
 	 */
 	private File outFile = null;
-	private File backupFile = null;
-	private boolean isFileUpdated = false;
-
 	private int myCurrentRecord = 0;
 	private int appInfoId = 0;
 	private long offsetPos = 78;
@@ -43,8 +40,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myFilename);
-		backupFile = new File(myFilename + ".bak");
-		isFileUpdated = false;
 
 		if (isInputFile) {
 			useAppend = false;
@@ -140,7 +135,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		header.setPdaDatabase(myPref.getPdaDatabaseName());
 		header.setTotalRecords(myTotalRecords);
 		header.updateHeader();
-		isFileUpdated = true;
 
 		// get the number of bytes that we have to move
 		int bytes2Move = (int) (pdbRaf.length() + 1 - oAppInfoId);
@@ -157,7 +151,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		pdbRaf.read(byteArray);
 		pdbRaf.seek(appInfoId);
 		pdbRaf.write(byteArray);
-		byteArray = null;
 
 		// Recalculate record offsets in the Record List
 		int offset;
