@@ -23,9 +23,7 @@ import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
 import dbengine.export.HanDBase;
-import dbengine.export.JFile3;
-import dbengine.export.JFile4;
-import dbengine.export.JFile5;
+import dbengine.export.JFile;
 import dbengine.export.ListDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
@@ -117,8 +115,9 @@ public abstract class GeneralDB {
 			throw FNProgException.getException("noDatabaseDefined");
 		}
 
-		if (isInputFile && !General.existFile(helper.getDatabase())) {
-			throw FNProgException.getException("noDatabaseExists", helper.getDatabase());
+		myFilename = helper.getDatabase();
+		if (isInputFile && !General.existFile(myFilename)) {
+			throw FNProgException.getException("noDatabaseExists", myFilename);
 		}
 
 		hasBackup = false;
@@ -128,7 +127,6 @@ public abstract class GeneralDB {
 			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
 		}
 
-		myFilename = helper.getDatabase();
 		myDatabaseHelper = helper;
 		FNProgException exception = null;
 
@@ -287,12 +285,10 @@ public abstract class GeneralDB {
 			return new YamlFile(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
-		case JFILE5:
-			return new JFile5(profile);
 		case JFILE3:
-			return new JFile3(profile);
 		case JFILE4:
-			return new JFile4(profile);
+		case JFILE5:
+			return new JFile(profile);
 		case LIST:
 			return new ListDB(profile);
 		case MOBILEDB:

@@ -128,6 +128,15 @@ General Public License for more details.
 4. What is New?
 ===================================================================================================
 
+Version 9.5
+-----------
+Added Group By function to XML, JSON and YAML exports
+Added Misc. option for BookCAT to place the book's release number behind the series
+Replaced local CSV code by Jackson CSV library
+Fixed an age old Textfile "export to bug"
+Done some code refactoring to improve readabilty
+
+
 
 Version 9.4
 -----------

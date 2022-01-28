@@ -143,6 +143,14 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 7
+---------
+Added Group By function to XML, JSON and YAML exports
+Replaced local CSV code by Jackson CSV library
+Fixed an age old XML "export from" and Textfile "export to bug"
+Made some code refactoring to improve readabilty
+
+
 Version 6.9
 -----------
 Added support for dBase version 7 import

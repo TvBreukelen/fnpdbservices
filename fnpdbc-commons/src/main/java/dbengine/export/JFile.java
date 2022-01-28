@@ -8,13 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.PalmDB;
 
-public class JFile5 extends PalmDB {
+public class JFile extends PalmDB {
 	/**
 	 * Title: JFile Description: Generic Class for Palm-OS JFile 5+ database
 	 * Copyright: (c) 2003-2012
@@ -23,8 +24,9 @@ public class JFile5 extends PalmDB {
 	 * @version 4.5
 	 */
 	private int numFields;
+	private boolean isJfile3 = false;
 
-	public JFile5(Profiles pref) {
+	public JFile(Profiles pref) {
 		super(pref);
 	}
 
@@ -32,6 +34,7 @@ public class JFile5 extends PalmDB {
 	public void createDbHeader() throws Exception {
 		int totalRecords = mySoft.getTotalRecords();
 		final int MAX_FIELDS = myExportFile.getMaxFields();
+		isJfile3 = myExportFile == ExportFile.JFILE3;
 
 		// Check whether we are in append mode
 		if (useAppend) {
@@ -106,7 +109,7 @@ public class JFile5 extends PalmDB {
 	}
 
 	protected void setPadding() throws IOException {
-		pdbRaf.write(new byte[450]);
+		pdbRaf.write(new byte[isJfile3 ? 62 : 450]);
 	}
 
 	@Override
@@ -169,6 +172,10 @@ public class JFile5 extends PalmDB {
 
 	protected int calculateFieldRecord() throws Exception {
 		int[] recordID = setPointer2NextRecord();
+		if (isJfile3) {
+			return recordID[2] - recordID[0];
+		}
+
 		skipBytes(numFields * 2);
 		return recordID[2] - (recordID[0] + numFields * 2);
 	}
@@ -179,11 +186,16 @@ public class JFile5 extends PalmDB {
 		StringBuilder bf = new StringBuilder();
 
 		// Read the user defined list of DB fields
-		for (FieldDefinition field : dbInfo2Write) {
-			String dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString();
-			bf.append(dbField);
-			bf.append('\0');
-			pdbDas.writeShort(dbField.length() + 1);
+		if (isJfile3) {
+			dbInfo2Write.forEach(field -> bf
+					.append(convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString()).append('\0'));
+		} else {
+			for (FieldDefinition field : dbInfo2Write) {
+				String dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString();
+				bf.append(dbField);
+				bf.append('\0');
+				pdbDas.writeShort(dbField.length() + 1);
+			}
 		}
 
 		pdbDas.write(General.convertString2Bytes(bf.toString(), encoding));

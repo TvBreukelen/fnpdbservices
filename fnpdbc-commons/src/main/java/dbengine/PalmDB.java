@@ -21,7 +21,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	private File outFile = null;
 	private int myCurrentRecord = 0;
 	private int appInfoId = 0;
 	private long offsetPos = 78;
@@ -39,7 +38,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myFilename);
+		File outFile = new File(myFilename);
 
 		if (isInputFile) {
 			useAppend = false;
