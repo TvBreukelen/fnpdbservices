@@ -2,7 +2,6 @@ package application.dialog;
 
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
@@ -95,7 +94,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		if (!isExport) {
 			JButton button = GUIFactory.getJButton("apply", e -> {
 				setProperties();
-				dialog.verifyDatabase(false);
+				dialog.verifyDatabase(true);
 			});
 
 			JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -108,13 +107,9 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		ActionListener listener = new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				exportFile = ExportFile.getExportFile(e.getActionCommand());
-				activateComponents();
-			}
+		ActionListener listener = e -> {
+			exportFile = ExportFile.getExportFile(e.getActionCommand());
+			activateComponents();
 		};
 
 		standardCsv = GUIFactory.getJRadioButton("standardCsv", ExportFile.HANDBASE.getName(), listener);

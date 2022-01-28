@@ -23,7 +23,7 @@ public class HanDBase extends CsvFile {
 	}
 
 	@Override
-	public void openFile(DatabaseHelper helper, boolean createBackup, boolean isInputFile) throws Exception {
+	public void openFile(DatabaseHelper helper, boolean isInputFile) throws Exception {
 		// Check if the database conversion program is defined and exists
 		if (handbaseProgram.isEmpty()) {
 			throw FNProgException.getException("noHandbaseDesktop");
@@ -37,10 +37,7 @@ public class HanDBase extends CsvFile {
 		pdbFile = helper.getDatabase();
 		helper.setDatabase(exportFile);
 
-		if (createBackup) {
-			General.copyFile(pdbFile, pdbFile + ".bak");
-		}
-		super.openFile(helper, false, isInputFile);
+		super.openFile(helper, isInputFile);
 	}
 
 	/*

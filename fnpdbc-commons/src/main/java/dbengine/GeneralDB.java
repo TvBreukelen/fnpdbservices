@@ -1,6 +1,7 @@
 package dbengine;
 
 import java.io.EOFException;
+import java.io.File;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -120,12 +121,11 @@ public abstract class GeneralDB {
 			throw FNProgException.getException("noDatabaseExists", helper.getDatabase());
 		}
 
-		openFile(helper, createBackup, isInputFile);
-	}
-
-	public void openFile(DatabaseHelper helper, boolean createBackup, boolean isInputFile) throws Exception {
+		hasBackup = false;
 		if (isInputFile) {
 			encoding = myPref.getImportFileEncoding(); // Input file encoding
+		} else if (createBackup) {
+			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
 		}
 
 		myFilename = helper.getDatabase();
@@ -133,7 +133,7 @@ public abstract class GeneralDB {
 		FNProgException exception = null;
 
 		try {
-			openFile(createBackup, isInputFile);
+			openFile(isInputFile);
 		} catch (EOFException e) {
 			exception = FNProgException.getException("fileOpenError", myFilename,
 					"Cannot read file beyond EOF (File is empty or corrupt)");
@@ -317,11 +317,22 @@ public abstract class GeneralDB {
 		return null;
 	}
 
-	protected abstract void openFile(boolean createBackup, boolean isInputFile) throws Exception;
+	protected abstract void openFile(boolean isInputFile) throws Exception;
 
 	public abstract void closeFile();
 
-	public abstract void deleteFile();
+	public void deleteFile() {
+		closeFile();
+		File outFile = new File(myFilename);
+
+		if (outFile.exists()) {
+			outFile.delete();
+		}
+		if (hasBackup) {
+			File backupFile = new File(myFilename + ".bak");
+			backupFile.renameTo(outFile);
+		}
+	}
 
 	public abstract void processData(Map<String, Object> dbRecord) throws Exception;
 

@@ -21,11 +21,9 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 
 public abstract class OdsFile extends GeneralDB implements IConvert {
 	private File outFile;
-	private File backupFile;
 
 	private Map<String, List<FieldDefinition>> hSheets;
 	private int myCurrentRecord = 1;
@@ -41,15 +39,8 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
-		hasBackup = false;
-
-		if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
-		}
-
+	protected void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myFilename);
-		backupFile = new File(myFilename + ".bak");
 
 		this.isInputFile = isInputFile;
 		if (isInputFile) {
@@ -231,17 +222,6 @@ public abstract class OdsFile extends GeneralDB implements IConvert {
 			}
 		} catch (Exception e) {
 			// Nothing that can be done about this
-		}
-	}
-
-	@Override
-	public void deleteFile() {
-		closeFile();
-		if (outFile.exists()) {
-			outFile.delete();
-		}
-		if (hasBackup) {
-			backupFile.renameTo(outFile);
 		}
 	}
 

@@ -403,11 +403,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		if (dbConfig != null) {
 			dbConfig.activateComponents();
-		}
-
-		if (myExportFile == ExportFile.HANDBASE) {
-			boolean enableImport = !rExists[0].isSelected();
-			((ConfigHanDBase) dbConfig).setImportEnabled(enableImport);
+			if (myExportFile == ExportFile.HANDBASE) {
+				boolean enableImport = !rExists[0].isSelected();
+				((ConfigHanDBase) dbConfig).setImportEnabled(enableImport);
+			}
 		}
 	}
 }

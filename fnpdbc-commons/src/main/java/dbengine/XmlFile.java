@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
 
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
-import application.utils.General;
 import dbengine.utils.XmlReader;
 
 public class XmlFile extends GeneralDB implements IConvert {
@@ -56,14 +55,9 @@ public class XmlFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
-		hasBackup = false;
+	protected void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myFilename);
 		this.isInputFile = isInputFile;
-
-		if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
-		}
 
 		if (isInputFile) {
 			splitDbInfoToWrite();
@@ -97,22 +91,6 @@ public class XmlFile extends GeneralDB implements IConvert {
 			}
 			out = null;
 			outFile = null;
-		}
-	}
-
-	@Override
-	public void deleteFile() {
-		closeFile();
-		outFile = new File(myFilename);
-		boolean deleted = true;
-
-		if (outFile.exists()) {
-			deleted = outFile.delete();
-		}
-
-		if (hasBackup && deleted) {
-			File backupFile = new File(myFilename + ".bak");
-			backupFile.renameTo(outFile);
 		}
 	}
 

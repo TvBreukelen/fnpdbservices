@@ -45,7 +45,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
+	protected void openFile(boolean isInputFile) throws Exception {
 		// For the moment we only open the database file for input
 		database = DatabaseBuilder.open(new File(myFilename));
 		String error = "";
@@ -357,11 +357,6 @@ public class MSAccess extends GeneralDB implements IConvert {
 		} catch (Exception ex) {
 			return false;
 		}
-	}
-
-	@Override
-	public void deleteFile() {
-		// We don't delete the entire database
 	}
 
 	@Override

@@ -34,9 +34,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
-		hasBackup = false;
-
+	protected void openFile(boolean isInputFile) throws Exception {
 		String memoF = myFilename.substring(0, myFilename.length() - 3);
 
 		if (isInputFile) {
@@ -48,11 +46,8 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		outFile = new File(myFilename);
 		memoFile = new File(memoF);
 
-		if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
-			if (hasBackup) {
-				General.copyFile(memoF, memoFile + ".bak");
-			}
+		if (hasBackup) {
+			General.copyFile(memoF, memoFile + ".bak");
 		}
 
 		if (isInputFile) {

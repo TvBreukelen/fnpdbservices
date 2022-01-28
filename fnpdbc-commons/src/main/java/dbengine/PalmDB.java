@@ -11,7 +11,6 @@ import application.interfaces.ExportFile;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 import dbengine.utils.PilotHeader;
 
 public abstract class PalmDB extends GeneralDB implements IConvert {
@@ -42,15 +41,10 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void openFile(boolean createBackup, boolean isInputFile) throws Exception {
+	public void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myFilename);
-		hasBackup = false;
+		backupFile = new File(myFilename + ".bak");
 		isFileUpdated = false;
-
-		if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
-			backupFile = new File(myFilename + ".bak");
-		}
 
 		if (isInputFile) {
 			useAppend = false;
@@ -244,21 +238,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	protected void readLn(byte[] buffer) throws IOException {
 		pdbRaf.read(buffer);
-	}
-
-	@Override
-	public void deleteFile() {
-		closeFile();
-		if (!isFileUpdated) {
-			return;
-		}
-
-		if (outFile.exists()) {
-			outFile.delete();
-		}
-		if (hasBackup) {
-			backupFile.renameTo(outFile);
-		}
 	}
 
 	@Override

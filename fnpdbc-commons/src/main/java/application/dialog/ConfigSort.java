@@ -221,7 +221,7 @@ public class ConfigSort extends BasicDialog {
 				if (!map.contains(sortValue)) {
 					map.add(sortValue);
 					if (cbGroupField[i].isSelected()) {
-						if (!txGroupingField[i].getText().isBlank()) {
+						if (!txGroupingField[i].getText().isEmpty()) {
 							pdaSettings.setGroupingField(groupIndex, txGroupingField[i].getText());
 						}
 

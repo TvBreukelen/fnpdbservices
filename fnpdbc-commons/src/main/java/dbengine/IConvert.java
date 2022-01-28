@@ -17,7 +17,7 @@ public interface IConvert {
 	 */
 	void setSoftware(BasicSoft pSoft);
 
-	void openFile(DatabaseHelper helper, boolean createBackup, boolean isInputFile) throws Exception;
+	void openFile(DatabaseHelper helper, boolean isInputFile) throws Exception;
 
 	String getPdaDatabase();
 

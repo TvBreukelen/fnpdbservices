@@ -101,7 +101,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		dbIn = (IConvert) GeneralDB.getDatabase(myImportFile, pdaSettings);
 		dbIn.setSoftware(this);
-		dbIn.openFile(dbInHelper, false, true);
+		dbIn.openFile(dbInHelper, true);
 
 		isInputFileOpen = true;
 		dbIn.verifyDatabase(null);
@@ -344,10 +344,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public void openToFile() throws Exception {
-		boolean createBackup = pdaSettings.isCreateBackup();
 		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(myFile[1]), createBackup, false);
+		dbOut.openFile(new DatabaseHelper(myFile[1]), false);
 		isOutputFileOpen = true;
 	}
 

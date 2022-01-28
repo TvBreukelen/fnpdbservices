@@ -39,7 +39,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
+	protected void openFile(boolean isInputFile) throws Exception {
 		// Try to obtain the database connection
 		connection = openDatabase();
 		getDBFieldNamesAndTypes();
@@ -363,10 +363,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void createDbHeader() throws Exception {
-	}
-
-	@Override
-	public void deleteFile() {
 	}
 
 	@Override

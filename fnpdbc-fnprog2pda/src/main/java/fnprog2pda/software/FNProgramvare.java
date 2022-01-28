@@ -223,7 +223,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	public void openToFile() throws Exception {
 		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), pdaSettings.isCreateBackup(), false);
+		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), false);
 		isOutputFileOpen = true;
 	}
 

@@ -16,11 +16,11 @@ public class SQLite extends SqlDB implements IConvert {
 	}
 
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
+	protected void openFile(boolean isInputFile) throws Exception {
 		if (isInputFile) {
 			verifyHeader();
 		}
-		super.openFile(createBackup, isInputFile);
+		super.openFile(isInputFile);
 	}
 
 	private void verifyHeader() throws Exception {

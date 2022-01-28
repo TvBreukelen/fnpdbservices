@@ -18,11 +18,9 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
-import application.utils.General;
 
 public class JsonFile extends GeneralDB implements IConvert {
 	private File outFile;
-	private File backupFile;
 	protected ObjectMapper mapper;
 	private List<Map<String, Object>> writeList = new ArrayList<>();
 	private List<FieldDefinition> dbFields = new ArrayList<>();
@@ -40,15 +38,8 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void openFile(boolean createBackup, boolean isInputFile) throws Exception {
-		hasBackup = false;
-
-		if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
-		}
-
+	protected void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myFilename);
-		backupFile = new File(myFilename + ".bak");
 		myCurrentRecord = 0;
 
 		this.isInputFile = isInputFile;
@@ -89,17 +80,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 			}
 		} catch (Exception e) {
 			// Nothing that can be done about this
-		}
-	}
-
-	@Override
-	public void deleteFile() {
-		closeFile();
-		if (outFile.exists()) {
-			outFile.delete();
-		}
-		if (hasBackup) {
-			backupFile.renameTo(outFile);
 		}
 	}
 

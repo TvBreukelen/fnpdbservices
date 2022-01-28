@@ -148,7 +148,6 @@ public enum ExportFile {
 		switch (this) {
 		case HANDBASE:
 		case ACCESS:
-		case TEXTFILE:
 			return true;
 		default:
 			return false;
@@ -173,13 +172,7 @@ public enum ExportFile {
 	}
 
 	public boolean isEncodingSupported() {
-		switch (this) {
-		case TEXTFILE:
-		case XML:
-			return true;
-		default:
-			return false;
-		}
+		return this == XML;
 	}
 
 	public boolean isAppend() {

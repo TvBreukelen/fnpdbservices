@@ -29,7 +29,6 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 
 public abstract class ExcelFile extends GeneralDB implements IConvert {
 	/**
@@ -39,7 +38,6 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	 * @author Tom van Breukelen
 	 * @version 8+
 	 */
-	private File backupFile;
 	private Map<String, List<FieldDefinition>> hSheets;
 	private int myCurrentRecord = 1;
 	protected int noOfSheets;
@@ -58,15 +56,8 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void openFile(boolean createBackup, boolean isInputFile) throws Exception {
-		hasBackup = false;
-
-		if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
-		}
-
+	public void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myFilename);
-		backupFile = new File(myFilename + ".bak");
 
 		this.isInputFile = isInputFile;
 		if (isInputFile) {
@@ -270,17 +261,6 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 		}
 		return result;
-	}
-
-	@Override
-	public void deleteFile() {
-		closeFile();
-		if (outFile.exists()) {
-			outFile.delete();
-		}
-		if (hasBackup) {
-			backupFile.renameTo(outFile);
-		}
 	}
 
 	@Override
