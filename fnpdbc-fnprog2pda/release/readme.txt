@@ -135,7 +135,7 @@ Added Misc. option for BookCAT to place the book's release number behind the ser
 Replaced local CSV code by Jackson CSV library
 Fixed an age old Textfile "export to bug"
 Done some code refactoring to improve readabilty
-
+Reinstated build of Mac App
 
 
 Version 9.4
