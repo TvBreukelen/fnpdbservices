@@ -12,46 +12,27 @@ public enum ExportFile {
 	 *
 	 * @author Tom van Breukelen
 	 */
-
-	CALC("Calc", "", "", "true", "false", FileType.ODS, 256, 1048576, 1048576),
-	ACCESS("MS-Access", "", "", "true", "false", FileType.MDB, 255, 255, 255),
-	EXCEL("MS-Excel", "", "", "true", "false", FileType.XLSX, 256, 32767, 32767),
-	SQLITE("SQLite", "SQLite", "", "1", "0", FileType.DB, 255, 255, 255),
-	TEXTFILE("Text File", "", "", "true", "false", FileType.TXT, 256, 32767, 32767),
-	XML("Xml", "", "", "true", "false", FileType.XML, 32767, 32767, 32767),
-	JSON("Json", "", "", "true", "false", FileType.JSON, 32767, 32767, 32767),
-	YAML("Yaml", "", "", "true", "false", FileType.YAML, 32767, 32767, 32767),
-	DBASE("xBase", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
-	DBASE3("DBase3", "", "", "T", "F", FileType.DBF, 254, 32737, 128),
-	DBASE4("DBase4", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
-	DBASE5("DBase5", "", "", "T", "F", FileType.DBF, 254, 32767, 1024),
-	FOXPRO("FoxPro", "", "", "T", "F", FileType.DBF, 254, 32767, 255),
-	HANDBASE("HanDBase", "DATA", "HanD", "1", "0", FileType.PDB, 256, 2000, 100),
-	JFILE3("JFile3", "JbDb", "JBas", "1", "0", FileType.PDB, 64, 500, 20),
-	JFILE4("JFile4", "JfDb", "JFil", "1", "0", FileType.PDB, 256, 10000, 50),
-	JFILE5("JFile5", "JfD5", "JFi5", "1", "0", FileType.PDB, 256, 10000, 50),
-	LIST("List", "DATA", "LSdb", "true", "false", FileType.PDB, 4095, 4095, 32767),
-	MOBILEDB("MobileDB", "Mdb1", "Mdb1", "true", "false", FileType.PDB, 256, 1000, 20),
-	PILOTDB("Pilot-DB", "DB00", "DBOS", "1", "0", FileType.PDB, 256, 3000, 256);
+	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), ACCESS("MS-Access", FileType.MDB, 255, 255, 255),
+	EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
+	TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767), XML("Xml", FileType.XML, 32767, 32767, 32767),
+	JSON("Json", FileType.JSON, 32767, 32767, 32767), YAML("Yaml", FileType.YAML, 32767, 32767, 32767),
+	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767), DBASE("xBase", FileType.DBF, 254, 32737, 128),
+	DBASE3("DBase3", FileType.DBF, 254, 32737, 128), DBASE4("DBase4", FileType.DBF, 254, 32767, 255),
+	DBASE5("DBase5", FileType.DBF, 254, 32767, 1024), FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255),
+	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), JFILE3("JFile3", FileType.PDB, 64, 500, 20),
+	JFILE4("JFile4", FileType.PDB, 256, 10000, 50), JFILE5("JFile5", FileType.PDB, 256, 10000, 50),
+	LIST("List", FileType.PDB, 4095, 4095, 32767), MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20),
+	PILOTDB("Pilot-DB", FileType.PDB, 256, 3000, 256);
 
 	private String name;
-	private String dbType;
-	private String creator;
-	private String trueValue;
-	private String falseValue;
 	private List<String> fileExtention;
 	private String fileType;
 	private int maxTextSize;
 	private int maxMemoSize;
 	private int maxFields;
 
-	ExportFile(String name, String dbType, String creator, String trueValue, String falseValue, FileType type,
-			int maxTextSize, int maxMemoSize, int maxFields) {
+	ExportFile(String name, FileType type, int maxTextSize, int maxMemoSize, int maxFields) {
 		this.name = name;
-		this.dbType = dbType;
-		this.creator = creator;
-		this.trueValue = trueValue;
-		this.falseValue = falseValue;
 		fileExtention = type.getExtention();
 		fileType = type.getType();
 		this.maxTextSize = maxTextSize;
@@ -87,6 +68,7 @@ public enum ExportFile {
 			exportList.remove(DBASE.name);
 			exportList.remove(SQLITE.name);
 			exportList.remove(ACCESS.name);
+			exportList.remove(MARIADB.name);
 		}
 
 		String[] result = new String[exportList.size()];
@@ -171,10 +153,6 @@ public enum ExportFile {
 		}
 	}
 
-	public boolean isEncodingSupported() {
-		return this == XML;
-	}
-
 	public boolean isAppend() {
 		switch (this) {
 		case CALC:
@@ -189,8 +167,12 @@ public enum ExportFile {
 		}
 	}
 
+	public boolean isConnectHost() {
+		return this == MARIADB;
+	}
+
 	public boolean isPasswordSupported() {
-		return this == HANDBASE;
+		return this == HANDBASE || this == MARIADB;
 	}
 
 	public boolean isSpecialFieldSort() {
@@ -205,16 +187,48 @@ public enum ExportFile {
 		}
 	}
 
-	public String getCreator() {
-		return creator;
-	}
-
 	public String getDbType() {
-		return dbType;
+		switch (this) {
+		case SQLITE:
+			return "SQLite";
+		case HANDBASE:
+			return "DATA";
+		case JFILE3:
+			return "JbDb";
+		case JFILE4:
+			return "JfDb";
+		case JFILE5:
+			return "JfD5";
+		case LIST:
+			return "DATA";
+		case MOBILEDB:
+			return "Mdb1";
+		case PILOTDB:
+			return "DB00";
+		default:
+			return "";
+		}
 	}
 
-	public String getFalseValue() {
-		return falseValue;
+	public String getCreator() {
+		switch (this) {
+		case HANDBASE:
+			return "HanD";
+		case JFILE3:
+			return "JBas";
+		case JFILE4:
+			return "JFil";
+		case JFILE5:
+			return "JFi5";
+		case LIST:
+			return "LSdb";
+		case MOBILEDB:
+			return "Mdb1";
+		case PILOTDB:
+			return "DBOS";
+		default:
+			return "";
+		}
 	}
 
 	public List<String> getFileExtention() {
@@ -246,6 +260,43 @@ public enum ExportFile {
 	}
 
 	public String getTrueValue() {
-		return trueValue;
+		switch (this) {
+		case DBASE:
+		case DBASE3:
+		case DBASE4:
+		case DBASE5:
+		case FOXPRO:
+			return "T";
+		case SQLITE:
+		case HANDBASE:
+		case JFILE3:
+		case JFILE4:
+		case JFILE5:
+		case PILOTDB:
+			return "1";
+		default:
+			return "true";
+		}
 	}
+
+	public String getFalseValue() {
+		switch (this) {
+		case DBASE:
+		case DBASE3:
+		case DBASE4:
+		case DBASE5:
+		case FOXPRO:
+			return "F";
+		case SQLITE:
+		case HANDBASE:
+		case JFILE3:
+		case JFILE4:
+		case JFILE5:
+		case PILOTDB:
+			return "0";
+		default:
+			return "false";
+		}
+	}
+
 }

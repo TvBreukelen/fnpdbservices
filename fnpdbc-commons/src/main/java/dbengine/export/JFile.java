@@ -81,7 +81,7 @@ public class JFile extends PalmDB {
 			default:
 				break;
 			}
-			pdbRaf.write(General.getNullTerminatedString(field.getFieldHeader(), 21, encoding));
+			pdbRaf.write(General.getNullTerminatedString(field.getFieldHeader(), 21, PalmDB.CODE_PAGE));
 		}
 
 		// field names (2)
@@ -123,9 +123,10 @@ public class JFile extends PalmDB {
 			return result;
 		}
 
-		byte[] record = new byte[dataSize];
-		readLn(record);
-		String s = General.convertBytes2String(record, encoding);
+		byte[] bytes = new byte[dataSize];
+		readLn(bytes);
+
+		String s = General.convertBytes2String(bytes, PalmDB.CODE_PAGE);
 		int[] index = new int[3];
 		index[2] = s.indexOf('\0', index[0]);
 
@@ -198,7 +199,7 @@ public class JFile extends PalmDB {
 			}
 		}
 
-		pdbDas.write(General.convertString2Bytes(bf.toString(), encoding));
+		pdbDas.write(General.convertString2Bytes(bf.toString(), PalmDB.CODE_PAGE));
 		writeRecord(pdbBaos.toByteArray(), 0);
 		pdbBaos.reset();
 	}

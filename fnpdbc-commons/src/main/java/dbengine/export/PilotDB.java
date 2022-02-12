@@ -182,7 +182,7 @@ public class PilotDB extends PalmDB {
 			if (dbValue.length() > myExportFile.getMaxTextSize()) {
 				return convertMemo(dbValue);
 			} else {
-				return General.getNullTerminatedString(dbValue, 0, encoding);
+				return General.getNullTerminatedString(dbValue, 0, PalmDB.CODE_PAGE);
 			}
 		}
 	}
@@ -199,7 +199,7 @@ public class PilotDB extends PalmDB {
 
 			int chunkType = getShort(fieldData);
 			if (chunkType > 512) {
-				throw FNProgException.getException("fileheaderCorrupt", myFilename);
+				throw FNProgException.getException("fileheaderCorrupt", myDatabase);
 			}
 
 			pos += 2;
@@ -207,7 +207,7 @@ public class PilotDB extends PalmDB {
 			int dataSize = getShort(fieldData);
 
 			if (dataSize < 1 || dataSize > appInfoDataLength) {
-				throw FNProgException.getException("fileheaderCorrupt", myFilename);
+				throw FNProgException.getException("fileheaderCorrupt", myDatabase);
 			}
 
 			pos += 2;
@@ -373,7 +373,7 @@ public class PilotDB extends PalmDB {
 	 * Converts a PilotDB text back to a String
 	 */
 	private String convertText2DB(byte[] data) {
-		String result = General.convertBytes2String(data, encoding) + "\0";
+		String result = General.convertBytes2String(data, PalmDB.CODE_PAGE) + "\0";
 		return result.substring(0, result.indexOf('\0'));
 	}
 
@@ -471,7 +471,7 @@ public class PilotDB extends PalmDB {
 			return "";
 		}
 
-		String s = General.convertBytes2String(fieldData, encoding);
+		String s = General.convertBytes2String(fieldData, PalmDB.CODE_PAGE);
 		int index0 = s.indexOf('\0');
 		String header = s.substring(0, index0);
 
@@ -503,7 +503,7 @@ public class PilotDB extends PalmDB {
 				len[1] = offSet;
 				fieldLen.set(i, len);
 				System.arraycopy(data, offSet, dataField, 0, dataField.length);
-				return General.convertBytes2String(dataField, encoding);
+				return General.convertBytes2String(dataField, PalmDB.CODE_PAGE);
 			}
 		}
 		return "";
@@ -536,10 +536,10 @@ public class PilotDB extends PalmDB {
 		DataOutputStream out = new DataOutputStream(result);
 
 		try {
-			out.write(General.convertString2Bytes(pMemo.substring(0, textLen), encoding));
+			out.write(General.convertString2Bytes(pMemo.substring(0, textLen), PalmDB.CODE_PAGE));
 			out.writeByte(0);
 			out.writeShort(offSet + out.size() + 2);
-			out.write(General.convertString2Bytes(pMemo, encoding));
+			out.write(General.convertString2Bytes(pMemo, PalmDB.CODE_PAGE));
 			out.writeByte(0);
 			return result.toByteArray();
 		} catch (Exception e) {

@@ -29,6 +29,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	protected RandomAccessFile pdbRaf = null;
 	protected ByteArrayOutputStream pdbBaos = new ByteArrayOutputStream();
 	protected DataOutputStream pdbDas = new DataOutputStream(pdbBaos);
+	protected static final String CODE_PAGE = "Cp1252";
 
 	private PilotHeader header;
 
@@ -38,7 +39,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
-		File outFile = new File(myFilename);
+		File outFile = new File(myDatabase);
 
 		if (isInputFile) {
 			useAppend = false;
@@ -75,9 +76,9 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
+	public void readTableContents() throws Exception {
 		if (pdbRaf.length() == 0) {
-			throw FNProgException.getException("noRecords", myFilename);
+			throw FNProgException.getException("noRecords", myDatabase);
 		}
 
 		String dbType = header.getDbType();
@@ -88,26 +89,26 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		if (!dbType.equals(myImportFile.getDbType()) || !dbCreator.equals(myImportFile.getCreator())) {
 			for (ExportFile exp : ExportFile.values()) {
 				if (dbType.equals(exp.getDbType()) && dbCreator.equals(exp.getCreator())) {
-					throw FNProgException.getException("differentDatabase", myFilename, exp.getName(),
+					throw FNProgException.getException("differentDatabase", myDatabase, exp.getName(),
 							myImportFile.getName());
 				}
 			}
-			throw FNProgException.getException("invalidDatabaseID", myFilename, myImportFile.getName(),
+			throw FNProgException.getException("invalidDatabaseID", myDatabase, myImportFile.getName(),
 					myImportFile.getDbType() + myImportFile.getCreator(), dbType + dbCreator);
 		}
 
 		if (myTotalRecords <= 0) {
-			throw FNProgException.getException("noRecords", myFilename);
+			throw FNProgException.getException("noRecords", myDatabase);
 		}
 
 		int[] index = setPointer2NextRecord();
 		appInfoDataLength = index[0] - appInfoId;
 		gotoRecord(0);
 		readAppInfo();
+	}
 
-		if (newFields == null) {
-			return;
-		}
+	protected void appendPilotDB(int totalRec, List<FieldDefinition> newFields) throws Exception {
+		readTableContents();
 
 		List<FieldDefinition> dbDef = getTableModelFields();
 		final int index1 = dbDef.size();
@@ -117,10 +118,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(index1),
 					Integer.toString(index2));
 		}
-	}
-
-	protected void appendPilotDB(int totalRec, List<FieldDefinition> newFields) throws Exception {
-		verifyDatabase(newFields);
 
 		// Calculate new total records
 		int oTotalRec = myTotalRecords;
@@ -209,7 +206,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	protected int[] setPointer2NextRecord() throws Exception {
 		myCurrentRecord++;
 		if (myCurrentRecord > myTotalRecords) {
-			throw FNProgException.getException("noMatchFieldsDBHeader", myFilename, Integer.toString(myCurrentRecord),
+			throw FNProgException.getException("noMatchFieldsDBHeader", myDatabase, Integer.toString(myCurrentRecord),
 					Integer.toString(myTotalRecords));
 		}
 

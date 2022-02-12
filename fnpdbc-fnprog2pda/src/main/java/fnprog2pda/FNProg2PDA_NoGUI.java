@@ -72,7 +72,7 @@ public class FNProg2PDA_NoGUI implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		int record = (int) evt.getNewValue();
 		System.out.println(
-				GUIFactory.getMessage((loadModel ? "recordsRead" : "recordsProcessed"), Integer.toString(record)));
+				GUIFactory.getMessage(loadModel ? "recordsRead" : "recordsProcessed", Integer.toString(record)));
 	}
 
 	private void runExport() throws Exception {

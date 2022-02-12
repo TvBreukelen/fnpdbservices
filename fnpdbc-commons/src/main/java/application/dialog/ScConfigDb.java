@@ -32,8 +32,10 @@ import application.utils.gui.XGridBagConstraints;
 
 public class ScConfigDb extends JPanel implements IConfigDb {
 	/**
-	 * Title: ScConfigDb Description: PDA Database Configuration Copyright: (c) 2016
+	 * Title: ScConfigDb
 	 *
+	 * @apiNote Database Configuration
+	 * @since 2016
 	 * @author Tom van Breukelen
 	 * @version 8
 	 */
@@ -42,9 +44,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private JTextField fdPDA;
 	private JTextField dbFileName;
 	private JLabel dbFileNameLabel = new JLabel();
-	private JTextField fdEncoding;
 	private JPasswordField fdPassword;
-	private JButton btEncoding;
 
 	private JComboBox<String> bDatabase;
 	private JPanel pExport;
@@ -70,14 +70,11 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private ActionListener funcSelectConvert;
 	private ActionListener funcSelectFile;
 	private ActionListener funcSelectDb;
-	private ActionListener funcEncoding;
 	private ExportFile myExportFile;
 
 	private IConfigDb dbConfig;
 	private Profiles pdaSettings;
 	private PropertyChangeSupport support;
-
-	private boolean isImport;
 
 	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
 		myExportFile = db;
@@ -108,16 +105,14 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pdaSettings.setProject(myExportFile.getName());
 			fdPDA.setToolTipText(myExportFile.getFileType());
 			fdPDA.setText(getDatabaseName(true));
-			setEncodingText();
 
-			fdEncoding.setVisible(myExportFile.isEncodingSupported());
-			btEncoding.setVisible(fdEncoding.isVisible());
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
 			String resourceID = "database";
 			switch (myExportFile) {
 			case ACCESS:
+			case MARIADB:
 			case SQLITE:
 				resourceID = "table";
 				break;
@@ -163,6 +158,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				break;
 			case TEXTFILE:
 				dbConfig = new ConfigTextFile(pdaSettings, true);
+				break;
 			default:
 				break;
 			}
@@ -178,12 +174,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		};
 
 		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, "", false);
-
-		funcEncoding = e -> {
-			ConfigCharset config = new ConfigCharset(this, pdaSettings);
-			config.setVisible(true);
-			setEncodingText();
-		};
 
 		buildDialog();
 		activateComponents();
@@ -211,6 +201,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(false));
 		bDatabase.setToolTipText(GUIFactory.getToolTip("pcToFile"));
 		bDatabase.addActionListener(funcSelectDb);
+
 		dbFileName = GUIFactory.getJTextField("database", "");
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
@@ -221,12 +212,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dbNameBox.add(Box.createHorizontalStrut(5));
 		dbNameBox.add(Box.createHorizontalGlue());
 		dbNameBox.add(dbFileName);
-
-		fdEncoding = new JTextField();
-		fdEncoding.setEditable(false);
-
-		btEncoding = GUIFactory.getJButton("funcEncoding", funcEncoding);
-		setEncodingText();
 
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
@@ -283,8 +268,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		JPanel p1 = new JPanel(new GridBagLayout());
 		p1.add(dbNameBox, c.gridCell(0, 0, 0, 0));
 		p1.add(btBackup, c.gridCell(1, 0, 2, 0));
-		p1.add(btEncoding, c.gridCell(2, 0, 0, 0));
-		p1.add(fdEncoding, c.gridCell(3, 0, 2, 0));
 
 		add(bDatabase, c.gridCell(0, 0, 0, 0));
 		add(fdPDA, c.gridCell(1, 0, 2, 0));
@@ -296,11 +279,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("exportTo")));
 		bDatabase.setSelectedItem(myExportFile.getName());
-	}
-
-	private void setEncodingText() {
-		String encoding = isImport ? pdaSettings.getImportFileEncoding() : pdaSettings.getEncoding();
-		fdEncoding.setText(encoding.isEmpty() ? GUIFactory.getText("default") : encoding);
 	}
 
 	@Override

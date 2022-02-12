@@ -26,7 +26,7 @@ public class SQLite extends SqlDB implements IConvert {
 	private void verifyHeader() throws Exception {
 		String header = null;
 
-		try (RandomAccessFile raf = new RandomAccessFile(myFilename, "r")) {
+		try (RandomAccessFile raf = new RandomAccessFile(myDatabase, "r")) {
 			FileChannel channel = raf.getChannel();
 			int len = myImportFile.getDbType().length();
 
@@ -39,15 +39,10 @@ public class SQLite extends SqlDB implements IConvert {
 			channel.close();
 
 			if (header == null || !header.equals(myImportFile.getDbType())) {
-				throw FNProgException.getException("invalidDatabaseID", myFilename, myImportFile.getName(),
+				throw FNProgException.getException("invalidDatabaseID", myDatabase, myImportFile.getName(),
 						myImportFile.getDbType(), header);
 			}
 		}
-	}
-
-	@Override
-	protected String[] getConnectionStrings() {
-		return new String[] { "org.sqlite.JDBC", "jdbc:sqlite:" + myFilename };
 	}
 
 	@Override

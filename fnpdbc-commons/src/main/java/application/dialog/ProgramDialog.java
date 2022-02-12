@@ -143,7 +143,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	private static final long serialVersionUID = 7285565159492721667L;
 
-	public ProgramDialog(Profiles profile, boolean mainScreen) {
+	protected ProgramDialog(Profiles profile, boolean mainScreen) {
 		// Only relevant for MacOS
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		System.setProperty("apple.awt.fileDialogForDirectories", "false");

@@ -39,8 +39,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(data.getProfileID() + " " + GUIFactory.getTitle("miscSettings"));
 		setHelpFile("miscellaneous_settings");
 		buildDialog();

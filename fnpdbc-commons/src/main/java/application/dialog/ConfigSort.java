@@ -44,7 +44,6 @@ public class ConfigSort extends BasicDialog {
 	private ExportFile myExportFile;
 
 	private boolean isGroupBy;
-	private boolean hasCategories;
 	private boolean hasGrouping;
 
 	private transient SortData pdaSettings;
@@ -62,8 +61,7 @@ public class ConfigSort extends BasicDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(myExportFile.getName() + " " + GUIFactory.getText("menuSortOrder"));
 
 		switch (myExportFile) {
@@ -114,7 +112,7 @@ public class ConfigSort extends BasicDialog {
 
 		String guiText = "sortField";
 		isGroupBy = myExportFile.isSpecialFieldSort();
-		hasCategories = myExportFile == ExportFile.LIST;
+		boolean hasCategories = myExportFile == ExportFile.LIST;
 		hasGrouping = isGroupBy;
 
 		switch (myExportFile) {
@@ -130,6 +128,7 @@ public class ConfigSort extends BasicDialog {
 		case JSON:
 		case YAML:
 			guiText = "sortFieldJson";
+			break;
 		default:
 			break;
 		}
@@ -192,7 +191,7 @@ public class ConfigSort extends BasicDialog {
 		return result;
 	}
 
-	protected Component createBottomPanel() {
+	private Component createBottomPanel() {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		panel.add(GUIFactory.getJButton("apply", funcSave));
 		return panel;
@@ -266,6 +265,5 @@ public class ConfigSort extends BasicDialog {
 		if (hasGrouping) {
 			txRemainField.setEnabled(isShowRemainder);
 		}
-
 	}
 }

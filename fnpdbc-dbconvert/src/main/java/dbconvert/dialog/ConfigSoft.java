@@ -21,17 +21,16 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import application.dialog.BasicDialog;
-import application.dialog.ConfigCharset;
 import application.dialog.ConfigFilter;
 import application.dialog.ConfigSort;
 import application.dialog.ConfigTextFile;
+import application.dialog.HostConfig;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
 import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigSoft;
-import application.interfaces.IEncoding;
 import application.interfaces.TvBSoftware;
 import application.model.FilterData;
 import application.model.ProfileObject;
@@ -46,7 +45,7 @@ import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
 import dbengine.utils.DatabaseHelper;
 
-public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
+public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	/**
 	 * Title: ConfigXConverter Description: XConverter Configuration program
 	 * Copyright: (c) 2004-2020
@@ -59,9 +58,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 	private JTextField profile;
 	private JTextField fdDatabase;
-	private JTextField fdEncoding;
 
-	private JButton btEncoding;
 	private JButton btFilter;
 	private JButton btSortOrder;
 
@@ -74,14 +71,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
 
-	transient DatabaseHelper dbVerified = new DatabaseHelper("");
+	transient DatabaseHelper dbVerified = new DatabaseHelper("", ExportFile.ACCESS);
 
 	transient ScFieldSelect fieldSelect;
 	transient ScConfigDb configDb;
 
 	private ConfigTextFile textImport;
 	private boolean isNewProfile = false;
-	private String encoding;
 	private String myView;
 	private static final String FUNC_NEW = "funcNew";
 
@@ -102,8 +98,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
@@ -182,24 +177,21 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		bDatabase.addActionListener(e -> importFileChanged());
 		bDatabase.setPreferredSize(configDb.getComboBoxSize());
 
-		fdDatabase = new JTextField(isNewProfile ? "" : dbSettings.getDatabaseFile());
+		fdDatabase = new JTextField(isNewProfile ? "" : dbFactory.getDbInHelper().toString());
+		fdDatabase.setEnabled(!myImportFile.isConnectHost());
 		fdDatabase.getDocument().addDocumentListener(funcDocumentChange);
 
 		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
-			General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, "", true);
+			if (myImportFile.isConnectHost()) {
+				HostConfig config = new HostConfig(dbFactory.getDbInHelper());
+				config.setVisible(true);
+				if (config.isSaved()) {
+					fdDatabase.setText(dbFactory.getDbInHelper().toString());
+				}
+			} else {
+				General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, "", true);
+			}
 			verifyDatabase(false);
-		});
-
-		fdEncoding = new JTextField();
-		fdEncoding.setEditable(false);
-		encoding = pdaSettings.getImportFileEncoding();
-		setEncodingText();
-
-		btEncoding = GUIFactory.getJButton("funcEncoding", e -> {
-			ConfigCharset config = new ConfigCharset(ConfigSoft.this, ConfigSoft.this);
-			config.setVisible(true);
-			setEncodingText();
-			activateComponents();
 		});
 
 		lTablesWorkSheets = GUIFactory.getJLabel(myImportFile.isSpreadSheet() ? "worksheet" : "table");
@@ -208,10 +200,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		JPanel p2 = new JPanel(new GridBagLayout());
-		p2.add(btEncoding, c.gridCell(1, 0, 0, 0));
-		p2.add(fdEncoding, c.gridCell(2, 0, 2, 0));
-
 		JPanel gPanel = new JPanel(new GridBagLayout());
 		gPanel.add(bDatabase, c.gridCell(0, 0, 0, 0));
 		gPanel.add(fdDatabase, c.gridmultipleCell(1, 0, 2, 0, 4, 1));
@@ -219,8 +207,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 		gPanel.add(lTablesWorkSheets, c.gridCell(0, 1, 0, 0));
 		gPanel.add(bTablesWorksheets, c.gridCell(1, 1, 0, 0));
-		gPanel.add(p2, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
-		gPanel.add(textImport, c.gridmultipleCell(1, 4, 2, 0, 4, 1));
+		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
 		myView = isNewProfile ? "" : fdDatabase.getText().trim();
@@ -265,6 +252,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 		myImportFile = software;
 		dbVerified.setDatabase("");
+
+		lTablesWorkSheets.setText(GUIFactory.getText(myImportFile.isSpreadSheet() ? "worksheet" : "table"));
+		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? "worksheet" : "table"));
 		verifyDatabase(false);
 	}
 
@@ -276,10 +266,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 
 	@Override
 	public void verifyDatabase(boolean isFirstRun) {
+		DatabaseHelper helper = dbFactory.getDbInHelper();
+		helper.setDatabaseType(myImportFile);
+
 		if (isFirstRun) {
-			dbVerified = isNewProfile ? new DatabaseHelper("", "", "")
-					: new DatabaseHelper(dbSettings.getDatabaseFile(), dbSettings.getDatabaseUser(),
-							dbSettings.getDatabasePassword());
+			dbVerified = isNewProfile ? dbFactory.getNewDbInHelper(myImportFile) : helper;
 		} else {
 			String docValue = fdDatabase.getText();
 			if (!docValue.isEmpty()) {
@@ -289,11 +280,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 				}
 			}
 
-			if (dbVerified.getDatabase().equals(docValue)) {
+			if (dbVerified.toString().equals(docValue) && helper.equals(dbVerified)) {
 				return;
 			}
 
-			dbVerified = new DatabaseHelper(docValue, "", "");
+			dbVerified = helper;
+			if (!helper.getDatabaseType().isConnectHost()) {
+				dbVerified.setDatabase(docValue);
+			}
 		}
 
 		if (dbVerified.getDatabase().isEmpty()) {
@@ -301,8 +295,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		}
 
 		try {
-			if (General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
-				dbFactory.connect2DB(dbVerified, myImportFile);
+			if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
+				dbFactory.connect2DB(dbVerified);
 				dbFactory.setupDBTranslation(isNewProfile);
 				fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 			} else {
@@ -314,10 +308,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			dbFactory.close();
 		}
 		activateComponents();
-	}
-
-	private void setEncodingText() {
-		fdEncoding.setText(encoding.isEmpty() ? GUIFactory.getText("default") : encoding);
 	}
 
 	private void setTablesOrWorksheets() {
@@ -377,8 +367,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		}
 
 		dbSettings.setNode(node);
-		dbSettings.setDatabaseFile(dbVerified.getDatabase());
 		dbSettings.setDatabaseType(myImportFile.getName());
+		dbSettings.setDatabaseHost(dbVerified.getHost());
+		dbSettings.setDatabasePort(dbVerified.getPort());
+		dbSettings.setDatabaseFile(dbVerified.getDatabase());
 		dbSettings.setDatabaseUser(dbVerified.getUser());
 		dbSettings.setDatabasePassword(dbVerified.getPassword());
 
@@ -395,16 +387,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 		case CALC:
 		case EXCEL:
 		case ACCESS:
+		case MARIADB:
 		case SQLITE:
 			if (lTablesWorkSheets != null) {
 				pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), true);
 			}
+			break;
 		default:
 			break;
-		}
-
-		if (myImportFile.isEncodingSupported()) {
-			pdaSettings.setImportFileEncoding(encoding);
 		}
 
 		pdaSettings.setLastIndex(0);
@@ -420,19 +410,22 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 	@Override
 	public void activateComponents() {
 		boolean isTextFile = myImportFile == ExportFile.TEXTFILE;
-		boolean isEncoding = myImportFile.isEncodingSupported();
 		boolean isFileValid = false;
 		boolean isFurtherCheck = true;
 
 		String docValue = fdDatabase == null ? null : fdDatabase.getText().trim();
+		if (fdDatabase != null) {
+			fdDatabase.setEnabled(!myImportFile.isConnectHost());
+		}
 
-		if (docValue == null || docValue.isEmpty() || docValue.equals(dbVerified.getDatabase())) {
+		if (docValue == null || docValue.isEmpty() || docValue.equals(dbVerified.toString())) {
 			isFileValid = dbFactory.isConnected();
 			isFurtherCheck = false;
 		}
 
 		if (isFurtherCheck) {
-			isFileValid = General.isFileExtensionOk(docValue, myImportFile) && General.existFile(docValue);
+			isFileValid = myImportFile.isConnectHost()
+					|| General.isFileExtensionOk(docValue, myImportFile) && General.existFile(docValue);
 			if (isFileValid) {
 				verifyDatabase(false);
 				return;
@@ -472,19 +465,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft, IEncoding {
 			lTablesWorkSheets.setVisible(bTablesWorksheets.isVisible());
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
-			btEncoding.setVisible(isEncoding);
-			fdEncoding.setVisible(isEncoding);
-			setEncodingText();
 		}
-	}
-
-	@Override
-	public String getEncoding() {
-		return encoding;
-	}
-
-	@Override
-	public void setEncoding(String encoding) {
-		this.encoding = encoding;
 	}
 }

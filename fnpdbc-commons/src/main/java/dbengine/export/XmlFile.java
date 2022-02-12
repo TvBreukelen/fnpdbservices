@@ -1,10 +1,11 @@
-package dbengine;
+package dbengine.export;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,6 +30,8 @@ import org.w3c.dom.Element;
 
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
+import dbengine.GeneralDB;
+import dbengine.IConvert;
 import dbengine.utils.XmlReader;
 
 public class XmlFile extends GeneralDB implements IConvert {
@@ -56,7 +59,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myFilename);
+		outFile = new File(myDatabase);
 		this.isInputFile = isInputFile;
 
 		if (isInputFile) {
@@ -67,11 +70,10 @@ public class XmlFile extends GeneralDB implements IConvert {
 			SAXParser parser = parserFactory.newSAXParser();
 			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
 			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			parser.parse(myFilename, handler);
+			parser.parse(myDatabase, handler);
 		} else {
 			outFile.delete();
-			out = new BufferedWriter(
-					new OutputStreamWriter(new FileOutputStream(outFile), encoding.equals("") ? "UTF-8" : encoding));
+			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8));
 		}
 	}
 
@@ -213,7 +215,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 		try {
 			Transformer transformer = tf.newTransformer();
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-			transformer.setOutputProperty(OutputKeys.ENCODING, encoding.equals("") ? "UTF-8" : encoding);
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			StreamResult sr = new StreamResult(out);
 			transformer.transform(domSource, sr);
@@ -223,7 +225,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
+	public void readTableContents() throws Exception {
 		dbFieldNames = handler.getFieldNames();
 		dbFieldTypes = handler.getFieldTypes();
 		dbRecords = handler.getDbRecords();

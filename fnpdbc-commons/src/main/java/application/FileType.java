@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum FileType {
-	JSON(" Json (*.json)"), PDB(" Palm or Pocket PC database (*.pdb)"), TXT(" textfile (*.csv, *.txt)"),
-	XLSX(" MS-Excel (*.xls, *.xlsx)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
-	DBF(" Dbase or FoxPro file (*.dbf)"), XML(" XML File (*.xml)"), MDB(" MS Access Database (*.mdb, *.accdb)"),
-	YAML(" Yaml (*.yml, *.yaml)");
+	JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
+	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
+	DBF(" Dbase or FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
+	MDB(" MS Access Database (*.mdb, *.accdb)"), YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
-	private FileType(String name) {
+	FileType(String name) {
 		this.name = name;
 	}
 
@@ -26,11 +26,12 @@ public enum FileType {
 			break;
 		case TXT:
 			result.add(".csv");
+			result.add(".tsv");
 			result.add(".txt");
 			break;
 		case XLSX:
-			result.add(".xls");
 			result.add(".xlsx");
+			result.add(".xls");
 			break;
 		case ODS:
 			result.add(".ods");
@@ -54,6 +55,8 @@ public enum FileType {
 		case YAML:
 			result.add(".yml");
 			result.add(".yaml");
+			break;
+		case HOST:
 			break;
 		}
 		return result;

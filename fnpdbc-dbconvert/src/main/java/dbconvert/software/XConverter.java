@@ -50,7 +50,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
 
-	private String[] dbFilterFields; // All fields that can be filtered or sorted
+	private String[] dbFilterFields = new String[0]; // All fields that can be filtered or sorted
 	private List<FieldDefinition> dbSelectFields; // All fields that can be exported
 	private Map<String, Object> dbDataRecord = new HashMap<>(); // database record
 
@@ -67,29 +67,39 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public XConverter() {
 		super(PrefDBConvert.getInstance());
 		Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
-		dbInHelper = new DatabaseHelper(dbSettings.getDatabaseFile(), dbSettings.getDatabaseUser(),
-				dbSettings.getDatabasePassword());
+		dbInHelper = new DatabaseHelper(dbSettings);
 
 		myFile = new String[2];
 		myFile[0] = dbSettings.getDatabaseFile();
 		myFile[1] = pdaSettings.getExportFile();
 
 		dbDataRecord.clear();
-		myImportFile = ExportFile.getExportFile(dbSettings.getDatabaseType());
+		myImportFile = dbInHelper.getDatabaseType();
 		support = new PropertyChangeSupport(this);
 	}
 
 	// Called via ConfigSoft.verifyDatabase
-	public void connect2DB(DatabaseHelper helper, ExportFile importFile) throws Exception {
+	public void connect2DB(DatabaseHelper helper) throws Exception {
 		close();
 		dbInHelper = helper;
 		myFile[0] = helper.getDatabase();
-		myImportFile = importFile;
+		myImportFile = helper.getDatabaseType();
 		connect2DB();
 	}
 
+	public DatabaseHelper getDbInHelper() {
+		dbInHelper = dbInHelper.createCopy();
+		return dbInHelper;
+	}
+
+	public DatabaseHelper getNewDbInHelper(ExportFile importFile) {
+		myImportFile = importFile;
+		dbInHelper = new DatabaseHelper("", importFile);
+		return dbInHelper;
+	}
+
 	public void connect2DB() throws Exception {
-		if (!General.existFile(myFile[0])) {
+		if (!myImportFile.isConnectHost() && !General.existFile(myFile[0])) {
 			throw FNProgException.getException("noDatabaseExists", myFile[0]);
 		}
 
@@ -104,7 +114,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		dbIn.openFile(dbInHelper, true);
 
 		isInputFileOpen = true;
-		dbIn.verifyDatabase(null);
+		dbIn.readTableContents();
 	}
 
 	@Override
@@ -346,7 +356,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void openToFile() throws Exception {
 		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(myFile[1]), false);
+		dbOut.openFile(new DatabaseHelper(myFile[1], myExportFile), false);
 		isOutputFileOpen = true;
 	}
 

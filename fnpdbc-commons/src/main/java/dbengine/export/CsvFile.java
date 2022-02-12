@@ -50,9 +50,9 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myFilename);
+		outFile = new File(myDatabase);
 		exportFiles = new ArrayList<>();
-		exportFiles.add(myFilename);
+		exportFiles.add(myDatabase);
 		useNoLineBreaks = !myPref.isUseLinebreak();
 
 		this.isInputFile = isInputFile;
@@ -72,7 +72,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
+	public void readTableContents() throws Exception {
 		schema = mapper.schemaWithHeader() //
 				.withColumnSeparator(myPref.getImportFieldSeparator().charAt(0)) //
 				.withQuoteChar(myPref.getImportTextDelimiter().charAt(0));
@@ -98,7 +98,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 			});
 		} catch (Exception ex) {
-			throw FNProgException.getException("noFields", myFilename);
+			throw FNProgException.getException("noFields", myDatabase);
 		}
 	}
 
@@ -161,10 +161,10 @@ public class CsvFile extends GeneralDB implements IConvert {
 		// Check if we have to create a new output file
 		if (maxSize <= fileSize) {
 			StringBuilder buf = new StringBuilder();
-			buf.append(myFilename.substring(0, myFilename.lastIndexOf('.')));
+			buf.append(myDatabase.substring(0, myDatabase.lastIndexOf('.')));
 			buf.append("_");
 			buf.append(fileCounter++);
-			buf.append(myFilename.substring(myFilename.lastIndexOf('.')));
+			buf.append(myDatabase.substring(myDatabase.lastIndexOf('.')));
 
 			outFile = new File(buf.toString());
 			exportFiles.add(buf.toString());

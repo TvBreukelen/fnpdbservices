@@ -4,14 +4,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.prefs.Preferences;
 
-import application.interfaces.IEncoding;
 import application.utils.General;
 
 /**
  * @author van_breukelen
  *
  */
-public final class GeneralSettings implements IEncoding {
+public final class GeneralSettings {
 	private final String userHome = System.getProperty("user.home", "");
 
 	private String checkBoxChecked;
@@ -24,7 +23,6 @@ public final class GeneralSettings implements IEncoding {
 	private String defaultImageFolder;
 	private String defaultPdaFolder;
 	private String durationFormat;
-	private String encoding;
 	private String fnpVersion;
 	private String handbaseConversionProgram;
 	private String language;
@@ -58,7 +56,6 @@ public final class GeneralSettings implements IEncoding {
 		defaultImageFolder = myPref.get("default.image.folder", userHome);
 		defaultPdaFolder = myPref.get("default.pda.folder", userHome);
 		durationFormat = myPref.get("duration.format", "h:mm:ss");
-		encoding = myPref.get("encoding.charset", "");
 		fnpVersion = myPref.get("fnprog2pda.version", "");
 		handbaseConversionProgram = myPref.get("handbase.conversion.program", "");
 		language = myPref.get("language", "English");
@@ -168,17 +165,6 @@ public final class GeneralSettings implements IEncoding {
 	public void setDurationFormat(String durationFormat) {
 		PrefUtils.writePref(myPref, "duration.format", durationFormat, this.durationFormat, "H:mm:ss");
 		this.durationFormat = durationFormat;
-	}
-
-	@Override
-	public String getEncoding() {
-		return encoding;
-	}
-
-	@Override
-	public void setEncoding(String encoding) {
-		PrefUtils.writePref(myPref, "encoding.charset", encoding, this.encoding, "");
-		this.encoding = encoding;
 	}
 
 	public String getHandbaseConversionProgram() {
@@ -314,7 +300,6 @@ public final class GeneralSettings implements IEncoding {
 		buf.append(checkBoxUnchecked);
 		buf.append(dateDelimiter);
 		buf.append(dateFormat);
-		buf.append(encoding);
 		buf.append(durationFormat);
 		buf.append(isIncrementalExport);
 		buf.append(isNoFilterExport);

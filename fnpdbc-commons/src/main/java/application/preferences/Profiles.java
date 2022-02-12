@@ -11,18 +11,16 @@ import java.util.prefs.Preferences;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FilterOperator;
-import application.interfaces.IEncoding;
 import application.interfaces.TvBSoftware;
 import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.General;
 
-public abstract class Profiles extends Project implements IEncoding {
+public abstract class Profiles extends Project {
 	// General Settings
 	private String categoryField = "";
 	private String contentsFilter = "";
 	private String databaseFromFile;
-	private String encoding = "";
 	private String exportFile = "";
 	private String exportUser;
 	private String exportPassword;
@@ -77,7 +75,6 @@ public abstract class Profiles extends Project implements IEncoding {
 	private boolean useLinebreak;
 
 	private Preferences child;
-	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 
 	protected Profiles(TvBSoftware software) {
 		super(software);
@@ -94,7 +91,6 @@ public abstract class Profiles extends Project implements IEncoding {
 		pdaDatabaseName = child.get("pda.database.name", "");
 
 		contentsFilter = child.get("contents.filter", "");
-		encoding = child.get("encoding.charset", generalSettings.getEncoding());
 		exportFile = child.get("export.file", "");
 		exportUser = child.get("export.user", "");
 		exportPassword = child.get("export.password", "");
@@ -287,17 +283,6 @@ public abstract class Profiles extends Project implements IEncoding {
 	public void setCreateBackup(boolean createBackup) {
 		PrefUtils.writePref(child, "create.backup", createBackup, this.createBackup, false);
 		this.createBackup = createBackup;
-	}
-
-	@Override
-	public String getEncoding() {
-		return encoding;
-	}
-
-	@Override
-	public void setEncoding(String encoding) {
-		PrefUtils.writePref(child, "encoding.charset", encoding, this.encoding, generalSettings.getEncoding());
-		this.encoding = encoding;
 	}
 
 	public boolean isExportImages() {
@@ -645,14 +630,6 @@ public abstract class Profiles extends Project implements IEncoding {
 
 	public void setImportTextFileFormat(String textFormat) {
 		getDbSettings().setTextFileFormat(textFormat);
-	}
-
-	public String getImportFileEncoding() {
-		return getDbSettings().getEncoding();
-	}
-
-	public void setImportFileEncoding(String encoding) {
-		getDbSettings().setEncoding(encoding);
 	}
 
 	// General Methods

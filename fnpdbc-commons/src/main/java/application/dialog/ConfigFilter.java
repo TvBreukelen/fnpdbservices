@@ -107,8 +107,7 @@ public class ConfigFilter extends BasicDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(pdaSettings.getProfileID() + " " + GUIFactory.getText("menuFilter"));
 		setHelpFile("exportfilter");
 

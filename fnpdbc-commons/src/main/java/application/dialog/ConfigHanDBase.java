@@ -104,7 +104,7 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 			autoInstallUser.setText(pdaSettings.getAutoInstUser());
 		}
 
-		userLabel = GUIFactory.getJLabel("palmUser");
+		userLabel = GUIFactory.getJLabel("user");
 		p2.add(autoInstallAllUsers, c.gridCell(0, 0, 0, 0));
 		p2.add(userLabel, c.gridCell(0, 1, 0, 0));
 		p2.add(autoInstallUser, c.gridCell(1, 1, 0, 0));
@@ -115,11 +115,12 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		selectFile = GUIFactory.getJTextField("selectFile", generalSettings.getHandbaseConversionProgram());
 		p2 = new JPanel(new GridBagLayout());
 		p2.add(selectFile, c.gridCell(0, 0, 2, 0));
-		
+
 		List<String> ext = new ArrayList<>();
 		ext.add(".exe");
-		p2.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile((JDialog) dialog, selectFile, "Windows program (*.exe)", "",
-				true, ext)), c.gridCell(1, 0, 0, 0));
+		p2.add(GUIFactory.getJButton("browse",
+				e -> General.getSelectedFile((JDialog) dialog, selectFile, "Windows program (*.exe)", "", true, ext)),
+				c.gridCell(1, 0, 0, 0));
 		p2.setBorder(BorderFactory.createTitledBorder("handbasedesktop.exe"));
 		add(p2);
 	}

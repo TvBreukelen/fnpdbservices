@@ -5,27 +5,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import application.interfaces.IEncoding;
 import application.interfaces.TvBSoftware;
 
-public class Databases implements IEncoding {
+public class Databases {
 	private String databaseID = "";
 	private String databaseFile = "";
+	private String databaseHost = "";
 	private String databasePassword = "";
 	private String databaseUser = "";
 	private String databaseType = "";
 	private String databaseVersion = "";
+	private int databasePort = 0;
 
 	// For the import of Text files
 	private String fieldSeparator = ",";
 	private String textDelimiter = "\"";
 	private String textFileFormat = "";
-	private String encoding = "";
 
 	private static final String DB_FILE = "database.file";
 
 	private TvBSoftware mySoftware;
-	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 	private Map<String, String> nodes = new HashMap<>();
 
 	protected Preferences myPref;
@@ -61,6 +60,8 @@ public class Databases implements IEncoding {
 		this.databaseID = databaseID;
 		databaseFile = myPref.get(DB_FILE, "");
 		databasePassword = myPref.get("database.password", "");
+		databaseHost = myPref.get("database.host", "");
+		databasePort = myPref.getInt("database.port", 0);
 		databaseType = myPref.get("database.type", "");
 		databaseUser = myPref.get("database.user", "");
 		databaseVersion = myPref.get("database.version", "");
@@ -68,7 +69,6 @@ public class Databases implements IEncoding {
 		fieldSeparator = myPref.get("field.separator", ",");
 		textDelimiter = myPref.get("text.delimiter", "\"");
 		textFileFormat = myPref.get("textfile.format", "");
-		encoding = myPref.get("encoding.charset", generalSettings.getEncoding());
 	}
 
 	public void deleteNode(String databaseID) {
@@ -134,6 +134,24 @@ public class Databases implements IEncoding {
 		this.databaseUser = databaseUser;
 	}
 
+	public String getDatabaseHost() {
+		return databaseHost;
+	}
+
+	public void setDatabaseHost(String databaseHost) {
+		PrefUtils.writePref(myPref, "database.host", databaseHost, this.databaseHost, "");
+		this.databaseHost = databaseHost;
+	}
+
+	public int getDatabasePort() {
+		return databasePort;
+	}
+
+	public void setDatabasePort(int databasePort) {
+		PrefUtils.writePref(myPref, "database.port", databasePort, this.databasePort, 0);
+		this.databasePort = databasePort;
+	}
+
 	public String getDatabaseType() {
 		return databaseType;
 	}
@@ -172,17 +190,6 @@ public class Databases implements IEncoding {
 
 	public String getTextFileFormat() {
 		return textFileFormat;
-	}
-
-	@Override
-	public String getEncoding() {
-		return encoding;
-	}
-
-	@Override
-	public void setEncoding(String encoding) {
-		PrefUtils.writePref(myPref, "encoding.charset", encoding, this.encoding, "");
-		this.encoding = encoding;
 	}
 
 	public void setTextFileFormat(String textfileFormat) {

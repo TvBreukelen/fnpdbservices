@@ -21,8 +21,6 @@ public interface IConvert {
 
 	String getPdaDatabase();
 
-	void verifyDatabase(List<FieldDefinition> newFields) throws Exception;
-
 	List<FieldDefinition> getTableModelFields() throws Exception;
 
 	List<String> getTableOrSheetNames();
@@ -30,6 +28,8 @@ public interface IConvert {
 	int getTotalRecords();
 
 	Map<String, Object> readRecord() throws Exception;
+
+	void readTableContents() throws Exception;
 
 	void closeFile();
 }

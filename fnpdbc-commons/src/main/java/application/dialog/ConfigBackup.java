@@ -29,8 +29,7 @@ public class ConfigBackup extends BasicDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(GUIFactory.getText(isBackup ? "funcBackup" : "funcRestore"));
 		btSave.setEnabled(false);
 		btHelp.setVisible(false);

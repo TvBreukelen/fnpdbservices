@@ -35,8 +35,7 @@ public class ConfigClone extends BasicDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(GUIFactory.getTitle("funcClone") + ": " + project.getProfileID());
 		setHelpFile("cloneprofile");
 

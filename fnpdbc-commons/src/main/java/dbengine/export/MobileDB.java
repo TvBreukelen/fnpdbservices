@@ -94,6 +94,7 @@ public class MobileDB extends PalmDB {
 				if (isNoTextExport) {
 					fieldTypes[i] = "d";
 				}
+				break;
 			default:
 				break;
 			}
@@ -184,7 +185,7 @@ public class MobileDB extends PalmDB {
 			FieldDefinition field = dbInfo2Write.get(i);
 			String dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString();
 			pdbDas.writeShort(i);
-			pdbDas.write(General.convertString2Bytes(dbField, encoding));
+			pdbDas.write(General.convertString2Bytes(dbField, PalmDB.CODE_PAGE));
 		}
 
 		pdbDas.write(RECORD_FOOTER);
@@ -258,10 +259,10 @@ public class MobileDB extends PalmDB {
 	private List<String> getRecordFields(int[] pRecordID) throws Exception {
 		List<String> result = new ArrayList<>();
 		int[] recordID = pRecordID == null ? setPointer2NextRecord() : pRecordID;
-		byte[] record = new byte[recordID[2] - (recordID[0] + 7)];
+		byte[] bytes = new byte[recordID[2] - (recordID[0] + 7)];
 		skipBytes(6);
-		readLn(record);
-		String s = General.convertBytes2String(record, encoding);
+		readLn(bytes);
+		String s = General.convertBytes2String(bytes, PalmDB.CODE_PAGE);
 
 		final int MAX = s.length();
 		int[] index = new int[2];

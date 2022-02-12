@@ -58,11 +58,6 @@ public class ConfigGeneral extends BasicDialog {
 	private static final String[] DATE_DELIMITERS = { "", " ", "/", "-", ".", "," };
 
 	public ConfigGeneral() {
-		init();
-	}
-
-	@Override
-	protected void init() {
 		init(GUIFactory.getTitle("configGeneral"));
 		setHelpFile("general");
 

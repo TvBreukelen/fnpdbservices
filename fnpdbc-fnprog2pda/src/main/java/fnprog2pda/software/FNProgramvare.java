@@ -41,9 +41,9 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
 import dbengine.GeneralDB;
-import dbengine.MSAccess;
 import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
+import dbengine.export.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
 import fnprog2pda.preferences.PrefFNProg;
@@ -223,7 +223,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	public void openToFile() throws Exception {
 		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile()), false);
+		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile(), myExportFile), false);
 		isOutputFileOpen = true;
 	}
 
@@ -233,15 +233,15 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	/* Method to connect to the FNProgramvare Access database */
 	public void openFile() throws Exception {
-		dbFactory.connect2DB(new DatabaseHelper(dbSettings.getDatabaseFile(), dbSettings.getDatabaseUser(),
-				dbSettings.getDatabasePassword()));
+		dbFactory.connect2DB(new DatabaseHelper(dbSettings));
 		dbFactory.verifyDatabase(dbSettings.getDatabaseFile());
 		dbFactory.loadConfiguration(pdaSettings.getTableName());
+
 		isInputFileOpen = true;
 		isCatraxx = dbFactory.getDatabaseType() == FNPSoftware.CATRAXX;
 
 		// Get the total number of records to process
-		dbFactory.getMSAccess().verifyDatabase(null);
+		dbFactory.getMSAccess().readTableContents();
 		msAccess = dbFactory.getMSAccess();
 		msAccess.setSoftware(this);
 		totalRecords = msAccess.getTotalRecords();

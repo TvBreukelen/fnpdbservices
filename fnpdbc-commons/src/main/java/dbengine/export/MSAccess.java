@@ -1,4 +1,4 @@
-package dbengine;
+package dbengine.export;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +27,8 @@ import application.preferences.Profiles;
 import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
+import dbengine.GeneralDB;
+import dbengine.IConvert;
 import dbengine.utils.MSTable;
 
 public class MSAccess extends GeneralDB implements IConvert {
@@ -47,7 +49,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
 		// For the moment we only open the database file for input
-		database = DatabaseBuilder.open(new File(myFilename));
+		database = DatabaseBuilder.open(new File(myDatabase));
 		String error = "";
 
 		try {
@@ -323,7 +325,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
+	public void readTableContents() throws Exception {
 		table = database.getTable(myTable);
 		myTotalRecords = table.getRowCount();
 	}

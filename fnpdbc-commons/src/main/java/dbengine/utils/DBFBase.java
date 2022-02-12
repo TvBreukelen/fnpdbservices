@@ -1,5 +1,5 @@
 /*
- * $Id: DBFBase.java,v 1.3 2004/03/31 15:59:40 anil Exp $ Serves as the base class of DBFReader adn DBFWriter.
+ * $Id: DBFBase.java,v 1.3 2004/03/31 15:59:40 anil Exp $ Serves as the base class of DBFReader and DBFWriter.
  *
  * @author: anil@linuxense.com
  *
@@ -27,18 +27,21 @@ public abstract class DBFBase {
 	}
 
 	public void setCharactersetName(String characterSet) {
-		characterSetName = characterSet;
+		if (!characterSet.isEmpty()) {
+			characterSetName = characterSet;
+		}
+
 		if (!(this instanceof DBFMemo) && memo != null) {
-			memo.setCharactersetName(characterSet);
+			memo.setCharactersetName(characterSetName);
 		}
 	}
 
 	public int getFieldCount() {
 		return header.fieldArray.length;
 	}
-	
+
 	public DBFField getFields(int i) {
 		return header.fieldArray[i];
 	}
-	
+
 }

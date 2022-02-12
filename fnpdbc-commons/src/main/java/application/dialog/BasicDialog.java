@@ -151,6 +151,4 @@ public abstract class BasicDialog extends JDialog {
 	}
 
 	protected abstract Component createCenterPanel();
-
-	protected abstract void init();
 }

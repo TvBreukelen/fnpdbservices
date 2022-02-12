@@ -1,4 +1,4 @@
-package dbengine;
+package dbengine.export;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
+import dbengine.GeneralDB;
+import dbengine.IConvert;
 
 public class JsonFile extends GeneralDB implements IConvert {
 	private File outFile;
@@ -36,31 +38,33 @@ public class JsonFile extends GeneralDB implements IConvert {
 		mapper = new ObjectMapper();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myFilename);
+		outFile = new File(myDatabase);
 		myCurrentRecord = 0;
 
 		this.isInputFile = isInputFile;
-		if (isInputFile) {
-			Map<String, Object> map = mapper.readValue(outFile, Map.class);
-			if (!map.isEmpty()) {
-				Entry<String, Object> entry = map.entrySet().iterator().next();
-				dbName = entry.getKey();
-				if (entry.getValue() instanceof List) {
-					writeList = (List<Map<String, Object>>) entry.getValue();
-					myTotalRecords = writeList.size();
-					getDBFieldNamesAndTypes();
-				} else if (entry.getValue() instanceof Map) {
-					writeList.add((Map<String, Object>) entry.getValue());
-					myTotalRecords = 1;
-					getDBFieldNamesAndTypes();
-				} else {
-					writeList.add(map);
-					myTotalRecords = 1;
-					getDBFieldNamesAndTypes();
-				}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void readTableContents() throws Exception {
+		Map<String, Object> map = mapper.readValue(outFile, Map.class);
+		if (!map.isEmpty()) {
+			Entry<String, Object> entry = map.entrySet().iterator().next();
+			dbName = entry.getKey();
+			if (entry.getValue() instanceof List) {
+				writeList = (List<Map<String, Object>>) entry.getValue();
+				myTotalRecords = writeList.size();
+				getDBFieldNamesAndTypes();
+			} else if (entry.getValue() instanceof Map) {
+				writeList.add((Map<String, Object>) entry.getValue());
+				myTotalRecords = 1;
+				getDBFieldNamesAndTypes();
+			} else {
+				writeList.add(map);
+				myTotalRecords = 1;
+				getDBFieldNamesAndTypes();
 			}
 		}
 	}
@@ -248,11 +252,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 		}
 
 		remainderGroup = myPref.getRemainingField().isEmpty() ? "Values" : myPref.getRemainingField();
-	}
-
-	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
-		// Not used
 	}
 
 	@Override

@@ -45,11 +45,6 @@ public class Viewer extends BasicDialog {
 	}
 
 	public void buildViewer() {
-		init();
-	}
-
-	@Override
-	protected void init() {
 		funcRestoreValues = e -> {
 			if (isModelSaved) {
 				restoreOldValues();

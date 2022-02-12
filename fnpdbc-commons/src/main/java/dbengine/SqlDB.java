@@ -15,11 +15,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import dbengine.utils.DatabaseHelper;
+import application.utils.General;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
 	private String myTable;
@@ -30,7 +31,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private List<String> aTables;
 
 	private Connection connection;
-	private DatabaseMetaData metaData;
 	private ResultSet dbResultSet;
 	private Statement dbStatement;
 
@@ -41,43 +41,24 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
 		// Try to obtain the database connection
-		connection = openDatabase();
-		getDBFieldNamesAndTypes();
-
-		myTable = myPref.getTableName();
-		if (myTable.isEmpty() || !aTables.contains(myTable)) {
-			myTable = aTables.get(0);
-			myPref.setTableName(myTable, false);
-		}
-	}
-
-	// Called from DatabaseFactory (FNProg2PDA)
-	public Connection openDatabase(DatabaseHelper helper) throws Exception {
-		myDatabaseHelper = helper;
-		return openDatabase();
-	}
-
-	// Called directly from XConvert (DBConvert)
-	public Connection openDatabase() throws Exception {
 		if (isConnected) {
 			closeFile();
 		}
 
 		// Try to obtain the database connection
-		String[] connectionStrings = getConnectionStrings();
-		try {
-			Class.forName(connectionStrings[0]);
-		} catch (ClassNotFoundException e) {
-			FNProgException.getFatalException("driverNotFound", connectionStrings[0]);
-		}
+		String url = myDatabaseHelper.getDatabaseType() == ExportFile.MARIADB
+				? "jdbc:mariadb://" + myDatabaseHelper.toString()
+				: "jdbc:sqlite:" + myDatabase;
 
-		connection = DriverManager.getConnection(connectionStrings[1]);
-		metaData = connection.getMetaData();
+		String user = myDatabaseHelper.getUser();
+		String password = General.decryptPassword(myDatabaseHelper.getPassword());
+
+		connection = DriverManager.getConnection(url, user, password);
 		isConnected = true;
-		return connection;
 	}
 
-	private void getDBFieldNamesAndTypes() {
+	@Override
+	public void readTableContents() throws Exception {
 		// read all tables in the database
 		hTables = new HashMap<>();
 		aTables = new ArrayList<>();
@@ -85,8 +66,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		int index = 0;
 
 		try {
+			DatabaseMetaData metaData = connection.getMetaData();
 			ResultSet rs = metaData.getTables(null, null, "%", null);
 			while (rs.next()) {
+				String tableCat = rs.getString("TABLE_CAT");
+				if (tableCat != null && !tableCat.equals(myDatabase)) {
+					continue;
+				}
+
 				String table = rs.getString(3);
 				ResultSet columns;
 				try {
@@ -102,7 +89,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					fieldDef.setSQLType(columns.getInt(5));
 
 					String type = columns.getString(6);
-					if (!(type.isEmpty() || type.equals("TEXT"))) {
+					if (!(type.isEmpty() || type.equals("TEXT") || type.equals("VARCHAR"))) {
 						if (!(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
 							continue;
 						}
@@ -118,6 +105,19 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} catch (Exception e) {
 			// should not occur
 		}
+
+		if (aTables.isEmpty()) {
+			throw FNProgException.getException("noTablesFound", "");
+		}
+
+		myTable = myPref.getTableName();
+		if (myTable.isEmpty() || !aTables.contains(myTable)) {
+			myTable = aTables.get(0);
+			myPref.setTableName(myTable, false);
+		}
+
+		Object obj = getFieldObject("SELECT COUNT(*) FROM " + myTable);
+		myTotalRecords = Integer.parseInt(obj.toString());
 	}
 
 	private boolean setFieldType(FieldDefinition field) {
@@ -216,12 +216,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return new ArrayList<>();
 		}
 		return aTables;
-	}
-
-	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
-		Object obj = getFieldObject("SELECT COUNT(*) FROM " + myTable);
-		myTotalRecords = Integer.parseInt(obj.toString());
 	}
 
 	@Override
@@ -368,8 +362,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
 	}
-
-	protected abstract String[] getConnectionStrings();
 
 	protected abstract Object getObject(int colType, int colNo, ResultSet rs) throws Exception;
 }

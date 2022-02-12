@@ -24,10 +24,14 @@ import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
 import dbengine.export.HanDBase;
 import dbengine.export.JFile;
+import dbengine.export.JsonFile;
 import dbengine.export.ListDB;
+import dbengine.export.MSAccess;
+import dbengine.export.MariaDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
 import dbengine.export.SQLite;
+import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
 import dbengine.utils.DatabaseHelper;
 
@@ -41,10 +45,9 @@ public abstract class GeneralDB {
 	 */
 	protected BasicSoft mySoft;
 	protected DatabaseHelper myDatabaseHelper;
-	protected String myFilename;
+	protected String myDatabase;
 	protected String booleanTrue;
 	protected String booleanFalse;
-	protected String encoding;
 
 	protected List<FieldDefinition> dbInfo2Write = new ArrayList<>();
 	protected List<String> dbFieldNames = new ArrayList<>();
@@ -87,7 +90,6 @@ public abstract class GeneralDB {
 		createBackup = myPref.isCreateBackup();
 		useAppend = myPref.isAppendRecords();
 		useImages = myPref.isExportImages();
-		encoding = myPref.getEncoding(); // Output file encoding
 
 		hasBackup = false;
 		isInputFile = false;
@@ -115,16 +117,14 @@ public abstract class GeneralDB {
 			throw FNProgException.getException("noDatabaseDefined");
 		}
 
-		myFilename = helper.getDatabase();
-		if (isInputFile && !General.existFile(myFilename)) {
-			throw FNProgException.getException("noDatabaseExists", myFilename);
+		myDatabase = helper.getDatabase();
+		if (isInputFile && helper.getHost().isEmpty() && !General.existFile(myDatabase)) {
+			throw FNProgException.getException("noDatabaseExists", myDatabase);
 		}
 
 		hasBackup = false;
-		if (isInputFile) {
-			encoding = myPref.getImportFileEncoding(); // Input file encoding
-		} else if (createBackup) {
-			hasBackup = General.copyFile(myFilename, myFilename + ".bak");
+		if (!isInputFile && createBackup) {
+			hasBackup = General.copyFile(myDatabase, myDatabase + ".bak");
 		}
 
 		myDatabaseHelper = helper;
@@ -133,10 +133,10 @@ public abstract class GeneralDB {
 		try {
 			openFile(isInputFile);
 		} catch (EOFException e) {
-			exception = FNProgException.getException("fileOpenError", myFilename,
+			exception = FNProgException.getException("fileOpenError", myDatabase,
 					"Cannot read file beyond EOF (File is empty or corrupt)");
 		} catch (Exception e) {
-			exception = FNProgException.getException("fileOpenError", myFilename, e.getMessage());
+			exception = FNProgException.getException("fileOpenError", myDatabase, e.getMessage());
 		}
 
 		if (exception != null) {
@@ -281,6 +281,8 @@ public abstract class GeneralDB {
 			return new Calc(profile);
 		case JSON:
 			return new JsonFile(profile);
+		case MARIADB:
+			return new MariaDB(profile);
 		case YAML:
 			return new YamlFile(profile);
 		case HANDBASE:
@@ -319,13 +321,13 @@ public abstract class GeneralDB {
 
 	public void deleteFile() {
 		closeFile();
-		File outFile = new File(myFilename);
+		File outFile = new File(myDatabase);
 
 		if (outFile.exists()) {
 			outFile.delete();
 		}
 		if (hasBackup) {
-			File backupFile = new File(myFilename + ".bak");
+			File backupFile = new File(myDatabase + ".bak");
 			backupFile.renameTo(outFile);
 		}
 	}
@@ -333,4 +335,6 @@ public abstract class GeneralDB {
 	public abstract void processData(Map<String, Object> dbRecord) throws Exception;
 
 	public abstract void createDbHeader() throws Exception;
+
+	public abstract void readTableContents() throws Exception;
 }

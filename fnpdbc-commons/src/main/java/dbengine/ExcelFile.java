@@ -57,7 +57,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myFilename);
+		outFile = new File(myDatabase);
 
 		this.isInputFile = isInputFile;
 		if (isInputFile) {
@@ -76,7 +76,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 				}
 			}
 		} else {
-			boolean isXlsx = myFilename.toLowerCase().endsWith("x");
+			boolean isXlsx = myDatabase.toLowerCase().endsWith("x");
 			wb = isXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
 			String sheetName = myPref.getPdaDatabaseName();
 			sheet = wb.createSheet(sheetName.isEmpty() ? "Sheet1" : sheetName);
@@ -186,15 +186,15 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
+	public void readTableContents() throws Exception {
 		getCurrentSheet();
 		if (sheet == null) {
-			throw FNProgException.getException("noSheets", myFilename);
+			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
 		myTotalRecords = sheet.getLastRowNum() + 1; // Rows start with Row number 0
 		if (myTotalRecords < 2) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), myFilename);
+			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), myDatabase);
 		}
 	}
 

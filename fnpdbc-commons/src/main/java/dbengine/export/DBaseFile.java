@@ -35,7 +35,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		String memoF = myFilename.substring(0, myFilename.length() - 3);
+		String memoF = myDatabase.substring(0, myDatabase.length() - 3);
 
 		if (isInputFile) {
 			memoF += myImportFile == ExportFile.FOXPRO ? "fpt" : "dbt";
@@ -43,7 +43,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			memoF += myExportFile == ExportFile.FOXPRO ? "fpt" : "dbt";
 		}
 
-		outFile = new File(myFilename);
+		outFile = new File(myDatabase);
 		memoFile = new File(memoF);
 
 		if (hasBackup) {
@@ -64,13 +64,12 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		this.isInputFile = isInputFile;
 
 		if (isInputFile) {
-			in = new FileInputStream(myFilename);
+			in = new FileInputStream(myDatabase);
 			reader = new DBFReader(in, memoFile);
-			getOEMEncoding();
-			reader.setCharactersetName(encoding);
+			reader.setCharactersetName(getOEMEncoding());
 		} else {
 			writer = new DBFWriter(outFile, memoFile);
-			writer.setCharactersetName(encoding);
+			writer.setCharactersetName("");
 		}
 	}
 
@@ -227,7 +226,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		}
 
 		if (hasBackup) {
-			File backupFile = new File(myFilename + ".bak");
+			File backupFile = new File(myDatabase + ".bak");
 			backupFile.renameTo(outFile);
 
 			backupFile = new File(memoFile.getAbsoluteFile() + ".bak");
@@ -296,15 +295,15 @@ public class DBaseFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void verifyDatabase(List<FieldDefinition> newFields) throws Exception {
+	public void readTableContents() throws Exception {
 		numFields = reader.getFieldCount();
 		if (numFields < 1) {
-			throw FNProgException.getException("noFields", myFilename);
+			throw FNProgException.getException("noFields", myDatabase);
 		}
 
 		myTotalRecords = reader.getRecordCount();
 		if (reader.getRecordCount() < 1) {
-			throw FNProgException.getException("noRecords", myFilename);
+			throw FNProgException.getException("noRecords", myDatabase);
 		}
 
 		dbFieldNames.clear();
@@ -340,12 +339,12 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		}
 	}
 
-	private void getOEMEncoding() {
+	private String getOEMEncoding() {
 		byte languageDriver = reader.getDBFHeader().getLanguageDriver();
 		Properties properties = General.getProperties(myImportFile == ExportFile.FOXPRO ? "foxpro" : "dBase");
 		String result = properties.getProperty(Byte.toString(languageDriver), "");
 		if (result.isEmpty()) {
-			return;
+			return "";
 		}
 
 		String[] charset = result.split(",");
@@ -354,18 +353,10 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		result = "";
 		for (String cSet : charSets) {
 			if (cSet.equals(charset[1])) {
-				result = cSet;
-				break;
+				return cSet;
 			}
 		}
 
-		if (result.isEmpty()) {
-			return;
-		}
-
-		if (!result.equals(encoding)) {
-			myPref.setEncoding(result);
-			encoding = result;
-		}
+		return result;
 	}
 }

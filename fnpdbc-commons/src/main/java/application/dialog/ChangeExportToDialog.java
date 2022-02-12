@@ -37,8 +37,7 @@ public class ChangeExportToDialog extends BasicDialog {
 		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		init(GUIFactory.getTitle("changeExportFileDialog"));
 		setHelpFile("changeExportFile");
 		exportFilename = project.getExportFile();
@@ -58,10 +57,11 @@ public class ChangeExportToDialog extends BasicDialog {
 		exportTo.getDocument().addDocumentListener(funcDocumentChange);
 
 		Dimension dim = exportTo.getPreferredSize();
-		dim.setSize(dim.getWidth() < 300 ? 300 : dim.getWidth(), dim.getHeight());
+		dim.setSize(dim.getWidth() < 320 ? 320 : dim.getWidth(), dim.getHeight());
 		exportTo.setPreferredSize(dim);
 
-		JButton button = GUIFactory.getJButton("browseFile", e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, "", false));
+		JButton button = GUIFactory.getJButton("browseFile",
+				e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, "", false));
 
 		password = new JPasswordField(project.getExportPassword());
 		JLabel lPass = GUIFactory.getJLabel("password");
