@@ -18,7 +18,7 @@ public class PrefObj {
 	private PrefObj() {
 		// Hide constructor
 	}
-	
+
 	private static byte[] object2Bytes(Object o) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(baos);

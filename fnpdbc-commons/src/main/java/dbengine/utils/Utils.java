@@ -57,8 +57,7 @@ public final class Utils {
 
 		if (alignment == ALIGN_RIGHT) {
 			int tOffset = length - text.length();
-			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byteArray, tOffset,
-					text.length());
+			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byteArray, tOffset, text.length());
 		} else {
 			System.arraycopy(General.convertString2Bytes(text, characterSetName), 0, byteArray, 0, text.length());
 		}

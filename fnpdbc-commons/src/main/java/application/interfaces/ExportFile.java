@@ -146,6 +146,7 @@ public enum ExportFile {
 		case PILOTDB:
 		case EXCEL:
 		case ACCESS:
+		case MARIADB:
 		case SQLITE:
 			return true;
 		default:
@@ -172,6 +173,10 @@ public enum ExportFile {
 	}
 
 	public boolean isPasswordSupported() {
+		return this == HANDBASE || this == MARIADB;
+	}
+
+	public boolean isUserSupported() {
 		return this == HANDBASE || this == MARIADB;
 	}
 

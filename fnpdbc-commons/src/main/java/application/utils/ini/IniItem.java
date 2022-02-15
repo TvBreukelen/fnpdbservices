@@ -55,13 +55,12 @@ public class IniItem {
 
 	/**
 	 * <p>
-	 * Default constructor which creates a new instance of this
-	 * <code>IniItem</code> and sets the <code>IniItem</code> to have a default
-	 * <code>IniValidator</code> and to be case insensitive.
+	 * Default constructor which creates a new instance of this <code>IniItem</code>
+	 * and sets the <code>IniItem</code> to have a default <code>IniValidator</code>
+	 * and to be case insensitive.
 	 * </p>
 	 *
-	 * @param name
-	 *            The name of this <code>IniItem</code>.
+	 * @param name The name of this <code>IniItem</code>.
 	 */
 	public IniItem(String name) {
 		this(name, false);
@@ -69,15 +68,14 @@ public class IniItem {
 
 	/**
 	 * <p>
-	 * Default constructor which creates a new instance of this
-	 * <code>IniItem</code> and sets the <code>IniItem</code> to have a default
+	 * Default constructor which creates a new instance of this <code>IniItem</code>
+	 * and sets the <code>IniItem</code> to have a default
 	 * <code>IniValidator</code>.
 	 * </p>
 	 *
-	 * @param name
-	 *            The name of this <code>IniItem</code>.
-	 * @param caseSensitive
-	 *            Sets whether this <code>IniItem</code> is case sensitive.
+	 * @param name          The name of this <code>IniItem</code>.
+	 * @param caseSensitive Sets whether this <code>IniItem</code> is case
+	 *                      sensitive.
 	 */
 	public IniItem(String name, boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
@@ -100,15 +98,14 @@ public class IniItem {
 	/**
 	 * <p>
 	 * This predicate returns true if this <code>IniItem</code> is equal to the
-	 * given object. For <code>otherObject</code> to be equal to this one it
-	 * must:
+	 * given object. For <code>otherObject</code> to be equal to this one it must:
 	 * </p>
 	 *
 	 * <ul>
 	 * <li>be an instance of <code>IniItem</code>.</li>
 	 * <li>have the same case-sensitivity as this <code>IniItem</code>.
-	 * <li>have an equal <code>IniValidator</code> as this
-	 * <code>IniItem</code>'s <code>IniValidator</code>.</li>
+	 * <li>have an equal <code>IniValidator</code> as this <code>IniItem</code>'s
+	 * <code>IniValidator</code>.</li>
 	 * <li>have an equal name as this <code>IniItem</code>.*</li>
 	 * <li>have an equal value as this <code>IniItem</code>.*</li>
 	 * <li>have an equal pre-comment as this <code>IniItem</code>.*</li>
@@ -117,15 +114,13 @@ public class IniItem {
 	 * </ul>
 	 *
 	 * <p>
-	 * * If the two <code>IniItem</code>s are <strong>case-sensitive</strong>,
-	 * then these are compared using the <code>equals(Object)</code> method. If
-	 * the two <code>IniItem</code>s are <strong>case-insensitive</strong>, then
-	 * these are compared using the <code>String.equalsIgnoreCase(String)</code>
-	 * method.
+	 * * If the two <code>IniItem</code>s are <strong>case-sensitive</strong>, then
+	 * these are compared using the <code>equals(Object)</code> method. If the two
+	 * <code>IniItem</code>s are <strong>case-insensitive</strong>, then these are
+	 * compared using the <code>String.equalsIgnoreCase(String)</code> method.
 	 * </p>
 	 *
-	 * @param otherObject
-	 *            The other Object to test for equality.
+	 * @param otherObject The other Object to test for equality.
 	 * @return True if equal, false if not equal.
 	 * @since 0.1.15
 	 */
@@ -146,21 +141,17 @@ public class IniItem {
 		/***********************************************************************
 		 * check to see if the two IniItems have the same case sensitive setting
 		 **********************************************************************/
-		if (this.isCaseSensitive() != otherItem.isCaseSensitive()) {
-			return false;
-		}
-
 		/***********************************************************************
 		 * check to see if the two IniItems have the same name
 		 **********************************************************************/
-		if (!testStrings(this.getName(), otherItem.getName())) {
+		if (isCaseSensitive() != otherItem.isCaseSensitive() || !testStrings(getName(), otherItem.getName())) {
 			return false;
 		}
 
 		/***********************************************************************
 		 * otherwise compare the values of the two items
 		 **********************************************************************/
-		String thisValue = this.getValue();
+		String thisValue = getValue();
 		String otherValue = otherItem.getValue();
 
 		if (thisValue == null) {
@@ -171,8 +162,8 @@ public class IniItem {
 	}
 
 	/**
-	 * Returns the name of this item, note that the item cannot change its name
-	 * and one would need to create a new item to do so.
+	 * Returns the name of this item, note that the item cannot change its name and
+	 * one would need to create a new item to do so.
 	 *
 	 * @return the name of this item
 	 */
@@ -181,8 +172,8 @@ public class IniItem {
 	}
 
 	/**
-	 * This returns the String which this items stores. If the item has no
-	 * value, then null is returned.
+	 * This returns the String which this items stores. If the item has no value,
+	 * then null is returned.
 	 *
 	 * @return <strong>String</strong>, the value of this item.
 	 */
@@ -200,8 +191,7 @@ public class IniItem {
 	}
 
 	/**
-	 * Predicate that returns true if this item has a value, or false if it is
-	 * empty
+	 * Predicate that returns true if this item has a value, or false if it is empty
 	 *
 	 * @return true or false
 	 */
@@ -226,8 +216,7 @@ public class IniItem {
 	/**
 	 * Set the value as a String value
 	 *
-	 * @param value
-	 *            the value to set
+	 * @param value the value to set
 	 */
 	public void setValue(String value) {
 		if (value == null) {
@@ -239,22 +228,20 @@ public class IniItem {
 
 	/**
 	 * <p>
-	 * Predicate that test's whether the two given strings are equal. This
-	 * method is used rather than
-	 * <code><em>String</em>.<strong>equals</strong>(<em>Object</em>)</code>
-	 * method as this method takes into account if this <code>IniItem</code> is
-	 * case sensitive or not.
+	 * Predicate that test's whether the two given strings are equal. This method is
+	 * used rather than
+	 * <code><em>String</em>.<strong>equals</strong>(<em>Object</em>)</code> method
+	 * as this method takes into account if this <code>IniItem</code> is case
+	 * sensitive or not.
 	 * </p>
 	 * <p>
-	 * This method, like the equals method, is commutative, and therefore it
-	 * does not matter which string is the first and which string is the second
-	 * as the same result will be returned.
+	 * This method, like the equals method, is commutative, and therefore it does
+	 * not matter which string is the first and which string is the second as the
+	 * same result will be returned.
 	 * </p>
 	 *
-	 * @param string1
-	 *            The first string to test
-	 * @param string2
-	 *            The second string to test.
+	 * @param string1 The first string to test
+	 * @param string2 The second string to test.
 	 * @return True if the two strings are equal, false if they are not
 	 */
 	private boolean testStrings(String string1, String string2) {

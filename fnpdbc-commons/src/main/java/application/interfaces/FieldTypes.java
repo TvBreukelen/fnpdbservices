@@ -8,11 +8,11 @@ public enum FieldTypes {
 	 */
 
 	BOOLEAN('B'), CURRENCY('C'), DATE('D'), DURATION('t'), FLOAT('F'), FUSSY_DATE('d'), IMAGE('I'), LINKED('l'),
-	LIST('L'), MEMO('M'), NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'), TIMESTAMP('S'), UNKNOWN('U');
+	LIST('L'), MEMO('M'), NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'), TIMESTAMP('S'), YEAR('Y'), UNKNOWN('U');
 
 	private char typeID;
 
-	private FieldTypes(char type) {
+	FieldTypes(char type) {
 		typeID = type;
 	}
 

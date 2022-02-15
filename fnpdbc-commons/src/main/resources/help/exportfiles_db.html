@@ -41,29 +41,17 @@ In the combobox you can select the format of the "Export From" file (Calc,
 You can use the Open button to select the database to be converted or type
  in the name of the database directly in the text field.<br>
  <br>
-</li><b>PDA Database Name</b>
-</li>
-This field identifies the "Export From" file. For PDA databases this is
- the name of the database as it should appear on the PDA, for MS-Excel
- spreadsheets it represents the tabsheet label and for XML files the root-
-element. If left unchanged, DBConvert uses this as default PDA database name for
- the export file. Should your export file require another name then you could
- enter the new name in this field.<br>	
-
-<h3>Export From MS-Access</h3>
+<h3>Export From MS-Access, SQLite, MariaDB/MySQL</h3>
+<img src="../images/ExportFromSql.gif">
 <ul>
-<li><b>Password</b>
-</li>
-Should your MS-Access database be password protected then you should enter
- the password in this field.<br>
- <br>
 <li><b>Tables</b>
 </li>
-If your MS-Access database has more than one table then you can select in
+If your database has more than one table then you can select in
  this comboxbox the table to be exported.
 </ul>
 
 <h3>Export From Calc / MS-Excel</h3>
+<img src="../images/ExportFromExcel.gif">
 <ul>
 <li><b>Worksheet</b>
 </li>In case your spreadsheet has more than one worksheet then you can select 
@@ -71,6 +59,7 @@ If your MS-Access database has more than one table then you can select in
 </ul>
 
 <h3>Export From TextFile</h3>
+<img src="../images/ExportFromTextfile.gif">
 <ul>
 <li><b>Export Format</b>
 </li>The export format specifies the the textfile format you are exporting from.
@@ -108,14 +97,6 @@ Dbase or FoxPro Memo fields that contain binary data (like OLE-Objects or
  read Visual FoxPro files, but doesn't support the non-standard xBase
  fieldtypes, like Currency, DateTime or Variant.
 </p>
-<p>
-MS-Access passwords will be stored in the DBConvert database for your
- convenience. For security reasons the stored passworld will be encrypted. In
- case you've already defined the MS-Access database with a valid password before
- then DBConvert loads the password directly from the DBConvert database and
- deactivates the password field because there is no need to re-enter the
- password again.
-</p>
 
 <hr WIDTH="50%" SIZE="3" NOSHADE>
 <h2>Export To</h2>
@@ -130,6 +111,14 @@ In the combobox you can select the format of the "Export To" file
 You can use the Open button to select the database to export to or type in
  the name of the database directly in the text field.<br>
 <br>
+</li><b>Database</b>
+</li>
+This field identifies the database name f as it should appear on the PDA or PC,
+ for spreadsheets it represents the tab sheet label and for XML files the root-
+element. If left unchanged, DBConvert uses this as default database name for
+ the export file. Should your export file require another name then you could
+ enter the new name in this field.<br>	
+ <br>
 <li><b>Create Backup</b>
 </li>
 Should the export file already exist then this option allows you to create
@@ -146,8 +135,6 @@ DBConvert verifies whether the export file exists and  whether its format
 <h3><a href="export_excel.html">Export To MS-Excel</a></h3>
 <h3><a href="export_textfile.html">Export To TextFile</a></h3>
 <h3><a href="export_handbase.html">Export To HanDBase</a></h3>
-<h3><a href="export_palmdb.html">Export To JFile, MobileDB or PilotDB</a></h3>
-<h3><a href="export_list.html">Export To List</a></h3>
-<h3><a href="export_xbase.html">Export To DBase3, DBase4, DBase5 or FoxPro</a></h3>
+<h3><a href="export_palmdb.html">Export To Palm and xBase databases</a></h3>
 </body>
 </html>  

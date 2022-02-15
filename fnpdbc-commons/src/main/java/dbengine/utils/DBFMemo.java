@@ -108,7 +108,7 @@ public class DBFMemo extends DBFBase {
 			return null;
 		}
 
-		memoRaf.seek((long)number * memoBlockSize);
+		memoRaf.seek((long) number * memoBlockSize);
 		ByteArrayOutputStream mBaos = new ByteArrayOutputStream();
 		byte[] buf = new byte[4];
 		int len = 0;
@@ -229,7 +229,7 @@ public class DBFMemo extends DBFBase {
 		memoRaf.writeInt(Integer.reverseBytes(offset));
 
 		// Write memo
-		memoRaf.seek((long)nextMemoIndex * memoBlockSize);
+		memoRaf.seek((long) nextMemoIndex * memoBlockSize);
 		memoRaf.write(memoBaos.toByteArray());
 		memoBaos.reset();
 	}

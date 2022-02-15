@@ -191,12 +191,8 @@ public class IniSection implements Iterable<IniItem> {
 		// **********************************************************************
 
 		// cannot add null items
-		if (itemName == null) {
-			return null;
-		}
-
 		// cannot add the item if another one with the same name already exists
-		if (hasItem(itemName)) {
+		if (itemName == null || hasItem(itemName)) {
 			return null;
 		}
 		IniItem newItem = createItem(itemName);
@@ -270,29 +266,23 @@ public class IniSection implements Iterable<IniItem> {
 		// **********************************************************************
 		// check that the two sections have the same case sensitive
 		// **********************************************************************
-		if (this.isCaseSensitive() != otherSection.isCaseSensitive()) {
-			return false;
-		}
 
 		// **********************************************************************
 		// check that the two sections have the same name
 		// **********************************************************************
-		if (!otherSection.getName().equals(this.getName())) {
-			return false;
-		}
-
 		// **********************************************************************
 		// check to see if the two sections have the same number of items
 		// **********************************************************************
 		//
-		if (this.getNumberOfItems() != otherSection.getNumberOfItems()) {
+		if (isCaseSensitive() != otherSection.isCaseSensitive() || !otherSection.getName().equals(getName())
+				|| getNumberOfItems() != otherSection.getNumberOfItems()) {
 			return false;
 		}
 
 		// **********************************************************************
 		// check to see if the two sections have the same items
 		// **********************************************************************
-		for (int i = 0; i < this.getNumberOfItems(); i++) {
+		for (int i = 0; i < getNumberOfItems(); i++) {
 
 			IniItem thisItem = this.getItem(i);
 			IniItem otherItem = otherSection.getItem(i);

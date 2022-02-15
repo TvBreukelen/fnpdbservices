@@ -16,7 +16,7 @@ public enum FNPSoftware {
 	private String name;
 	private String[] views;
 
-	private FNPSoftware(String name, String... views) {
+	FNPSoftware(String name, String... views) {
 		this.name = name;
 		this.views = views;
 	}

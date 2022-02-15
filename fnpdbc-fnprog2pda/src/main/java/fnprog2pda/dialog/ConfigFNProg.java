@@ -51,7 +51,7 @@ public class ConfigFNProg extends ProgramDialog {
 		}));
 		return result;
 	}
-	
+
 	@Override
 	public void activateComponents() {
 		super.activateComponents();
@@ -86,7 +86,6 @@ public class ConfigFNProg extends ProgramDialog {
 		dispose();
 		new FNProg2PDA().start();
 	}
-
 
 	@Override
 	protected void close() {

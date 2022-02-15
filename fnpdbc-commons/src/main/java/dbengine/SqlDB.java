@@ -5,10 +5,13 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +49,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		// Try to obtain the database connection
-		String url = myDatabaseHelper.getDatabaseType() == ExportFile.MARIADB
-				? "jdbc:mariadb://" + myDatabaseHelper.toString()
+		String url = myDatabaseHelper.getDatabaseType() == ExportFile.MARIADB ? "jdbc:mariadb://" + myDatabase
 				: "jdbc:sqlite:" + myDatabase;
 
 		String user = myDatabaseHelper.getUser();
@@ -64,13 +66,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		aTables = new ArrayList<>();
 
 		int index = 0;
+		String db = myImportFile == ExportFile.MARIADB ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
 		try {
 			DatabaseMetaData metaData = connection.getMetaData();
 			ResultSet rs = metaData.getTables(null, null, "%", null);
 			while (rs.next()) {
 				String tableCat = rs.getString("TABLE_CAT");
-				if (tableCat != null && !tableCat.equals(myDatabase)) {
+				if (tableCat != null && !tableCat.equals(db)) {
 					continue;
 				}
 
@@ -89,7 +92,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					fieldDef.setSQLType(columns.getInt(5));
 
 					String type = columns.getString(6);
-					if (!(type.isEmpty() || type.equals("TEXT") || type.equals("VARCHAR"))) {
+					if (!(type.isEmpty() || type.equals("TEXT"))) {
 						if (!(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
 							continue;
 						}
@@ -149,6 +152,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.TIMESTAMP:
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
+		case Types.VARCHAR:
+			return true;
 		default:
 			return false;
 		}
@@ -181,6 +186,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case "TIMESTAMP":
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			field.setSQLType(Types.TIMESTAMP);
+			break;
+		case "YEAR":
+			field.setFieldType(FieldTypes.YEAR);
+			field.setSQLType(Types.DATE);
 			break;
 		default:
 			return false;
@@ -241,9 +250,15 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		Map<String, Object> result = new HashMap<>();
 		int index = 1;
 		if (dbResultSet.next()) {
-			for (FieldDefinition field : getTableModelFields()) {
-				Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
-				result.put(field.getFieldAlias(), obj);
+			String fieldName = "";
+			try {
+				for (FieldDefinition field : getTableModelFields()) {
+					fieldName = field.getFieldName();
+					Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
+					result.put(field.getFieldAlias(), obj);
+				}
+			} catch (Exception e) {
+				throw new Exception("Unable to read database field '" + fieldName + "', due to\n" + e.toString());
 			}
 		} else {
 			dbStatement.close();
@@ -267,57 +282,61 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws Exception {
-		try {
-			int c = 0;
-			switch (colType) {
-			case Types.LONGVARBINARY:
-				InputStream isr;
-				try {
-					isr = rs.getBinaryStream(colNo);
-					if (isr == null) {
-						return "";
-					}
-				} catch (NullPointerException ex) {
+		int c = 0;
+		switch (colType) {
+		case Types.LONGVARBINARY:
+			InputStream isr;
+			try {
+				isr = rs.getBinaryStream(colNo);
+				if (isr == null) {
 					return "";
 				}
-
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				byte[] rb = new byte[1024];
-				// process blob
-				while ((c = isr.read(rb)) != -1) {
-					out.write(rb, 0, c);
-				}
-				byte[] b = out.toByteArray();
-				isr.close();
-				out.close();
-				return b;
-			case Types.LONGVARCHAR:
-				return readMemoField(rs, colNo);
-			case Types.BIT:
-			case Types.BOOLEAN:
-				return rs.getBoolean(colNo);
-			case Types.DOUBLE:
-				return rs.getDouble(colNo);
-			case Types.DATE:
-				return rs.getDate(colNo).toLocalDate();
-			case Types.FLOAT:
-				return rs.getFloat(colNo);
-			case Types.INTEGER:
-				return rs.getInt(colNo);
-			case Types.SMALLINT:
-				return (int) rs.getShort(colNo);
-			case Types.TIMESTAMP:
-				return rs.getTimestamp(colNo).toLocalDateTime();
-			case Types.TIME:
-				return rs.getTime(colNo).toLocalTime();
-			case Types.VARCHAR:
-				String s = rs.getString(colNo);
-				return s == null ? "" : s;
-			default:
-				return getObject(colType, colNo, rs);
+			} catch (NullPointerException ex) {
+				return "";
 			}
-		} catch (Exception e) {
-			throw new Exception("Unable to read database field, due to " + e.toString());
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] rb = new byte[1024];
+			// process blob
+			while ((c = isr.read(rb)) != -1) {
+				out.write(rb, 0, c);
+			}
+			byte[] b = out.toByteArray();
+			isr.close();
+			out.close();
+			return b;
+		case Types.LONGVARCHAR:
+			return readMemoField(rs, colNo);
+		case Types.BIT:
+		case Types.BOOLEAN:
+			return rs.getBoolean(colNo);
+		case Types.DOUBLE:
+			return rs.getDouble(colNo);
+		case Types.DATE:
+			try {
+				Date date = rs.getDate(colNo);
+				return date == null ? "" : date.toLocalDate();
+			} catch (IllegalArgumentException e) {
+				// We are dealing with a Year "0000" (MariaDB)
+				return "";
+			}
+		case Types.FLOAT:
+			return rs.getFloat(colNo);
+		case Types.INTEGER:
+			return rs.getInt(colNo);
+		case Types.SMALLINT:
+			return (int) rs.getShort(colNo);
+		case Types.BIGINT:
+			return rs.getLong(colNo);
+		case Types.TIMESTAMP:
+			Timestamp ts = rs.getTimestamp(colNo);
+			return ts == null ? "" : ts.toLocalDateTime();
+		case Types.TIME:
+			Time time = rs.getTime(colNo);
+			return time == null ? "" : time.toLocalTime();
+		default:
+			String s = rs.getString(colNo);
+			return s == null ? "" : s;
 		}
 	}
 
@@ -356,12 +375,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void createDbHeader() throws Exception {
-	}
-
-	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
+		// We are currently not writing to the SQL databases
 	}
-
-	protected abstract Object getObject(int colType, int colNo, ResultSet rs) throws Exception;
 }

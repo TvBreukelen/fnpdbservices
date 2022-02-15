@@ -38,6 +38,9 @@ public class HostConfig extends BasicDialog {
 	private JButton btApply;
 
 	private DatabaseHelper dbInHelper;
+	private DatabaseHelper verify;
+	private String host = "127.0.0.1";
+	private int port = 3306;
 	private boolean isSaved;
 
 	public HostConfig(DatabaseHelper helper) {
@@ -51,22 +54,35 @@ public class HostConfig extends BasicDialog {
 
 	private void init() {
 		isSaved = false;
-		init("Host Config");
+		init(dbInHelper.getDatabaseType().getName() + " " + GUIFactory.getText("configuration"));
+		setHelpFile("export_hostdb");
+
+		String database = dbInHelper.getDatabase();
+		if (!database.isEmpty()) {
+			int index = database.indexOf(":");
+			host = database.substring(0, index++);
+			String portNo = database.substring(index, database.indexOf("/"));
+			port = Integer.valueOf(portNo);
+			index += portNo.length() + 1;
+			database = database.substring(index);
+		}
 
 		txHost = new JTextField();
+		txHost.setText(host);
+
 		txPort = new JSpinner(new SpinnerNumberModel(1, 1, 65353, 1));
 		JFormattedTextField txt = ((JSpinner.NumberEditor) txPort.getEditor()).getTextField();
 		((NumberFormatter) txt.getFormatter()).setFormat(new DecimalFormat("#####"));
+		txPort.setValue(port);
 
 		txUser = new JTextField();
-		txPassword = new JPasswordField();
-		txDatabase = new JTextField();
-
-		txHost.setText(dbInHelper.getHost());
-		txPort.setValue(dbInHelper.getPort());
 		txUser.setText(dbInHelper.getUser());
+
+		txPassword = new JPasswordField();
 		txPassword.setText(General.decryptPassword(dbInHelper.getPassword()));
-		txDatabase.setText(dbInHelper.getDatabase());
+
+		txDatabase = new JTextField();
+		txDatabase.setText(database);
 
 		txHost.getDocument().addDocumentListener(funcDocumentChange);
 		txUser.getDocument().addDocumentListener(funcDocumentChange);
@@ -77,11 +93,10 @@ public class HostConfig extends BasicDialog {
 
 	@Override
 	protected void save() throws Exception {
-		dbInHelper.setHost(txHost.getText());
-		dbInHelper.setPort((int) txPort.getValue());
-		dbInHelper.setUser(txUser.getText());
-		dbInHelper.setPassword(General.encryptPassword(txPassword.getPassword()));
-		dbInHelper.setDatabase(txDatabase.getText());
+		dbInHelper.setDatabase(verify.getDatabase());
+		dbInHelper.setPassword(verify.getPassword());
+		dbInHelper.setUser(verify.getUser());
+		dbInHelper.setDatabaseType(verify.getDatabaseType());
 		isSaved = true;
 	}
 
@@ -137,9 +152,8 @@ public class HostConfig extends BasicDialog {
 		MariaDB db = new MariaDB(null);
 		btTest.setEnabled(false);
 
-		DatabaseHelper verify = new DatabaseHelper(txDatabase.getText(), ExportFile.MARIADB);
-		verify.setHost(txHost.getText());
-		verify.setPort((int) txPort.getValue());
+		verify = new DatabaseHelper(txHost.getText() + ":" + txPort.getValue() + "/" + txDatabase.getText(),
+				ExportFile.MARIADB);
 		verify.setUser(txUser.getText());
 		verify.setPassword(General.encryptPassword(txPassword.getPassword()));
 
@@ -148,8 +162,10 @@ public class HostConfig extends BasicDialog {
 			db.closeFile();
 			btApply.setEnabled(true);
 			btTest.setEnabled(true);
+			General.showMessage(this, GUIFactory.getText("testConnectionOK"), GUIFactory.getText("testConnection"),
+					false);
 		} catch (Exception ex) {
-			General.errorMessage(HostConfig.this, ex, GUIFactory.getTitle("configError"), null);
+			General.errorMessage(HostConfig.this, ex, GUIFactory.getText("testConnection"), null);
 		}
 	}
 

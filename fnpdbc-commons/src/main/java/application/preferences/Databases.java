@@ -10,12 +10,10 @@ import application.interfaces.TvBSoftware;
 public class Databases {
 	private String databaseID = "";
 	private String databaseFile = "";
-	private String databaseHost = "";
 	private String databasePassword = "";
 	private String databaseUser = "";
 	private String databaseType = "";
 	private String databaseVersion = "";
-	private int databasePort = 0;
 
 	// For the import of Text files
 	private String fieldSeparator = ",";
@@ -60,8 +58,6 @@ public class Databases {
 		this.databaseID = databaseID;
 		databaseFile = myPref.get(DB_FILE, "");
 		databasePassword = myPref.get("database.password", "");
-		databaseHost = myPref.get("database.host", "");
-		databasePort = myPref.getInt("database.port", 0);
 		databaseType = myPref.get("database.type", "");
 		databaseUser = myPref.get("database.user", "");
 		databaseVersion = myPref.get("database.version", "");
@@ -132,24 +128,6 @@ public class Databases {
 	public void setDatabaseUser(String databaseUser) {
 		PrefUtils.writePref(myPref, "database.user", databaseUser, this.databaseUser, "");
 		this.databaseUser = databaseUser;
-	}
-
-	public String getDatabaseHost() {
-		return databaseHost;
-	}
-
-	public void setDatabaseHost(String databaseHost) {
-		PrefUtils.writePref(myPref, "database.host", databaseHost, this.databaseHost, "");
-		this.databaseHost = databaseHost;
-	}
-
-	public int getDatabasePort() {
-		return databasePort;
-	}
-
-	public void setDatabasePort(int databasePort) {
-		PrefUtils.writePref(myPref, "database.port", databasePort, this.databasePort, 0);
-		this.databasePort = databasePort;
 	}
 
 	public String getDatabaseType() {

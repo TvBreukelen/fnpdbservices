@@ -40,8 +40,8 @@ import java.util.TreeMap;
 public class IniFile implements Iterable<IniSection> {
 
 	/**
-	 * A Map of all the sections within this IniFile, with the IniSections
-	 * indexed by their names.
+	 * A Map of all the sections within this IniFile, with the IniSections indexed
+	 * by their names.
 	 *
 	 * @since 0.1.27
 	 */
@@ -54,11 +54,10 @@ public class IniFile implements Iterable<IniSection> {
 	 */
 	private List<IniSection> sectionOrder;
 
-
 	/**
 	 * <p>
-	 * Field which marks whether this instance of an IniFile is case sensitive
-	 * or not.
+	 * Field which marks whether this instance of an IniFile is case sensitive or
+	 * not.
 	 * </p>
 	 */
 	private boolean caseSensitive;
@@ -79,9 +78,8 @@ public class IniFile implements Iterable<IniSection> {
 	 * Constructor which creates a new instance of this abstract
 	 * <code>IniFile</code> and sets the IniFile to have a default
 	 *
-	 * @param caseSensitive
-	 *            Sets whether this instance of <code>IniFile</code> is case
-	 *            sensitive or not.
+	 * @param caseSensitive Sets whether this instance of <code>IniFile</code> is
+	 *                      case sensitive or not.
 	 */
 	public IniFile(boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
@@ -92,22 +90,21 @@ public class IniFile implements Iterable<IniSection> {
 	/**
 	 * <p>
 	 * This method adds the given <code>IniSection</code> to the
-	 * <code>IniFile</code> providing that there are no existing sections with
-	 * the same name as the given <code>IniSection</code>.
+	 * <code>IniFile</code> providing that there are no existing sections with the
+	 * same name as the given <code>IniSection</code>.
 	 * </p>
 	 *
 	 * <p>
 	 * The given section can also not be added if the given section is not
-	 * compatible with the policies of the <code>IniFile</code>. That is to say
-	 * the <code>IniSection</code> has a different case-sensitivity, or an
-	 * unequal <code>IniValidator</code> to the <code>IniFile</code>.
+	 * compatible with the policies of the <code>IniFile</code>. That is to say the
+	 * <code>IniSection</code> has a different case-sensitivity, or an unequal
+	 * <code>IniValidator</code> to the <code>IniFile</code>.
 	 * </p>
 	 *
-	 * @param section
-	 *            The section to add to this INI file.
-	 * @return True if the section was added successfully, false if a section
-	 *         with the same name already exists, or if the given section is
-	 *         incompatible with the IniFile.
+	 * @param section The section to add to this INI file.
+	 * @return True if the section was added successfully, false if a section with
+	 *         the same name already exists, or if the given section is incompatible
+	 *         with the IniFile.
 	 */
 	public boolean addSection(IniSection section) {
 
@@ -127,7 +124,7 @@ public class IniFile implements Iterable<IniSection> {
 		// check that name of section is valid
 		// **********************************************************************
 
-		if (this.isCaseSensitive() != section.isCaseSensitive()) {
+		if (isCaseSensitive() != section.isCaseSensitive()) {
 			return false;
 		}
 
@@ -138,7 +135,7 @@ public class IniFile implements Iterable<IniSection> {
 			return false;
 		} else {
 			// append section to end of IniFile
-			return addSection(section, this.getNumberOfSections());
+			return addSection(section, getNumberOfSections());
 		}
 	}
 
@@ -146,25 +143,23 @@ public class IniFile implements Iterable<IniSection> {
 	 * <p>
 	 * Adds a section to this INI file.
 	 *
-	 * If an existing section has the same name as the given section, then the
-	 * new section is not added and the method returns false.
+	 * If an existing section has the same name as the given section, then the new
+	 * section is not added and the method returns false.
 	 *
-	 * If the given section is of a type that is not compatible with the class
-	 * that implements this interface, then a compatible copy of the section is
-	 * made which is then added to the class.
+	 * If the given section is of a type that is not compatible with the class that
+	 * implements this interface, then a compatible copy of the section is made
+	 * which is then added to the class.
 	 *
-	 * @param section
-	 *            The section to add to this INI file.
-	 * @param index
-	 *            The index where to add the section, where 0 is the index of
-	 *            the first section. Any section that already exists at this
-	 *            index will be moved to <code>index + 1</code>. If the value is
-	 *            greater than the number of sections within this INI file, then
-	 *            the section is appended to the end of the INI file.
-	 * @return True if the section was added successfully, false if a section
-	 *         with the same name already exists.
-	 * @throws IndexOutOfBoundsException
-	 *             if the value of <code>index</code> is less than 0.
+	 * @param section The section to add to this INI file.
+	 * @param index   The index where to add the section, where 0 is the index of
+	 *                the first section. Any section that already exists at this
+	 *                index will be moved to <code>index + 1</code>. If the value is
+	 *                greater than the number of sections within this INI file, then
+	 *                the section is appended to the end of the INI file.
+	 * @return True if the section was added successfully, false if a section with
+	 *         the same name already exists.
+	 * @throws IndexOutOfBoundsException if the value of <code>index</code> is less
+	 *                                   than 0.
 	 */
 	public boolean addSection(IniSection section, int index) {
 
@@ -178,7 +173,7 @@ public class IniFile implements Iterable<IniSection> {
 		// check that section is compatible
 		// **********************************************************************
 
-		if (this.isCaseSensitive() != section.isCaseSensitive()) {
+		if (isCaseSensitive() != section.isCaseSensitive()) {
 			return false;
 		}
 
@@ -202,30 +197,26 @@ public class IniFile implements Iterable<IniSection> {
 	 * If an existing section has the same name as the given section, then the
 	 * method returns false.
 	 *
-	 * The index of the section, if it added successfully, is unknown and
-	 * depends on the implementation of this interface. Programmers should not
-	 * make any assumptions on where the new section is added.
+	 * The index of the section, if it added successfully, is unknown and depends on
+	 * the implementation of this interface. Programmers should not make any
+	 * assumptions on where the new section is added.
 	 *
 	 * @param sectionName
 	 *
-	 * @return A reference to the IniSection created, or null if, the section
-	 *         could not be created.
+	 * @return A reference to the IniSection created, or null if, the section could
+	 *         not be created.
 	 *
 	 */
 	public IniSection addSection(String sectionName) {
 
 		// cannot add a null section
-		if (sectionName == null) {
-			return null;
-		}
-
 		// check if a section with the same name already exists
-		if (this.hasSection(sectionName)) {
+		if (sectionName == null || this.hasSection(sectionName)) {
 			return null;
 		}
 
 		// append section to end of IniFile
-		return addSection(sectionName, this.getNumberOfSections());
+		return addSection(sectionName, getNumberOfSections());
 	}
 
 	/**
@@ -234,28 +225,23 @@ public class IniFile implements Iterable<IniSection> {
 	 * If an existing section has the same name as the given section, then the
 	 * method returns false.
 	 *
-	 * @param sectionName
-	 *            The name of the new section to add.
-	 * @param index
-	 *            The index where to add the section, where 0 is the index of
-	 *            the first section. Any section that already exists at this
-	 *            index will be moved to <code>index + 1</code>. If the value is
-	 *            greater than the number of sections within this INI file, then
-	 *            the section is appended to the end of the INI file.
-	 * @return A reference to the IniSection created, or null if, the section
-	 *         could not be created.
-	 * @throws IndexOutOfBoundsException
-	 *             if the value of <code>index</code> is less than 0.
+	 * @param sectionName The name of the new section to add.
+	 * @param index       The index where to add the section, where 0 is the index
+	 *                    of the first section. Any section that already exists at
+	 *                    this index will be moved to <code>index + 1</code>. If the
+	 *                    value is greater than the number of sections within this
+	 *                    INI file, then the section is appended to the end of the
+	 *                    INI file.
+	 * @return A reference to the IniSection created, or null if, the section could
+	 *         not be created.
+	 * @throws IndexOutOfBoundsException if the value of <code>index</code> is less
+	 *                                   than 0.
 	 */
 	public IniSection addSection(String sectionName, int index) {
 
 		// cannot add a null section
-		if (sectionName == null) {
-			return null;
-		}
-
 		// check if a section with the same name already exists
-		if (this.hasSection(sectionName)) {
+		if (sectionName == null || this.hasSection(sectionName)) {
 			return null;
 		}
 
@@ -266,13 +252,11 @@ public class IniFile implements Iterable<IniSection> {
 
 	/**
 	 * </p>
-	 * This method creates and returns a new instance of an
-	 * <code>IniSection</code> with the same <code>IniValidator</code> and case
-	 * sensitivity as this object.
+	 * This method creates and returns a new instance of an <code>IniSection</code>
+	 * with the same <code>IniValidator</code> and case sensitivity as this object.
 	 * </p>
 	 *
-	 * @param name
-	 *            The name of the <code>IniSection</code> to create.
+	 * @param name The name of the <code>IniSection</code> to create.
 	 * @return A new instance of an <code>IniSection</code> with the same
 	 *         <code>IniValidator</code> and case sensitivity as this object.
 	 */
@@ -289,18 +273,16 @@ public class IniFile implements Iterable<IniSection> {
 	 * <ul>
 	 * <li>be an instance of <code>IniFile</code>.</li>
 	 * <li>have the same case-sensitivity as this <code>IniFile</code>.
-	 * <li>have an equal <code>IniValidator</code> as this
-	 * <code>IniFile</code>'s <code>IniValidator</code>.</li>
+	 * <li>have an equal <code>IniValidator</code> as this <code>IniFile</code>'s
+	 * <code>IniValidator</code>.</li>
 	 * <li>have the same number of <code>IniSection</code>s as this
 	 * <code>IniFile</code>.</li>
-	 * <li>have equal <code>IniSection</code>s as this
-	 * <code>IniFile</code>.</li>
+	 * <li>have equal <code>IniSection</code>s as this <code>IniFile</code>.</li>
 	 * <li>have the same order of <code>IniSection</code>s as this
 	 * <code>IniFile</code>.</li>
 	 * </ul>
 	 *
-	 * @param other
-	 *            The other Object to test for equality.
+	 * @param other The other Object to test for equality.
 	 * @return True if equal, false if not equal.
 	 * @since 0.1.15
 	 */
@@ -319,14 +301,11 @@ public class IniFile implements Iterable<IniSection> {
 		// **********************************************************************
 		// Step 2 - check that the two IniFiles have the same case sensitive
 		// **********************************************************************
-		if (this.isCaseSensitive() != otherIni.isCaseSensitive()) {
-			return false;
-		}
-
 		// **********************************************************************
 		// Step 3 - Check to see if other IniFile has same number of sections
 		// **********************************************************************
-		if (otherIni.getNumberOfSections() != this.getNumberOfSections()) {
+		if (isCaseSensitive() != otherIni.isCaseSensitive()
+				|| otherIni.getNumberOfSections() != getNumberOfSections()) {
 			return false;
 		}
 
@@ -334,7 +313,7 @@ public class IniFile implements Iterable<IniSection> {
 		// Step 4 - Check that all section in this IniFile are present and
 		// equal in the otherIni object.
 		// **********************************************************************
-		for (IniSection section : this.getSections()) {
+		for (IniSection section : getSections()) {
 
 			String sectionName = section.getName();
 
@@ -363,7 +342,7 @@ public class IniFile implements Iterable<IniSection> {
 
 		int total = 0;
 
-		for (IniSection section : this.getSections()) {
+		for (IniSection section : getSections()) {
 			total += section.getNumberOfItems();
 		}
 
@@ -382,13 +361,12 @@ public class IniFile implements Iterable<IniSection> {
 	/**
 	 * Get the section which is at the given index.
 	 *
-	 * @param index
-	 *            the index of the section to retrieve.
+	 * @param index the index of the section to retrieve.
 	 * @return The section that is at the given index.
-	 * @throws IndexOutOfBoundsException
-	 *             if the given value is less than 0 or greater or equal to the
-	 *             number of sections in this INI file (i.e.
-	 *             <code>&gt; getNumberOfSections()-1</code>.
+	 * @throws IndexOutOfBoundsException if the given value is less than 0 or
+	 *                                   greater or equal to the number of sections
+	 *                                   in this INI file (i.e.
+	 *                                   <code>&gt; getNumberOfSections()-1</code>.
 	 */
 	public IniSection getSection(int index) {
 		return sectionOrder.get(index);
@@ -398,11 +376,10 @@ public class IniFile implements Iterable<IniSection> {
 	 * Returns the section that is called <code>name</code>, or null if no such
 	 * section exists.
 	 *
-	 * @param name
-	 *            the name of the section to return
+	 * @param name the name of the section to return
 	 *
-	 * @return The IniSection with the given name, or null if no section with
-	 *         that name exists.
+	 * @return The IniSection with the given name, or null if no section with that
+	 *         name exists.
 	 */
 	public IniSection getSection(String name) {
 		for (IniSection section : getSections()) {
@@ -457,12 +434,11 @@ public class IniFile implements Iterable<IniSection> {
 	/**
 	 *
 	 * Predicate that returns true if this IniFile has a given section. More
-	 * specifically this method returns true if the class contains a reference
-	 * to the given section, and not if this class has a similar section with
-	 * the same name, items and values.
+	 * specifically this method returns true if the class contains a reference to
+	 * the given section, and not if this class has a similar section with the same
+	 * name, items and values.
 	 *
-	 * @param section
-	 *            The section to test.
+	 * @param section The section to test.
 	 *
 	 * @return True if this IniFile has the section, false otherwise
 	 */
@@ -474,8 +450,7 @@ public class IniFile implements Iterable<IniSection> {
 	 * Predicate that returns true if this IniFile has a section with the given
 	 * name.
 	 *
-	 * @param name
-	 *            The name of the section to test
+	 * @param name The name of the section to test
 	 * @return True if this IniFile has the section, false otherwise
 	 */
 	public boolean hasSection(String name) {
@@ -484,11 +459,9 @@ public class IniFile implements Iterable<IniSection> {
 
 	/**
 	 * Get the index of the given section, where 0 is the index is the first
-	 * section. If the given section is not in this INI file, then -1 is
-	 * returned.
+	 * section. If the given section is not in this INI file, then -1 is returned.
 	 *
-	 * @param section
-	 *            The section whose index will be retured
+	 * @param section The section whose index will be retured
 	 * @return The index of the section, or -1 is no such section exists.
 	 */
 	public int indexOf(IniSection section) {
@@ -496,12 +469,10 @@ public class IniFile implements Iterable<IniSection> {
 	}
 
 	/**
-	 * Get the index of the section whose name is given, where 0 is the index is
-	 * the first section. If the given section name doesn't exists, then -1 is
-	 * returned.
+	 * Get the index of the section whose name is given, where 0 is the index is the
+	 * first section. If the given section name doesn't exists, then -1 is returned.
 	 *
-	 * @param sectionName
-	 *            The name of the section whose index will be retured
+	 * @param sectionName The name of the section whose index will be retured
 	 * @return The index of the section, or -1 is no such section exists.
 	 */
 	public int indexOf(String sectionName) {
@@ -510,8 +481,8 @@ public class IniFile implements Iterable<IniSection> {
 
 	/**
 	 * <p>
-	 * Predicate that returns true if this object is case sensitive, or false if
-	 * it is case insensitive.
+	 * Predicate that returns true if this object is case sensitive, or false if it
+	 * is case insensitive.
 	 * </p>
 	 *
 	 * @return boolean
@@ -523,8 +494,8 @@ public class IniFile implements Iterable<IniSection> {
 	/**
 	 * Predicate that returns true if this IniFile has no sections.
 	 *
-	 * @return True if the object has no sections, false if the object has at
-	 *         least one section.
+	 * @return True if the object has no sections, false if the object has at least
+	 *         one section.
 	 */
 	public boolean isEmpty() {
 		return getNumberOfSections() == 0;

@@ -7,8 +7,6 @@ public class DatabaseHelper {
 	private String database;
 	private String user = "root";
 	private String password = "";
-	private String host = "127.0.0.1";
-	private int port = 3306;
 	private ExportFile databaseType;
 
 	public DatabaseHelper(String database, ExportFile databaseType) {
@@ -20,8 +18,6 @@ public class DatabaseHelper {
 		database = base.getDatabaseFile();
 		user = base.getDatabaseUser();
 		password = base.getDatabasePassword();
-		host = base.getDatabaseHost();
-		port = base.getDatabasePort();
 		databaseType = ExportFile.getExportFile(base.getDatabaseType());
 	}
 
@@ -49,22 +45,6 @@ public class DatabaseHelper {
 		this.password = password;
 	}
 
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
 	public ExportFile getDatabaseType() {
 		return databaseType;
 	}
@@ -73,16 +53,9 @@ public class DatabaseHelper {
 		this.databaseType = databaseType;
 	}
 
-	@Override
-	public String toString() {
-		return databaseType.isConnectHost() ? host + ":" + port + "/" + database : database;
-	}
-
 	public DatabaseHelper createCopy() {
 		DatabaseHelper result = new DatabaseHelper(database, databaseType);
-		result.setHost(host);
 		result.setPassword(password);
-		result.setPort(port);
 		result.setUser(user);
 		return result;
 	}

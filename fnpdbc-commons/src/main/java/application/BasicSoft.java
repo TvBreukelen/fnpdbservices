@@ -281,11 +281,7 @@ public abstract class BasicSoft {
 
 	protected boolean isIncludeRecord(List<Map<String, Object>> dbRecord, FieldDefinition field, String filterValue,
 			FilterOperator operator) {
-		if (!isFilterDefined) {
-			return true;
-		}
-
-		if (dbRecord.isEmpty() && filterValue.isEmpty() && operator == FilterOperator.IS_EQUAL_TO) {
+		if (!isFilterDefined || (dbRecord.isEmpty() && filterValue.isEmpty() && operator == FilterOperator.IS_EQUAL_TO)) {
 			return true;
 		}
 

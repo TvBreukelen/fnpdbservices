@@ -7,7 +7,7 @@ public enum FilterOperator {
 
 	private String value;
 
-	private FilterOperator(String value) {
+	FilterOperator(String value) {
 		this.value = value;
 	}
 

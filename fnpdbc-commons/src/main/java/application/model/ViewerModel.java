@@ -20,9 +20,10 @@ import application.utils.General;
 
 public class ViewerModel extends AbstractTableModel {
 	/**
-	 * Title: ViewerModel Description: TableModel for class Viewer Copyright: (c)
-	 * 2004-2021
+	 * Title: ViewerModel
 	 *
+	 * @apiNote TableModel for calls Viewer
+	 * @since 2004
 	 * @author Tom van Breukelen
 	 * @version 8.2
 	 */
@@ -152,17 +153,29 @@ public class ViewerModel extends AbstractTableModel {
 			}
 			break;
 		case DATE:
-			return General.convertDate((LocalDate) obj, General.getSimpleDateFormat());
+			if (obj instanceof LocalDate) {
+				return General.convertDate((LocalDate) obj, General.getSimpleDateFormat());
+			}
 		case FUSSY_DATE:
 			return General.convertFussyDate(obj.toString().trim());
 		case MEMO:
 			return createMemoField(obj.toString());
 		case TIME:
-			return General.convertTime((LocalTime) obj, General.getSimpleTimeFormat());
+			if (obj instanceof LocalTime) {
+				return General.convertTime((LocalTime) obj, General.getSimpleTimeFormat());
+			}
 		case DURATION:
-			return General.convertDuration((Duration) obj);
+			if (obj instanceof Duration) {
+				return General.convertDuration((Duration) obj);
+			}
 		case TIMESTAMP:
-			return General.convertTimestamp((LocalDateTime) obj, General.getSimpleTimestampFormat());
+			if (obj instanceof LocalDateTime) {
+				return General.convertTimestamp((LocalDateTime) obj, General.getSimpleTimestampFormat());
+			}
+		case YEAR:
+			if (obj instanceof LocalDate) {
+				return ((LocalDate) obj).getYear();
+			}
 		default:
 			break;
 		}

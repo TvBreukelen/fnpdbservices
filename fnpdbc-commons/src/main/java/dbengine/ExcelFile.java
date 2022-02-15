@@ -96,7 +96,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public List<String> getSheetNames() {
+	public List<String> getTableOrSheetNames() {
 		if (wb == null) {
 			return new ArrayList<>();
 		}
@@ -292,10 +292,4 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			sheet.autoSizeColumn(i);
 		}
 	}
-
-	@Override
-	public abstract void createDbHeader() throws Exception;
-
-	@Override
-	public abstract void processData(Map<String, Object> data) throws Exception;
 }

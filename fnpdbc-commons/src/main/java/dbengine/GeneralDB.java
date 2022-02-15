@@ -118,7 +118,7 @@ public abstract class GeneralDB {
 		}
 
 		myDatabase = helper.getDatabase();
-		if (isInputFile && helper.getHost().isEmpty() && !General.existFile(myDatabase)) {
+		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(myDatabase)) {
 			throw FNProgException.getException("noDatabaseExists", myDatabase);
 		}
 
@@ -133,10 +133,10 @@ public abstract class GeneralDB {
 		try {
 			openFile(isInputFile);
 		} catch (EOFException e) {
-			exception = FNProgException.getException("fileOpenError", myDatabase,
+			exception = FNProgException.getException("cannotOpen", myDatabase,
 					"Cannot read file beyond EOF (File is empty or corrupt)");
 		} catch (Exception e) {
-			exception = FNProgException.getException("fileOpenError", myDatabase, e.getMessage());
+			exception = FNProgException.getException("cannotOpen", myDatabase, e.getMessage());
 		}
 
 		if (exception != null) {
@@ -150,12 +150,7 @@ public abstract class GeneralDB {
 	}
 
 	public List<String> getTableOrSheetNames() {
-		// valid for MS-Access and SQL based databases only
-		return new ArrayList<>();
-	}
-
-	public List<String> getSheetNames() {
-		// valid for Calc and MS-Excel only
+		// valid for Calc, Excel, MS-Access and SQL based databases only
 		return new ArrayList<>();
 	}
 
@@ -200,6 +195,8 @@ public abstract class GeneralDB {
 			return convertTime(dbValue, field);
 		case TIMESTAMP:
 			return convertTimestamp(dbValue, field);
+		case YEAR:
+			return ((LocalDate) dbValue).getYear();
 		case UNKNOWN:
 			return "";
 		default:
@@ -334,7 +331,9 @@ public abstract class GeneralDB {
 
 	public abstract void processData(Map<String, Object> dbRecord) throws Exception;
 
-	public abstract void createDbHeader() throws Exception;
+	public void createDbHeader() throws Exception {
+		// Nothing to do here
+	}
 
 	public abstract void readTableContents() throws Exception;
 }

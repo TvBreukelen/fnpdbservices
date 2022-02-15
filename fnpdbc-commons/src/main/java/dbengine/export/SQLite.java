@@ -2,7 +2,6 @@ package dbengine.export;
 
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.sql.ResultSet;
 
 import application.preferences.Profiles;
 import application.utils.FNProgException;
@@ -43,10 +42,5 @@ public class SQLite extends SqlDB implements IConvert {
 						myImportFile.getDbType(), header);
 			}
 		}
-	}
-
-	@Override
-	protected Object getObject(int colType, int colNo, ResultSet rs) throws Exception {
-		return rs.getString(colNo);
 	}
 }

@@ -367,11 +367,6 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void createDbHeader() throws Exception {
-		// No header is used
-	}
-
-	@Override
 	public Map<String, Object> readRecord() throws Exception {
 		Map<String, Object> result = new HashMap<>();
 

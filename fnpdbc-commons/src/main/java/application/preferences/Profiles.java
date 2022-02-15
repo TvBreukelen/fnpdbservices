@@ -442,7 +442,7 @@ public abstract class Profiles extends Project {
 		for (int i = 0; i < this.groupField.length; i++) {
 			if (!this.groupField[i].equals(groupField)) {
 				aGroupfield.add(this.groupField[i]);
-				aGroupingfield.add(this.groupingField[i]);
+				aGroupingfield.add(groupingField[i]);
 			}
 			setGroupField(i, "");
 			setGroupingField(i, "");

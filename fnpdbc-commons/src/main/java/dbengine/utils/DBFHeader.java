@@ -90,7 +90,7 @@ public class DBFHeader {
 		int fieldLen = isDB7() ? 48 : 32;
 
 		List<DBFField> vFields = new ArrayList<>();
-		while (read <= this.headerLength - fieldLen) {
+		while (read <= headerLength - fieldLen) {
 			DBFField field = DBFField.createField(in, isDB7());
 			if (field != null) {
 				vFields.add(field);
