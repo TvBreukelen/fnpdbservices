@@ -48,14 +48,43 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			closeFile();
 		}
 
+		boolean isMariaDB = myHelper.getDatabaseType() == ExportFile.MARIADB;
+
 		// Try to obtain the database connection
-		String url = myDatabaseHelper.getDatabaseType() == ExportFile.MARIADB ? "jdbc:mariadb://" + myDatabase
-				: "jdbc:sqlite:" + myDatabase;
+		StringBuilder url = new StringBuilder();
+		url.append(isMariaDB ? "jdbc:mariadb://" : "jdbc:sqlite:");
+		url.append(myDatabase);
 
-		String user = myDatabaseHelper.getUser();
-		String password = General.decryptPassword(myDatabaseHelper.getPassword());
+		if (myHelper.isUseSsl()) {
+			boolean isServerValidation = false;
+			if (!myHelper.getSslCertificate().isEmpty()) {
+				url.append(";SSLCERT=").append(myHelper.getSslCertificate());
+				isServerValidation = true;
+			}
 
-		connection = DriverManager.getConnection(url, user, password);
+			if (!myHelper.getSslPrivateKey().isEmpty()) {
+				url.append(";SSLKEY=").append(myHelper.getSslPrivateKey());
+				isServerValidation = true;
+			}
+
+			if (!myHelper.getSslCACertificate().isEmpty()) {
+				url.append(";SSLCA=").append(myHelper.getSslCACertificate());
+				isServerValidation = true;
+			}
+
+			if (!myHelper.getSslCipher().isEmpty()) {
+				url.append(";SSLCIPHER=").append(myHelper.getSslCipher());
+			}
+
+			if (isServerValidation) {
+				url.append(";SSLVERIFY=1");
+			}
+		}
+
+		connection = isMariaDB
+				? DriverManager.getConnection(url.toString(), myHelper.getUser(),
+						General.decryptPassword(myHelper.getPassword()))
+				: DriverManager.getConnection(url.toString());
 		isConnected = true;
 	}
 

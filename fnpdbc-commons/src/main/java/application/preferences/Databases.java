@@ -15,6 +15,13 @@ public class Databases {
 	private String databaseType = "";
 	private String databaseVersion = "";
 
+	// Remote databases
+	private String sslPrivateKey = "";
+	private String sslCACertificate = "";
+	private String sslCertificate = "";
+	private String sslCipher = "";
+	private boolean useSsl = false;
+
 	// For the import of Text files
 	private String fieldSeparator = ",";
 	private String textDelimiter = "\"";
@@ -56,11 +63,18 @@ public class Databases {
 
 		myPref = parent.node(databaseID);
 		this.databaseID = databaseID;
+
 		databaseFile = myPref.get(DB_FILE, "");
 		databasePassword = myPref.get("database.password", "");
 		databaseType = myPref.get("database.type", "");
 		databaseUser = myPref.get("database.user", "");
 		databaseVersion = myPref.get("database.version", "");
+
+		sslPrivateKey = myPref.get("ssl.private.key", "");
+		sslCACertificate = myPref.get("ssl.ca.certificate", "");
+		sslCertificate = myPref.get("ssl.certificate", "");
+		sslCipher = myPref.get("ssl.cipher", "");
+		useSsl = myPref.getBoolean("use.ssl", false);
 
 		fieldSeparator = myPref.get("field.separator", ",");
 		textDelimiter = myPref.get("text.delimiter", "\"");
@@ -146,6 +160,51 @@ public class Databases {
 	public void setDatabaseVersion(String databaseVersion) {
 		PrefUtils.writePref(myPref, "database.version", databaseVersion, this.databaseVersion, "");
 		this.databaseVersion = databaseVersion;
+	}
+
+	public String getSslPrivateKey() {
+		return sslPrivateKey;
+	}
+
+	public void setSslPrivateKey(String sslPrivateKey) {
+		PrefUtils.writePref(myPref, "ssl.private.key", sslPrivateKey, this.sslPrivateKey, "");
+		this.sslPrivateKey = sslPrivateKey;
+	}
+
+	public String getSslCACertificate() {
+		return sslCACertificate;
+	}
+
+	public void setSslCACertificate(String sslCACertificate) {
+		PrefUtils.writePref(myPref, "ssl.ca.certificate", sslCACertificate, this.sslCACertificate, "");
+		this.sslCACertificate = sslCACertificate;
+	}
+
+	public String getSslCertificate() {
+		return sslCertificate;
+	}
+
+	public void setSslCertificate(String sslCertificate) {
+		PrefUtils.writePref(myPref, "ssl.certificate", sslCertificate, this.sslCertificate, "");
+		this.sslCertificate = sslCertificate;
+	}
+
+	public String getSslCipher() {
+		return sslCipher;
+	}
+
+	public void setSslCipher(String sslCipher) {
+		PrefUtils.writePref(myPref, "ssl.cipher", sslCipher, this.sslCipher, "");
+		this.sslCipher = sslCipher;
+	}
+
+	public boolean isUseSsl() {
+		return useSsl;
+	}
+
+	public void setUseSsl(boolean useSsl) {
+		PrefUtils.writePref(myPref, "use.ssl", useSsl, this.useSsl, false);
+		this.useSsl = useSsl;
 	}
 
 	public String getFieldSeparator() {

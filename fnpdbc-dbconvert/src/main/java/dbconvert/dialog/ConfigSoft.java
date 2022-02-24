@@ -267,11 +267,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	@Override
 	public void verifyDatabase(boolean isFirstRun) {
-		DatabaseHelper helper = dbFactory.getDbInHelper();
-		helper.setDatabaseType(myImportFile);
+		dbVerified = dbFactory.getDbInHelper();
+		dbVerified.setDatabaseType(myImportFile);
 
 		if (isFirstRun) {
-			dbVerified = isNewProfile ? dbFactory.getNewDbInHelper(myImportFile) : helper;
+			if (isNewProfile) {
+				dbVerified = dbFactory.getNewDbInHelper(myImportFile);
+			}
 		} else {
 			String docValue = fdDatabase.getText();
 			if (!docValue.isEmpty()) {
@@ -281,11 +283,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 				}
 			}
 
-			if (dbVerified.getDatabase().equals(docValue)) {
-				return;
-			}
-
-			dbVerified = helper;
 			dbVerified.setDatabase(docValue);
 		}
 
@@ -370,6 +367,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbSettings.setDatabaseFile(dbVerified.getDatabase());
 		dbSettings.setDatabaseUser(myImportFile.isUserSupported() ? dbVerified.getUser() : "");
 		dbSettings.setDatabasePassword(myImportFile.isPasswordSupported() ? dbVerified.getPassword() : "");
+		dbSettings.setSslPrivateKey(dbVerified.getSslPrivateKey());
+		dbSettings.setSslCACertificate(dbVerified.getSslCACertificate());
+		dbSettings.setSslCertificate(dbVerified.getSslCertificate());
+		dbSettings.setSslCipher(dbVerified.getSslCipher());
+		dbSettings.setUseSsl(dbVerified.isUseSsl());
 
 		pdaSettings.setProject(projectID);
 		pdaSettings.setProfile(profileID);

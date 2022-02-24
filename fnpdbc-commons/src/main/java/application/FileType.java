@@ -6,8 +6,9 @@ import java.util.List;
 public enum FileType {
 	JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
 	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
-	DBF(" Dbase or FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
-	MDB(" MS Access Database (*.mdb, *.accdb)"), YAML(" Yaml (*.yml, *.yaml)");
+	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
+	MDB(" MS Access Database (*.mdb, *.accdb)"), PEM("Privacy enhanced mail certificate (*.pem)"),
+	YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
@@ -51,6 +52,9 @@ public enum FileType {
 		case MDB:
 			result.add(".mdb");
 			result.add(".accdb");
+			break;
+		case PEM:
+			result.add(".pem");
 			break;
 		case YAML:
 			result.add(".yml");

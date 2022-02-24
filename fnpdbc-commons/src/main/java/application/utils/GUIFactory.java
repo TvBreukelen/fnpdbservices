@@ -76,7 +76,8 @@ public final class GUIFactory {
 		if (StringUtils.isEmpty(text)) {
 			result = new JTextField(10);
 		} else {
-			result = new JTextField(text);
+			result = new JTextField();
+			result.setText(text);
 
 		}
 		result.setToolTipText(getToolTip(resourceID));
@@ -197,6 +198,10 @@ public final class GUIFactory {
 	}
 
 	public static String getToolTip(String resourceID) {
+		if (resourceID.isEmpty()) {
+			return resourceID;
+		}
+
 		String result = pScreens.getProperty(resourceID + ".tooltip", resourceID);
 		if (result.equals(resourceID)) {
 			result = pScreens.getProperty(resourceID + ".text", resourceID);

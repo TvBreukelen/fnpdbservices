@@ -1,0 +1,67 @@
+<html>
+<body>
+<h1>Export from a remote database</h1>
+<img src="../images/ExportRemoteDBSSL.gif">
+
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><img src="../images/Help.png"></td>
+<td>Shows this help screen</td>
+</tr>
+<tr>
+<td><img src="../images/Exit.png"></td>
+<td>Exits this screen</td>
+</tr>
+<tr>
+<td>Test Connection</td>
+<td>Test the connection settings</td>
+</tr>
+<tr>
+<td>Apply</td>
+<td>Apply the changes made on this screen</td>
+</tr>
+</table>
+<h2>SSL</h2>
+If your user has been setup by the database administrator to use SSL/TLS then here you can
+ define which certificates DBConvert should use to connect to the database. You can setup
+ DBConvert to use a one way or two way connection. Which one to use depends on the database
+ and user configuration.
+<br>
+<br>
+SSL refers to Secure Sockets Layer whereas TLS refers to Transport Layer Security. Both are
+ cryptographic protocols that authenticate data transfer between servers, systems, applications
+ and users.<br><br>
+For MariaDB connection we use only TLS with *.pem certificates.
+<h3>Use SSL</h3>
+If you don't need to use SSL then leave this check box deactivated. If SSL/TLS is required you
+ you'd need to activate it.
+<br>
+<br>
+Two-Way TLS means that both the client and server provide TLS certificates and keys. This basically
+ means that you have to enter your SSL client certificate, the SSL client private key certificate
+ and the certificate for a trusted Certificate Authority (CA).
+<br>
+<br>
+One-Way TLS means that only the server provides TLS certificates and keys. Server certificate
+ verification means that the client verifies that the certificate belongs to the server. In that case
+ you'd only need to enter here the certificate for a trusted Certificate Authority (CA) 
+<h3>SSL private key</h3>
+ Defines a path to a private key file to use for TLS. The key file must be unencrypted. This field
+  requires that you use the absolute path, not a relative path.
+<h3>SSL CA certificate</h3>
+Defines a path to a PEM file that should contain one or more X509 certificates for trusted
+ Certificate Authorities (CAs) to use for TLS. This requires you to use the absolute path, not a
+ relative path.</p>
+<h3>SSL certificate</h3>
+Defines a path to the X509 certificate file to use for TLS. This field requires that you use the
+ absolute path, not a relative path
+<h3>SSL cipher</h3>
+Defines a comma separated list of permitted ciphers or cipher suites to use for TLS. If you leave all
+ other fields blank then this allows you to establish One-Way TLS without Server Certificate Verification.
+</body>
+</html>

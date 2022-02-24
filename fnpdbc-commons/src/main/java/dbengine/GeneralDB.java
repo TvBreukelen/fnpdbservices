@@ -44,7 +44,7 @@ public abstract class GeneralDB {
 	 * @version 4.5
 	 */
 	protected BasicSoft mySoft;
-	protected DatabaseHelper myDatabaseHelper;
+	protected DatabaseHelper myHelper;
 	protected String myDatabase;
 	protected String booleanTrue;
 	protected String booleanFalse;
@@ -127,7 +127,7 @@ public abstract class GeneralDB {
 			hasBackup = General.copyFile(myDatabase, myDatabase + ".bak");
 		}
 
-		myDatabaseHelper = helper;
+		myHelper = helper;
 		FNProgException exception = null;
 
 		try {
