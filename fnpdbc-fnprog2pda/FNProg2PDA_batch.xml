@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>9.5.0.0</fileVersion>
-    <txtFileVersion>Version 9.5</txtFileVersion>
+    <fileVersion>9.6.0.0</fileVersion>
+    <txtFileVersion>Version 9.6</txtFileVersion>
     <fileDescription>FNProg2PDA Batch Program</fileDescription>
     <copyright>Tom van Breukelen 2003-2022</copyright>
-    <productVersion>9.5.0.0</productVersion>
-    <txtProductVersion>Version 9.5</txtProductVersion>
+    <productVersion>9.6.0.0</productVersion>
+    <txtProductVersion>Version 9.6</txtProductVersion>
     <productName>FNProg2PDA</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>FNProg2PDA</internalName>
