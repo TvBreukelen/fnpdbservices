@@ -144,8 +144,8 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
-Version 7
----------
+Version 7.1
+-----------
 Added support for MariaDB
 
 
