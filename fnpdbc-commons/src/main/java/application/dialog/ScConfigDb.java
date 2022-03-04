@@ -113,6 +113,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			switch (myExportFile) {
 			case ACCESS:
 			case MARIADB:
+			case POSTGRESQL:
 			case SQLITE:
 				resourceID = "table";
 				break;
@@ -201,6 +202,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(false));
 		bDatabase.setToolTipText(GUIFactory.getToolTip("pcToFile"));
 		bDatabase.addActionListener(funcSelectDb);
+
+		Dimension dim = bDatabase.getPreferredSize();
+		dim.setSize(dim.getWidth() + 10, dim.getHeight());
+		bDatabase.setPreferredSize(dim);
 
 		dbFileName = GUIFactory.getJTextField("database", "");
 		fdPassword = new JPasswordField(8);

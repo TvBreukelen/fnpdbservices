@@ -2,6 +2,7 @@ package dbengine.export;
 
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.sql.DriverManager;
 
 import application.preferences.Profiles;
 import application.utils.FNProgException;
@@ -19,7 +20,19 @@ public class SQLite extends SqlDB implements IConvert {
 		if (isInputFile) {
 			verifyHeader();
 		}
-		super.openFile(isInputFile);
+
+		// Try to obtain the database connection
+		if (isConnected) {
+			closeFile();
+		}
+
+		// Try to obtain the database connection
+		StringBuilder url = new StringBuilder();
+		url.append("jdbc:sqlite:");
+		url.append(myDatabase);
+
+		connection = DriverManager.getConnection(url.toString());
+		isConnected = true;
 	}
 
 	private void verifyHeader() throws Exception {

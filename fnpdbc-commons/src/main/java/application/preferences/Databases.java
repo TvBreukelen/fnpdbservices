@@ -22,6 +22,9 @@ public class Databases {
 	private String sslCipher = "";
 	private boolean useSsl = false;
 
+	// SSL mode for PostgreSQL
+	private String sslMode = "";
+
 	// For the import of Text files
 	private String fieldSeparator = ",";
 	private String textDelimiter = "\"";
@@ -74,6 +77,7 @@ public class Databases {
 		sslCACertificate = myPref.get("ssl.ca.certificate", "");
 		sslCertificate = myPref.get("ssl.certificate", "");
 		sslCipher = myPref.get("ssl.cipher", "");
+		sslMode = myPref.get("ssl.mode", "");
 		useSsl = myPref.getBoolean("use.ssl", false);
 
 		fieldSeparator = myPref.get("field.separator", ",");
@@ -196,6 +200,15 @@ public class Databases {
 	public void setSslCipher(String sslCipher) {
 		PrefUtils.writePref(myPref, "ssl.cipher", sslCipher, this.sslCipher, "");
 		this.sslCipher = sslCipher;
+	}
+
+	public String getSslMode() {
+		return sslMode;
+	}
+
+	public void setSslMode(String sslMode) {
+		PrefUtils.writePref(myPref, "ssl.mode", sslMode, this.sslMode, "");
+		this.sslMode = sslMode;
 	}
 
 	public boolean isUseSsl() {

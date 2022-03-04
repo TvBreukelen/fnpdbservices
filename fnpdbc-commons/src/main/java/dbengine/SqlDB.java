@@ -6,7 +6,6 @@ import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,69 +22,21 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
 	private String myTable;
-	private boolean isConnected;
 	private boolean isFirstRead = true;
 
 	private Map<Integer, List<FieldDefinition>> hTables;
 	private List<String> aTables;
 
-	private Connection connection;
+	protected Connection connection;
+	protected boolean isConnected;
 	private ResultSet dbResultSet;
 	private Statement dbStatement;
 
 	protected SqlDB(Profiles pref) {
 		super(pref);
-	}
-
-	@Override
-	protected void openFile(boolean isInputFile) throws Exception {
-		// Try to obtain the database connection
-		if (isConnected) {
-			closeFile();
-		}
-
-		boolean isMariaDB = myHelper.getDatabaseType() == ExportFile.MARIADB;
-
-		// Try to obtain the database connection
-		StringBuilder url = new StringBuilder();
-		url.append(isMariaDB ? "jdbc:mariadb://" : "jdbc:sqlite:");
-		url.append(myDatabase);
-
-		if (myHelper.isUseSsl()) {
-			boolean isServerValidation = false;
-			if (!myHelper.getSslCertificate().isEmpty()) {
-				url.append(";SSLCERT=").append(myHelper.getSslCertificate());
-				isServerValidation = true;
-			}
-
-			if (!myHelper.getSslPrivateKey().isEmpty()) {
-				url.append(";SSLKEY=").append(myHelper.getSslPrivateKey());
-				isServerValidation = true;
-			}
-
-			if (!myHelper.getSslCACertificate().isEmpty()) {
-				url.append(";SSLCA=").append(myHelper.getSslCACertificate());
-				isServerValidation = true;
-			}
-
-			if (!myHelper.getSslCipher().isEmpty()) {
-				url.append(";SSLCIPHER=").append(myHelper.getSslCipher());
-			}
-
-			if (isServerValidation) {
-				url.append(";SSLVERIFY=1");
-			}
-		}
-
-		connection = isMariaDB
-				? DriverManager.getConnection(url.toString(), myHelper.getUser(),
-						General.decryptPassword(myHelper.getPassword()))
-				: DriverManager.getConnection(url.toString());
-		isConnected = true;
 	}
 
 	@Override
@@ -95,11 +46,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		aTables = new ArrayList<>();
 
 		int index = 0;
-		String db = myImportFile == ExportFile.MARIADB ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
+		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
 		try {
 			DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet rs = metaData.getTables(null, null, "%", null);
+			String[] types = myImportFile == ExportFile.POSTGRESQL ? new String[] { "TABLE", "VIEW" } : null;
+			ResultSet rs = metaData.getTables(null, null, "%", types);
 			while (rs.next()) {
 				String tableCat = rs.getString("TABLE_CAT");
 				if (tableCat != null && !tableCat.equals(db)) {

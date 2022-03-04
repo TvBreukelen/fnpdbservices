@@ -30,6 +30,7 @@ import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
+import dbengine.export.PostgreSQL;
 import dbengine.export.SQLite;
 import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
@@ -280,6 +281,8 @@ public abstract class GeneralDB {
 			return new JsonFile(profile);
 		case MARIADB:
 			return new MariaDB(profile);
+		case POSTGRESQL:
+			return new PostgreSQL(profile);
 		case YAML:
 			return new YamlFile(profile);
 		case HANDBASE:

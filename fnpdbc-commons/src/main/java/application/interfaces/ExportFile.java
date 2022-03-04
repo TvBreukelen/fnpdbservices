@@ -12,11 +12,12 @@ public enum ExportFile {
 	 *
 	 * @author Tom van Breukelen
 	 */
-	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), ACCESS("MS-Access", FileType.MDB, 255, 255, 255),
-	EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
-	TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767), XML("Xml", FileType.XML, 32767, 32767, 32767),
-	JSON("Json", FileType.JSON, 32767, 32767, 32767), YAML("Yaml", FileType.YAML, 32767, 32767, 32767),
-	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767), DBASE("xBase", FileType.DBF, 254, 32737, 128),
+	ACCESS("MS-Access", FileType.MDB, 255, 255, 255), EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767),
+	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767),
+	XML("Xml", FileType.XML, 32767, 32767, 32767), JSON("Json", FileType.JSON, 32767, 32767, 32767),
+	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
+	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
+	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), DBASE("xBase", FileType.DBF, 254, 32737, 128),
 	DBASE3("DBase3", FileType.DBF, 254, 32737, 128), DBASE4("DBase4", FileType.DBF, 254, 32767, 255),
 	DBASE5("DBase5", FileType.DBF, 254, 32767, 1024), FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255),
 	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), JFILE3("JFile3", FileType.PDB, 64, 500, 20),
@@ -69,6 +70,7 @@ public enum ExportFile {
 			exportList.remove(SQLITE.name);
 			exportList.remove(ACCESS.name);
 			exportList.remove(MARIADB.name);
+			exportList.remove(POSTGRESQL.name);
 		}
 
 		String[] result = new String[exportList.size()];
@@ -148,6 +150,7 @@ public enum ExportFile {
 		case ACCESS:
 		case MARIADB:
 		case SQLITE:
+		case POSTGRESQL:
 			return true;
 		default:
 			return false;
@@ -169,15 +172,11 @@ public enum ExportFile {
 	}
 
 	public boolean isConnectHost() {
-		return this == MARIADB;
+		return this == MARIADB || this == POSTGRESQL;
 	}
 
 	public boolean isPasswordSupported() {
-		return this == HANDBASE || this == MARIADB;
-	}
-
-	public boolean isUserSupported() {
-		return this == HANDBASE || this == MARIADB;
+		return this == HANDBASE || this == MARIADB || this == POSTGRESQL;
 	}
 
 	public boolean isSpecialFieldSort() {
@@ -303,5 +302,4 @@ public enum ExportFile {
 			return "false";
 		}
 	}
-
 }

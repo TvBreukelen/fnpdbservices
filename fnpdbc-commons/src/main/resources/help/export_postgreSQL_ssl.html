@@ -1,0 +1,68 @@
+<html>
+<body>
+<h1>Export from a remote database</h1>
+<img src="../images/ExportPostgreSQLSSL.gif">
+
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><img src="../images/Help.png"></td>
+<td>Shows this help screen</td>
+</tr>
+<tr>
+<td><img src="../images/Exit.png"></td>
+<td>Exits this screen</td>
+</tr>
+<tr>
+<td>Test Connection</td>
+<td>Test the connection settings</td>
+</tr>
+<tr>
+<td>Apply</td>
+<td>Apply the changes made on this screen</td>
+</tr>
+</table>
+<h2>SSL</h2>
+If your user has been setup by the database administrator to use SSL then here you can
+ define which certificates DBConvert should use to connect to the database. You can setup
+ DBConvert to use a one way or two way connection. Which one to use depends on the database
+ and user configuration.
+<br>
+<br>
+<h3>Use SSL</h3>
+If you don't need to use SSL then leave this check box deactivated. If SSL is required you
+ you'd need to activate it.
+<br>
+<br>
+<h3>SSL private key</h3>
+Provide the full path for the key file. Defaults to /defaultdir/postgresql.pk8.<br>
+<b>Note:</b> The key file must be in PKCS-12 or in PKCS-8 DER format.
+<h3>SSL CA certificate</h3>
+File name of the SSL root certificate. Defaults to defaultdir/root.crt<br>
+It can be a PEM encoded X509v3 certificate
+<h3>SSL certificate</h3>
+Provide the full path for the certificate file. Defaults to /defaultdir/postgresql.crt,
+ where defaultdir is ${user.home}/.postgresql/ in *nix systems and %appdata%/postgresql/
+ on windows.
+<br>
+<br>
+It can be a PEM encoded X509v3 certificate
+<br>
+<br>
+<b>Note:</b> This parameter is ignored when using PKCS-12 keys, since in that case the certificate
+ is also retrieved from the same keyfile.
+<h3>SSL mode</h3>
+Possible values include disable, allow, prefer, require, verify-ca and verify-full. require, allow
+ and prefer all default to a non validating SSL factory and do not check the validity of the
+ certificate or the host name. verify-ca validates the certificate, but does not verify the hostname.
+ verify-full will validate that the certificate is correct and verify the host connected to has the
+ same hostname as the certificate. Default is prefer.
+<br>
+<br>
+<b>Note:</b> Setting these will necessitate storing the server certificate on the client machine.
+</body>
+</html>

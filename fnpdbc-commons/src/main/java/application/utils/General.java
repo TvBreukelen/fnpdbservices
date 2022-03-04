@@ -78,6 +78,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.painter.MattePainter;
 
+import application.FileType;
 import application.interfaces.ExportFile;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
@@ -719,6 +720,10 @@ public final class General {
 				component.setText(filename + "." + file.getFileExtention().get(0));
 			}
 		}
+	}
+
+	public static void getSelectedFile(JDialog dialog, JTextField component, FileType type, boolean isMustExist) {
+		getSelectedFile(dialog, component, "", type.getType(), isMustExist, type.getExtention());
 	}
 
 	public static void getSelectedFile(JDialog dialog, JTextField component, String dir, String fileType,

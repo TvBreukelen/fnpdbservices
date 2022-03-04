@@ -11,6 +11,7 @@ public class DatabaseHelper {
 	private String sslCACertificate = "";
 	private String sslCertificate = "";
 	private String sslCipher = "";
+	private String sslMode = "";
 	private boolean useSsl = false;
 
 	private ExportFile databaseType;
@@ -18,6 +19,9 @@ public class DatabaseHelper {
 	public DatabaseHelper(String database, ExportFile databaseType) {
 		this.database = database;
 		this.databaseType = databaseType;
+
+		user = databaseType == ExportFile.MARIADB ? "root" : "postgres";
+		sslMode = databaseType == ExportFile.MARIADB ? "" : "prefer";
 	}
 
 	public DatabaseHelper(Databases base) {
@@ -29,6 +33,7 @@ public class DatabaseHelper {
 		sslCACertificate = base.getSslCACertificate();
 		sslCertificate = base.getSslCertificate();
 		sslCipher = base.getSslCipher();
+		sslMode = base.getSslMode();
 		useSsl = base.isUseSsl();
 	}
 
@@ -96,6 +101,14 @@ public class DatabaseHelper {
 		this.sslCipher = sslCipher;
 	}
 
+	public String getSslMode() {
+		return sslMode;
+	}
+
+	public void setSslMode(String sslMode) {
+		this.sslMode = sslMode;
+	}
+
 	public boolean isUseSsl() {
 		return useSsl;
 	}
@@ -112,6 +125,7 @@ public class DatabaseHelper {
 		result.setSslCACertificate(sslCACertificate);
 		result.setSslCertificate(sslCertificate);
 		result.setSslCipher(sslCipher);
+		result.setSslMode(sslMode);
 		result.setUseSsl(useSsl);
 		return result;
 	}

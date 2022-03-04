@@ -115,7 +115,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.CALC : ExportFile.getExportFile(dbSettings.getDatabaseType());
+		myImportFile = isNewProfile ? ExportFile.ACCESS : ExportFile.getExportFile(dbSettings.getDatabaseType());
 		dbFactory = new XConverter();
 
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
@@ -323,7 +323,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			bTablesWorksheets.addItem(s);
 		}
 
-		bTablesWorksheets.setVisible(names.size() > 1);
+		bTablesWorksheets.setEnabled(names.size() > 1);
 		bTablesWorksheets.setSelectedItem(pdaSettings.getTableName());
 		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
 	}
@@ -343,6 +343,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		myExportFile = configDb.getExportFile();
 		String projectID = myExportFile.getName();
 		String profileID = profile.getText().trim();
+		String db = pdaSettings.getTableName();
 
 		if (!isNewProfile) {
 			ProfileObject obj = model.getProfileObject();
@@ -365,7 +366,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbSettings.setNode(node);
 		dbSettings.setDatabaseType(myImportFile.getName());
 		dbSettings.setDatabaseFile(dbVerified.getDatabase());
-		dbSettings.setDatabaseUser(myImportFile.isUserSupported() ? dbVerified.getUser() : "");
+		dbSettings.setDatabaseUser(myImportFile.isPasswordSupported() ? dbVerified.getUser() : "");
 		dbSettings.setDatabasePassword(myImportFile.isPasswordSupported() ? dbVerified.getPassword() : "");
 		dbSettings.setSslPrivateKey(dbVerified.getSslPrivateKey());
 		dbSettings.setSslCACertificate(dbVerified.getSslCACertificate());
@@ -387,10 +388,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		case EXCEL:
 		case ACCESS:
 		case MARIADB:
+		case POSTGRESQL:
 		case SQLITE:
-			if (bTablesWorksheets.isVisible()) {
-				pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), true);
-			}
+			pdaSettings.setTableName(db, true);
 			break;
 		default:
 			break;
@@ -457,7 +457,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			setTablesOrWorksheets();
 
 			tabPane.setEnabledAt(1, isFileValid);
-			bTablesWorksheets.setVisible(bTablesWorksheets.getItemCount() > 1);
+			bTablesWorksheets.setVisible(bTablesWorksheets.getItemCount() > 0);
 			lTablesWorkSheets.setVisible(bTablesWorksheets.isVisible());
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
