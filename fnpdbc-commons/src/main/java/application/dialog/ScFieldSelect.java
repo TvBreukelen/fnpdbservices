@@ -1,6 +1,7 @@
 package application.dialog;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -173,9 +174,13 @@ public class ScFieldSelect implements PropertyChangeListener {
 		scSelectedFields = new JScrollPane(tbSelectedFields);
 		scSelectedFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("selectedFields")));
 
-		panel.add(scroll, c.gridCell(1, 0, 1, 1));
-		panel.add(createButtonPanel(), c.gridCell(2, 0, 0, 0));
-		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
+		Dimension dim = scroll.getPreferredSize();
+		dim.setSize(Math.max(dim.getWidth(), 120), dim.getHeight());
+		scroll.setPreferredSize(dim);
+
+		panel.add(scroll, c.gridCell(0, 0, 0, 0));
+		panel.add(createButtonPanel(), c.gridCell(1, 0, 0, 0));
+		panel.add(scSelectedFields, c.gridCell(2, 0, 0, 0));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
 		lstAvailableFields.setSelectedIndex(0);
