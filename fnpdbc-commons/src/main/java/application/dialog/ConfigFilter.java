@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -183,11 +185,10 @@ public class ConfigFilter extends BasicDialog {
 					formattedText[index].setValue(Double.valueOf(value.toString()));
 					break;
 				case DATE:
-					datePicker.setDate(General.convertDate2DB(filterValue[index], General.sdInternalDate));
+					datePicker.setDate((LocalDate) value);
 					break;
 				case TIMESTAMP:
-					dateTimePicker.setDateTimeStrict(
-							General.convertTimestamp2DB(filterValue[index], General.sdInternalTimestamp));
+					dateTimePicker.setDateTimeStrict((LocalDateTime) value);
 					break;
 				default:
 					break;
@@ -535,12 +536,11 @@ public class ConfigFilter extends BasicDialog {
 		default:
 			ScrollComboBoxImpl jc = new ScrollComboBoxImpl();
 			jc.setActionCommand(Integer.toString(index));
-			jc.setRenderer(new CellRenderer(dbDef.getFieldType()));
 
 			try {
 				List<Object> v = dbFactory.getDbFieldValues(dbField);
 				for (Object obj : v) {
-					jc.addItem(obj.toString());
+					jc.addItem(General.convertObject(obj, dbDef.getFieldType()));
 				}
 
 				jc.setSelectedItem(filterValue[index]);
@@ -550,8 +550,8 @@ public class ConfigFilter extends BasicDialog {
 				}
 
 			} catch (Exception ex) {
-				General.errorMessage(this, ex, GUIFactory.getTitle("databaseProblem"),
-						GUIFactory.getMessage("databaseReadError", dbFactory.getDatabaseFilename()));
+				General.errorMessage(this, ex, GUIFactory.getTitle("databaseReadError"),
+						GUIFactory.getMessage("databaseReadProblem", dbFactory.getDatabaseFilename()));
 			}
 
 			Dimension size = jc.getPreferredSize();

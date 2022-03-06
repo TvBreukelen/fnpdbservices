@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +75,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					String type = columns.getString(6);
 					if (!(type.isEmpty() || type.equals("TEXT"))) {
 						if (!(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
+							// Non SQL compatible field
 							continue;
 						}
 					}
@@ -152,6 +153,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.DATE);
 			field.setSQLType(Types.DATE);
 			break;
+		case "DATETIME":
+		case "TIMESTAMP":
+			field.setFieldType(FieldTypes.TIMESTAMP);
+			field.setSQLType(Types.TIMESTAMP);
+			break;
 		case "INTEGER":
 			field.setFieldType(FieldTypes.NUMBER);
 			field.setSQLType(Types.INTEGER);
@@ -164,9 +170,15 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.TIME);
 			field.setSQLType(Types.TIME);
 			break;
-		case "TIMESTAMP":
-			field.setFieldType(FieldTypes.TIMESTAMP);
-			field.setSQLType(Types.TIMESTAMP);
+		// money, time and timestamps with time zones will be treated as string
+		case "money":
+			field.setFieldType(FieldTypes.FLOAT);
+			field.setSQLType(Types.NUMERIC);
+			break;
+		case "timestamptz":
+		case "timetz":
+			field.setFieldType(FieldTypes.TEXT);
+			field.setSQLType(Types.VARCHAR);
 			break;
 		case "YEAR":
 			field.setFieldType(FieldTypes.YEAR);
@@ -212,17 +224,19 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	public Map<String, Object> readRecord() throws Exception {
 		if (isFirstRead) {
 			dbStatement = connection.createStatement();
-			List<FieldDefinition> fields = getTableModelFields();
+
 			StringBuilder buf = new StringBuilder("SELECT ");
-
-			for (FieldDefinition field : fields) {
+			getTableModelFields().forEach(field -> {
 				buf.append(field.getFieldName());
+				if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
+					// cast money field to numeric, otherwise a string preceded by a currency sign
+					// will be returned (like $1,000.99)
+					buf.append("::numeric");
+				}
 				buf.append(", ");
-			}
-
+			});
 			buf.delete(buf.length() - 2, buf.length());
-			buf.append(" FROM ");
-			buf.append(myTable);
+			buf.append(" FROM ").append(myTable);
 
 			dbResultSet = dbStatement.executeQuery(buf.toString());
 			isFirstRead = false;
@@ -230,16 +244,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		Map<String, Object> result = new HashMap<>();
 		int index = 1;
+
 		if (dbResultSet.next()) {
-			String fieldName = "";
-			try {
-				for (FieldDefinition field : getTableModelFields()) {
-					fieldName = field.getFieldName();
+			for (FieldDefinition field : getTableModelFields()) {
+				try {
 					Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
 					result.put(field.getFieldAlias(), obj);
+				} catch (Exception e) {
+					throw new Exception(
+							"Unable to read database field '" + field.getFieldName() + "', due to\n" + e.toString());
 				}
-			} catch (Exception e) {
-				throw new Exception("Unable to read database field '" + fieldName + "', due to\n" + e.toString());
 			}
 		} else {
 			dbStatement.close();
@@ -295,8 +309,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return rs.getDouble(colNo);
 		case Types.DATE:
 			try {
-				Date date = rs.getDate(colNo);
-				return date == null ? "" : date.toLocalDate();
+				LocalDate date = rs.getObject(colNo, LocalDate.class);
+				return date == null ? "" : date;
 			} catch (IllegalArgumentException e) {
 				// We are dealing with a Year "0000" (MariaDB)
 				return "";
@@ -313,8 +327,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			Timestamp ts = rs.getTimestamp(colNo);
 			return ts == null ? "" : ts.toLocalDateTime();
 		case Types.TIME:
-			Time time = rs.getTime(colNo);
-			return time == null ? "" : time.toLocalTime();
+			LocalTime time = rs.getObject(colNo, LocalTime.class);
+			return time == null ? "" : time;
 		default:
 			String s = rs.getString(colNo);
 			return s == null ? "" : s;

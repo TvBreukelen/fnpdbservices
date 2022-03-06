@@ -80,6 +80,7 @@ import org.jdesktop.swingx.painter.MattePainter;
 
 import application.FileType;
 import application.interfaces.ExportFile;
+import application.interfaces.FieldTypes;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.table.BooleanRenderer;
@@ -476,6 +477,26 @@ public final class General {
 		}
 		result.append(".");
 		return result.toString();
+	}
+
+	public static String convertObject(Object value, FieldTypes dbField) {
+		if (value != null && !value.equals("")) {
+			switch (dbField) {
+			case DATE:
+				return convertDate((LocalDate) value, General.getSimpleDateFormat());
+			case FUSSY_DATE:
+				return convertFussyDate(value.toString());
+			case DURATION:
+				return convertDuration((Duration) value);
+			case TIME:
+				return convertTime((LocalTime) value, General.getSimpleTimeFormat());
+			case TIMESTAMP:
+				return convertTimestamp((LocalDateTime) value, General.getSimpleTimestampFormat());
+			default:
+				return value.toString();
+			}
+		}
+		return "";
 	}
 
 	public static boolean copyFile(String fromFile, String toFile) throws Exception {
