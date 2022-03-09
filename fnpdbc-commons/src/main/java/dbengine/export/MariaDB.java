@@ -1,56 +1,56 @@
 package dbengine.export;
 
 import java.sql.DriverManager;
+import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
 
 import application.preferences.Profiles;
 import application.utils.General;
 import dbengine.SqlDB;
 
 public class MariaDB extends SqlDB {
+	private Properties info;
+
 	public MariaDB(Profiles pref) {
 		super(pref);
 	}
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		// Try to obtain the database connection
+		// Close any existing database connection
 		if (isConnected) {
 			closeFile();
 		}
 
-		// Try to obtain the database connection
-		StringBuilder url = new StringBuilder();
-		url.append("jdbc:mariadb://");
-		url.append(myDatabase);
+		// Try to obtain a new database connection
+		info = new Properties();
+		info.put("user", myHelper.getUser());
+		info.put("password", General.decryptPassword(myHelper.getPassword()));
 
 		if (myHelper.isUseSsl()) {
-			boolean isServerValidation = false;
-			if (!myHelper.getSslCertificate().isEmpty()) {
-				url.append(";SSLCERT=").append(myHelper.getSslCertificate());
-				isServerValidation = true;
-			}
-
-			if (!myHelper.getSslPrivateKey().isEmpty()) {
-				url.append(";SSLKEY=").append(myHelper.getSslPrivateKey());
-				isServerValidation = true;
-			}
-
-			if (!myHelper.getSslCACertificate().isEmpty()) {
-				url.append(";SSLCA=").append(myHelper.getSslCACertificate());
-				isServerValidation = true;
-			}
-
-			if (!myHelper.getSslCipher().isEmpty()) {
-				url.append(";SSLCIPHER=").append(myHelper.getSslCipher());
-			}
-
-			if (isServerValidation) {
-				url.append(";SSLVERIFY=1");
-			}
+			info.put("ssl", "true");
+			addToProperies("sslMode", myHelper.getSslMode());
+			addToProperies("serverSslCert", myHelper.getServerSslCert());
+			addToProperies("keyStore", myHelper.getKeyStore());
+			addToProperies("keyStorePassword", General.decryptPassword(myHelper.getKeyStorePassword()));
+			addToProperies("keyStoreType", getKeyStoreType());
 		}
 
-		connection = DriverManager.getConnection(url.toString(), myHelper.getUser(),
-				General.decryptPassword(myHelper.getPassword()));
+		connection = DriverManager.getConnection("jdbc:mariadb://" + myDatabase, info);
 		isConnected = true;
+	}
+
+	private void addToProperies(String key, String value) {
+		if (StringUtils.isNotBlank(value)) {
+			info.put(key, value);
+		}
+	}
+
+	private String getKeyStoreType() {
+		if (StringUtils.isNotBlank(myHelper.getKeyStore())) {
+			return myHelper.getKeyStore().toLowerCase().endsWith(".jks") ? "JKS" : "PKCS12";
+		}
+		return "";
 	}
 }

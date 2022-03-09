@@ -70,7 +70,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		dbInHelper = new DatabaseHelper(dbSettings);
 
 		myFile = new String[2];
-		myFile[0] = dbSettings.getDatabaseFile();
+		myFile[0] = dbSettings.getDatabase();
 		myFile[1] = pdaSettings.getExportFile();
 
 		dbDataRecord.clear();

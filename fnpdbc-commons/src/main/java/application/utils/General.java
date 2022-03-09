@@ -479,24 +479,27 @@ public final class General {
 		return result.toString();
 	}
 
-	public static String convertObject(Object value, FieldTypes dbField) {
-		if (value != null && !value.equals("")) {
-			switch (dbField) {
-			case DATE:
-				return convertDate((LocalDate) value, General.getSimpleDateFormat());
-			case FUSSY_DATE:
-				return convertFussyDate(value.toString());
-			case DURATION:
-				return convertDuration((Duration) value);
-			case TIME:
-				return convertTime((LocalTime) value, General.getSimpleTimeFormat());
-			case TIMESTAMP:
-				return convertTimestamp((LocalDateTime) value, General.getSimpleTimestampFormat());
-			default:
-				return value.toString();
-			}
+	public static String convertObject(Object obj, FieldTypes dbField) {
+		if (obj == null || obj.equals("")) {
+			return "";
 		}
-		return "";
+		switch (dbField) {
+		case DATE:
+			return convertDate((LocalDate) obj, General.getSimpleDateFormat());
+		case FUSSY_DATE:
+			return convertFussyDate(obj.toString());
+		case DURATION:
+			return convertDuration((Duration) obj);
+		case TIME:
+			return convertTime((LocalTime) obj, General.getSimpleTimeFormat());
+		case TIMESTAMP:
+			return convertTimestamp((LocalDateTime) obj, General.getSimpleTimestampFormat());
+		case YEAR:
+			int year = ((LocalDate) obj).getYear();
+			return year == 0 ? "" : Integer.toString(year);
+		default:
+			return obj.toString();
+		}
 	}
 
 	public static boolean copyFile(String fromFile, String toFile) throws Exception {

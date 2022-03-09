@@ -5,24 +5,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
+import application.interfaces.ExportFile;
+import application.interfaces.IDatabaseHelper;
 import application.interfaces.TvBSoftware;
 
-public class Databases {
+public class Databases implements IDatabaseHelper {
 	private String databaseID = "";
 	private String databaseFile = "";
 	private String databasePassword = "";
 	private String databaseUser = "";
-	private String databaseType = "";
+	private String databaseType;
 	private String databaseVersion = "";
 
 	// Remote databases
-	private String sslPrivateKey = "";
-	private String sslCACertificate = "";
-	private String sslCertificate = "";
-	private String sslCipher = "";
 	private boolean useSsl = false;
-
-	// SSL mode for PostgreSQL
+	private String serverSslCert = "";
+	private String serverSslCaCert = "";
+	private String keyStore = "";
+	private String keyStorePassword = "";
 	private String sslMode = "";
 
 	// For the import of Text files
@@ -73,10 +73,10 @@ public class Databases {
 		databaseUser = myPref.get("database.user", "");
 		databaseVersion = myPref.get("database.version", "");
 
-		sslPrivateKey = myPref.get("ssl.private.key", "");
-		sslCACertificate = myPref.get("ssl.ca.certificate", "");
-		sslCertificate = myPref.get("ssl.certificate", "");
-		sslCipher = myPref.get("ssl.cipher", "");
+		serverSslCert = myPref.get("ssl.server.cert", "");
+		serverSslCaCert = myPref.get("ssl.server.ca.cert", "");
+		keyStore = myPref.get("ssl.keystore", "");
+		keyStorePassword = myPref.get("ssl.keystore.password", "");
 		sslMode = myPref.get("ssl.mode", "");
 		useSsl = myPref.getBoolean("use.ssl", false);
 
@@ -120,39 +120,56 @@ public class Databases {
 		return databaseID;
 	}
 
-	public String getDatabaseFile() {
+	@Override
+	public String getDatabase() {
 		return databaseFile;
 	}
 
-	public void setDatabaseFile(String databaseFile) {
+	@Override
+	public void setDatabase(String databaseFile) {
 		PrefUtils.writePref(myPref, DB_FILE, databaseFile, this.databaseFile, "");
 		this.databaseFile = databaseFile;
 		fillNodes();
 	}
 
-	public String getDatabasePassword() {
+	@Override
+	public String getPassword() {
 		return databasePassword;
 	}
 
-	public void setDatabasePassword(String databasePassword) {
+	@Override
+	public void setPassword(String databasePassword) {
 		PrefUtils.writePref(myPref, "database.password", databasePassword, this.databasePassword, "");
 		this.databasePassword = databasePassword;
 	}
 
-	public String getDatabaseUser() {
+	@Override
+	public String getUser() {
 		return databaseUser;
 	}
 
-	public void setDatabaseUser(String databaseUser) {
+	@Override
+	public void setUser(String databaseUser) {
 		PrefUtils.writePref(myPref, "database.user", databaseUser, this.databaseUser, "");
 		this.databaseUser = databaseUser;
 	}
 
-	public String getDatabaseType() {
+	@Override
+	public ExportFile getDatabaseType() {
+		return ExportFile.getExportFile(databaseType);
+	}
+
+	@Override
+	public void setDatabaseType(ExportFile databaseType) {
+		PrefUtils.writePref(myPref, "database.type", databaseType.getName(), this.databaseType, "");
+		this.databaseType = databaseType.getName();
+	}
+
+	public String getDatabaseTypeAsString() {
 		return databaseType;
 	}
 
-	public void setDatabaseType(String databaseType) {
+	public void setDatabaseTypeAsString(String databaseType) {
 		PrefUtils.writePref(myPref, "database.type", databaseType, this.databaseType, "");
 		this.databaseType = databaseType;
 	}
@@ -166,58 +183,70 @@ public class Databases {
 		this.databaseVersion = databaseVersion;
 	}
 
-	public String getSslPrivateKey() {
-		return sslPrivateKey;
+	@Override
+	public boolean isUseSsl() {
+		return useSsl;
 	}
 
-	public void setSslPrivateKey(String sslPrivateKey) {
-		PrefUtils.writePref(myPref, "ssl.private.key", sslPrivateKey, this.sslPrivateKey, "");
-		this.sslPrivateKey = sslPrivateKey;
+	@Override
+	public void setUseSsl(boolean useSsl) {
+		PrefUtils.writePref(myPref, "use.ssl", useSsl, this.useSsl, false);
+		this.useSsl = useSsl;
 	}
 
-	public String getSslCACertificate() {
-		return sslCACertificate;
-	}
-
-	public void setSslCACertificate(String sslCACertificate) {
-		PrefUtils.writePref(myPref, "ssl.ca.certificate", sslCACertificate, this.sslCACertificate, "");
-		this.sslCACertificate = sslCACertificate;
-	}
-
-	public String getSslCertificate() {
-		return sslCertificate;
-	}
-
-	public void setSslCertificate(String sslCertificate) {
-		PrefUtils.writePref(myPref, "ssl.certificate", sslCertificate, this.sslCertificate, "");
-		this.sslCertificate = sslCertificate;
-	}
-
-	public String getSslCipher() {
-		return sslCipher;
-	}
-
-	public void setSslCipher(String sslCipher) {
-		PrefUtils.writePref(myPref, "ssl.cipher", sslCipher, this.sslCipher, "");
-		this.sslCipher = sslCipher;
-	}
-
+	@Override
 	public String getSslMode() {
 		return sslMode;
 	}
 
+	@Override
 	public void setSslMode(String sslMode) {
 		PrefUtils.writePref(myPref, "ssl.mode", sslMode, this.sslMode, "");
 		this.sslMode = sslMode;
 	}
 
-	public boolean isUseSsl() {
-		return useSsl;
+	@Override
+	public String getServerSslCert() {
+		return serverSslCert;
 	}
 
-	public void setUseSsl(boolean useSsl) {
-		PrefUtils.writePref(myPref, "use.ssl", useSsl, this.useSsl, false);
-		this.useSsl = useSsl;
+	@Override
+	public void setServerSslCert(String serverSslCert) {
+		PrefUtils.writePref(myPref, "ssl.server.cert", serverSslCert, this.serverSslCert, "");
+		this.serverSslCert = serverSslCert;
+	}
+
+	@Override
+	public String getServerSslCaCert() {
+		return serverSslCaCert;
+	}
+
+	@Override
+	public void setServerSslCaCert(String serverSslCaCert) {
+		PrefUtils.writePref(myPref, "ssl.server.ca.cert", serverSslCaCert, this.serverSslCaCert, "");
+		this.serverSslCaCert = serverSslCaCert;
+	}
+
+	@Override
+	public String getKeyStore() {
+		return keyStore;
+	}
+
+	@Override
+	public void setKeyStore(String keyStore) {
+		PrefUtils.writePref(myPref, "ssl.keystore", keyStore, this.keyStore, "");
+		this.keyStore = keyStore;
+	}
+
+	@Override
+	public String getKeyStorePassword() {
+		return keyStorePassword;
+	}
+
+	@Override
+	public void setKeyStorePassword(String keyStorePassword) {
+		PrefUtils.writePref(myPref, "ssl.keystore.password", keyStorePassword, this.keyStorePassword, "");
+		this.keyStorePassword = keyStorePassword;
 	}
 
 	public String getFieldSeparator() {

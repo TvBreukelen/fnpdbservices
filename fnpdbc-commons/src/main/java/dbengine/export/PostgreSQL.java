@@ -3,6 +3,8 @@ package dbengine.export;
 import java.sql.DriverManager;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
+
 import application.preferences.Profiles;
 import application.utils.General;
 import dbengine.SqlDB;
@@ -14,7 +16,7 @@ public class PostgreSQL extends SqlDB {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		// Try to obtain the database connection
+		// close an existing database connection
 		if (isConnected) {
 			closeFile();
 		}
@@ -26,38 +28,27 @@ public class PostgreSQL extends SqlDB {
 
 		if (myHelper.isUseSsl()) {
 			StringBuilder options = new StringBuilder();
+			props.put("ssl", "true");
+			addOption("sslcert", myHelper.getServerSslCert(), options);
+			addOption("sslkey", myHelper.getKeyStore(), options);
+			addOption("sslpassword", General.decryptPassword(myHelper.getKeyStorePassword()), options);
+			addOption("sslrootcert", myHelper.getServerSslCaCert(), options);
+			addOption("sslmode", myHelper.getSslMode(), options);
 
-			// SSL certificate
-			if (!myHelper.getSslCertificate().isEmpty()) {
-				options.append(",sslcert=").append(myHelper.getSslCertificate());
-			}
-
-			// SSL private key
-			if (!myHelper.getSslPrivateKey().isEmpty()) {
-				options.append(",sslkey=").append(myHelper.getSslPrivateKey());
-			}
-
-			// SSL root certificate
-			if (!myHelper.getSslCACertificate().isEmpty()) {
-				options.append(",sslrootcert=").append(myHelper.getSslCACertificate());
-			}
-
-			// SSL mode
-			if (!myHelper.getSslMode().isEmpty()) {
-				options.append(",sslmode=").append(myHelper.getSslMode());
-			}
-
-			// Check if additional options are set
 			if (options.length() > 0) {
-				// Remove first comma
-				options.delete(0, 1);
+				options.delete(0, 1); // remove first comma
 				props.setProperty("options", options.toString());
-			} else {
-				props.setProperty("ssl", "true"); // Same as verify-full
 			}
 		}
 
 		connection = DriverManager.getConnection("jdbc:postgresql://" + myDatabase, props);
 		isConnected = true;
 	}
+
+	private void addOption(String key, String value, StringBuilder options) {
+		if (StringUtils.isNotBlank(value)) {
+			options.append(",").append(key).append("=").append(value);
+		}
+	}
+
 }

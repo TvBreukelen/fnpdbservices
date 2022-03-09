@@ -61,7 +61,7 @@ public class ConfigFNProg extends ProgramDialog {
 				pdaSettings.setTableName(myFnSoftware.getViews()[0], false);
 			}
 
-			myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseType());
+			myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
 			lSoftwareID.setText(dbSettings.getDatabaseType() + " " + dbSettings.getDatabaseVersion() + " / "
 					+ pdaSettings.getTableName());
 		} else {
@@ -77,7 +77,7 @@ public class ConfigFNProg extends ProgramDialog {
 	@Override
 	public void updateProfile(Action action) {
 		super.updateProfile(action);
-		myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseType());
+		myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
 	}
 
 	@Override

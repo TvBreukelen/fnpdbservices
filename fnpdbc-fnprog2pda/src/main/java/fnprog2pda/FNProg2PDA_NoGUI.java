@@ -110,14 +110,15 @@ public class FNProg2PDA_NoGUI implements PropertyChangeListener {
 		System.out.println("--------------------------------------------------------");
 		System.out.println(guiText[0] + myProfileID);
 		System.out.println("--------------------------------------------------------");
-		System.out.println(guiText[1] + dbSettings.getDatabaseFile());
+		System.out.println(guiText[1] + dbSettings.getDatabase());
 		System.out.println(guiText[2]
-				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseType(), dbSettings.getDatabaseVersion()) + "\n");
+				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseTypeAsString(), dbSettings.getDatabaseVersion())
+				+ "\n");
 		System.out.println(guiText[3] + pdaSettings.getExportFile());
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");
 
-		FNPSoftware soft = FNPSoftware.getSoftware(dbSettings.getDatabaseType());
+		FNPSoftware soft = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
 		mySoftware = FNProgramvare.getSoftware(soft);
 		if (pdaSettings.getTableName().isEmpty()) {
 			pdaSettings.setTableName(soft.getViews()[0], true);

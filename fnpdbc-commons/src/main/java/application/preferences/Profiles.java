@@ -190,13 +190,13 @@ public abstract class Profiles extends Project {
 	public String getImportFileProgram() {
 		Databases db = getDbSettings();
 		if (db.getDatabaseVersion().isEmpty()) {
-			return db.getDatabaseType();
+			return db.getDatabaseTypeAsString();
 		}
-		return db.getDatabaseType() + " (" + db.getDatabaseVersion() + ")";
+		return db.getDatabaseTypeAsString() + " (" + db.getDatabaseVersion() + ")";
 	}
 
 	public String getImportFile() {
-		return getDbSettings().getDatabaseFile();
+		return getDbSettings().getDatabase();
 	}
 
 	public void setExportFile(String exportFile) {

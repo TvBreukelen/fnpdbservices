@@ -234,7 +234,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	/* Method to connect to the FNProgramvare Access database */
 	public void openFile() throws Exception {
 		dbFactory.connect2DB(new DatabaseHelper(dbSettings));
-		dbFactory.verifyDatabase(dbSettings.getDatabaseFile());
+		dbFactory.verifyDatabase(dbSettings.getDatabase());
 		dbFactory.loadConfiguration(pdaSettings.getTableName());
 
 		isInputFileOpen = true;

@@ -1,132 +1,147 @@
 package dbengine.utils;
 
 import application.interfaces.ExportFile;
-import application.preferences.Databases;
+import application.interfaces.IDatabaseHelper;
 
-public class DatabaseHelper {
+public class DatabaseHelper implements IDatabaseHelper {
 	private String database;
 	private String user = "root";
 	private String password = "";
-	private String sslPrivateKey = "";
-	private String sslCACertificate = "";
-	private String sslCertificate = "";
-	private String sslCipher = "";
 	private String sslMode = "";
-	private boolean useSsl = false;
+	private String serverSslCert = "";
+	private String serverSslCaCert = ""; // PostgreSQL only
+	private String keyStore = "";
+	private String keyStorePassword = "";
 
 	private ExportFile databaseType;
+	private boolean useSsl = false;
 
 	public DatabaseHelper(String database, ExportFile databaseType) {
 		this.database = database;
 		this.databaseType = databaseType;
 
-		user = databaseType == ExportFile.MARIADB ? "root" : "postgres";
-		sslMode = databaseType == ExportFile.MARIADB ? "" : "prefer";
+		user = databaseType == ExportFile.POSTGRESQL ? "postgres" : "root";
+		sslMode = databaseType == ExportFile.POSTGRESQL ? "prefer" : "trust";
 	}
 
-	public DatabaseHelper(Databases base) {
-		database = base.getDatabaseFile();
-		user = base.getDatabaseUser();
-		password = base.getDatabasePassword();
-		databaseType = ExportFile.getExportFile(base.getDatabaseType());
-		sslPrivateKey = base.getSslPrivateKey();
-		sslCACertificate = base.getSslCACertificate();
-		sslCertificate = base.getSslCertificate();
-		sslCipher = base.getSslCipher();
-		sslMode = base.getSslMode();
-		useSsl = base.isUseSsl();
+	public DatabaseHelper(IDatabaseHelper helper) {
+		update(helper);
 	}
 
+	@Override
 	public String getUser() {
 		return user;
 	}
 
+	@Override
 	public void setUser(String user) {
 		this.user = user;
 	}
 
+	@Override
 	public String getDatabase() {
 		return database;
 	}
 
+	@Override
 	public void setDatabase(String database) {
 		this.database = database;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
 
+	@Override
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	@Override
 	public ExportFile getDatabaseType() {
 		return databaseType;
 	}
 
+	@Override
 	public void setDatabaseType(ExportFile databaseType) {
 		this.databaseType = databaseType;
 	}
 
-	public String getSslPrivateKey() {
-		return sslPrivateKey;
+	@Override
+	public String getKeyStore() {
+		return keyStore;
 	}
 
-	public void setSslPrivateKey(String sslPrivateKey) {
-		this.sslPrivateKey = sslPrivateKey;
+	@Override
+	public void setKeyStore(String keyStore) {
+		this.keyStore = keyStore;
 	}
 
-	public String getSslCACertificate() {
-		return sslCACertificate;
+	@Override
+	public String getKeyStorePassword() {
+		return keyStorePassword;
 	}
 
-	public void setSslCACertificate(String sslCACertificate) {
-		this.sslCACertificate = sslCACertificate;
+	@Override
+	public void setKeyStorePassword(String keyStorePassword) {
+		this.keyStorePassword = keyStorePassword;
 	}
 
-	public String getSslCertificate() {
-		return sslCertificate;
+	@Override
+	public String getServerSslCert() {
+		return serverSslCert;
 	}
 
-	public void setSslCertificate(String sslCertificate) {
-		this.sslCertificate = sslCertificate;
+	@Override
+	public void setServerSslCert(String serverSslCert) {
+		this.serverSslCert = serverSslCert;
 	}
 
-	public String getSslCipher() {
-		return sslCipher;
+	@Override
+	public String getServerSslCaCert() {
+		return serverSslCaCert;
 	}
 
-	public void setSslCipher(String sslCipher) {
-		this.sslCipher = sslCipher;
+	@Override
+	public void setServerSslCaCert(String serverSslCaCert) {
+		this.serverSslCaCert = serverSslCaCert;
 	}
 
+	@Override
 	public String getSslMode() {
 		return sslMode;
 	}
 
+	@Override
 	public void setSslMode(String sslMode) {
 		this.sslMode = sslMode;
 	}
 
+	@Override
 	public boolean isUseSsl() {
 		return useSsl;
 	}
 
+	@Override
 	public void setUseSsl(boolean useSsl) {
 		this.useSsl = useSsl;
 	}
 
 	public DatabaseHelper createCopy() {
-		DatabaseHelper result = new DatabaseHelper(database, databaseType);
-		result.setPassword(password);
-		result.setUser(user);
-		result.setSslPrivateKey(sslPrivateKey);
-		result.setSslCACertificate(sslCACertificate);
-		result.setSslCertificate(sslCertificate);
-		result.setSslCipher(sslCipher);
-		result.setSslMode(sslMode);
-		result.setUseSsl(useSsl);
-		return result;
+		return new DatabaseHelper(this);
+	}
+
+	public void update(IDatabaseHelper helper) {
+		setDatabase(helper.getDatabase());
+		setDatabaseType(helper.getDatabaseType());
+		setPassword(helper.getPassword());
+		setUser(helper.getUser());
+		setKeyStore(helper.getKeyStore());
+		setKeyStorePassword(helper.getKeyStorePassword());
+		setServerSslCert(helper.getServerSslCert());
+		setServerSslCaCert(helper.getServerSslCaCert());
+		setSslMode(helper.getSslMode());
+		setUseSsl(helper.isUseSsl());
 	}
 }

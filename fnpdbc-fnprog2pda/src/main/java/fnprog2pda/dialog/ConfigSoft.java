@@ -118,7 +118,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? FNPSoftware.UNDEFINED : FNPSoftware.getSoftware(dbSettings.getDatabaseType());
+		myImportFile = isNewProfile ? FNPSoftware.UNDEFINED
+				: FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
 		myView = isNewProfile ? "" : pdaSettings.getTableName();
 
 		funcSelectDbFile = e -> General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, "", true);
@@ -199,7 +200,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		fdView.addActionListener(funcSelectView);
-		fdDatabase = GUIFactory.getJTextField("fnpDatabase", isNewProfile ? "" : dbSettings.getDatabaseFile());
+		fdDatabase = GUIFactory.getJTextField("fnpDatabase", isNewProfile ? "" : dbSettings.getDatabase());
 		fdDatabase.getDocument().addDocumentListener(funcDocumentChange);
 		JButton bt1 = GUIFactory.getJButton("browseDatabase", funcSelectDbFile);
 
@@ -279,10 +280,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		dbSettings.setNode(node);
-		dbSettings.setDatabaseFile(dbFile);
+		dbSettings.setDatabase(dbFile);
 		myExportFile = configDb.getExportFile();
 
-		dbSettings.setDatabaseType(myImportFile.getName());
+		dbSettings.setDatabaseTypeAsString(myImportFile.getName());
 		dbSettings.setDatabaseVersion(dbFactory.getDatabaseVersion());
 
 		pdaSettings.setProject(myExportFile.getName());
@@ -308,7 +309,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	@Override
 	public void verifyDatabase(boolean isFirstRun) {
-		String db = isNewProfile ? "" : dbSettings.getDatabaseFile();
+		String db = isNewProfile ? "" : dbSettings.getDatabase();
 		dbVerified = isFirstRun ? db : fdDatabase.getText().trim();
 		if (dbVerified.isEmpty()) {
 			return;

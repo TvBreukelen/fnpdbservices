@@ -1,0 +1,63 @@
+<html>
+<body>
+<h1>Export from a remote database</h1>
+<img src="../images/ExportRemoteDBSSL.gif">
+
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><img src="../images/Help.png"></td>
+<td>Shows this help screen</td>
+</tr>
+<tr>
+<td><img src="../images/Exit.png"></td>
+<td>Exits this screen</td>
+</tr>
+<tr>
+<td>Test Connection</td>
+<td>Test the connection settings</td>
+</tr>
+<tr>
+<td>Apply</td>
+<td>Apply the changes made on this screen</td>
+</tr>
+</table>
+<h2>SSL</h2>
+If your user has been setup by the database administrator to use SSL then here you can
+ define which certificates DBConvert should use to connect to the database. You can setup
+ DBConvert to use a one way or two way connection. Which one to use depends on the database
+ and user configuration.
+<br>
+<br>
+<h3>Use SSL</h3>
+If you don't need to use SSL then leave this check box deactivated. If SSL is required you
+ you'd need to activate it.
+<br>
+<br>
+<h3>SSL mode</h3>
+Indicate SSL demand. Possible values include disable, allow, prefer, require, verify-ca and
+ verify-full for PostGreSQL and disable, trust, verify-ca and verify-full for MariaDB/MySQL. 
+<p>
+- require, allow, prefer and trust all default to a non validating SSL factory and do not check the
+ validity of the certificate or the host name.<br> 
+- verify-ca validates the certificate, but does not verify the hostname.<br> 
+- verify-full will validate that the certificate is correct and verify the host connected to
+ </p>
+ has the same hostname as the certificate. 
+ Default is "prefer" for PostgresSQL and "trust" for MariaDB/MySQL.
+<h3>KeyStore file</h3>
+File path of the keyStore file that contain client private key store and associate certificates
+<h3>KeyStore password</h3>
+Password for the client certificate keyStore
+<h3>SSL server certificate</h3>
+Permits providing server's certificate in DER form, or server's CA certificate (MariaDB/MySQL).
+ The server will be added to trustStore. This permits a self-signed certificate to be trusted.
+<h3>SSL CA certificate</h3>
+File name of the SSL root certificate. It can be a PEM encoded X509v3 certificate
+<h3>SSL server certificate</h3>
+</body>
+</html>

@@ -36,12 +36,12 @@ public class ConvertOldVersion {
 		String[] bases = dbases.getDatabases();
 		for (String db : bases) {
 			dbases.setNode(db);
-			switch (ExportFile.getExportFile(dbases.getDatabaseType())) {
+			switch (dbases.getDatabaseType()) {
 			case DBASE3:
 			case DBASE4:
 			case DBASE5:
 			case FOXPRO:
-				dbases.setDatabaseType(ExportFile.DBASE.getName());
+				dbases.setDatabaseType(ExportFile.DBASE);
 				break;
 			default:
 				continue;

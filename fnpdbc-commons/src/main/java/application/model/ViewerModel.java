@@ -1,10 +1,6 @@
 package application.model;
 
 import java.awt.Font;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -148,43 +144,17 @@ public class ViewerModel extends AbstractTableModel {
 			return obj;
 		case FLOAT:
 		case NUMBER:
-			if (obj instanceof Number) {
-				return obj;
-			}
-			break;
-		case DATE:
-			if (obj instanceof LocalDate) {
-				return General.convertDate((LocalDate) obj, General.getSimpleDateFormat());
-			}
-		case FUSSY_DATE:
-			return General.convertFussyDate(obj.toString().trim());
+			return obj instanceof Number ? obj : obj.toString();
 		case MEMO:
 			return createMemoField(obj.toString());
-		case TIME:
-			if (obj instanceof LocalTime) {
-				return General.convertTime((LocalTime) obj, General.getSimpleTimeFormat());
-			}
-		case DURATION:
-			if (obj instanceof Duration) {
-				return General.convertDuration((Duration) obj);
-			}
-		case TIMESTAMP:
-			if (obj instanceof LocalDateTime) {
-				return General.convertTimestamp((LocalDateTime) obj, General.getSimpleTimestampFormat());
-			}
-		case YEAR:
-			if (obj instanceof LocalDate) {
-				return ((LocalDate) obj).getYear();
-			}
 		default:
-			break;
+			String s = General.convertObject(obj, field.getFieldType());
+			if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN || s.indexOf('\n') > -1) {
+				return createMemoField(s);
+			} else {
+				return s;
+			}
 		}
-
-		String s = obj.toString();
-		if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN || s.indexOf('\n') > -1) {
-			return createMemoField(s);
-		}
-		return s;
 	}
 
 	@Override

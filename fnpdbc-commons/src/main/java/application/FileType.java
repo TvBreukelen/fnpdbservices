@@ -7,9 +7,8 @@ public enum FileType {
 	JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
 	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
 	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
-	MDB(" MS Access Database (*.mdb, *.accdb)"), CRT("Certificate (*.crt, *.pem)"),
-	KEY("SSL Key (*.der, *.crt,*.p12, *.pfx"), PEM("Privacy enhanced mail certificate (*.pem)"),
-	YAML(" Yaml (*.yml, *.yaml)");
+	MDB(" MS Access Database (*.mdb, *.accdb)"), TRUSTSTORE("Certificate (*.crt, *.pem)"),
+	KEYSTORE("Java KeyStore (*.jks,*.p12, *.pfx"), YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
@@ -54,18 +53,14 @@ public enum FileType {
 			result.add(".mdb");
 			result.add(".accdb");
 			break;
-		case CRT:
-			result.add(".crt");
+		case TRUSTSTORE:
+			result.add(".der");
 			result.add(".pem");
 			break;
-		case KEY:
-			result.add(".der");
-			result.add(".crt");
+		case KEYSTORE:
+			result.add(".jks");
 			result.add(".p12");
 			result.add(".pfx");
-			break;
-		case PEM:
-			result.add(".pem");
 			break;
 		case YAML:
 			result.add(".yml");

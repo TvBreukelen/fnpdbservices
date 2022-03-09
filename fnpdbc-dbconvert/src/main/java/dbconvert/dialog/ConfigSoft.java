@@ -115,7 +115,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.ACCESS : ExportFile.getExportFile(dbSettings.getDatabaseType());
+		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
 		dbFactory = new XConverter();
 
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
@@ -242,7 +242,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void importFileChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-		if (!isNewProfile && software != myImportFile && !dbSettings.getDatabaseFile().isEmpty()
+		if (!isNewProfile && software != myImportFile && !dbSettings.getDatabase().isEmpty()
 				&& !General.showConfirmMessage(this,
 						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
 						GUIFactory.getTitle("warning"))) {
@@ -364,14 +364,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		dbSettings.setNode(node);
-		dbSettings.setDatabaseType(myImportFile.getName());
-		dbSettings.setDatabaseFile(dbVerified.getDatabase());
-		dbSettings.setDatabaseUser(myImportFile.isPasswordSupported() ? dbVerified.getUser() : "");
-		dbSettings.setDatabasePassword(myImportFile.isPasswordSupported() ? dbVerified.getPassword() : "");
-		dbSettings.setSslPrivateKey(dbVerified.getSslPrivateKey());
-		dbSettings.setSslCACertificate(dbVerified.getSslCACertificate());
-		dbSettings.setSslCertificate(dbVerified.getSslCertificate());
-		dbSettings.setSslCipher(dbVerified.getSslCipher());
+		dbSettings.setDatabaseType(myImportFile);
+		dbSettings.setDatabase(dbVerified.getDatabase());
+		dbSettings.setUser(myImportFile.isPasswordSupported() ? dbVerified.getUser() : "");
+		dbSettings.setPassword(myImportFile.isPasswordSupported() ? dbVerified.getPassword() : "");
+		dbSettings.setKeyStore(dbVerified.isUseSsl() ? dbVerified.getKeyStore() : "");
+		dbSettings.setKeyStorePassword(dbVerified.isUseSsl() ? dbVerified.getKeyStorePassword() : "");
+		dbSettings.setServerSslCert(dbVerified.isUseSsl() ? dbVerified.getServerSslCert() : "");
 		dbSettings.setUseSsl(dbVerified.isUseSsl());
 
 		pdaSettings.setProject(projectID);
