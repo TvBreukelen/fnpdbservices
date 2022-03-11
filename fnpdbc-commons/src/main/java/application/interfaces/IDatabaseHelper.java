@@ -3,41 +3,52 @@ package application.interfaces;
 public interface IDatabaseHelper {
 	String getUser();
 
-	void setUser(String user);
-
 	String getDatabase();
 
-	void setDatabase(String database);
+	String getHost();
+
+	int getPort();
 
 	String getPassword();
 
-	void setPassword(String password);
-
 	ExportFile getDatabaseType();
-
-	void setDatabaseType(ExportFile databaseType);
 
 	String getKeyStore();
 
-	void setKeyStore(String keyStore);
-
 	String getKeyStorePassword();
-
-	void setKeyStorePassword(String keyStorePassword);
 
 	String getServerSslCert();
 
-	void setServerSslCert(String serverSslCert);
-
 	String getSslMode();
-
-	void setSslMode(String sslMode);
 
 	boolean isUseSsl();
 
-	void setUseSsl(boolean useSsl);
-
 	String getServerSslCaCert();
 
-	void setServerSslCaCert(String serverSslCaCert);
+	String getSshHost();
+
+	String getSshUser();
+
+	String getSshPassword();
+
+	String getPrivateKeyFile();
+
+	int getSshPort();
+
+	int getLocalPort();
+
+	boolean isUseSsh();
+
+	default String getRemoteDatabase() {
+		String database = getDatabase();
+		if (database.isEmpty()) {
+			return database;
+		}
+
+		ExportFile exp = getDatabaseType();
+		if (exp.isConnectHost()) {
+			return getHost() + ":" + getPort() + "/" + database;
+		}
+		return database;
+	}
 }

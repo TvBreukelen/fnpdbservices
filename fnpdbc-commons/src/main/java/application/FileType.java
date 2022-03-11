@@ -7,8 +7,8 @@ public enum FileType {
 	JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
 	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
 	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
-	MDB(" MS Access Database (*.mdb, *.accdb)"), TRUSTSTORE("Certificate (*.crt, *.pem)"),
-	KEYSTORE("Java KeyStore (*.jks,*.p12, *.pfx"), YAML(" Yaml (*.yml, *.yaml)");
+	MDB(" MS Access Database (*.mdb, *.accdb)"), TRUSTSTORE(" Certificate (*.crt, *.pem)"),
+	KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"), PPK(" PuTTy private key ('*.pkk)"), YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
@@ -61,6 +61,9 @@ public enum FileType {
 			result.add(".jks");
 			result.add(".p12");
 			result.add(".pfx");
+			break;
+		case PPK:
+			result.add(".ppk");
 			break;
 		case YAML:
 			result.add(".yml");

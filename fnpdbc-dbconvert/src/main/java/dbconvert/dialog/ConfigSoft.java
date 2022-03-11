@@ -366,12 +366,28 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbSettings.setNode(node);
 		dbSettings.setDatabaseType(myImportFile);
 		dbSettings.setDatabase(dbVerified.getDatabase());
-		dbSettings.setUser(myImportFile.isPasswordSupported() ? dbVerified.getUser() : "");
-		dbSettings.setPassword(myImportFile.isPasswordSupported() ? dbVerified.getPassword() : "");
-		dbSettings.setKeyStore(dbVerified.isUseSsl() ? dbVerified.getKeyStore() : "");
-		dbSettings.setKeyStorePassword(dbVerified.isUseSsl() ? dbVerified.getKeyStorePassword() : "");
-		dbSettings.setServerSslCert(dbVerified.isUseSsl() ? dbVerified.getServerSslCert() : "");
-		dbSettings.setUseSsl(dbVerified.isUseSsl());
+
+		if (myImportFile.isPasswordSupported()) {
+			dbSettings.setUser(dbVerified.getUser());
+			dbSettings.setPassword(dbVerified.getPassword());
+		}
+
+		if (myImportFile.isConnectHost()) {
+			dbSettings.setHost(dbVerified.getHost());
+			dbSettings.setPort(dbVerified.getPort());
+			dbSettings.setUseSsh(dbVerified.isUseSsh());
+			dbSettings.setSshHost(dbVerified.getSshHost());
+			dbSettings.setSshPort(dbVerified.getSshPort());
+			dbSettings.setSshUser(dbVerified.getSshUser());
+			dbSettings.setSshPassword(dbVerified.getSshPassword());
+			dbSettings.setPrivateKeyFile(dbVerified.getPrivateKeyFile());
+			dbSettings.setLocalPort(dbVerified.getLocalPort());
+
+			dbSettings.setUseSsl(dbVerified.isUseSsl());
+			dbSettings.setKeyStore(dbVerified.getKeyStore());
+			dbSettings.setKeyStorePassword(dbVerified.getKeyStorePassword());
+			dbSettings.setServerSslCert(dbVerified.getServerSslCert());
+		}
 
 		pdaSettings.setProject(projectID);
 		pdaSettings.setProfile(profileID);

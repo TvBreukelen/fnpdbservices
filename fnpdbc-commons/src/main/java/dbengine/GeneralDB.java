@@ -118,7 +118,7 @@ public abstract class GeneralDB {
 			throw FNProgException.getException("noDatabaseDefined");
 		}
 
-		myDatabase = helper.getDatabase();
+		myDatabase = helper.getRemoteDatabase();
 		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(myDatabase)) {
 			throw FNProgException.getException("noDatabaseExists", myDatabase);
 		}

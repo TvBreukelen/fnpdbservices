@@ -21,14 +21,18 @@ public class PostgreSQL extends SqlDB {
 			closeFile();
 		}
 
+		if (myHelper.isUseSsh()) {
+			getSshSession();
+		}
+
 		// Try to obtain the database connection
-		Properties props = new Properties();
-		props.setProperty("user", myHelper.getUser());
-		props.setProperty("password", General.decryptPassword(myHelper.getPassword()));
+		Properties info = new Properties();
+		info.setProperty("user", myHelper.getUser());
+		info.setProperty("password", General.decryptPassword(myHelper.getPassword()));
 
 		if (myHelper.isUseSsl()) {
 			StringBuilder options = new StringBuilder();
-			props.put("ssl", "true");
+			info.put("ssl", "true");
 			addOption("sslcert", myHelper.getServerSslCert(), options);
 			addOption("sslkey", myHelper.getKeyStore(), options);
 			addOption("sslpassword", General.decryptPassword(myHelper.getKeyStorePassword()), options);
@@ -37,11 +41,15 @@ public class PostgreSQL extends SqlDB {
 
 			if (options.length() > 0) {
 				options.delete(0, 1); // remove first comma
-				props.setProperty("options", options.toString());
+				info.setProperty("options", options.toString());
 			}
 		}
 
-		connection = DriverManager.getConnection("jdbc:postgresql://" + myDatabase, props);
+		StringBuilder url = new StringBuilder("jdbc:postgresql://").append(myHelper.getHost()).append(":")
+				.append(myHelper.isUseSsh() ? assignedPort : myHelper.getPort()).append("/")
+				.append(myHelper.getDatabase());
+
+		connection = DriverManager.getConnection(url.toString(), info);
 		isConnected = true;
 	}
 

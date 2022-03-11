@@ -23,6 +23,10 @@ public class MariaDB extends SqlDB {
 			closeFile();
 		}
 
+		if (myHelper.isUseSsh()) {
+			getSshSession();
+		}
+
 		// Try to obtain a new database connection
 		info = new Properties();
 		info.put("user", myHelper.getUser());
@@ -37,7 +41,11 @@ public class MariaDB extends SqlDB {
 			addToProperies("keyStoreType", getKeyStoreType());
 		}
 
-		connection = DriverManager.getConnection("jdbc:mariadb://" + myDatabase, info);
+		StringBuilder url = new StringBuilder("jdbc:mariadb://").append(myHelper.getHost()).append(":")
+				.append(myHelper.isUseSsh() ? assignedPort : myHelper.getPort()).append("/")
+				.append(myHelper.getDatabase());
+
+		connection = DriverManager.getConnection(url.toString(), info);
 		isConnected = true;
 	}
 

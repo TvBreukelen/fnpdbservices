@@ -196,7 +196,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public String getImportFile() {
-		return getDbSettings().getDatabase();
+		return getDbSettings().getRemoteDatabase();
 	}
 
 	public void setExportFile(String exportFile) {

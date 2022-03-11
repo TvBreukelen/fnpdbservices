@@ -16,6 +16,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.text.NumberFormatter;
@@ -77,6 +78,19 @@ public final class GUIFactory {
 			result = new JTextField(10);
 		} else {
 			result = new JTextField();
+			result.setText(text);
+
+		}
+		result.setToolTipText(getToolTip(resourceID));
+		return result;
+	}
+
+	public static JPasswordField getJPasswordField(String resourceID, String text) {
+		JPasswordField result;
+		if (StringUtils.isEmpty(text)) {
+			result = new JPasswordField(10);
+		} else {
+			result = new JPasswordField();
 			result.setText(text);
 
 		}

@@ -16,12 +16,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
+import application.utils.General;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
 	private String myTable;
@@ -34,9 +40,45 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected boolean isConnected;
 	private ResultSet dbResultSet;
 	private Statement dbStatement;
+	private Session session;
+	protected int assignedPort;
 
 	protected SqlDB(Profiles pref) {
 		super(pref);
+	}
+
+	protected void getSshSession() throws JSchException {
+		// Remote host
+		final String remoteHost = myHelper.getSshHost();
+
+		JSch jsch = new JSch();
+		// Create SSH session. Port 22 is the default SSH port which is open in your
+		// firewall setup.
+		session = jsch.getSession(myHelper.getSshUser(), remoteHost, myHelper.getSshPort());
+		session.setPassword(General.decryptPassword(myHelper.getSshPassword()));
+
+		// Additional SSH options. See your ssh_config manual for more options. Set
+		// options according to your requirements.
+		Properties config = new Properties();
+		config.put("StrictHostKeyChecking", "no"); // Not really wanted..
+		config.put("Compression", "yes");
+		config.put("ConnectionAttempts", "2");
+
+		session.setConfig(config);
+
+		// Connect
+		session.connect();
+
+		// Create the tunnel through port forwarding. This is basically instructing jsch
+		// session to send data received from local_port in the local machine to
+		// remote_port of the remote_host assigned_port is the port assigned by jsch for
+		// use, it may not always be the same as local_port.
+
+		assignedPort = session.setPortForwardingL(myHelper.getLocalPort(), remoteHost, myHelper.getPort());
+
+		if (assignedPort == 0) {
+			throw new JSchException("Port forwarding failed !");
+		}
 	}
 
 	@Override
@@ -195,6 +237,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	public void closeFile() {
 		try {
 			connection.close();
+			// Verify if we have a SSH session open
+			if (session != null && session.isConnected()) {
+				session.disconnect();
+			}
 		} catch (Exception e) {
 			// Should not occur
 		}

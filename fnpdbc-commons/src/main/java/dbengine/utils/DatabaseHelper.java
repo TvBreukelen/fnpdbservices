@@ -6,6 +6,7 @@ import application.interfaces.IDatabaseHelper;
 public class DatabaseHelper implements IDatabaseHelper {
 	private String database;
 	private String user = "root";
+	private String host = "";
 	private String password = "";
 	private String sslMode = "";
 	private String serverSslCert = "";
@@ -13,8 +14,18 @@ public class DatabaseHelper implements IDatabaseHelper {
 	private String keyStore = "";
 	private String keyStorePassword = "";
 
+	private String sshHost = "";
+	private String sshUser = "";
+	private String sshPassword = "";
+	private String privateKeyFile = "";
+
+	private int port;
+	private int sshPort;
+	private int localPort;
+
 	private ExportFile databaseType;
 	private boolean useSsl = false;
+	private boolean useSsh = false;
 
 	public DatabaseHelper(String database, ExportFile databaseType) {
 		this.database = database;
@@ -29,11 +40,32 @@ public class DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	@Override
+	public int getPort() {
+		if (port > 0) {
+			return port;
+		}
+
+		return databaseType == ExportFile.MARIADB ? 3306 : 5432;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	@Override
 	public String getUser() {
 		return user;
 	}
 
-	@Override
 	public void setUser(String user) {
 		this.user = user;
 	}
@@ -43,7 +75,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return database;
 	}
 
-	@Override
 	public void setDatabase(String database) {
 		this.database = database;
 	}
@@ -53,7 +84,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return password;
 	}
 
-	@Override
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -63,7 +93,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return databaseType;
 	}
 
-	@Override
 	public void setDatabaseType(ExportFile databaseType) {
 		this.databaseType = databaseType;
 	}
@@ -73,7 +102,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return keyStore;
 	}
 
-	@Override
 	public void setKeyStore(String keyStore) {
 		this.keyStore = keyStore;
 	}
@@ -83,7 +111,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return keyStorePassword;
 	}
 
-	@Override
 	public void setKeyStorePassword(String keyStorePassword) {
 		this.keyStorePassword = keyStorePassword;
 	}
@@ -93,7 +120,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return serverSslCert;
 	}
 
-	@Override
 	public void setServerSslCert(String serverSslCert) {
 		this.serverSslCert = serverSslCert;
 	}
@@ -103,7 +129,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return serverSslCaCert;
 	}
 
-	@Override
 	public void setServerSslCaCert(String serverSslCaCert) {
 		this.serverSslCaCert = serverSslCaCert;
 	}
@@ -113,7 +138,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return sslMode;
 	}
 
-	@Override
 	public void setSslMode(String sslMode) {
 		this.sslMode = sslMode;
 	}
@@ -123,9 +147,71 @@ public class DatabaseHelper implements IDatabaseHelper {
 		return useSsl;
 	}
 
-	@Override
 	public void setUseSsl(boolean useSsl) {
 		this.useSsl = useSsl;
+	}
+
+	@Override
+	public String getSshHost() {
+		return sshHost;
+	}
+
+	public void setSshHost(String sshHost) {
+		this.sshHost = sshHost;
+	}
+
+	@Override
+	public String getSshUser() {
+		return sshUser;
+	}
+
+	public void setSshUser(String shellUser) {
+		this.sshUser = shellUser;
+	}
+
+	@Override
+	public String getSshPassword() {
+		return sshPassword;
+	}
+
+	public void setSshPassword(String shellPassword) {
+		this.sshPassword = shellPassword;
+	}
+
+	@Override
+	public String getPrivateKeyFile() {
+		return privateKeyFile;
+	}
+
+	public void setPrivateKeyFile(String privateKeyFile) {
+		this.privateKeyFile = privateKeyFile;
+	}
+
+	@Override
+	public int getSshPort() {
+		return sshPort == 0 ? 22 : sshPort;
+	}
+
+	public void setSshPort(int sshPort) {
+		this.sshPort = sshPort;
+	}
+
+	@Override
+	public int getLocalPort() {
+		return localPort == 0 ? getPort() + 1 : localPort;
+	}
+
+	public void setLocalPort(int localPort) {
+		this.localPort = localPort;
+	}
+
+	@Override
+	public boolean isUseSsh() {
+		return useSsh;
+	}
+
+	public void setUseSsh(boolean useSsh) {
+		this.useSsh = useSsh;
 	}
 
 	public DatabaseHelper createCopy() {
@@ -135,13 +221,22 @@ public class DatabaseHelper implements IDatabaseHelper {
 	public void update(IDatabaseHelper helper) {
 		setDatabase(helper.getDatabase());
 		setDatabaseType(helper.getDatabaseType());
-		setPassword(helper.getPassword());
+		setHost(helper.getHost());
+		setPort(helper.getPort());
 		setUser(helper.getUser());
+		setPassword(helper.getPassword());
+		setUseSsh(helper.isUseSsh());
+		setSshHost(helper.getSshHost());
+		setSshPort(helper.getSshPort());
+		setSshUser(helper.getSshUser());
+		setSshPassword(helper.getSshPassword());
+		setPrivateKeyFile(helper.getPrivateKeyFile());
+		setLocalPort(helper.getLocalPort());
+		setUseSsl(helper.isUseSsl());
 		setKeyStore(helper.getKeyStore());
 		setKeyStorePassword(helper.getKeyStorePassword());
 		setServerSslCert(helper.getServerSslCert());
 		setServerSslCaCert(helper.getServerSslCaCert());
 		setSslMode(helper.getSslMode());
-		setUseSsl(helper.isUseSsl());
 	}
 }

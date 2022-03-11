@@ -6,6 +6,8 @@ import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -42,6 +44,17 @@ public class HostConfig extends BasicDialog {
 	private JButton btTest;
 	private JButton btApply;
 
+	// SSH
+	private JCheckBox ckUseSsh;
+	private JTextField txSshHost;
+	private JSpinner txSshPort;
+	private JTextField txSshUser;
+	private JPasswordField txSshPassword;
+	private JTextField txKeyfile;
+	private JButton btKeyfile;
+	private JSpinner txLocalPort;
+
+	// SSL
 	private JCheckBox ckUseSsl;
 	private JTextField txKeyStore;
 	private JPasswordField txKeyStorePassword;
@@ -54,11 +67,13 @@ public class HostConfig extends BasicDialog {
 
 	private DatabaseHelper dbInHelper;
 	private DatabaseHelper verify;
-	private String host = "localhost";
+	private String host = "127.0.0.1"; // local host
 
 	private boolean isSaved;
 	private boolean isMariaDB;
 	private boolean isPostgreSQL;
+
+	private XGridBagConstraints c = new XGridBagConstraints();
 
 	private static final String TEST_CONNECTION = "testConnection";
 
@@ -77,52 +92,6 @@ public class HostConfig extends BasicDialog {
 		isSaved = false;
 		init(dbInHelper.getDatabaseType().getName() + " " + GUIFactory.getText("configuration"));
 		setHelpFile("export_hostdb");
-
-		int port = isMariaDB ? 3306 : 5432;
-
-		String database = dbInHelper.getDatabase();
-		if (!database.isEmpty()) {
-			int index = database.indexOf(":");
-			host = database.substring(0, index++);
-			String portNo = database.substring(index, database.indexOf("/"));
-			port = Integer.valueOf(portNo);
-			index += portNo.length() + 1;
-			database = database.substring(index);
-		}
-
-		txHost = GUIFactory.getJTextField("", host);
-		txUser = GUIFactory.getJTextField("", dbInHelper.getUser());
-		txDatabase = GUIFactory.getJTextField("", database);
-		txKeyStore = GUIFactory.getJTextField("sslKeyStore", dbInHelper.getKeyStore());
-		txServerSslCert = GUIFactory.getJTextField("sslCertificate", dbInHelper.getServerSslCert());
-		txServerSslCaCert = GUIFactory.getJTextField("sslCaCertificate", dbInHelper.getServerSslCaCert());
-		ckUseSsl = GUIFactory.getJCheckBox("useSsl", dbInHelper.isUseSsl(), e -> activateComponents());
-
-		txPort = new JSpinner(new SpinnerNumberModel(1, 1, 65353, 1));
-		JFormattedTextField txt = ((JSpinner.NumberEditor) txPort.getEditor()).getTextField();
-		((NumberFormatter) txt.getFormatter()).setFormat(new DecimalFormat("#####"));
-		txPort.setValue(port);
-
-		txPassword = new JPasswordField();
-		txPassword.setText(General.decryptPassword(dbInHelper.getPassword()));
-		txKeyStorePassword = new JPasswordField();
-		txKeyStorePassword.setText(General.decryptPassword(dbInHelper.getKeyStorePassword()));
-
-		txHost.getDocument().addDocumentListener(funcDocumentChange);
-		txUser.getDocument().addDocumentListener(funcDocumentChange);
-		txDatabase.getDocument().addDocumentListener(funcDocumentChange);
-		txHost.setPreferredSize(txPort.getPreferredSize());
-
-		btKeyStore = GUIFactory.getJButton("...",
-				e -> General.getSelectedFile(this, txKeyStore, FileType.KEYSTORE, true));
-		btServerSslCert = GUIFactory.getJButton("...",
-				e -> General.getSelectedFile(this, txServerSslCert, FileType.TRUSTSTORE, true));
-		btServerSslCaCert = GUIFactory.getJButton("...",
-				e -> General.getSelectedFile(this, txServerSslCaCert, FileType.TRUSTSTORE, true));
-
-		cbMode = new JComboBox<>(isMariaDB ? new String[] { "trust", "verify-ca", "verify-full" }
-				: new String[] { "allow", "prefer", "require", "verify-ca", "verify-full" });
-		cbMode.setSelectedItem(dbInHelper.getSslMode());
 	}
 
 	@Override
@@ -150,46 +119,125 @@ public class HostConfig extends BasicDialog {
 		JTabbedPane result = new JTabbedPane();
 		result.setBorder(BorderFactory.createEtchedBorder());
 
-		JPanel panel1 = new JPanel(new GridBagLayout());
-		JPanel panel2 = new JPanel(new GridBagLayout());
+		result.addTab(GUIFactory.getText("configuration"), createConnectionTab());
+		result.addTab(GUIFactory.getText("sshTunnel"), createSshTab());
+		result.addTab("SSL", createSslTab());
 
-		int index = 0;
-		XGridBagConstraints c = new XGridBagConstraints();
+		Map<Integer, String> mapHelp = new HashMap<>();
+		mapHelp.put(0, "export_hostdb");
+		mapHelp.put(1, "export_ssh_hostdb");
+		mapHelp.put(2, "export_ssl_hostdb");
 
-		panel1.add(GUIFactory.getJLabel("hostname"), c.gridCell(0, index, 0, 0));
-		panel1.add(txHost, c.gridCell(1, index, 2, 0));
-		panel1.add(GUIFactory.getJLabel("port"), c.gridCell(2, index, 0, 0));
-		panel1.add(txPort, c.gridCell(3, index++, 2, 0));
-		panel1.add(GUIFactory.getJLabel("user"), c.gridCell(0, index, 0, 0));
-		panel1.add(txUser, c.gridCell(1, index, 2, 0));
-		panel1.add(GUIFactory.getJLabel("password"), c.gridCell(2, index, 0, 0));
-		panel1.add(txPassword, c.gridCell(3, index++, 2, 0));
-		panel1.add(GUIFactory.getJLabel("database"), c.gridCell(0, index, 0, 0));
-		panel1.add(txDatabase, c.gridCell(1, index, 2, 0));
+		result.addChangeListener(e -> setHelpFile(mapHelp.get(result.getSelectedIndex())));
+		return result;
+	}
 
-		result.addTab(GUIFactory.getText("configuration"), panel1);
+	private JPanel createConnectionTab() {
+		JPanel panel = new JPanel(new GridBagLayout());
+		txHost = GUIFactory.getJTextField("", dbInHelper.getHost());
+		txUser = GUIFactory.getJTextField("", dbInHelper.getUser());
+		txDatabase = GUIFactory.getJTextField("", dbInHelper.getDatabase());
+		txPort = getPortSpinner("", dbInHelper.getPort());
+		txPassword = GUIFactory.getJPasswordField("", General.decryptPassword(dbInHelper.getPassword()));
+		txHost.getDocument().addDocumentListener(funcDocumentChange);
+		txUser.getDocument().addDocumentListener(funcDocumentChange);
+		txDatabase.getDocument().addDocumentListener(funcDocumentChange);
+		txHost.setPreferredSize(txPort.getPreferredSize());
 
-		panel2.add(ckUseSsl, c.gridCell(1, 0, 0, 0));
-		panel2.add(GUIFactory.getJLabel("sslMode"), c.gridCell(0, 1, 0, 0));
-		panel2.add(cbMode, c.gridCell(1, 1, 0, 0));
-		panel2.add(GUIFactory.getJLabel("sslKeyStore"), c.gridCell(0, 2, 0, 0));
-		panel2.add(txKeyStore, c.gridCell(1, 2, 2, 0));
-		panel2.add(btKeyStore, c.gridCell(2, 2, 0, 0));
-		panel2.add(GUIFactory.getJLabel("sslKeyStorePassword"), c.gridCell(0, 3, 0, 0));
-		panel2.add(txKeyStorePassword, c.gridCell(1, 3, 0, 0));
-		panel2.add(GUIFactory.getJLabel("sslCertificate"), c.gridCell(0, 4, 0, 0));
-		panel2.add(txServerSslCert, c.gridCell(1, 4, 0, 0));
-		panel2.add(btServerSslCert, c.gridCell(2, 4, 0, 0));
+		panel.add(GUIFactory.getJLabel("hostname"), c.gridCell(0, 0, 0, 0));
+		panel.add(txHost, c.gridCell(1, 0, 2, 0));
+		panel.add(GUIFactory.getJLabel("port"), c.gridCell(2, 0, 0, 0));
+		panel.add(txPort, c.gridCell(3, 0, 2, 0));
+		panel.add(GUIFactory.getJLabel("user"), c.gridCell(0, 1, 0, 0));
+		panel.add(txUser, c.gridCell(1, 1, 2, 0));
+		panel.add(GUIFactory.getJLabel("password"), c.gridCell(2, 1, 0, 0));
+		panel.add(txPassword, c.gridCell(3, 1, 2, 0));
+		panel.add(GUIFactory.getJLabel("database"), c.gridCell(0, 2, 0, 0));
+		panel.add(txDatabase, c.gridCell(1, 2, 2, 0));
+		return panel;
+	}
+
+	private JPanel createSshTab() {
+		JPanel panel = new JPanel(new GridBagLayout());
+
+		ckUseSsh = GUIFactory.getJCheckBox("useSsh", dbInHelper.isUseSsh(), e -> activateComponents());
+
+		txSshHost = GUIFactory.getJTextField("sshHost",
+				dbInHelper.getSshHost().isEmpty() ? host : dbInHelper.getSshHost());
+		txSshPort = getPortSpinner("", dbInHelper.getSshPort() == 0 ? 22 : dbInHelper.getSshPort());
+		txSshUser = GUIFactory.getJTextField("sshUser", dbInHelper.getSshUser());
+		txSshPassword = GUIFactory.getJPasswordField("sshPassword",
+				General.decryptPassword(dbInHelper.getSshPassword()));
+		txKeyfile = GUIFactory.getJTextField("sshPrivateKey", dbInHelper.getPrivateKeyFile());
+		btKeyfile = GUIFactory.getJButton("...", e -> General.getSelectedFile(this, txKeyfile, FileType.PPK, true));
+		txLocalPort = getPortSpinner("sshLocalPort",
+				dbInHelper.getLocalPort() == 0 ? dbInHelper.getPort() + 1 : dbInHelper.getLocalPort());
+
+		panel.add(ckUseSsh, c.gridCell(1, 0, 0, 0));
+		panel.add(GUIFactory.getJLabel("sshHost"), c.gridCell(0, 1, 0, 0));
+		panel.add(txSshHost, c.gridCell(1, 1, 2, 0));
+		panel.add(GUIFactory.getJLabel("port"), c.gridCell(2, 1, 0, 0));
+		panel.add(txSshPort, c.gridCell(3, 1, 2, 0));
+		panel.add(GUIFactory.getJLabel("sshUser"), c.gridCell(0, 2, 0, 0));
+		panel.add(txSshUser, c.gridCell(1, 2, 2, 0));
+		panel.add(GUIFactory.getJLabel("sshPassword"), c.gridCell(2, 2, 0, 0));
+		panel.add(txSshPassword, c.gridCell(3, 2, 2, 0));
+		panel.add(GUIFactory.getJLabel("sshPrivateKey"), c.gridCell(0, 3, 0, 0));
+		panel.add(txKeyfile, c.gridCell(1, 3, 0, 0));
+		panel.add(btKeyfile, c.gridCell(2, 3, 0, 0));
+		panel.add(GUIFactory.getJLabel("sshLocalPort"), c.gridCell(0, 4, 0, 0));
+		panel.add(txLocalPort, c.gridCell(1, 4, 2, 0));
+		return panel;
+	}
+
+	private JPanel createSslTab() {
+		JPanel panel = new JPanel(new GridBagLayout());
+
+		ckUseSsl = GUIFactory.getJCheckBox("useSsl", dbInHelper.isUseSsl(), e -> activateComponents());
+		cbMode = new JComboBox<>(isMariaDB ? new String[] { "trust", "verify-ca", "verify-full" }
+				: new String[] { "allow", "prefer", "require", "verify-ca", "verify-full" });
+		cbMode.setSelectedItem(dbInHelper.getSslMode());
+
+		txKeyStore = GUIFactory.getJTextField("sslKeyStore", dbInHelper.getKeyStore());
+		txKeyStorePassword = GUIFactory.getJPasswordField("",
+				General.decryptPassword(dbInHelper.getKeyStorePassword()));
+		txServerSslCert = GUIFactory.getJTextField("sslCertificate", dbInHelper.getServerSslCert());
+		txServerSslCaCert = GUIFactory.getJTextField("sslCaCertificate", dbInHelper.getServerSslCaCert());
+
+		btKeyStore = GUIFactory.getJButton("...",
+				e -> General.getSelectedFile(this, txKeyStore, FileType.KEYSTORE, true));
+		btServerSslCert = GUIFactory.getJButton("...",
+				e -> General.getSelectedFile(this, txServerSslCert, FileType.TRUSTSTORE, true));
+		btServerSslCaCert = GUIFactory.getJButton("...",
+				e -> General.getSelectedFile(this, txServerSslCaCert, FileType.TRUSTSTORE, true));
+
+		panel.add(ckUseSsl, c.gridCell(1, 0, 0, 0));
+		panel.add(GUIFactory.getJLabel("sslMode"), c.gridCell(0, 1, 0, 0));
+		panel.add(cbMode, c.gridCell(1, 1, 0, 0));
+		panel.add(GUIFactory.getJLabel("sslKeyStore"), c.gridCell(0, 2, 0, 0));
+		panel.add(txKeyStore, c.gridCell(1, 2, 2, 0));
+		panel.add(btKeyStore, c.gridCell(2, 2, 0, 0));
+		panel.add(GUIFactory.getJLabel("sslKeyStorePassword"), c.gridCell(0, 3, 0, 0));
+		panel.add(txKeyStorePassword, c.gridCell(1, 3, 0, 0));
+		panel.add(GUIFactory.getJLabel("sslCertificate"), c.gridCell(0, 4, 0, 0));
+		panel.add(txServerSslCert, c.gridCell(1, 4, 0, 0));
+		panel.add(btServerSslCert, c.gridCell(2, 4, 0, 0));
 
 		if (isPostgreSQL) {
-			panel2.add(GUIFactory.getJLabel("sslCaCertificate"), c.gridCell(0, 5, 0, 0));
-			panel2.add(txServerSslCaCert, c.gridCell(1, 5, 0, 0));
-			panel2.add(btServerSslCaCert, c.gridCell(2, 5, 0, 0));
+			panel.add(GUIFactory.getJLabel("sslCaCertificate"), c.gridCell(0, 5, 0, 0));
+			panel.add(txServerSslCaCert, c.gridCell(1, 5, 0, 0));
+			panel.add(btServerSslCaCert, c.gridCell(2, 5, 0, 0));
 		}
+		return panel;
+	}
 
-		result.addTab("SSL", panel2);
-		result.addChangeListener(
-				e -> setHelpFile(result.getSelectedIndex() == 0 ? "export_hostdb" : "export_ssl_hostdb"));
+	private JSpinner getPortSpinner(String resourceID, int value) {
+		JSpinner result = new JSpinner(new SpinnerNumberModel(1, 1, 65353, 1));
+		JFormattedTextField txt = ((JSpinner.NumberEditor) result.getEditor()).getTextField();
+		((NumberFormatter) txt.getFormatter()).setFormat(new DecimalFormat("#####"));
+
+		result.setValue(value);
+		result.setToolTipText(GUIFactory.getToolTip(resourceID));
 		return result;
 	}
 
@@ -209,16 +257,29 @@ public class HostConfig extends BasicDialog {
 		GeneralDB db = GeneralDB.getDatabase(dbInHelper.getDatabaseType(), null);
 		btTest.setEnabled(false);
 
-		verify = new DatabaseHelper(txHost.getText() + ":" + txPort.getValue() + "/" + txDatabase.getText(),
-				dbInHelper.getDatabaseType());
+		verify = new DatabaseHelper(txDatabase.getText(), dbInHelper.getDatabaseType());
+
+		verify.setHost(txHost.getText().trim());
+		verify.setPort((int) txPort.getValue());
 		verify.setUser(txUser.getText().trim());
 		verify.setPassword(General.encryptPassword(txPassword.getPassword()));
+
+		// SSH
+		verify.setUseSsh(ckUseSsh.isSelected());
+		verify.setSshHost(txSshHost.getText().trim());
+		verify.setSshPort((int) txSshPort.getValue());
+		verify.setSshUser(txSshUser.getText().trim());
+		verify.setSshPassword(General.encryptPassword(txSshPassword.getPassword()));
+		verify.setPrivateKeyFile(txKeyfile.getText().trim());
+		verify.setLocalPort((int) txLocalPort.getValue());
+
+		// SSL
+		verify.setUseSsl(ckUseSsl.isSelected());
 		verify.setKeyStore(txKeyStore.getText().trim());
 		verify.setKeyStorePassword(General.encryptPassword(txKeyStorePassword.getPassword()));
 		verify.setServerSslCert(txServerSslCert.getText().trim());
 		verify.setServerSslCaCert(txServerSslCaCert.getText().trim());
 		verify.setSslMode(cbMode.getSelectedIndex() == -1 ? "" : cbMode.getSelectedItem().toString());
-		verify.setUseSsl(ckUseSsl.isSelected());
 
 		try {
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -241,6 +302,16 @@ public class HostConfig extends BasicDialog {
 		btTest.setEnabled(StringUtils.isNoneBlank(txHost.getText(), txUser.getText(), txDatabase.getText()));
 		btApply.setEnabled(false);
 
+		// SSH
+		txSshHost.setEnabled(ckUseSsh.isSelected());
+		txSshPort.setEnabled(ckUseSsh.isSelected());
+		txSshUser.setEnabled(ckUseSsh.isSelected());
+		txSshPassword.setEnabled(ckUseSsh.isSelected());
+		txKeyfile.setEnabled(ckUseSsh.isSelected());
+		btKeyfile.setEnabled(ckUseSsh.isSelected());
+		txLocalPort.setEnabled(ckUseSsh.isSelected());
+
+		// SSL
 		txKeyStore.setEnabled(ckUseSsl.isSelected());
 		txKeyStorePassword.setEnabled(ckUseSsl.isSelected());
 		txServerSslCert.setEnabled(ckUseSsl.isSelected());

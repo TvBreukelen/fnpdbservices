@@ -110,7 +110,7 @@ public class FNProg2PDA_NoGUI implements PropertyChangeListener {
 		System.out.println("--------------------------------------------------------");
 		System.out.println(guiText[0] + myProfileID);
 		System.out.println("--------------------------------------------------------");
-		System.out.println(guiText[1] + dbSettings.getDatabase());
+		System.out.println(guiText[1] + dbSettings.getRemoteDatabase());
 		System.out.println(guiText[2]
 				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseTypeAsString(), dbSettings.getDatabaseVersion())
 				+ "\n");
