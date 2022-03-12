@@ -96,7 +96,7 @@ public class Databases implements IDatabaseHelper {
 		sshPort = myPref.getInt("ssh.port", 0);
 		sshUser = myPref.get("ssh.user", "");
 		sshPassword = myPref.get("ssh.password", "");
-		privateKeyFile = myPref.get("ssh.keyfile", "");
+		privateKeyFile = myPref.get("ssh.key.file", "");
 		localPort = myPref.getInt("ssh.local.port", 0);
 
 		// SSL

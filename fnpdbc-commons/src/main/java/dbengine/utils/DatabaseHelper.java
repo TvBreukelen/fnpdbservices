@@ -5,7 +5,7 @@ import application.interfaces.IDatabaseHelper;
 
 public class DatabaseHelper implements IDatabaseHelper {
 	private String database;
-	private String user = "root";
+	private String user = "";
 	private String host = "";
 	private String password = "";
 	private String sslMode = "";
@@ -17,6 +17,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 	private String sshHost = "";
 	private String sshUser = "";
 	private String sshPassword = "";
+
 	private String privateKeyFile = "";
 
 	private int port;
@@ -30,9 +31,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 	public DatabaseHelper(String database, ExportFile databaseType) {
 		this.database = database;
 		this.databaseType = databaseType;
-
-		user = databaseType == ExportFile.POSTGRESQL ? "postgres" : "root";
-		sslMode = databaseType == ExportFile.POSTGRESQL ? "prefer" : "trust";
 	}
 
 	public DatabaseHelper(IDatabaseHelper helper) {
@@ -50,11 +48,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 
 	@Override
 	public int getPort() {
-		if (port > 0) {
-			return port;
-		}
-
-		return databaseType == ExportFile.MARIADB ? 3306 : 5432;
+		return port;
 	}
 
 	public void setPort(int port) {
@@ -189,7 +183,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 
 	@Override
 	public int getSshPort() {
-		return sshPort == 0 ? 22 : sshPort;
+		return sshPort;
 	}
 
 	public void setSshPort(int sshPort) {
@@ -198,7 +192,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 
 	@Override
 	public int getLocalPort() {
-		return localPort == 0 ? getPort() + 1 : localPort;
+		return localPort;
 	}
 
 	public void setLocalPort(int localPort) {

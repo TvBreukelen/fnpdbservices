@@ -51,11 +51,27 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// Remote host
 		final String remoteHost = myHelper.getSshHost();
 
+		boolean usePrivateKey = !myHelper.getPrivateKeyFile().isEmpty();
+		boolean usePassword = !myHelper.getSshPassword().isEmpty();
+
 		JSch jsch = new JSch();
+
+		// Check if a private key is provided
+		if (usePrivateKey) {
+			if (usePassword) {
+				jsch.addIdentity(myHelper.getPrivateKeyFile(), General.decryptPassword(myHelper.getSshPassword()));
+			} else {
+				jsch.addIdentity(myHelper.getPrivateKeyFile());
+			}
+		}
+
 		// Create SSH session. Port 22 is the default SSH port which is open in your
 		// firewall setup.
 		session = jsch.getSession(myHelper.getSshUser(), remoteHost, myHelper.getSshPort());
-		session.setPassword(General.decryptPassword(myHelper.getSshPassword()));
+
+		if (usePassword && !usePrivateKey) {
+			session.setPassword(General.decryptPassword(myHelper.getSshPassword()));
+		}
 
 		// Additional SSH options. See your ssh_config manual for more options. Set
 		// options according to your requirements.

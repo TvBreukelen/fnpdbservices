@@ -373,20 +373,23 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		if (myImportFile.isConnectHost()) {
+			boolean isNotSsh = !dbVerified.isUseSsh();
+			boolean isNotSsl = !dbVerified.isUseSsl();
+
 			dbSettings.setHost(dbVerified.getHost());
 			dbSettings.setPort(dbVerified.getPort());
 			dbSettings.setUseSsh(dbVerified.isUseSsh());
-			dbSettings.setSshHost(dbVerified.getSshHost());
-			dbSettings.setSshPort(dbVerified.getSshPort());
-			dbSettings.setSshUser(dbVerified.getSshUser());
-			dbSettings.setSshPassword(dbVerified.getSshPassword());
-			dbSettings.setPrivateKeyFile(dbVerified.getPrivateKeyFile());
-			dbSettings.setLocalPort(dbVerified.getLocalPort());
+			dbSettings.setSshHost(isNotSsh ? "" : dbVerified.getSshHost());
+			dbSettings.setSshPort(isNotSsh ? 0 : dbVerified.getSshPort());
+			dbSettings.setSshUser(isNotSsh ? "" : dbVerified.getSshUser());
+			dbSettings.setSshPassword(isNotSsh ? "" : dbVerified.getSshPassword());
+			dbSettings.setPrivateKeyFile(isNotSsh ? "" : dbVerified.getPrivateKeyFile());
+			dbSettings.setLocalPort(isNotSsh ? 0 : dbVerified.getLocalPort());
 
 			dbSettings.setUseSsl(dbVerified.isUseSsl());
-			dbSettings.setKeyStore(dbVerified.getKeyStore());
-			dbSettings.setKeyStorePassword(dbVerified.getKeyStorePassword());
-			dbSettings.setServerSslCert(dbVerified.getServerSslCert());
+			dbSettings.setKeyStore(isNotSsl ? "" : dbVerified.getKeyStore());
+			dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
+			dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());
 		}
 
 		pdaSettings.setProject(projectID);

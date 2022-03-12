@@ -67,11 +67,12 @@ public class HostConfig extends BasicDialog {
 
 	private DatabaseHelper dbInHelper;
 	private DatabaseHelper verify;
-	private String host = "127.0.0.1"; // local host
+	private String host = "localhost";
 
 	private boolean isSaved;
 	private boolean isMariaDB;
 	private boolean isPostgreSQL;
+	private int port;
 
 	private XGridBagConstraints c = new XGridBagConstraints();
 
@@ -133,11 +134,26 @@ public class HostConfig extends BasicDialog {
 	}
 
 	private JPanel createConnectionTab() {
+		port = dbInHelper.getPort();
+		if (port == 0) {
+			port = isMariaDB ? 3306 : 5432;
+		}
+
+		host = dbInHelper.getHost();
+		if (host.isEmpty()) {
+			host = "localhost";
+		}
+
+		String user = dbInHelper.getUser();
+		if (user.isEmpty()) {
+			user = isPostgreSQL ? "postgres" : "root";
+		}
+
 		JPanel panel = new JPanel(new GridBagLayout());
-		txHost = GUIFactory.getJTextField("", dbInHelper.getHost());
-		txUser = GUIFactory.getJTextField("", dbInHelper.getUser());
+		txHost = GUIFactory.getJTextField("", host);
+		txUser = GUIFactory.getJTextField("", user);
 		txDatabase = GUIFactory.getJTextField("", dbInHelper.getDatabase());
-		txPort = getPortSpinner("", dbInHelper.getPort());
+		txPort = getPortSpinner("", port);
 		txPassword = GUIFactory.getJPasswordField("", General.decryptPassword(dbInHelper.getPassword()));
 		txHost.getDocument().addDocumentListener(funcDocumentChange);
 		txUser.getDocument().addDocumentListener(funcDocumentChange);
@@ -171,7 +187,7 @@ public class HostConfig extends BasicDialog {
 		txKeyfile = GUIFactory.getJTextField("sshPrivateKey", dbInHelper.getPrivateKeyFile());
 		btKeyfile = GUIFactory.getJButton("...", e -> General.getSelectedFile(this, txKeyfile, FileType.PPK, true));
 		txLocalPort = getPortSpinner("sshLocalPort",
-				dbInHelper.getLocalPort() == 0 ? dbInHelper.getPort() + 1 : dbInHelper.getLocalPort());
+				dbInHelper.getLocalPort() == 0 ? port + 1 : dbInHelper.getLocalPort());
 
 		panel.add(ckUseSsh, c.gridCell(1, 0, 0, 0));
 		panel.add(GUIFactory.getJLabel("sshHost"), c.gridCell(0, 1, 0, 0));
@@ -193,10 +209,15 @@ public class HostConfig extends BasicDialog {
 	private JPanel createSslTab() {
 		JPanel panel = new JPanel(new GridBagLayout());
 
+		String sslMode = dbInHelper.getSslMode();
+		if (sslMode.isEmpty()) {
+			sslMode = isPostgreSQL ? "prefer" : "trust";
+		}
+
 		ckUseSsl = GUIFactory.getJCheckBox("useSsl", dbInHelper.isUseSsl(), e -> activateComponents());
 		cbMode = new JComboBox<>(isMariaDB ? new String[] { "trust", "verify-ca", "verify-full" }
 				: new String[] { "allow", "prefer", "require", "verify-ca", "verify-full" });
-		cbMode.setSelectedItem(dbInHelper.getSslMode());
+		cbMode.setSelectedItem(sslMode);
 
 		txKeyStore = GUIFactory.getJTextField("sslKeyStore", dbInHelper.getKeyStore());
 		txKeyStorePassword = GUIFactory.getJPasswordField("",

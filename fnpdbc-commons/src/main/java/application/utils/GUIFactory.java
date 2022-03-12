@@ -213,7 +213,7 @@ public final class GUIFactory {
 
 	public static String getToolTip(String resourceID) {
 		if (resourceID.isEmpty()) {
-			return resourceID;
+			return null;
 		}
 
 		String result = pScreens.getProperty(resourceID + ".tooltip", resourceID);
