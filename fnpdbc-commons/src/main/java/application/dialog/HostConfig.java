@@ -65,7 +65,7 @@ public class HostConfig extends BasicDialog {
 	private JButton btServerSslCert;
 	private JButton btServerSslCaCert;
 
-	private DatabaseHelper dbInHelper;
+	private DatabaseHelper helper;
 	private DatabaseHelper verify;
 	private String host = "localhost";
 
@@ -79,9 +79,9 @@ public class HostConfig extends BasicDialog {
 	private static final String TEST_CONNECTION = "testConnection";
 
 	public HostConfig(DatabaseHelper helper) {
-		dbInHelper = helper;
-		isMariaDB = dbInHelper.getDatabaseType() == ExportFile.MARIADB;
-		isPostgreSQL = dbInHelper.getDatabaseType() == ExportFile.POSTGRESQL;
+		this.helper = helper;
+		isMariaDB = helper.getDatabaseType() == ExportFile.MARIADB;
+		isPostgreSQL = helper.getDatabaseType() == ExportFile.POSTGRESQL;
 
 		init();
 		buildDialog();
@@ -91,13 +91,13 @@ public class HostConfig extends BasicDialog {
 
 	private void init() {
 		isSaved = false;
-		init(dbInHelper.getDatabaseType().getName() + " " + GUIFactory.getText("configuration"));
+		init(helper.getDatabaseType().getName() + " " + GUIFactory.getText("configuration"));
 		setHelpFile("export_hostdb");
 	}
 
 	@Override
 	protected void save() throws Exception {
-		dbInHelper.update(verify);
+		helper.update(verify);
 		isSaved = true;
 	}
 
@@ -134,17 +134,17 @@ public class HostConfig extends BasicDialog {
 	}
 
 	private JPanel createConnectionTab() {
-		port = dbInHelper.getPort();
+		port = helper.getPort();
 		if (port == 0) {
 			port = isMariaDB ? 3306 : 5432;
 		}
 
-		host = dbInHelper.getHost();
+		host = helper.getHost();
 		if (host.isEmpty()) {
 			host = "localhost";
 		}
 
-		String user = dbInHelper.getUser();
+		String user = helper.getUser();
 		if (user.isEmpty()) {
 			user = isPostgreSQL ? "postgres" : "root";
 		}
@@ -152,9 +152,9 @@ public class HostConfig extends BasicDialog {
 		JPanel panel = new JPanel(new GridBagLayout());
 		txHost = GUIFactory.getJTextField("", host);
 		txUser = GUIFactory.getJTextField("", user);
-		txDatabase = GUIFactory.getJTextField("", dbInHelper.getDatabase());
+		txDatabase = GUIFactory.getJTextField("", helper.getDatabase());
 		txPort = getPortSpinner("", port);
-		txPassword = GUIFactory.getJPasswordField("", General.decryptPassword(dbInHelper.getPassword()));
+		txPassword = GUIFactory.getJPasswordField("", General.decryptPassword(helper.getPassword()));
 		txHost.getDocument().addDocumentListener(funcDocumentChange);
 		txUser.getDocument().addDocumentListener(funcDocumentChange);
 		txDatabase.getDocument().addDocumentListener(funcDocumentChange);
@@ -176,18 +176,15 @@ public class HostConfig extends BasicDialog {
 	private JPanel createSshTab() {
 		JPanel panel = new JPanel(new GridBagLayout());
 
-		ckUseSsh = GUIFactory.getJCheckBox("useSsh", dbInHelper.isUseSsh(), e -> activateComponents());
+		ckUseSsh = GUIFactory.getJCheckBox("useSsh", helper.isUseSsh(), e -> activateComponents());
 
-		txSshHost = GUIFactory.getJTextField("sshHost",
-				dbInHelper.getSshHost().isEmpty() ? host : dbInHelper.getSshHost());
-		txSshPort = getPortSpinner("", dbInHelper.getSshPort() == 0 ? 22 : dbInHelper.getSshPort());
-		txSshUser = GUIFactory.getJTextField("sshUser", dbInHelper.getSshUser());
-		txSshPassword = GUIFactory.getJPasswordField("sshPassword",
-				General.decryptPassword(dbInHelper.getSshPassword()));
-		txKeyfile = GUIFactory.getJTextField("sshPrivateKey", dbInHelper.getPrivateKeyFile());
+		txSshHost = GUIFactory.getJTextField("sshHost", helper.getSshHost().isEmpty() ? host : helper.getSshHost());
+		txSshPort = getPortSpinner("", helper.getSshPort() == 0 ? 22 : helper.getSshPort());
+		txSshUser = GUIFactory.getJTextField("sshUser", helper.getSshUser());
+		txSshPassword = GUIFactory.getJPasswordField("sshPassword", General.decryptPassword(helper.getSshPassword()));
+		txKeyfile = GUIFactory.getJTextField("sshPrivateKey", helper.getPrivateKeyFile());
 		btKeyfile = GUIFactory.getJButton("...", e -> General.getSelectedFile(this, txKeyfile, FileType.PPK, true));
-		txLocalPort = getPortSpinner("sshLocalPort",
-				dbInHelper.getLocalPort() == 0 ? port + 1 : dbInHelper.getLocalPort());
+		txLocalPort = getPortSpinner("sshLocalPort", helper.getLocalPort() == 0 ? port + 1 : helper.getLocalPort());
 
 		panel.add(ckUseSsh, c.gridCell(1, 0, 0, 0));
 		panel.add(GUIFactory.getJLabel("sshHost"), c.gridCell(0, 1, 0, 0));
@@ -209,21 +206,20 @@ public class HostConfig extends BasicDialog {
 	private JPanel createSslTab() {
 		JPanel panel = new JPanel(new GridBagLayout());
 
-		String sslMode = dbInHelper.getSslMode();
+		String sslMode = helper.getSslMode();
 		if (sslMode.isEmpty()) {
 			sslMode = isPostgreSQL ? "prefer" : "trust";
 		}
 
-		ckUseSsl = GUIFactory.getJCheckBox("useSsl", dbInHelper.isUseSsl(), e -> activateComponents());
+		ckUseSsl = GUIFactory.getJCheckBox("useSsl", helper.isUseSsl(), e -> activateComponents());
 		cbMode = new JComboBox<>(isMariaDB ? new String[] { "trust", "verify-ca", "verify-full" }
 				: new String[] { "allow", "prefer", "require", "verify-ca", "verify-full" });
 		cbMode.setSelectedItem(sslMode);
 
-		txKeyStore = GUIFactory.getJTextField("sslKeyStore", dbInHelper.getKeyStore());
-		txKeyStorePassword = GUIFactory.getJPasswordField("",
-				General.decryptPassword(dbInHelper.getKeyStorePassword()));
-		txServerSslCert = GUIFactory.getJTextField("sslCertificate", dbInHelper.getServerSslCert());
-		txServerSslCaCert = GUIFactory.getJTextField("sslCaCertificate", dbInHelper.getServerSslCaCert());
+		txKeyStore = GUIFactory.getJTextField("sslKeyStore", helper.getKeyStore());
+		txKeyStorePassword = GUIFactory.getJPasswordField("", General.decryptPassword(helper.getKeyStorePassword()));
+		txServerSslCert = GUIFactory.getJTextField("sslCertificate", helper.getServerSslCert());
+		txServerSslCaCert = GUIFactory.getJTextField("sslCaCertificate", helper.getServerSslCaCert());
 
 		btKeyStore = GUIFactory.getJButton("...",
 				e -> General.getSelectedFile(this, txKeyStore, FileType.KEYSTORE, true));
@@ -275,10 +271,10 @@ public class HostConfig extends BasicDialog {
 	}
 
 	private void testConnection() {
-		GeneralDB db = GeneralDB.getDatabase(dbInHelper.getDatabaseType(), null);
+		GeneralDB db = GeneralDB.getDatabase(helper.getDatabaseType(), null);
 		btTest.setEnabled(false);
 
-		verify = new DatabaseHelper(txDatabase.getText(), dbInHelper.getDatabaseType());
+		verify = new DatabaseHelper(txDatabase.getText(), helper.getDatabaseType());
 
 		verify.setHost(txHost.getText().trim());
 		verify.setPort((int) txPort.getValue());

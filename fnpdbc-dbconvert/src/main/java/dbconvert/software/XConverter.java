@@ -88,7 +88,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public DatabaseHelper getDbInHelper() {
-		dbInHelper = dbInHelper == null ? getNewDbInHelper(myImportFile) : dbInHelper.createCopy();
+		if (dbInHelper == null) {
+			dbInHelper = getNewDbInHelper(myImportFile);
+		}
 		return dbInHelper;
 	}
 

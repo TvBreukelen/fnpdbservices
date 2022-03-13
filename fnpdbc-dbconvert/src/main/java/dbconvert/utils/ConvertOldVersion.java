@@ -26,6 +26,9 @@ public class ConvertOldVersion {
 		if (vs <= 6.8) {
 			// Rename DBase and FoxPro input files to xBase
 			convertToXBase();
+		} else if ("7.1".equals(version)) {
+			// Extract host, port and database fields from database
+			convertMariaDB();
 		}
 
 		settings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
@@ -33,8 +36,7 @@ public class ConvertOldVersion {
 
 	private static void convertToXBase() {
 		Databases dbases = Databases.getInstance(TvBSoftware.DBCONVERT);
-		String[] bases = dbases.getDatabases();
-		for (String db : bases) {
+		for (String db : dbases.getDatabases()) {
 			dbases.setNode(db);
 			switch (dbases.getDatabaseType()) {
 			case DBASE3:
@@ -48,4 +50,21 @@ public class ConvertOldVersion {
 			}
 		}
 	}
+
+	private static void convertMariaDB() {
+		Databases dbases = Databases.getInstance(TvBSoftware.DBCONVERT);
+		for (String db : dbases.getDatabases()) {
+			dbases.setNode(db);
+			if (dbases.getDatabaseType() == ExportFile.MARIADB) {
+				String database = dbases.getDatabase();
+				int index = database.indexOf(":");
+				dbases.setHost(database.substring(0, index++));
+				String portNo = database.substring(index, database.indexOf("/"));
+				dbases.setPort(Integer.valueOf(portNo));
+				index += portNo.length() + 1;
+				dbases.setDatabase(database.substring(index));
+			}
+		}
+	}
+
 }

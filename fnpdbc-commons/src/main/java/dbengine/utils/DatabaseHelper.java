@@ -208,10 +208,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.useSsh = useSsh;
 	}
 
-	public DatabaseHelper createCopy() {
-		return new DatabaseHelper(this);
-	}
-
 	public void update(IDatabaseHelper helper) {
 		setDatabase(helper.getDatabase());
 		setDatabaseType(helper.getDatabaseType());

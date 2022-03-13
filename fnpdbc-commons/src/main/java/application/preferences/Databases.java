@@ -8,6 +8,7 @@ import java.util.prefs.Preferences;
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseHelper;
 import application.interfaces.TvBSoftware;
+import dbengine.utils.DatabaseHelper;
 
 public class Databases implements IDatabaseHelper {
 	private String databaseID = "";
@@ -141,6 +142,16 @@ public class Databases implements IDatabaseHelper {
 			result.insert(0, "0");
 		}
 		return result.toString();
+	}
+
+	public DatabaseHelper findDatabaseConnection(ExportFile myImportFile) {
+		for (String db : getDatabases()) {
+			setNode(db);
+			if (getDatabaseType() == myImportFile) {
+				return new DatabaseHelper(this);
+			}
+		}
+		return null;
 	}
 
 	public String getDatabaseID() {

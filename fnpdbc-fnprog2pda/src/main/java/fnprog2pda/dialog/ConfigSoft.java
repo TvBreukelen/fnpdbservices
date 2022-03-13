@@ -201,7 +201,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		fdView.addActionListener(funcSelectView);
 		fdDatabase = GUIFactory.getJTextField("fnpDatabase", isNewProfile ? "" : dbSettings.getDatabase());
-		fdDatabase.getDocument().addDocumentListener(funcDocumentChange);
+		fdDatabase.setEditable(false);
 		JButton bt1 = GUIFactory.getJButton("browseDatabase", funcSelectDbFile);
 
 		gPanel.add(fdView, c.gridCell(0, 0, 0, 0));
