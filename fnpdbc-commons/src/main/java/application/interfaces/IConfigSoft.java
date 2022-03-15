@@ -5,7 +5,9 @@ public interface IConfigSoft {
 
 	void pack();
 
-	void verifyDatabase(boolean isFirstRun);
+	default void verifyDatabase() {
+		// used only by DBConvert
+	}
 
 	void activateComponents();
 }

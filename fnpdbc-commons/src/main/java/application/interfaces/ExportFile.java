@@ -51,37 +51,47 @@ public enum ExportFile {
 	}
 
 	public static String[] getExportFilenames(boolean isImport) {
-		List<String> exportList = new ArrayList<>();
+		List<String> result = new ArrayList<>();
 		for (ExportFile exp : values()) {
-			exportList.add(exp.name);
+			result.add(exp.name);
 		}
 
 		if (!General.IS_WINDOWS) {
-			exportList.remove(HANDBASE.name);
+			result.remove(HANDBASE.name);
 		}
 
 		if (isImport) {
-			exportList.remove(DBASE3.name);
-			exportList.remove(DBASE4.name);
-			exportList.remove(DBASE5.name);
-			exportList.remove(FOXPRO.name);
+			result.remove(DBASE3.name);
+			result.remove(DBASE4.name);
+			result.remove(DBASE5.name);
+			result.remove(FOXPRO.name);
 		} else {
-			exportList.remove(DBASE.name);
-			exportList.remove(SQLITE.name);
-			exportList.remove(ACCESS.name);
-			exportList.remove(MARIADB.name);
-			exportList.remove(POSTGRESQL.name);
+			result.remove(DBASE.name);
+			result.remove(SQLITE.name);
+			result.remove(ACCESS.name);
+			result.remove(MARIADB.name);
+			result.remove(POSTGRESQL.name);
 		}
 
-		String[] result = new String[exportList.size()];
-		exportList.toArray(result);
-		return result;
+		return result.toArray(new String[result.size()]);
 	}
 
 	public boolean isSpreadSheet() {
 		switch (this) {
 		case CALC:
 		case EXCEL:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	public boolean isDatabase() {
+		switch (this) {
+		case ACCESS:
+		case MARIADB:
+		case POSTGRESQL:
+		case SQLITE:
 			return true;
 		default:
 			return false;

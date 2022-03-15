@@ -307,8 +307,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
 	}
 
-	@Override
-	public void verifyDatabase(boolean isFirstRun) {
+	private void verifyDatabase(boolean isFirstRun) {
 		String db = isNewProfile ? "" : dbSettings.getDatabase();
 		dbVerified = isFirstRun ? db : fdDatabase.getText().trim();
 		if (dbVerified.isEmpty()) {

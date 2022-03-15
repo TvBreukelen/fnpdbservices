@@ -1,14 +1,16 @@
 package application.preferences;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseHelper;
 import application.interfaces.TvBSoftware;
-import dbengine.utils.DatabaseHelper;
 
 public class Databases implements IDatabaseHelper {
 	private String databaseID = "";
@@ -144,14 +146,19 @@ public class Databases implements IDatabaseHelper {
 		return result.toString();
 	}
 
-	public DatabaseHelper findDatabaseConnection(ExportFile myImportFile) {
+	public List<String> getDatabaseFiles(ExportFile myImportFile) {
+		List<String> result = new ArrayList<>();
+		result.add("");
+
 		for (String db : getDatabases()) {
 			setNode(db);
 			if (getDatabaseType() == myImportFile) {
-				return new DatabaseHelper(this);
+				result.add(getDatabase());
 			}
 		}
-		return null;
+
+		Collections.sort(result);
+		return result;
 	}
 
 	public String getDatabaseID() {

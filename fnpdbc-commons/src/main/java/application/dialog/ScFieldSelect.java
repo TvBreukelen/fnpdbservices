@@ -1,7 +1,6 @@
 package application.dialog;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -48,7 +47,6 @@ public class ScFieldSelect implements PropertyChangeListener {
 	private JList<BasisField> lstAvailableFields;
 	private JTable tbSelectedFields;
 	private JScrollPane scSelectedFields;
-	private JScrollPane scAvailableFields;
 
 	private ActionListener funcAddFields;
 
@@ -132,7 +130,6 @@ public class ScFieldSelect implements PropertyChangeListener {
 		factory.getDbSelectFields().forEach(availableModel::addElement);
 		lstAvailableFields.setSelectedIndex(0);
 		userModel.setTableData(userFields);
-		setAvailableFieldsWidth();
 		activateComponents();
 	}
 
@@ -156,7 +153,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		lstAvailableFields.addMouseListener(mouseListener);
 
 		// Add scrollpane
-		scAvailableFields = new JScrollPane(lstAvailableFields);
+		JScrollPane scAvailableFields = new JScrollPane(lstAvailableFields);
 		scAvailableFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("availableFields")));
 
 		// Create Panel for selected FieldTypes
@@ -176,25 +173,13 @@ public class ScFieldSelect implements PropertyChangeListener {
 		scSelectedFields = new JScrollPane(tbSelectedFields);
 		scSelectedFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("selectedFields")));
 
-		setAvailableFieldsWidth();
-
-		panel.add(scAvailableFields, c.gridCell(0, 0, 0, 0));
-		panel.add(createButtonPanel(), c.gridCell(1, 0, 0, 0));
-		panel.add(scSelectedFields, c.gridCell(2, 0, 0, 0));
+		panel.add(scAvailableFields, c.gridCell(1, 0, 2, 1));
+		panel.add(createButtonPanel(), c.gridCell(2, 0, 1, 0));
+		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
 		lstAvailableFields.setSelectedIndex(0);
 		return panel;
-	}
-
-	private void setAvailableFieldsWidth() {
-		if (scAvailableFields == null) {
-			return;
-		}
-
-		Dimension dim = scAvailableFields.getPreferredSize();
-		dim.setSize(Math.max(dim.getWidth(), 150), dim.getHeight());
-		scAvailableFields.setPreferredSize(dim);
 	}
 
 	private JPanel createButtonPanel() {

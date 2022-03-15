@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-
-import org.apache.commons.lang3.StringUtils;
 
 import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
@@ -59,21 +58,21 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private JTabbedPane tabPane;
 
 	private JTextField profile;
-	private JTextField fdDatabase;
+	private JTextField fdDatabase = new JTextField();
 
 	private JButton btFilter;
 	private JButton btSortOrder;
 
 	private JComboBox<String> bDatabase;
 	private JComboBox<String> bTablesWorksheets;
+	private JComboBox<String> cbDatabases;
 	private JLabel lTablesWorkSheets;
 
 	transient ActionListener funcSelectTableOrSheet;
+	transient ActionListener funcSelectImportFile;
 
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
-
-	transient DatabaseHelper dbVerified = new DatabaseHelper("", ExportFile.ACCESS);
 
 	transient ScFieldSelect fieldSelect;
 	transient ScConfigDb configDb;
@@ -81,6 +80,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private ConfigTextFile textImport;
 	private boolean isNewProfile = false;
 	private String myView;
+
 	private static final String FUNC_NEW = "funcNew";
 	private static final String TABLE = "table";
 	private static final String WORKSHEET = "worksheet";
@@ -93,6 +93,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private ProgramDialog dialog;
 	private ProjectModel model;
+	private DatabaseHelper dbVerified = new DatabaseHelper("", ExportFile.ACCESS);
 
 	public ConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNew) {
 		this.dialog = dialog;
@@ -121,6 +122,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbFactory = new XConverter();
 
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
+		funcSelectImportFile = e -> importFileNameChanged(false);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
@@ -129,9 +131,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		fieldSelect = new ScFieldSelect(dbFactory);
 		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
 
-		verifyDatabase(true);
 		buildDialog();
-		activateComponents();
+		verifyDatabase();
 		pack();
 	}
 
@@ -178,15 +179,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(true));
 		bDatabase.setSelectedItem(myImportFile.getName());
-		bDatabase.addActionListener(e -> importFileChanged());
+		bDatabase.addActionListener(e -> importFileTypeChanged());
 		bDatabase.setPreferredSize(configDb.getComboBoxSize());
-
-		fdDatabase = new JTextField(isNewProfile ? "" : dbFactory.getDbInHelper().getDatabase());
-		fdDatabase.setEditable(false);
-
-		if (isNewProfile) {
-			setRemoteConnection();
-		}
+		cbDatabases = new JComboBox<>();
 
 		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
 			if (myImportFile.isConnectHost()) {
@@ -194,11 +189,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 				config.setVisible(true);
 				if (config.isSaved()) {
 					fdDatabase.setText(dbFactory.getDbInHelper().getDatabase());
-					verifyDatabase(false);
+					importFileNameChanged(true);
 				}
 			} else {
+				fdDatabase.setText(cbDatabases.getSelectedItem().toString());
 				General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, "", true);
-				verifyDatabase(false);
+				importFileNameChanged(true);
 			}
 		});
 
@@ -210,15 +206,17 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		JPanel gPanel = new JPanel(new GridBagLayout());
 		gPanel.add(bDatabase, c.gridCell(0, 0, 0, 0));
-		gPanel.add(fdDatabase, c.gridmultipleCell(1, 0, 2, 0, 4, 1));
-		gPanel.add(btBrowse, c.gridCell(5, 0, 0, 0));
+		gPanel.add(cbDatabases, c.gridmultipleCell(1, 0, 2, 0, 3, 1));
+		gPanel.add(btBrowse, c.gridCell(4, 0, 0, 0));
 
 		gPanel.add(lTablesWorkSheets, c.gridCell(1, 1, 0, 0));
 		gPanel.add(bTablesWorksheets, c.gridCell(2, 1, 0, 0));
 		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
-		myView = isNewProfile ? "" : fdDatabase.getText().trim();
+		reloadImportFiles(false);
+
+		myView = isNewProfile ? "" : cbDatabases.getSelectedItem().toString();
 
 		if (isNewProfile) {
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -247,9 +245,18 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		return result;
 	}
 
-	private void importFileChanged() {
+	private void importFileNameChanged(boolean isAddNew) {
+		dbFactory.getDbInHelper()
+				.setDatabase(isAddNew ? fdDatabase.getText() : cbDatabases.getSelectedItem().toString());
+		reloadImportFiles(isAddNew);
+		verifyDatabase();
+	}
+
+	private void importFileTypeChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-		if (!isNewProfile && software != myImportFile && !dbSettings.getDatabase().isEmpty()
+		String db = dbVerified.getDatabase();
+
+		if (!isNewProfile && software != myImportFile && !db.isEmpty()
 				&& !General.showConfirmMessage(this,
 						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
 						GUIFactory.getTitle("warning"))) {
@@ -259,72 +266,70 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		myImportFile = software;
-		dbVerified.setDatabase("");
-		setRemoteConnection();
+		dbVerified = new DatabaseHelper(db, myImportFile);
+		dbFactory.getTableOrSheetNames().clear();
+		dbFactory.getDbInHelper().update(dbVerified);
 
-		lTablesWorkSheets.setText(GUIFactory.getText(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
-		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
-		verifyDatabase(false);
+		reloadImportFiles(false);
+		setTablesOrWorksheets();
 	}
 
-	private void setRemoteConnection() {
-		if (myImportFile.isConnectHost()) {
-			// Try to find an existing host connection
-			DatabaseHelper con = dbSettings.findDatabaseConnection(myImportFile);
-			if (con != null) {
-				dbFactory.getDbInHelper().update(con);
-				fdDatabase.setText(dbVerified.getDatabase());
-			} else {
-				fdDatabase.setText("");
-			}
+	private void reloadImportFiles(boolean isAddNew) {
+		cbDatabases.removeActionListener(funcSelectImportFile);
+		cbDatabases.removeAllItems();
+		dbVerified = dbFactory.getDbInHelper();
+
+		List<String> dbFiles = dbSettings.getDatabaseFiles(myImportFile);
+		String dbFile = dbVerified.getDatabase();
+
+		boolean dbExist = dbFiles.contains(dbFile);
+
+		if (isAddNew && !dbExist) {
+			dbFiles.add(dbFile);
+			Collections.sort(dbFiles);
+			dbExist = true;
 		}
+
+		dbFiles.forEach(db -> cbDatabases.addItem(db));
+		cbDatabases.setSelectedItem(dbExist ? dbFile : "");
+
+		if (dbExist) {
+			String node = dbSettings.getNodename(dbFile);
+			if (node != null) {
+				dbSettings.setNode(node);
+				dbVerified.update(dbSettings);
+			}
+		} else {
+			dbVerified.setDatabase("");
+		}
+
+		cbDatabases.addActionListener(funcSelectImportFile);
 	}
 
 	private void tableOrWorksheetChanged() {
 		pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), false);
-		dbVerified.setDatabase("");
-		verifyDatabase(false);
+		verifyDatabase();
 	}
 
 	@Override
-	public void verifyDatabase(boolean isFirstRun) {
+	public void verifyDatabase() {
 		dbVerified = dbFactory.getDbInHelper();
 		dbVerified.setDatabaseType(myImportFile);
 
-		if (isFirstRun) {
-			if (isNewProfile) {
-				dbVerified = dbFactory.getNewDbInHelper(myImportFile);
-			}
-		} else {
-			String docValue = fdDatabase.getText();
-			if (!docValue.isEmpty()) {
-				String node = dbSettings.getNodename(docValue);
-				if (node != null) {
-					dbSettings.setNode(node);
+		if (!dbVerified.getDatabase().isEmpty()) {
+			try {
+				if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
+					dbFactory.connect2DB(dbVerified);
+					dbFactory.setupDBTranslation(isNewProfile);
+					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
+				} else {
+					throw FNProgException.getException("noValidExtension", dbVerified.getDatabase(),
+							myImportFile.getName());
 				}
+			} catch (Exception e) {
+				General.errorMessage(this, e, GUIFactory.getTitle("configError"), null);
+				dbFactory.close();
 			}
-			dbVerified.setDatabase(docValue);
-		}
-
-		if (dbVerified.getDatabase().isEmpty()) {
-			btSave.setEnabled(false);
-			bTablesWorksheets.setVisible(false);
-			lTablesWorkSheets.setVisible(false);
-			return;
-		}
-
-		try {
-			if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
-				dbFactory.connect2DB(dbVerified);
-				dbFactory.setupDBTranslation(isNewProfile);
-				fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
-			} else {
-				throw FNProgException.getException("noValidExtension", dbVerified.getDatabase(),
-						myImportFile.getName());
-			}
-		} catch (Exception e) {
-			General.errorMessage(isFirstRun ? getParent() : this, e, GUIFactory.getTitle("configError"), null);
-			dbFactory.close();
 		}
 		activateComponents();
 	}
@@ -332,8 +337,15 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private void setTablesOrWorksheets() {
 		bTablesWorksheets.removeActionListener(funcSelectTableOrSheet);
 		bTablesWorksheets.removeAllItems();
+		bTablesWorksheets.setVisible(false);
+		lTablesWorkSheets.setVisible(false);
 
-		if (dbVerified.getDatabase().isEmpty()) {
+		if (dbFactory.getDatabaseFilename().isEmpty()) {
+			return;
+		}
+
+		if (!(myImportFile.isDatabase() || myImportFile.isSpreadSheet())) {
+			// Tables and worksheets are not supported
 			return;
 		}
 
@@ -342,12 +354,16 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			return;
 		}
 
-		for (String s : names) {
-			bTablesWorksheets.addItem(s);
-		}
+		names.forEach(name -> bTablesWorksheets.addItem(name));
 
+		bTablesWorksheets.setVisible(true);
+		lTablesWorkSheets.setVisible(true);
 		bTablesWorksheets.setEnabled(names.size() > 1);
 		bTablesWorksheets.setSelectedItem(pdaSettings.getTableName());
+
+		lTablesWorkSheets.setText(GUIFactory.getText(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
+		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
+
 		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
 	}
 
@@ -364,6 +380,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	@Override
 	protected void save() throws Exception {
 		myExportFile = configDb.getExportFile();
+
 		String projectID = myExportFile.getName();
 		String profileID = profile.getText().trim();
 
@@ -420,20 +437,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		pdaSettings.setUserList(fieldSelect.getFieldList());
 		pdaSettings.setDatabaseFromFile(node);
 
-		switch (myImportFile) {
-		case TEXTFILE:
+		if (myImportFile == ExportFile.TEXTFILE) {
 			textImport.setProperties();
-			break;
-		case CALC:
-		case EXCEL:
-		case ACCESS:
-		case MARIADB:
-		case POSTGRESQL:
-		case SQLITE:
+		} else if (myImportFile.isDatabase() || myImportFile.isSpreadSheet()) {
 			pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), true);
-			break;
-		default:
-			break;
 		}
 
 		pdaSettings.setLastIndex(0);
@@ -449,27 +456,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	@Override
 	public void activateComponents() {
 		boolean isTextFile = myImportFile == ExportFile.TEXTFILE;
-		boolean isFileValid = false;
-		boolean isFurtherCheck = true;
-
-		String docValue = fdDatabase == null ? null : fdDatabase.getText().trim();
-
-		if (StringUtils.isEmpty(docValue) || docValue.equals(dbVerified.getDatabase())) {
-			isFileValid = dbFactory.isConnected();
-			isFurtherCheck = false;
-		}
-
-		if (isFurtherCheck) {
-			isFileValid = myImportFile.isConnectHost()
-					|| General.isFileExtensionOk(docValue, myImportFile) && General.existFile(docValue);
-			if (isFileValid) {
-				verifyDatabase(false);
-				return;
-			}
-		}
+		boolean isFileValid = dbFactory.isConnected();
 
 		boolean isValidProfile = true;
 		String profileID = profile.getText().trim();
+
 		if (isFileValid && isNewProfile) {
 			isValidProfile = !profileID.isEmpty();
 			if (isValidProfile) {
@@ -481,7 +472,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		btSave.setEnabled(isFileValid && isValidProfile);
 		btFilter.setEnabled(isFileValid);
 		btSortOrder.setEnabled(isFileValid);
-		myView = docValue;
+		myView = dbFactory.getDatabaseFilename();
 
 		if (btFilter.isEnabled()) {
 			FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
@@ -495,10 +486,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		if (tabPane != null) {
 			setTablesOrWorksheets();
-
 			tabPane.setEnabledAt(1, isFileValid);
-			bTablesWorksheets.setVisible(bTablesWorksheets.getItemCount() > 0);
-			lTablesWorkSheets.setVisible(bTablesWorksheets.isVisible());
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
 		}

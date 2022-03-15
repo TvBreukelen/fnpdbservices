@@ -94,7 +94,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		if (!isExport) {
 			JButton button = GUIFactory.getJButton("apply", e -> {
 				setProperties();
-				dialog.verifyDatabase(true);
+				dialog.verifyDatabase();
 			});
 
 			JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

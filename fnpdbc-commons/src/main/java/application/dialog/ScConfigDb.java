@@ -110,21 +110,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
 			String resourceID = "database";
-			switch (myExportFile) {
-			case ACCESS:
-			case MARIADB:
-			case POSTGRESQL:
-			case SQLITE:
+			if (myExportFile.isDatabase()) {
 				resourceID = "table";
-				break;
-			case CALC:
-			case EXCEL:
+			} else if (myExportFile.isSpreadSheet()) {
 				resourceID = "worksheet";
-				break;
-			case XML:
+			} else if (myExportFile == ExportFile.XML) {
 				resourceID = "xmlRoot";
-			default:
-				break;
 			}
 
 			dbFileNameLabel.setText(GUIFactory.getText(resourceID));
@@ -171,13 +162,13 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 			activateComponents();
 			dialog.pack();
-			dialog.activateComponents();
 		};
 
 		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, "", false);
 
 		buildDialog();
 		activateComponents();
+		setVisible(true);
 	}
 
 	public ExportFile getExportFile() {
