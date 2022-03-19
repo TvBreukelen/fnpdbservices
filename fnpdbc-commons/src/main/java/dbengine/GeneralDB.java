@@ -32,6 +32,7 @@ import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLite;
+import dbengine.export.VCard;
 import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
 import dbengine.utils.DatabaseHelper;
@@ -301,6 +302,8 @@ public abstract class GeneralDB {
 			return new Excel(profile);
 		case TEXTFILE:
 			return new CsvFile(profile);
+		case VCARD:
+			return new VCard(profile);
 		case DBASE:
 		case DBASE3:
 		case DBASE4:

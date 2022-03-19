@@ -66,6 +66,7 @@ public abstract class Profiles extends Project {
 	private boolean lockHeader;
 	private boolean lock1stColumn;
 	private boolean useHeader; // Also used by text files
+	private boolean skipEmptyRecords;
 
 	// Text file Settings
 	private String fieldSeparator = ",";
@@ -118,6 +119,7 @@ public abstract class Profiles extends Project {
 		imageHeight = child.getInt("export.image.height", 0);
 		imageWidth = child.getInt("export.image.width", 0);
 		lastIndex = child.getInt("last.index", 0);
+		skipEmptyRecords = child.getBoolean("skip.empty.records", false);
 
 		lastModified = child.get("last.modified", "");
 		lastSaved = child.get("last.saved", "");
@@ -265,6 +267,15 @@ public abstract class Profiles extends Project {
 	public void setAppendRecords(boolean appendRecords) {
 		PrefUtils.writePref(child, "append.records", appendRecords, this.appendRecords, false);
 		this.appendRecords = appendRecords;
+	}
+
+	public boolean isSkipEmptyRecords() {
+		return skipEmptyRecords;
+	}
+
+	public void setSkipEmptyRecords(boolean skipEmptyRecords) {
+		PrefUtils.writePref(child, "skip.empty.records", skipEmptyRecords, this.skipEmptyRecords, false);
+		this.skipEmptyRecords = skipEmptyRecords;
 	}
 
 	public String getCategoryField() {

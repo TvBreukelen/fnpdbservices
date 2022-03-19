@@ -9,10 +9,8 @@ import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.LinearGradientPaint;
 import java.awt.RenderingHints;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -39,10 +37,12 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,7 +59,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -72,6 +71,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jdesktop.swingx.JXErrorPane;
@@ -416,6 +416,16 @@ public final class General {
 		return new ArrayList<>(Arrays.asList(dbValue.split("\n")));
 	}
 
+	public static String convertListToString(List<?> dbValue) {
+		if (CollectionUtils.isEmpty(dbValue)) {
+			return "";
+		}
+
+		StringBuilder buf = new StringBuilder();
+		dbValue.forEach(o -> buf.append(o.toString()).append("\n"));
+		return buf.toString().trim();
+	}
+
 	/**
 	 * Converts a database date to a 'readable' format
 	 *
@@ -502,6 +512,10 @@ public final class General {
 		}
 	}
 
+	public static LocalDate convertDateToLocalDate(Date dateToConvert) {
+		return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	}
+
 	public static boolean copyFile(String fromFile, String toFile) throws Exception {
 		Path path = Paths.get(fromFile);
 		if (Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
@@ -525,15 +539,6 @@ public final class General {
 
 		} catch (Exception e) {
 		}
-		return result;
-	}
-
-	public static JButton createToolBarButton(String toolTip, String iconFile, ActionListener action) {
-		JButton result = new JButton();
-		result.addActionListener(action);
-		result.setToolTipText(toolTip);
-		result.setIcon(createImageIcon(iconFile));
-		result.setMargin(new Insets(2, 2, 2, 2));
 		return result;
 	}
 

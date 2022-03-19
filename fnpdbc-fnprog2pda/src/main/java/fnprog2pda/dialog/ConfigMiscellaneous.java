@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import application.dialog.BasicDialog;
 import application.interfaces.FNPSoftware;
 import application.utils.GUIFactory;
-import application.utils.General;
 import fnprog2pda.model.MiscellaneousData;
 
 public class ConfigMiscellaneous extends BasicDialog {
@@ -58,7 +57,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 
 	@Override
 	protected Component addToToolbar() {
-		return General.createToolBarButton(GUIFactory.getToolTip("funcRemoveMisc"), "Delete.png",
+		return GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRemoveMisc"), "Delete.png",
 				e -> Arrays.stream(booleanFields).forEach(cb -> cb.setSelected(false)));
 	}
 

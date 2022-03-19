@@ -90,9 +90,9 @@ public abstract class BasicDialog extends JDialog {
 			}
 		};
 
-		btSave = General.createToolBarButton(GUIFactory.getToolTip("menuSave"), "Save.png", funcSave);
-		btHelp = General.createToolBarButton(GUIFactory.getToolTip("menuHelp"), "Help.png", e -> showHelp());
-		btExit = General.createToolBarButton(GUIFactory.getToolTip("menuExitScr"), "Exit.png", e -> close());
+		btSave = GUIFactory.createToolBarButton(GUIFactory.getToolTip("menuSave"), "Save.png", funcSave);
+		btHelp = GUIFactory.createToolBarButton(GUIFactory.getToolTip("menuHelp"), "Help.png", e -> showHelp());
+		btExit = GUIFactory.createToolBarButton(GUIFactory.getToolTip("menuExitScr"), "Exit.png", e -> close());
 	}
 
 	protected void buildDialog() {

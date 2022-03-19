@@ -214,9 +214,9 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getInitialProject());
 
-		btEdit = General.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
+		btEdit = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
 
-		btClone = General.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
+		btClone = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
 			try {
 				ConfigClone config = new ConfigClone(pdaSettings, ProgramDialog.this);
 				config.setVisible(true);
@@ -225,7 +225,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 			}
 		});
 
-		btRemove = General.createToolBarButton(GUIFactory.getToolTip(FUNC_REMOVE), "Delete.png", e -> {
+		btRemove = GUIFactory.createToolBarButton(GUIFactory.getToolTip(FUNC_REMOVE), "Delete.png", e -> {
 			String mesg = GUIFactory.getMessage(FUNC_REMOVE, pdaSettings.getProfileID());
 
 			if (!General.showConfirmMessage(this, mesg, GUIFactory.getTitle(FUNC_REMOVE))) {
@@ -235,7 +235,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 			updateProfile(Action.DELETE);
 		});
 
-		btView = General.createToolBarButton(GUIFactory.getToolTip("funcViewer"), "Viewer.png", e -> {
+		btView = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcViewer"), "Viewer.png", e -> {
 			enableForm(false);
 			exportProcess.init(ProgramDialog.this, ExportStatus.SHOWVIEWER);
 		});
@@ -321,7 +321,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	}
 
 	protected JComponent createToolBar() {
-		JButton btNew = General.createToolBarButton(GUIFactory.getToolTip("funcNew"), "New.png", funcNew);
+		JButton btNew = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcNew"), "New.png", funcNew);
 		Box result = Box.createHorizontalBox();
 		result.add(Box.createHorizontalStrut(5));
 		result.add(btNew);
@@ -331,8 +331,8 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		result.add(Box.createHorizontalStrut(160));
 		result.add(btView);
 		result.add(Box.createHorizontalGlue());
-		result.add(General.createToolBarButton(GUIFactory.getToolTip(MENU_HELP), "Help.png", funcHelp));
-		result.add(General.createToolBarButton(GUIFactory.getToolTip(isMainScreen ? "menuExitPgm" : "menuExitScr"),
+		result.add(GUIFactory.createToolBarButton(GUIFactory.getToolTip(MENU_HELP), "Help.png", funcHelp));
+		result.add(GUIFactory.createToolBarButton(GUIFactory.getToolTip(isMainScreen ? "menuExitPgm" : "menuExitScr"),
 				"Exit.png", funcExit));
 		result.setBorder(BorderFactory.createRaisedBevelBorder());
 
@@ -564,7 +564,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		editProfile.setCellEditor(btEditor);
 		editProfile.setCellRenderer(new ButtonRenderer());
 
-		TableColumn importFile = table.getColumnModel().getColumn(ProjectModel.HEADER_IMPORTFILE);
+		TableColumn importFile = table.getColumnModel().getColumn(ProjectModel.HEADER_IMPORT_SOURCE);
 		importFile.setCellRenderer(new FilenameRenderer());
 
 		TableColumn exportFile = table.getColumnModel().getColumn(ProjectModel.HEADER_EXPORTFILE);
@@ -593,11 +593,11 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		TableColumn lastExport = table.getColumnModel().getColumn(ProjectModel.HEADER_LASTEXPORT);
 		lastExport.setCellEditor(edit);
 		lastExport.setCellRenderer(new DateTimeRenderer());
-		lastExport.setPreferredWidth(210);
+		lastExport.setPreferredWidth(130);
 
 		TableColumn notes = table.getColumnModel().getColumn(ProjectModel.HEADER_NOTES);
 		notes.setCellEditor(new StringActionTableCellEditor());
-		notes.setPreferredWidth(250);
+		notes.setPreferredWidth(260);
 
 		TableColumn header = table.getColumnModel().getColumn(ProjectModel.HEADER_PROJECT);
 		table.removeColumn(header);

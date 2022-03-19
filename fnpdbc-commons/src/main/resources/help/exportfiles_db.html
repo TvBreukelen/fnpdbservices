@@ -8,7 +8,7 @@
 <th>Description</th>
 </tr>
 <tr>
-<td> <img src="../images/Save.png"></td>
+<td><img src="../images/Save.png"></td>
 <td>Saves the profile</td>
 </tr>
 <tr>
@@ -16,7 +16,7 @@
 <td>Sets or clears the sort order</td>
 </tr>
 <tr>
-<td> <img src="../images/Filter.png"></td>
+<td><img src="../images/Filter.png"></td>
 <td>Apply or remove a filter to the exported records</td>
 </tr>
 <tr>
@@ -30,46 +30,41 @@
 </table>
 	
 <h2>Export From</h2>
+<img src="../images/ExportFrom.png">
+<h3>Default Settings</h3>
 <ul>
-<li><b>Combobox</b>
+<li><b>Combobox (1)</b>
 </li>
-In the combobox you can select the format of the "Export From" file (Calc,
- JFile, JSON, YAML,.. etc.).<br>
+In the first combobox you can select the format of the "Export From" file (Calc,
+ JFile, JSON, YAML,.. etc.) that you'd like to export.<br>
  <br>
-<li><b>Filename / Open</b>
+<li><b>Combobox (2)</b>
 </li>
-You can use the Open button to select the database to be converted or type
- in the name of the database directly in the text field.<br>
- <br>
-<h3>Export From MS-Access, SQLite, MariaDB, PostgreSQL</h3>
-<img src="../images/ExportFromSql.gif">
-<ul>
-<li><b>Tables</b>
+In the second combobox you can select a file or host database from the list of previously defined
+ "Export From" files of the same kind.<br>
+<br>
+<li><b>Open</b>
 </li>
-If your database has more than one table then you can select in
- this comboxbox the table to be exported.
+You can use the Open button to select the file to be exported.<br>
+<br>
+<li><b>Table / Worksheet</b>
+</li>
+If your database or spreadsheet has more than one table or worksheet then you can select in
+ this comboxbox the table/worksheet to export.<br>
 </ul>
-
-<h3>Export From Calc / MS-Excel</h3>
-<img src="../images/ExportFromExcel.gif">
-<ul>
-<li><b>Worksheet</b>
-</li>In case your spreadsheet has more than one worksheet then you can select 
- in this comboxbox the worksheet to be exported.
-</ul>
-
-<h3>Export From TextFile</h3>
+<br>
+<h2>Export From TextFile</h2>
 <img src="../images/ExportFromTextfile.gif">
 <ul>
 <li><b>Export Format</b>
 </li>The export format specifies the the textfile format you are exporting from.
-<br>
+<br><br>
 <ul>
 <li><b>Standard CSV File</b>
 </li>Export from a standard CSV File, created for example by HanDBase, JFile,
- SmartList to Go, MS-Excel or other program.<br>
+ MS-Excel or other program.<br><br>
 <li><b>Other</b>
-</li>Exports from a delimited text file according to your own requirements.<br>
+</li>Exports from a delimited text file according to your own requirements.<br><br>
 </ul>
 
 <li><b>Other</b>
@@ -81,7 +76,6 @@ If your database has more than one table then you can select in
  Tab-, Semi colon- or pipe delimited file<br>
 <li><b>Text Delimiter</b>
 </li> This specifies the text delimiter (to enclose all database fields).<br>
-</ul></ul>
 </ul>
 
 <p> 
@@ -100,6 +94,8 @@ Dbase or FoxPro Memo fields that contain binary data (like OLE-Objects or
 
 <hr WIDTH="50%" SIZE="3" NOSHADE>
 <h2>Export To</h2>
+<img src="../images/ExportTo.png">
+<h3>Default Settings</h3>
 <ul>
 <li><b>Combobox</b>
 </li>
@@ -111,19 +107,25 @@ In the combobox you can select the format of the "Export To" file
 You can use the Open button to select the database to export to or type in
  the name of the database directly in the text field.<br>
 <br>
-</li><b>Database</b>
+</li><b>Database / Worksheet</b>
 </li>
-This field identifies the database name f as it should appear on the PDA or PC,
- for spreadsheets it represents the tab sheet label and for XML files the root-
+This field identifies the database or worksheet name as it should appear in your
+ export file. For spreadsheets it represents the tab sheet label and for XML files the root-
 element. If left unchanged, DBConvert uses this as default database name for
  the export file. Should your export file require another name then you could
  enter the new name in this field.<br>	
+ <br>
+<li><b>Skip empty records</b>
+</li>
+Sometimes it could occur that all fields that you've selected are empty in a
+ record. By default these records are imported. If you don't want to have them
+ included you can activate this check box.<br>
  <br>
 <li><b>Create Backup</b>
 </li>
 Should the export file already exist then this option allows you to create
  a backup copy of the previous export file. If you deactivate the option then
- the previous export file will be deleted.<br>
+ the previous copy of the export file will be overwritten.<br>
  <br>
 </ul>
 <h2>Notes</h2>

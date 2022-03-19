@@ -1,6 +1,7 @@
 package application.utils;
 
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -48,6 +49,15 @@ public final class GUIFactory {
 			Locale.setDefault(Locale.ENGLISH);
 			break;
 		}
+	}
+
+	public static JButton createToolBarButton(String toolTip, String iconFile, ActionListener action) {
+		JButton result = new JButton();
+		result.addActionListener(action);
+		result.setToolTipText(toolTip);
+		result.setIcon(General.createImageIcon(iconFile));
+		result.setMargin(new Insets(2, 2, 2, 2));
+		return result;
 	}
 
 	public static JComboBox<String> getJComboBox(String resourceID) {

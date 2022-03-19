@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
+import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 
@@ -109,9 +110,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 				if (obj == null || obj.equals("")) {
 					mapList.put(field, "");
 				} else {
-					StringBuilder buf = new StringBuilder();
-					((List<Object>) obj).forEach(o -> buf.append(o.toString()).append("\n"));
-					mapList.put(field, buf.toString().trim());
+					mapList.put(field, General.convertListToString((List<Object>) obj));
 				}
 			}
 		}

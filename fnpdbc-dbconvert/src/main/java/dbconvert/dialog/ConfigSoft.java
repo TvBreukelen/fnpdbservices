@@ -107,12 +107,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
-		btSortOrder = General.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
+		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
 			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.get(myView));
 			sort.setVisible(true);
 		});
 
-		btFilter = General.createToolBarButton(GUIFactory.getTitle("filter"), "Filter.png", e -> {
+		btFilter = GUIFactory.createToolBarButton(GUIFactory.getTitle("filter"), "Filter.png", e -> {
 			ConfigFilter filter = new ConfigFilter(dbFactory, filterDataMap.get(myView));
 			filter.setVisible(true);
 		});

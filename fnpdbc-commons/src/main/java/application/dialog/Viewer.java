@@ -68,7 +68,7 @@ public class Viewer extends BasicDialog {
 
 	@Override
 	protected Component addToToolbar() {
-		btReload = General.createToolBarButton(GUIFactory.getToolTip("funcRestoreValues"), "Reload.png",
+		btReload = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRestoreValues"), "Reload.png",
 				funcRestoreValues);
 
 		btSave.setVisible(false);

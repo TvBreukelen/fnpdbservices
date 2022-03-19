@@ -8,7 +8,8 @@ public enum FileType {
 	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
 	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
 	MDB(" MS Access Database (*.mdb, *.accdb)"), TRUSTSTORE(" Certificate (*.crt, *.pem)"),
-	KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"), PPK(" PuTTy private key ('*.pkk)"), YAML(" Yaml (*.yml, *.yaml)");
+	KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"), PPK(" PuTTy private key ('*.pkk)"), VCF("VCard (*.vcf)"),
+	YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
@@ -68,6 +69,9 @@ public enum FileType {
 		case YAML:
 			result.add(".yml");
 			result.add(".yaml");
+			break;
+		case VCF:
+			result.add(".vcf");
 			break;
 		case HOST:
 			break;

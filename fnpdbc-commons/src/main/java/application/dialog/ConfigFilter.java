@@ -323,7 +323,8 @@ public class ConfigFilter extends BasicDialog {
 
 	@Override
 	protected Component addToToolbar() {
-		return General.createToolBarButton(GUIFactory.getToolTip("funcRemoveFilter"), "Delete.png", funcRemoveFilter);
+		return GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRemoveFilter"), "Delete.png",
+				funcRemoveFilter);
 	}
 
 	@Override
@@ -358,7 +359,7 @@ public class ConfigFilter extends BasicDialog {
 		contentsPanel.setVisible(keywordPanel.isVisible());
 
 		for (int i = 0; i < btErase.length; i++) {
-			btErase[i] = General.createToolBarButton(null, "Clear.png", funcRemoveFilter);
+			btErase[i] = GUIFactory.createToolBarButton(null, "Clear.png", funcRemoveFilter);
 			btErase[i].setBorder(BorderFactory.createEmptyBorder());
 			btErase[i].setContentAreaFilled(false);
 			btErase[i].setActionCommand(Integer.toString(i));

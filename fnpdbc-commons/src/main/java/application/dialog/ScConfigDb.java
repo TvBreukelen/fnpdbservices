@@ -1,6 +1,7 @@
 package application.dialog;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -65,6 +66,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	private JCheckBox cConvertImages = new JCheckBox();
 	private JCheckBox btBackup;
+	private JCheckBox btSkipEmpty;
 
 	private ActionListener funcSelectExport;
 	private ActionListener funcSelectConvert;
@@ -202,6 +204,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
 		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
+		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", pdaSettings.isSkipEmptyRecords());
 
 		Box dbNameBox = Box.createHorizontalBox();
 		dbNameBox.add(dbFileNameLabel);
@@ -261,9 +264,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pTopContainer = new JPanel(new GridLayout(1, 2));
 
-		JPanel p1 = new JPanel(new GridBagLayout());
-		p1.add(dbNameBox, c.gridCell(0, 0, 0, 0));
-		p1.add(btBackup, c.gridCell(1, 0, 2, 0));
+		JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		p1.add(dbNameBox);
+		p1.add(btSkipEmpty);
+		p1.add(Box.createHorizontalStrut(5));
+		p1.add(btBackup);
+		p1.add(Box.createHorizontalGlue());
 
 		add(bDatabase, c.gridCell(0, 0, 0, 0));
 		add(fdPDA, c.gridCell(1, 0, 2, 0));
@@ -303,6 +309,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pdaSettings.setExportFile(getDatabaseName(false));
 		pdaSettings.setCreateBackup(btBackup.isEnabled() && btBackup.isSelected());
+		pdaSettings.setSkipEmptyRecords(btSkipEmpty.isEnabled() && btSkipEmpty.isSelected());
 		pdaSettings.setExportImages(cConvertImages.isVisible() ? cConvertImages.isSelected() : false);
 		pdaSettings.setImageOption(cConvertImages.isVisible() ? index : 0);
 		pdaSettings.setImageHeight(cConvertImages.isVisible() ? hModel.getNumber().intValue() : 0);

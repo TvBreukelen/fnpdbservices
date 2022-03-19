@@ -21,7 +21,6 @@ import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
 import application.model.SortData;
 import application.utils.GUIFactory;
-import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 
 public class ConfigSort extends BasicDialog {
@@ -99,7 +98,7 @@ public class ConfigSort extends BasicDialog {
 
 	@Override
 	protected Component addToToolbar() {
-		return General.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png",
+		return GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png",
 				e -> Arrays.stream(jcSortField).forEach(cb -> cb.setSelectedItem("")));
 	}
 

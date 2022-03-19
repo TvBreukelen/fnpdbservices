@@ -284,7 +284,10 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// Write all records into the table model
 		for (int i = 0; i < totalRecords; i++) {
 			Map<String, Object> pRead = dbIn.readRecord();
-			if (pRead.isEmpty()) {
+
+			// Verify if the record to write contains any values
+			if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbTableModelFields.stream()
+					.noneMatch(field -> !pRead.getOrDefault(field.getFieldAlias(), "").equals(""))) {
 				emptyRecord++;
 				continue;
 			}
@@ -295,12 +298,11 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				pRead.put(FILTER_FIELD, true);
 			}
 
+			result.add(pRead);
 			dbTableModelFields.stream().filter(filter)
 					.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 
-			result.add(pRead);
-
-			// Check if we have to load the List or SmartList categories
+			// Check if we have to load the List categories
 			if (!categoryField.isEmpty() && catCount < LISTDB_MAX_CATEGORIES) {
 				String s = pRead.get(categoryField).toString();
 				if (s.length() > 15) {

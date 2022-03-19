@@ -17,25 +17,23 @@ public enum ExportFile {
 	XML("Xml", FileType.XML, 32767, 32767, 32767), JSON("Json", FileType.JSON, 32767, 32767, 32767),
 	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
 	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
-	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), DBASE("xBase", FileType.DBF, 254, 32737, 128),
-	DBASE3("DBase3", FileType.DBF, 254, 32737, 128), DBASE4("DBase4", FileType.DBF, 254, 32767, 255),
-	DBASE5("DBase5", FileType.DBF, 254, 32767, 1024), FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255),
-	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), JFILE3("JFile3", FileType.PDB, 64, 500, 20),
-	JFILE4("JFile4", FileType.PDB, 256, 10000, 50), JFILE5("JFile5", FileType.PDB, 256, 10000, 50),
-	LIST("List", FileType.PDB, 4095, 4095, 32767), MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20),
-	PILOTDB("Pilot-DB", FileType.PDB, 256, 3000, 256);
+	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
+	DBASE("xBase", FileType.DBF, 254, 32737, 128), DBASE3("DBase3", FileType.DBF, 254, 32737, 128),
+	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), DBASE5("DBase5", FileType.DBF, 254, 32767, 1024),
+	FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255), HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100),
+	JFILE3("JFile3", FileType.PDB, 64, 500, 20), JFILE4("JFile4", FileType.PDB, 256, 10000, 50),
+	JFILE5("JFile5", FileType.PDB, 256, 10000, 50), LIST("List", FileType.PDB, 4095, 4095, 32767),
+	MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20), PILOTDB("Pilot-DB", FileType.PDB, 256, 3000, 256);
 
 	private String name;
-	private List<String> fileExtention;
-	private String fileType;
+	private FileType type;
 	private int maxTextSize;
 	private int maxMemoSize;
 	private int maxFields;
 
 	ExportFile(String name, FileType type, int maxTextSize, int maxMemoSize, int maxFields) {
 		this.name = name;
-		fileExtention = type.getExtention();
-		fileType = type.getType();
+		this.type = type;
 		this.maxTextSize = maxTextSize;
 		this.maxMemoSize = maxMemoSize;
 		this.maxFields = maxFields;
@@ -71,6 +69,7 @@ public enum ExportFile {
 			result.remove(ACCESS.name);
 			result.remove(MARIADB.name);
 			result.remove(POSTGRESQL.name);
+			result.remove(VCARD.name);
 		}
 
 		return result.toArray(new String[result.size()]);
@@ -102,6 +101,7 @@ public enum ExportFile {
 		switch (this) {
 		case LIST:
 		case TEXTFILE:
+		case VCARD:
 		case XML:
 			return false;
 		default:
@@ -113,6 +113,7 @@ public enum ExportFile {
 		switch (this) {
 		case LIST:
 		case TEXTFILE:
+		case VCARD:
 		case XML:
 			return true;
 		default:
@@ -131,6 +132,7 @@ public enum ExportFile {
 		case LIST:
 		case TEXTFILE:
 		case XML:
+		case VCARD:
 		case YAML:
 			return false;
 		default:
@@ -246,11 +248,11 @@ public enum ExportFile {
 	}
 
 	public List<String> getFileExtention() {
-		return fileExtention;
+		return type.getExtention();
 	}
 
 	public String getFileType() {
-		return fileType;
+		return type.getType();
 	}
 
 	public int getMaxFields() {

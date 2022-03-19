@@ -17,10 +17,10 @@ public class ProjectModel extends AbstractTableModel {
 	public static final int HEADER_EDIT = 0;
 	public static final int HEADER_PROJECT = 1;
 	public static final int HEADER_PROFILE = 2;
-	public static final int HEADER_IMPORTFILEPROGRAM = 3;
-	public static final int HEADER_TABLENAME = 4;
-	public static final int HEADER_IMPORTFILE = 5;
-	public static final int HEADER_EXPORTFILE = 6;
+	public static final int HEADER_EXPORTFILE = 3;
+	public static final int HEADER_IMPORT_PROGRAM = 4;
+	public static final int HEADER_IMPORT_SOURCE = 5;
+	public static final int HEADER_TABLENAME = 6;
 	public static final int HEADER_LASTEXPORT = 7;
 	public static final int HEADER_NOTES = 8;
 
@@ -32,7 +32,7 @@ public class ProjectModel extends AbstractTableModel {
 
 	private String[] columnNames = GUIFactory.getArray("mainTableHeaders");
 
-	private boolean[] editable = { true, false, true, false, false, false, true, true, true };
+	private boolean[] editable = { true, true, true, true, false, false, false, true, true };
 
 	public ProjectModel(Profiles data) {
 		objectData = data;
@@ -98,14 +98,14 @@ public class ProjectModel extends AbstractTableModel {
 			return profile.getProjectID();
 		case HEADER_PROFILE:
 			return profile.getProfileID();
-		case HEADER_IMPORTFILEPROGRAM:
-			return profile.getImportFileProgram();
-		case HEADER_TABLENAME:
-			return profile.getTableName();
-		case HEADER_IMPORTFILE:
-			return profile.getImportFile();
 		case HEADER_EXPORTFILE:
 			return profile.getExportFile();
+		case HEADER_IMPORT_PROGRAM:
+			return profile.getImportFileProgram();
+		case HEADER_IMPORT_SOURCE:
+			return profile.getImportFile();
+		case HEADER_TABLENAME:
+			return profile.getTableName();
 		case HEADER_LASTEXPORT:
 			return General.convertTimestamp2DB(profile.getLastModified(), General.sdInternalTimestamp);
 		case HEADER_NOTES:
