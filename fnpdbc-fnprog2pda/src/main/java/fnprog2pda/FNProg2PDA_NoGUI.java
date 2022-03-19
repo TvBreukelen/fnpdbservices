@@ -133,7 +133,7 @@ public class FNProg2PDA_NoGUI implements PropertyChangeListener {
 			mySoftware.setCategories(); // Obtain categories (when required)
 
 			mySoftware.addObserver(this); // Start monitoring process
-			mySoftware.refreshSpecialFields();
+			mySoftware.setupDbInfoToWrite();
 			mySoftware.processFiles(tabModel);
 			mySoftware.close(); // Close Database
 		} catch (Exception e) {

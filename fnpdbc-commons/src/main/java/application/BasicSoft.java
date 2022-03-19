@@ -151,7 +151,7 @@ public abstract class BasicSoft {
 				.collect(Collectors.toList());
 	}
 
-	public void refreshSpecialFields() {
+	public void setupDbInfoToWrite() {
 		Set<String> dbSpecialFields = pdaSettings.getSpecialFields();
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		dbTableModelFields.stream().filter(b -> dbSpecialFields.contains(b.getFieldAlias()))

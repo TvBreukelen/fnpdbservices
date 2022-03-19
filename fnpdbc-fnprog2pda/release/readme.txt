@@ -42,7 +42,7 @@ MobileDB        Palm/PocketPC
 MS-Excel        Microsoft Windows / Mac OS X
 Pilot-DB        Palm  
 TSV             All platforms
-XML	            All platforms
+XML             All platforms
 YAML            All Platforms
 
 To be able to use the FNProg2PDA programs you'll need to have the following on your PC:
@@ -130,7 +130,9 @@ General Public License for more details.
 
 Version 9.6
 -----------
-Included DBConvert with MariaDB support
+Added option to skip empty records
+Included DBConvert with MySQL/MariaDB, PostgreSQL and VCard support
+Minor big fixes
 
 
 Version 9.5

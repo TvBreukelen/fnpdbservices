@@ -246,7 +246,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 				dbTableModelFields.add(new FieldDefinition(dbField, fieldDef.getFieldType(), false));
 			}
 		}
-		refreshSpecialFields(); // activate visibility in table model for list or Xml
+		setupDbInfoToWrite();
 	}
 
 	@Override
@@ -286,7 +286,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			Map<String, Object> pRead = dbIn.readRecord();
 
 			// Verify if the record to write contains any values
-			if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbTableModelFields.stream()
+			if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream()
 					.noneMatch(field -> !pRead.getOrDefault(field.getFieldAlias(), "").equals(""))) {
 				emptyRecord++;
 				continue;
@@ -299,7 +299,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			}
 
 			result.add(pRead);
-			dbTableModelFields.stream().filter(filter)
+			dbInfoToWrite.stream().filter(filter)
 					.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 
 			// Check if we have to load the List categories

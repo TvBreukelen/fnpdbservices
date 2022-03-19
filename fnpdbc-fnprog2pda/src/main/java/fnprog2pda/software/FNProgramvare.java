@@ -877,9 +877,15 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		// Additional formating for Contents, Tracks, Segments, Authors, etc.
 		setDatabaseData(pRead, hashTable);
-		pWrite.add(pRead);
 
-		dbTableModelFields.stream().filter(filter)
+		// Verify if the record to write contains any values
+		if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream()
+				.noneMatch(field -> !pRead.getOrDefault(field.getFieldAlias(), "").equals(""))) {
+			return;
+		}
+
+		pWrite.add(pRead);
+		dbInfoToWrite.stream().filter(filter)
 				.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
 	}
 

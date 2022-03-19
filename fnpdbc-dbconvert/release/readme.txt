@@ -42,10 +42,12 @@ JSON            All Platforms
 MobileDB        Palm/PocketPC
 MS-Access       Microsoft Windows / Mac OS X
 MS-Excel        Microsoft Windows / Mac OS X
-MariaDB         All platforms 
+MySQL/MariaDB   All platforms 
 Pilot-DB        Palm  
+PostgreSQL      All platforms
 SQLite          All Platforms
 TSV             All platforms
+VCard           All platforms 
 Visual Foxpro   Microsoft Windows
 XML             All platforms
 YAML            All platforms
@@ -143,6 +145,16 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 7.2 
+-----------
+Added support for PostgreSQL databases and VCard files
+Added option to connect MariaDB via SSH
+Improved SSL option
+New option to skip empty records
+New option to select an already defined database or file
+Minor bug fixes
+
 
 Version 7.1
 -----------

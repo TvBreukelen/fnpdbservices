@@ -62,8 +62,8 @@ public class ExportProcess implements Runnable, IExportProcess {
 				mySoftware.setCategories(); // Obtain categories (when required)
 
 				mySoftware.addObserver(myProgram);
+				mySoftware.setupDbInfoToWrite();
 				mySoftware.processFiles(xView.getTableModel());
-				mySoftware.refreshSpecialFields();
 				xView.getTableModel().resetColumnVisibility();
 
 				xView.buildViewer();
