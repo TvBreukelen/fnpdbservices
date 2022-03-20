@@ -214,6 +214,7 @@ internalProgramError.text=Een interne programma fout is opgetreden. The voorafga
 intoNewDatabase.text=Naar nieuwe database
 intoNewDatabase.tooltip=Creëer een nieuwe database en schrijf daarin de gegevens
 invalidDatabaseID.mesg=Bestand %0 heeft een onjuiste Database-Id. Verwachte voor '%1' databases een id van '%2' i.p.v. '%3'.
+invalidKeyfile.mesg=privé sleutelbestand '%0' heeft het verkeerde formaat.\nIk verwachte een OpenSSH bestand met BEGIN en END tags.
 keywordFilter.title=Sleutelwoord filter
 keywordFilter.tooltip=Filter op sleutelwoord (leeg = filter deaktiveren)
 largeFileSplit.title=Groot bestand split
@@ -384,8 +385,6 @@ sshHost.text=SSH Host
 sshHost.tooltip=SSH server
 sshKeyPhrase.text=Sleutel wachtwoord
 sshKeyPhrase.tooltip=Wachtwoord voor versleutelde sleutels 
-sshLocalPort.text=Lokale poort
-sshLocalPort.tooltip=Lokale poort op uw pc om naar door te sturen
 sshPassword.text=Wachtwoord
 sshPassword.tooltip=Uw veilige shell-wachtwoord
 sshPrivateKey.text=Privé sleutel bestand

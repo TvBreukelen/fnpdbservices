@@ -32,7 +32,7 @@ Use the fields in the SSH Tunnel tab to configure SSH Tunneling. You can use the
  resides on a network to which the client may not be able to connect directly.
 <br>
 <h3>Use SSH tunnel</h3>
-If you don't need to use SSH then leave this check box deactivated. If SSH is required you
+If you don't need to use a SSH tunnel then leave this check box deactivated. If SSH is required you
  you'd need to activate it.
 <br>
 <h3>SSH Host</h3>
@@ -44,26 +44,16 @@ Enter here port of the SSH Host through which client connections will be forward
  The default port number is 22.
 <br>
 <h3>Username</h3>
-In the Username field you'd specify the name of a user with login privileges for the SSH host.
+In the User name field you'd specify the name of a user with login privileges for the SSH host.
 <br>
 <h3>Password</h3>
-If the SSH host is expecting a password of the username or private key file (if being used),
- use the Password field to specify the password.
+If the SSH host is expecting a password for the user name or private key file (if being used),
+ you can enter here the password. FYI: by default a private key file password is assumed.
 <br>
 <h3>Private key file</h3>
 If the SSH host is expecting a private key file for authentication, use this field to specify
- the location of the key file.
-<br>
-<h3>Local port</h3>
-Here you'd enter the preferred local port for local port forwarding.
-<br>
-<br>
-Local port forwarding allows you to forward a port on the local (ssh client) machine to a port
- on the remote (ssh server) machine, which is then forwarded to a port on the destination machine.
- In this forwarding type, the SSH client listens on a given port and tunnels any connection to
- that port to the specified port on the remote SSH server, which then connects to a port on the
- destination machine. The destination machine can be the remote SSH server or any other machine.
- Local port forwarding is mostly used to connect to a remote service on an internal network.
-<br>
+ the location of the key file. This should be an OpenSSH file. FYI: the most recent private key files
+ created by PuTTY are incompatible. However, with the PuTTYGen program you can convert them to the
+ correct OpenSSH format.  
 </body>
 </html>

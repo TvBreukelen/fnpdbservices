@@ -31,7 +31,6 @@ public class Databases implements IDatabaseHelper {
 	private String sshPassword = "";
 	private String privateKeyFile = "";
 	private int sshPort;
-	private int localPort;
 
 	// Remote databases SSL/TSL
 	private boolean useSsl = false;
@@ -100,7 +99,6 @@ public class Databases implements IDatabaseHelper {
 		sshUser = myPref.get("ssh.user", "");
 		sshPassword = myPref.get("ssh.password", "");
 		privateKeyFile = myPref.get("ssh.key.file", "");
-		localPort = myPref.getInt("ssh.local.port", 0);
 
 		// SSL
 		useSsl = myPref.getBoolean("use.ssl", false);
@@ -362,16 +360,6 @@ public class Databases implements IDatabaseHelper {
 	public void setSshPort(int sshPort) {
 		PrefUtils.writePref(myPref, "ssh.port", sshPort, this.sshPort, 0);
 		this.sshPort = sshPort;
-	}
-
-	@Override
-	public int getLocalPort() {
-		return localPort;
-	}
-
-	public void setLocalPort(int localPort) {
-		PrefUtils.writePref(myPref, "ssh.local.port", localPort, this.localPort, 0);
-		this.localPort = localPort;
 	}
 
 	public String getFieldSeparator() {

@@ -213,6 +213,7 @@ information.title=Information
 internalProgramError.text=Ein interner Program Fehler ist aufgetreten
 intoNewDatabase.text=Zur neuen Databank
 intoNewDatabase.tooltip=Erstelle eine neuen Datenbank und schreibe die Daten darein
+invalidKeyfile.mesg=private Schlüsseldatei '%0' hat das falsche Format.\nIch erwartete eine OpenSSH-Datei mit BEGIN- und END-Tags.
 invalidDatabaseID.mesg=Datei '%0' hat eine falsche Datenbank-Erkennung. Erwartete für '%1' Databanken die Erkennung '%2' statt '%3'.
 keywordFilter.title=Schlüsselwort Filter
 keywordFilter.tooltip=Filtern auf Schlüsselwort (leer = Filter deaktivieren)
@@ -380,8 +381,6 @@ sshHost.text=SSH-Server
 sshHost.tooltip=SSH-Server
 sshKeyPhrase.text=Schlüssel-Passphrase
 sshKeyPhrase.tooltip=Die Passphrase für passwortgeschützte Schlüssel
-sshLocalPort.text=Local Port
-sshLocalPort.tooltip=Lokaler Port aud dem eigenen Rechner
 sshPassword.text=Passwort
 sshPassword.tooltip=Ihr sicheres Shell-Passwort
 sshPrivateKey.text=Private Schlüssel Datei

@@ -132,7 +132,7 @@ Version 9.6
 -----------
 Added option to skip empty records
 Included DBConvert with MySQL/MariaDB, PostgreSQL and VCard support
-Minor big fixes
+Minor bug fixes
 
 
 Version 9.5

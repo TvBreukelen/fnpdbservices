@@ -35,8 +35,6 @@ public interface IDatabaseHelper {
 
 	int getSshPort();
 
-	int getLocalPort();
-
 	boolean isUseSsh();
 
 	default String getRemoteDatabase() {

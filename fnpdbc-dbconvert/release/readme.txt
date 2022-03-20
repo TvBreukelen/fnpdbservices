@@ -69,7 +69,7 @@ MobileDB        Palm/PocketPC
 MS-Excel        Microsoft Windows / Mac OS X
 Pilot-DB        Palm  
 TSV             All platforms
-XML	            All platforms
+XML             All platforms
 YAML            All platforms
 
 

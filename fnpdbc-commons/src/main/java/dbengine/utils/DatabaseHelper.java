@@ -22,7 +22,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 
 	private int port;
 	private int sshPort;
-	private int localPort;
 
 	private ExportFile databaseType;
 	private boolean useSsl = false;
@@ -191,15 +190,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public int getLocalPort() {
-		return localPort;
-	}
-
-	public void setLocalPort(int localPort) {
-		this.localPort = localPort;
-	}
-
-	@Override
 	public boolean isUseSsh() {
 		return useSsh;
 	}
@@ -221,7 +211,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		setSshUser(helper.getSshUser());
 		setSshPassword(helper.getSshPassword());
 		setPrivateKeyFile(helper.getPrivateKeyFile());
-		setLocalPort(helper.getLocalPort());
 		setUseSsl(helper.isUseSsl());
 		setKeyStore(helper.getKeyStore());
 		setKeyStorePassword(helper.getKeyStorePassword());

@@ -1,6 +1,7 @@
 package dbengine;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -47,7 +49,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		super(pref);
 	}
 
-	protected void getSshSession() throws JSchException {
+	protected void getSshSession() throws Exception {
 		// Remote host
 		final String remoteHost = myHelper.getSshHost();
 
@@ -58,6 +60,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		// Check if a private key is provided
 		if (usePrivateKey) {
+			verifyKeyFile(myHelper.getPrivateKeyFile());
+
 			if (usePassword) {
 				jsch.addIdentity(myHelper.getPrivateKeyFile(), General.decryptPassword(myHelper.getSshPassword()));
 			} else {
@@ -90,10 +94,36 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// remote_port of the remote_host assigned_port is the port assigned by jsch for
 		// use, it may not always be the same as local_port.
 
-		assignedPort = session.setPortForwardingL(myHelper.getLocalPort(), remoteHost, myHelper.getPort());
+		assignedPort = session.setPortForwardingL(0, remoteHost, myHelper.getPort());
 
 		if (assignedPort == 0) {
 			throw new JSchException("Port forwarding failed !");
+		}
+	}
+
+	protected void verifyKeyFile(String keyFile) throws Exception {
+		if (!General.existFile(keyFile)) {
+			// Should not occur unless file has been deleted
+			throw FNProgException.getException("noDatabaseExists", keyFile);
+		}
+
+		boolean hasBeginTag = false;
+		boolean hasEndTag = false;
+
+		try (Scanner sc = new Scanner(new File(keyFile))) {
+			while (sc.hasNext()) {
+				String line = sc.nextLine();
+				if (line.startsWith("-----BEGIN ")) {
+					hasBeginTag = true;
+				} else if (line.startsWith("-----END ")) {
+					hasEndTag = true;
+					break;
+				}
+			}
+		}
+
+		if (!(hasBeginTag && hasEndTag)) {
+			throw FNProgException.getException("invalidKeyfile", keyFile);
 		}
 	}
 

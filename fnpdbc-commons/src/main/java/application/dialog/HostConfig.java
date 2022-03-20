@@ -52,7 +52,6 @@ public class HostConfig extends BasicDialog {
 	private JPasswordField txSshPassword;
 	private JTextField txKeyfile;
 	private JButton btKeyfile;
-	private JSpinner txLocalPort;
 
 	// SSL
 	private JCheckBox ckUseSsl;
@@ -184,7 +183,6 @@ public class HostConfig extends BasicDialog {
 		txSshPassword = GUIFactory.getJPasswordField("sshPassword", General.decryptPassword(helper.getSshPassword()));
 		txKeyfile = GUIFactory.getJTextField("sshPrivateKey", helper.getPrivateKeyFile());
 		btKeyfile = GUIFactory.getJButton("...", e -> General.getSelectedFile(this, txKeyfile, FileType.PPK, true));
-		txLocalPort = getPortSpinner("sshLocalPort", helper.getLocalPort() == 0 ? port + 1 : helper.getLocalPort());
 
 		panel.add(ckUseSsh, c.gridCell(1, 0, 0, 0));
 		panel.add(GUIFactory.getJLabel("sshHost"), c.gridCell(0, 1, 0, 0));
@@ -198,8 +196,6 @@ public class HostConfig extends BasicDialog {
 		panel.add(GUIFactory.getJLabel("sshPrivateKey"), c.gridCell(0, 3, 0, 0));
 		panel.add(txKeyfile, c.gridCell(1, 3, 0, 0));
 		panel.add(btKeyfile, c.gridCell(2, 3, 0, 0));
-		panel.add(GUIFactory.getJLabel("sshLocalPort"), c.gridCell(0, 4, 0, 0));
-		panel.add(txLocalPort, c.gridCell(1, 4, 2, 0));
 		return panel;
 	}
 
@@ -288,7 +284,6 @@ public class HostConfig extends BasicDialog {
 		verify.setSshUser(txSshUser.getText().trim());
 		verify.setSshPassword(General.encryptPassword(txSshPassword.getPassword()));
 		verify.setPrivateKeyFile(txKeyfile.getText().trim());
-		verify.setLocalPort((int) txLocalPort.getValue());
 
 		// SSL
 		verify.setUseSsl(ckUseSsl.isSelected());
@@ -326,7 +321,6 @@ public class HostConfig extends BasicDialog {
 		txSshPassword.setEnabled(ckUseSsh.isSelected());
 		txKeyfile.setEnabled(ckUseSsh.isSelected());
 		btKeyfile.setEnabled(ckUseSsh.isSelected());
-		txLocalPort.setEnabled(ckUseSsh.isSelected());
 
 		// SSL
 		txKeyStore.setEnabled(ckUseSsl.isSelected());
