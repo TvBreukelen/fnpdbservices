@@ -18,23 +18,6 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
-import dbengine.export.Calc;
-import dbengine.export.CsvFile;
-import dbengine.export.DBaseFile;
-import dbengine.export.Excel;
-import dbengine.export.HanDBase;
-import dbengine.export.JFile;
-import dbengine.export.JsonFile;
-import dbengine.export.ListDB;
-import dbengine.export.MSAccess;
-import dbengine.export.MariaDB;
-import dbengine.export.MobileDB;
-import dbengine.export.PilotDB;
-import dbengine.export.PostgreSQL;
-import dbengine.export.SQLite;
-import dbengine.export.VCard;
-import dbengine.export.XmlFile;
-import dbengine.export.YamlFile;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class GeneralDB {
@@ -270,52 +253,6 @@ public abstract class GeneralDB {
 
 	public void closeData() throws Exception {
 		// Nothing to do here on this level
-	}
-
-	public static GeneralDB getDatabase(ExportFile db, Profiles profile) {
-		switch (db) {
-		case ACCESS:
-			return new MSAccess(profile);
-		case CALC:
-			return new Calc(profile);
-		case JSON:
-			return new JsonFile(profile);
-		case MARIADB:
-			return new MariaDB(profile);
-		case POSTGRESQL:
-			return new PostgreSQL(profile);
-		case YAML:
-			return new YamlFile(profile);
-		case HANDBASE:
-			return new HanDBase(profile);
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
-			return new JFile(profile);
-		case LIST:
-			return new ListDB(profile);
-		case MOBILEDB:
-			return new MobileDB(profile);
-		case PILOTDB:
-			return new PilotDB(profile);
-		case EXCEL:
-			return new Excel(profile);
-		case TEXTFILE:
-			return new CsvFile(profile);
-		case VCARD:
-			return new VCard(profile);
-		case DBASE:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
-			return new DBaseFile(profile);
-		case XML:
-			return new XmlFile(profile);
-		case SQLITE:
-			return new SQLite(profile);
-		}
-		return null;
 	}
 
 	protected abstract void openFile(boolean isInputFile) throws Exception;

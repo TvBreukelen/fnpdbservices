@@ -128,6 +128,18 @@ General Public License for more details.
 5. What is New?
 ===================================================================================================
 
+
+Version 9.7
+-----------
+Removed DBConvert as a tool. This program has a different function than FNProg2PDA and is available
+separately. Both programs still use the same code base, but are now functionaly separated. This makes
+maitainance easier, because there is no need to release a new version of one program when only the
+other progam has changed.
+
+Bug fix: export to a non standard CSV file with "Incl. Field Names" switched off caused an error (
+null pointer exception).
+
+
 Version 9.6
 -----------
 Added option to skip empty records

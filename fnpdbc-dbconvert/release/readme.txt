@@ -146,6 +146,17 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 7.2.1 
+-------------
+Updated external Jackson databinding libraries due to possible security vulnerabilities.
+DBConvert now has its own General Settings. Settings are no longer shared between DBConvert
+and FNProg2PDA.
+The default Look and Feel is now set to Nimbus.
+Bug Fix: when checking the DBConvert version, the program crashed when no older version
+was found.
+Bug Fix: CSV file export failed in case "Incl. Field Names" wasn't set
+
+
 Version 7.2 
 -----------
 Added support for PostgreSQL databases and VCard files

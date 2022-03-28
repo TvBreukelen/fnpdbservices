@@ -6,10 +6,9 @@ import java.awt.GridBagLayout;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import org.jdesktop.swingx.JXHeader;
 
 import application.interfaces.ExportFile;
 import application.preferences.Project;
@@ -51,8 +50,7 @@ public class ConfigBackup extends BasicDialog {
 		JPanel result = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		JXHeader label = new JXHeader(null, GUIFactory.getTexts(isBackup ? "backupText" : "restoreText"));
-		label.setPreferredSize(new Dimension(400, 50));
+		JLabel label = new JLabel(GUIFactory.getText(isBackup ? "backupText" : "restoreText"));
 
 		result.add(Box.createVerticalStrut(5), c.gridCell(0, 0, 0, 0));
 		result.add(label, c.gridmultipleCell(0, 1, 0, 0, 0, 2));

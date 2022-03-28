@@ -27,6 +27,7 @@ import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
+import dbconvert.dialog.ExportProcess;
 import dbconvert.preferences.PrefDBConvert;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
@@ -111,7 +112,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			firstRecord = myImportFile == ExportFile.MOBILEDB ? 4 : 0;
 		}
 
-		dbIn = (IConvert) GeneralDB.getDatabase(myImportFile, pdaSettings);
+		dbIn = (IConvert) ExportProcess.getDatabase(myImportFile, pdaSettings);
 		dbIn.setSoftware(this);
 		dbIn.openFile(dbInHelper, true);
 
@@ -358,7 +359,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public void openToFile() throws Exception {
-		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
+		dbOut = ExportProcess.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
 		dbOut.openFile(new DatabaseHelper(myFile[1], myExportFile), false);
 		isOutputFileOpen = true;

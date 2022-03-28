@@ -25,7 +25,6 @@ import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
 import application.dialog.ConfigSort;
 import application.dialog.ConfigTextFile;
-import application.dialog.HostConfig;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;

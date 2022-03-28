@@ -23,11 +23,6 @@
 			<artifactId>fnpdbc-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>Fnp-Dbc</groupId>
-			<artifactId>fnpdbc-dbconvert</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

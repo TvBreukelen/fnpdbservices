@@ -1,15 +1,11 @@
 package fnprog2pda.dialog;
 
-import javax.swing.JMenu;
-
 import application.dialog.ProgramDialog;
 import application.interfaces.FNPSoftware;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
 import application.preferences.Databases;
-import application.utils.GUIFactory;
-import dbconvert.dialog.ConfigDBConvert;
 import fnprog2pda.FNProg2PDA;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
@@ -25,8 +21,8 @@ public class ConfigFNProg extends ProgramDialog {
 	private static final long serialVersionUID = -9109798108105347350L;
 	protected FNPSoftware myFnSoftware = FNPSoftware.UNDEFINED;
 
-	public ConfigFNProg(boolean isMainScreen) {
-		super(PrefFNProg.getInstance(), isMainScreen);
+	public ConfigFNProg() {
+		super(PrefFNProg.getInstance());
 		dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 		dbFactory = DatabaseFactory.getInstance();
 		exportProcess = new ExportProcess();
@@ -40,16 +36,6 @@ public class ConfigFNProg extends ProgramDialog {
 		buildDialog();
 		activateComponents();
 		pack();
-	}
-
-	@Override
-	protected JMenu createToolsMenu() {
-		JMenu result = super.createToolsMenu();
-		result.add(GUIFactory.getJMenuItem("DBConvert", e -> {
-			ConfigDBConvert dbConvert = new ConfigDBConvert(false);
-			dbConvert.setVisible(true);
-		}));
-		return result;
 	}
 
 	@Override

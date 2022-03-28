@@ -39,19 +39,11 @@ public abstract class BasicDialog extends JDialog {
 	protected GeneralSettings generalSettings = GeneralSettings.getInstance();
 
 	private String myHelpFile;
-	private boolean isMainScreen;
 
 	private static final long serialVersionUID = -4427269633857070104L;
 
 	protected BasicDialog() {
 		setModal(true);
-		isMainScreen = true;
-	}
-
-	protected BasicDialog(Component dialog) {
-		setModal(true);
-		setLocationRelativeTo(dialog);
-		isMainScreen = false;
 	}
 
 	protected void init(String title) {
@@ -133,10 +125,8 @@ public abstract class BasicDialog extends JDialog {
 
 	@Override
 	public void setVisible(boolean b) {
-		if (isMainScreen) {
-			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-			setLocation((dim.width - getSize().width) / 3, (dim.height - getSize().height) / 3);
-		}
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation((dim.width - getSize().width) / 3, (dim.height - getSize().height) / 3);
 		super.setVisible(b);
 	}
 

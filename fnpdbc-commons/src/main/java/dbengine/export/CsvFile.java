@@ -63,7 +63,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 					.withQuoteChar(myPref.getImportTextDelimiter().charAt(0));
 
 			outFile.delete();
-
+			writer = mapper.writer(schema).writeValues(outFile);
 			maxSize = myPref.getMaxFileSize();
 			if (maxSize != 0) {
 				maxSize = 1024 * (int) Math.pow(2, maxSize + 8);
@@ -113,8 +113,6 @@ public class CsvFile extends GeneralDB implements IConvert {
 			// There is nothing else to do.
 			return;
 		}
-
-		writer = mapper.writer(schema).writeValues(outFile);
 
 		// Read the user defined list of DB fields and write the headers
 		List<String> list = dbInfo2Write.stream().map(FieldDefinition::getFieldHeader).collect(Collectors.toList());
@@ -178,7 +176,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void closeFile() {
-		if (!isInputFile) {
+		if (!isInputFile && writer != null) {
 			try {
 				writer.close();
 			} catch (IOException e) {

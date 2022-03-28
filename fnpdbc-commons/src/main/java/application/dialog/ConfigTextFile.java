@@ -39,11 +39,13 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private JComboBox<String> splitFile;
 
 	private JPanel otherPanel;
-	private ExportFile exportFile;
 	private boolean isExport;
 
 	private Profiles pdaSettings;
 	private IConfigSoft dialog;
+
+	private static final String STANDARD_CSV = "standardCsv";
+	private static final String OTHER_CSV = "otherCsv";
 
 	public ConfigTextFile(Profiles pref, boolean isExport) {
 		pdaSettings = pref;
@@ -71,13 +73,11 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 			pdaSettings.setUseHeader(inclHeaders.isSelected());
 			pdaSettings.setUseLinebreak(inclLinebreaks.isSelected());
 			pdaSettings.setMaxFileSize(splitFile.getSelectedIndex());
-			pdaSettings
-					.setTextFileFormat(standardCsv.isSelected() ? ExportFile.HANDBASE.getName() : exportFile.getName());
+			pdaSettings.setTextFileFormat(standardCsv.isSelected() ? STANDARD_CSV : OTHER_CSV);
 			pdaSettings.setFieldSeparator(separatorChar);
 			pdaSettings.setTextDelimiter(delimiterChar);
 		} else {
-			pdaSettings.setImportTextFileFormat(
-					standardCsv.isSelected() ? ExportFile.HANDBASE.getName() : exportFile.getName());
+			pdaSettings.setImportTextFileFormat(standardCsv.isSelected() ? STANDARD_CSV : OTHER_CSV);
 			pdaSettings.setImportFieldSeparator(separatorChar);
 			pdaSettings.setImportTextDelimiter(delimiterChar);
 		}
@@ -107,19 +107,15 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		ActionListener listener = e -> {
-			exportFile = ExportFile.getExportFile(e.getActionCommand());
-			activateComponents();
-		};
+		ActionListener listener = e -> activateComponents();
 
-		standardCsv = GUIFactory.getJRadioButton("standardCsv", ExportFile.HANDBASE.getName(), listener);
-		JRadioButton otherCsv = GUIFactory.getJRadioButton("otherCsv", ExportFile.TEXTFILE.getName(), listener);
+		standardCsv = GUIFactory.getJRadioButton(STANDARD_CSV, ExportFile.HANDBASE.getName(), listener);
+		JRadioButton otherCsv = GUIFactory.getJRadioButton(OTHER_CSV, ExportFile.TEXTFILE.getName(), listener);
 		panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
 
-		exportFile = ExportFile
-				.getExportFile(isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat());
+		String csvType = isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat();
 
-		if (exportFile == ExportFile.TEXTFILE) {
+		if (csvType.equals(OTHER_CSV)) {
 			otherCsv.setSelected(true);
 		} else {
 			standardCsv.setSelected(true);
@@ -173,9 +169,9 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 	@Override
 	public void activateComponents() {
-		General.setEnabled(otherPanel, exportFile == ExportFile.TEXTFILE);
+		General.setEnabled(otherPanel, !standardCsv.isSelected());
 
-		if (exportFile != ExportFile.TEXTFILE) {
+		if (standardCsv.isSelected()) {
 			separator.setSelectedIndex(0);
 			delimiter.setSelectedIndex(0);
 			if (isExport) {

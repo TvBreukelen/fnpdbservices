@@ -46,7 +46,7 @@ public class FNProg2PDA {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
 
-		frame = new ConfigFNProg(true);
+		frame = new ConfigFNProg();
 		frame.setIconImage(General.createImageIcon("PDA.png").getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();

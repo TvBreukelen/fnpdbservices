@@ -1,34 +1,44 @@
 package dbconvert.utils;
 
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
+
+import org.apache.commons.lang3.StringUtils;
+
 import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 
 public class ConvertOldVersion {
+	static GeneralSettings settings = GeneralSettings.getInstance();
+
 	private ConvertOldVersion() {
 		// Hide constructor
 	}
 
 	public static void convert() {
-		GeneralSettings settings = GeneralSettings.getInstance();
 		String version = settings.getDbcVersion();
 
 		if (version.equals(TvBSoftware.DBCONVERT.getVersion())) {
 			return;
 		}
 
-		if (!settings.isNoVersionCheck()) {
-			settings.setCheckVersionDate();
+		if (StringUtils.isNotEmpty(version)) {
+			double vs = Double.parseDouble(version.substring(0, 3));
+			if (vs <= 6.8) {
+				// Rename DBase and FoxPro input files to xBase
+				convertToXBase();
+			} else if ("7.1".equals(version)) {
+				// Extract host, port and database fields from database
+				convertMariaDB();
+			}
+		} else if (TvBSoftware.DBCONVERT.getVersion().equals("7.3")) {
+			copyOldSettings();
 		}
 
-		double vs = Double.parseDouble(version.substring(0, 3));
-		if (vs <= 6.8) {
-			// Rename DBase and FoxPro input files to xBase
-			convertToXBase();
-		} else if ("7.1".equals(version)) {
-			// Extract host, port and database fields from database
-			convertMariaDB();
+		if (!settings.isNoVersionCheck()) {
+			settings.setCheckVersionDate();
 		}
 
 		settings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
@@ -67,4 +77,35 @@ public class ConvertOldVersion {
 		}
 	}
 
+	private static void copyOldSettings() {
+		try {
+			if (!Preferences.userRoot().nodeExists("fnprog2pda")) {
+				return;
+			}
+
+			String userHome = System.getProperty("user.home", "");
+			Preferences myPref = Preferences.userRoot().node("fnprog2pda");
+			myPref = myPref.node("general_settings");
+
+			settings.setCheckBoxChecked(myPref.get("checkbox.checked", "Yes"));
+			settings.setCheckBoxUnchecked(myPref.get("checkbox.unchecked", ""));
+			settings.setDateDelimiter(myPref.get("date.delimiter", "/"));
+			settings.setDateFormat(myPref.get("date.format", "dd MM yyyy"));
+			settings.setDbcVersion(myPref.get("dbconvert.version", ""));
+			settings.setDefaultBackupFolder(myPref.get("default.backup.folder", userHome));
+			settings.setDefaultFileFolder(myPref.get("default.file.folder", userHome));
+			settings.setDefaultImageFolder(myPref.get("default.image.folder", userHome));
+			settings.setDefaultPdaFolder(myPref.get("default.pda.folder", userHome));
+			settings.setDurationFormat(myPref.get("duration.format", "h:mm:ss"));
+			settings.setHandbaseConversionProgram(myPref.get("handbase.conversion.program", ""));
+			settings.setLanguage(myPref.get("language", "English"));
+			settings.setLookAndFeel(myPref.get("gui.lookandfeel", "Nimbus"));
+			settings.setTimeFormat(myPref.get("time.format", "hh:mm"));
+			settings.setHeight(myPref.getInt("frame.height", 500));
+			settings.setWidth(myPref.getInt("frame.width", 850));
+			settings.setVersionDaysCheck(myPref.getInt("version.days.check", 30));
+		} catch (BackingStoreException e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -26,8 +26,8 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>9.6.0.0</fileVersion>
-    <txtFileVersion>Version 9.6</txtFileVersion>
+    <fileVersion>9.7.0.0</fileVersion>
+    <txtFileVersion>Version 9.7</txtFileVersion>
     <fileDescription>FNProg2PDA</fileDescription>
     <copyright>Tom van Breukelen 2003-2022</copyright>
     <productVersion>9.6.0.0</productVersion>

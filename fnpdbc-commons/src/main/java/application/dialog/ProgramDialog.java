@@ -48,9 +48,6 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXTitledPanel;
-
 import com.github.lgooddatepicker.tableeditors.DateTimeTableEditor;
 
 import application.interfaces.ExportFile;
@@ -122,7 +119,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	protected boolean isProfileSet = true;
 	private boolean isInit = true;
-	private boolean isMainScreen = false;
 	private TvBSoftware software;
 	private Component centerScreen;
 
@@ -143,13 +139,12 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	private static final long serialVersionUID = 7285565159492721667L;
 
-	protected ProgramDialog(Profiles profile, boolean mainScreen) {
+	protected ProgramDialog(Profiles profile) {
 		// Only relevant for MacOS
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		System.setProperty("apple.awt.fileDialogForDirectories", "false");
 
 		software = profile.getTvBSoftware();
-		isMainScreen = mainScreen;
 
 		funcNew = e -> {
 			try {
@@ -310,14 +305,8 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	@Override
 	public void setVisible(boolean b) {
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		int divX = isMainScreen ? 8 : 5;
-		int divY = isMainScreen ? 8 : 5;
-		setLocation((dim.width - getSize().width) / divX, (dim.height - getSize().height) / divY);
+		setLocation((dim.width - getSize().width) / 8, (dim.height - getSize().height) / 8);
 		super.setVisible(b);
-	}
-
-	public boolean isMainScreen() {
-		return isMainScreen;
 	}
 
 	protected JComponent createToolBar() {
@@ -332,8 +321,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		result.add(btView);
 		result.add(Box.createHorizontalGlue());
 		result.add(GUIFactory.createToolBarButton(GUIFactory.getToolTip(MENU_HELP), "Help.png", funcHelp));
-		result.add(GUIFactory.createToolBarButton(GUIFactory.getToolTip(isMainScreen ? "menuExitPgm" : "menuExitScr"),
-				"Exit.png", funcExit));
+		result.add(GUIFactory.createToolBarButton(GUIFactory.getToolTip("menuExitPgm"), "Exit.png", funcExit));
 		result.setBorder(BorderFactory.createRaisedBevelBorder());
 
 		return result;
@@ -369,8 +357,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		result.add(tabPane);
 
-		JXPanel panel = new JXPanel(new FlowLayout(FlowLayout.LEFT));
-		panel.setBackgroundPainter(General.getPainter());
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		panel.add(btExport);
 
 		if (!isDBConvert()) {
@@ -405,12 +392,10 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	private Component createWelcomeScreen() {
 		isProfileSet = false;
 
-		JXTitledPanel result = new JXTitledPanel(GUIFactory.getText(MENU_WELCOME));
-		JEditorPane helpInfo = new JEditorPane();
-		helpInfo.setContentType("text/html");
-		helpInfo.setText(GUIFactory.getText("welcome"));
-		helpInfo.setEditable(false);
-		result.add(helpInfo);
+		JEditorPane result = new JEditorPane();
+		result.setContentType("text/html");
+		result.setText(GUIFactory.getText("welcome"));
+		result.setEditable(false);
 		return result;
 	}
 
@@ -726,11 +711,8 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	protected JMenu createToolsMenu() {
 		JMenu result = GUIFactory.getJMenu("menuTools");
-
-		if (isMainScreen) {
-			result.add(createLanguageMenu());
-			result.add(createLookAndFeelMenu());
-		}
+		result.add(createLanguageMenu());
+		result.add(createLookAndFeelMenu());
 
 		result.add(GUIFactory.getJMenuItem("menuConfigGeneral", e -> {
 			ConfigGeneral view = new ConfigGeneral();
@@ -796,8 +778,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	protected void close() {
 		// Check if automated version check has been enabled
-		if (isMainScreen() && !generalSettings.isNoVersionCheck()
-				&& generalSettings.getCheckVersionDate().isBefore(LocalDate.now())) {
+		if (!generalSettings.isNoVersionCheck() && generalSettings.getCheckVersionDate().isBefore(LocalDate.now())) {
 			try {
 				// Make a "silent" check
 				checkVersion(true);
@@ -812,13 +793,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		dbSettings.cleanupNodes(pdaSettings);
 		pdaSettings.setLastProject();
 		pdaSettings.setLastProfile(pdaSettings.getProfileID());
-
-		if (isMainScreen) {
-			System.exit(0);
-		}
-
-		setVisible(false);
-		dispose();
+		System.exit(0);
 	}
 
 	public JProgressBar getProgressBar() {

@@ -46,7 +46,7 @@ public class DBConvert {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
 
-		frame = new ConfigDBConvert(true);
+		frame = new ConfigDBConvert();
 		frame.setIconImage(General.createImageIcon("PDA.png").getImage());
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.pack();

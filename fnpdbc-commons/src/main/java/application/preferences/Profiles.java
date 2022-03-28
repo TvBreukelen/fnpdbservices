@@ -159,7 +159,7 @@ public abstract class Profiles extends Project {
 		// Text files
 		fieldSeparator = child.get("field.separator", ",");
 		textDelimiter = child.get("text.delimiter", "\"");
-		textFileFormat = child.get("textfile.format", "");
+		textFileFormat = child.get("textfile.format", "standardCsv");
 		maxFileSize = child.getInt("textfile.maxsize", 0);
 		useLinebreak = child.getBoolean("use.linebreak", true);
 
@@ -595,8 +595,8 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setTextFileFormat(String textfileFormat) {
-		PrefUtils.writePref(child, "textfile.format", textfileFormat, textFileFormat, "");
-		textFileFormat = textfileFormat;
+		PrefUtils.writePref(child, "textfile.format", textfileFormat, this.textFileFormat, "standardCsv");
+		this.textFileFormat = textfileFormat;
 	}
 
 	public int getMaxFileSize() {

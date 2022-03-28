@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
-  <headerType>gui</headerType>
+  <headerType>console</headerType>
   <jar>D:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\target\fnpdbc-fnprog2pda-9.0.0.jar</jar>
-  <outfile>D:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\release\FNProg2PDA.exe</outfile>
+  <outfile>D:\eclipse-workspace\fnpdbservices\fnpdbc-fnprog2pda\release\FNProg2PDA_batch.exe</outfile>
   <errTitle>FNProg2PDA Program Error</errTitle>
   <cmdLine></cmdLine>
   <chdir></chdir>
@@ -26,16 +26,16 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>9.6.0.0</fileVersion>
-    <txtFileVersion>Version 9.6</txtFileVersion>
-    <fileDescription>FNProg2PDA</fileDescription>
+    <fileVersion>9.7.0.0</fileVersion>
+    <txtFileVersion>Version 9.7</txtFileVersion>
+    <fileDescription>FNProg2PDA Batch program</fileDescription>
     <copyright>Tom van Breukelen 2003-2022</copyright>
-    <productVersion>9.6.0.0</productVersion>
-    <txtProductVersion>Version 9.6</txtProductVersion>
+    <productVersion>9.7.0.0</productVersion>
+    <txtProductVersion>Version 9.7</txtProductVersion>
     <productName>FNProg2PDA</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>FNProg2PDA</internalName>
-    <originalFilename>FNProg2PDA.exe</originalFilename>
+    <originalFilename>FNProg2PDA_batch.exe</originalFilename>
     <trademarks></trademarks>
     <language>ENGLISH_US</language>
   </versionInfo>

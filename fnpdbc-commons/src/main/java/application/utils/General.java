@@ -2,14 +2,12 @@ package application.utils;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
-import java.awt.LinearGradientPaint;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -76,7 +74,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.painter.MattePainter;
 
 import application.FileType;
 import application.interfaces.ExportFile;
@@ -101,8 +98,6 @@ public final class General {
 	public static final DateTimeFormatter sdInternalTime = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter sdInternalTimestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir", "");
-
-	private static MattePainter painter;
 
 	public static final boolean IS_MAC_OSX = System.getProperty("os.name").equals("Mac OS X");
 	public static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Win");
@@ -703,24 +698,6 @@ public final class General {
 		byte[] result = new byte[length];
 		System.arraycopy(convertString2Bytes(field, encoding), 0, result, 0, FIELD_LENGTH);
 		return result;
-	}
-
-	/** this painter draws a gradient fill */
-	public static MattePainter getPainter() {
-		if (painter != null) {
-			return painter;
-		}
-
-		int width = 100;
-		int height = 100;
-		Color color1 = Color.white;
-		Color color2 = Color.lightGray;
-
-		LinearGradientPaint gradientPaint = new LinearGradientPaint(0.0f, 0.0f, width, height,
-				new float[] { 0.0f, 1.0f }, new Color[] { color1, color2 });
-
-		painter = new MattePainter(gradientPaint);
-		return painter;
 	}
 
 	public static Properties getProperties(String nodeName) {

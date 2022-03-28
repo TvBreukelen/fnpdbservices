@@ -46,6 +46,7 @@ import dbengine.export.HanDBase;
 import dbengine.export.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
+import fnprog2pda.dialog.ExportProcess;
 import fnprog2pda.preferences.PrefFNProg;
 
 public abstract class FNProgramvare extends BasicSoft {
@@ -221,7 +222,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	public void openToFile() throws Exception {
-		dbOut = GeneralDB.getDatabase(myExportFile, pdaSettings);
+		dbOut = ExportProcess.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
 		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile(), myExportFile), false);
 		isOutputFileOpen = true;

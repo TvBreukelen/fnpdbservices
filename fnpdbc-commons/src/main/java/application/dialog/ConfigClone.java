@@ -1,16 +1,14 @@
 package application.dialog;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import org.jdesktop.swingx.JXHeader;
 
 import application.dialog.ProgramDialog.Action;
 import application.interfaces.ExportFile;
@@ -58,8 +56,7 @@ public class ConfigClone extends BasicDialog {
 		JPanel result = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		JXHeader label = new JXHeader(null, GUIFactory.getTexts("cloneText"));
-		label.setPreferredSize(new Dimension(400, 50));
+		JLabel label = new JLabel(GUIFactory.getText("cloneText"));
 
 		JButton btOpen = GUIFactory.getJButton("browseFile", e -> {
 			String projectCopyTo = cbExportFile.getSelectedItem().toString();

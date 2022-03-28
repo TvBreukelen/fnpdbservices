@@ -39,11 +39,11 @@ public final class GeneralSettings {
 	private int width;
 	private int height;
 
-	private static final GeneralSettings gInstance = new GeneralSettings();
+	private static final GeneralSettings gInstance = new GeneralSettings(getCallerApp());
 	private Preferences myPref;
 
-	private GeneralSettings() {
-		myPref = Preferences.userRoot().node("fnprog2pda");
+	private GeneralSettings(String software) {
+		myPref = Preferences.userRoot().node(software);
 		myPref = myPref.node("general_settings");
 
 		checkBoxChecked = myPref.get("checkbox.checked", "Yes");
@@ -59,7 +59,7 @@ public final class GeneralSettings {
 		fnpVersion = myPref.get("fnprog2pda.version", "");
 		handbaseConversionProgram = myPref.get("handbase.conversion.program", "");
 		language = myPref.get("language", "English");
-		lookAndFeel = myPref.get("gui.lookandfeel", "System");
+		lookAndFeel = myPref.get("gui.lookandfeel", "Nimbus");
 		timeFormat = myPref.get("time.format", "hh:mm");
 
 		height = myPref.getInt("frame.height", 500);
@@ -231,7 +231,7 @@ public final class GeneralSettings {
 	}
 
 	public void setLookAndFeel(String lookAndFeel) {
-		PrefUtils.writePref(myPref, "gui.lookandfeel", lookAndFeel, this.lookAndFeel, "System");
+		PrefUtils.writePref(myPref, "gui.lookandfeel", lookAndFeel, this.lookAndFeel, "Nimbus");
 		this.lookAndFeel = lookAndFeel;
 	}
 
@@ -327,5 +327,12 @@ public final class GeneralSettings {
 	public void setFnpVersion(String version) {
 		PrefUtils.writePref(myPref, "fnprog2pda.version", version, fnpVersion, "");
 		fnpVersion = version;
+	}
+
+	public static String getCallerApp() {
+		StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+		StackTraceElement ste = stElements[stElements.length - 1];
+		String className = ste.getClassName();
+		return className.substring(0, className.indexOf("."));
 	}
 }
