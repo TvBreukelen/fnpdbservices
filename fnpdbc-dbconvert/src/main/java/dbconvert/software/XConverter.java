@@ -337,14 +337,16 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
-	public List<Object> getDbFieldValues(String pField) throws Exception {
+	public List<Object> getFilterFieldValues(String pField) throws Exception {
 		List<Object> result = new ArrayList<>();
 		FieldDefinition field = dbFieldDefinition.get(pField);
 
 		if (myModel == null) {
+			// Load entire input file in table model
 			loadInputFile();
 		}
 
+		// Read values from the table model
 		List<Map<String, Object>> table = myModel.getDataListMap();
 		for (Map<String, Object> rowData : table) {
 			Object obj = rowData.get(field.getFieldAlias());

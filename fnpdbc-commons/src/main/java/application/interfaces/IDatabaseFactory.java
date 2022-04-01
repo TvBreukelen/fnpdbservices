@@ -13,7 +13,7 @@ public interface IDatabaseFactory {
 
 	String[] getDbFilterFields();
 
-	List<Object> getDbFieldValues(String pField) throws Exception;
+	List<Object> getFilterFieldValues(String pField) throws Exception;
 
 	boolean isConnected();
 

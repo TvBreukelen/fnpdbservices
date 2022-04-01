@@ -53,12 +53,7 @@ public class Viewer extends BasicDialog {
 
 		myTable.setDefaultRenderer(Object.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer());
-		myTable.setDefaultRenderer(Number.class, new ObjectRenderer(dbFields));
-		myTable.setDefaultRenderer(Float.class, new ObjectRenderer(dbFields));
-		myTable.setDefaultRenderer(Double.class, new ObjectRenderer(dbFields));
 		myTable.setDefaultEditor(Object.class, new CellEditor(dbFields));
-
-		General.packColumns(myTable);
 
 		init(GUIFactory.getTitle("xViewer"));
 		setHelpFile("xviewer");
@@ -79,9 +74,9 @@ public class Viewer extends BasicDialog {
 	protected Component createCenterPanel() {
 		isModelSaved = General.writeObjectToDisk(myModel.getDataListMap());
 		JPanel result = new JPanel(new BorderLayout());
-		myTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		btReload.setEnabled(isModelSaved);
 
+		myTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		General.packColumns(myTable);
 		result.add(new JScrollPane(myTable), BorderLayout.CENTER);
 		result.setBorder(

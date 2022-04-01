@@ -234,23 +234,25 @@ public class MSAccess extends GeneralDB implements IConvert {
 				objs[i] = colValue.get(cols[i]);
 			}
 
-			boolean inclusiv = true;
-
 			switch (operator) {
 			case IS_EQUAL_TO:
 				cb.setSpecificEntry(objs);
 				break;
 			case IS_GREATER_THAN:
-				inclusiv = false;
+				cb.setStartEntry(objs);
+				cb.setStartRowInclusive(false);
+				break;
 			case IS_GREATER_THAN_OR_EQUAL_TO:
 				cb.setStartEntry(objs);
-				cb.setStartRowInclusive(inclusiv);
+				cb.setStartRowInclusive(true);
 				break;
 			case IS_LESS_THAN:
-				inclusiv = false;
+				cb.setEndEntry(objs);
+				cb.setEndRowInclusive(false);
+				break;
 			case IS_LESS_THAN_OR_EQUAL_TO:
 				cb.setEndEntry(objs);
-				cb.setEndRowInclusive(inclusiv);
+				cb.setEndRowInclusive(true);
 				break;
 			default:
 				return cb.toIndexCursor();

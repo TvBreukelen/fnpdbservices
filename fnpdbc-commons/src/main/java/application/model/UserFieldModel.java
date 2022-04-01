@@ -10,8 +10,11 @@ import application.utils.GUIFactory;
 
 public class UserFieldModel extends AbstractTableModel {
 	private static final long serialVersionUID = -3745524495569802922L;
-	private static final int COLUMN_2 = 2;
-	private static final int COLUMN_3 = 3;
+
+	public static final int COL_IMPORT_FIELD = 0;
+	public static final int COL_TYPE = 1;
+	public static final int COL_EXPORT_FIELD = 2;
+	public static final int COL_TEXT_EXPORT = 3;
 
 	private List<BasisField> tableData = new ArrayList<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
@@ -44,7 +47,7 @@ public class UserFieldModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		return col == COLUMN_2 || col == COLUMN_3 && getValueAt(row, col) != null;
+		return col == COL_EXPORT_FIELD || col == COL_TEXT_EXPORT && getValueAt(row, col) != null;
 	}
 
 	@Override
@@ -104,9 +107,9 @@ public class UserFieldModel extends AbstractTableModel {
 		}
 
 		BasisField field = tableData.get(row);
-		if (col == COLUMN_2) {
+		if (col == COL_EXPORT_FIELD) {
 			field.setFieldHeader(s);
-		} else if (col == COLUMN_3) {
+		} else if (col == COL_TEXT_EXPORT) {
 			field.setOutputAsText((Boolean) value);
 		}
 		fireTableCellUpdated(row, col);

@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -189,8 +191,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			myPref.setTableName(myTable, false);
 		}
 
-		Object obj = getFieldObject("SELECT COUNT(*) FROM " + myTable);
-		myTotalRecords = Integer.parseInt(obj.toString());
+		Object obj = getDbFieldValues(null).get(0);
+		myTotalRecords = ((Long) obj).intValue();
 	}
 
 	private boolean setFieldType(FieldDefinition field) {
@@ -258,11 +260,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.TIME);
 			field.setSQLType(Types.TIME);
 			break;
-		// money, time and timestamps with time zones will be treated as string
 		case "money":
 			field.setFieldType(FieldTypes.FLOAT);
 			field.setSQLType(Types.NUMERIC);
 			break;
+		// time and timestamps with time zones will be treated as string
 		case "timestamptz":
 		case "timetz":
 			field.setFieldType(FieldTypes.TEXT);
@@ -319,7 +321,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 			StringBuilder buf = new StringBuilder("SELECT ");
 			getTableModelFields().forEach(field -> {
-				buf.append(field.getFieldName());
+				buf.append(getSqlFieldOrTable(field.getFieldName()));
 				if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
 					// cast money field to numeric, otherwise a string preceded by a currency sign
 					// will be returned (like $1,000.99)
@@ -328,8 +330,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				buf.append(", ");
 			});
 			buf.delete(buf.length() - 2, buf.length());
-			buf.append(" FROM ").append(myTable);
-
+			buf.append(" FROM ").append(getSqlFieldOrTable(myTable));
 			dbResultSet = dbStatement.executeQuery(buf.toString());
 			isFirstRead = false;
 		}
@@ -353,15 +354,34 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return result;
 	}
 
-	private Object getFieldObject(String sqlStatement) throws Exception {
-		Object result;
+	private String getSqlFieldOrTable(String value) {
+		if (StringUtils.isEmpty(value) || value.matches("^[a-zA-Z0-9_]*$")) {
+			return value;
+		}
 
-		try (Statement statement = connection.createStatement(); ResultSet rs = statement.executeQuery(sqlStatement)) {
-			rs.next();
-			result = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
+		return "[" + value + "]";
+	}
+
+	@Override
+	public List<Object> getDbFieldValues(String field) throws Exception {
+		List<Object> result = new ArrayList<>();
+
+		StringBuilder sql = new StringBuilder(50);
+		if (StringUtils.isEmpty(field)) {
+			sql.append("SELECT COUNT(*) FROM ");
+		} else {
+			sql.append("SELECT DISTINCT ").append(getSqlFieldOrTable(field)).append(" FROM ");
+		}
+		sql.append(getSqlFieldOrTable(myTable));
+
+		try (Statement statement = connection.createStatement();
+				ResultSet rs = statement.executeQuery(sql.toString())) {
+			while (rs.next()) {
+				result.add(getFieldValue(rs.getMetaData().getColumnType(1), 1, rs));
+			}
 		} catch (SQLException e) {
 			throw new Exception(
-					"Internal Program Error:\n\nSQL Statement: '" + sqlStatement + "' could not be excecuted."
+					"Internal Program Error:\n\nSQL Statement: '" + sql.toString() + "' could not be excecuted."
 							+ "\nThe JDBC driver returned the following error: '" + e.getMessage() + "'");
 		}
 
@@ -448,13 +468,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 		reader.close();
 		return buf.toString();
-	}
-
-	public void verifyStatement(String sqlStatement) throws SQLException {
-		try (Statement statement = connection.createStatement()) {
-			ResultSet rs = statement.executeQuery(sqlStatement);
-			rs.close();
-		}
 	}
 
 	public boolean isConnected() {

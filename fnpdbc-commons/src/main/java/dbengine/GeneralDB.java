@@ -239,6 +239,10 @@ public abstract class GeneralDB {
 		return myDBDefinition;
 	}
 
+	public List<Object> getDbFieldValues(String fieldName) throws Exception {
+		return null;
+	}
+
 	protected Object convertDate(String pDate) {
 		return General.convertDate2DB(pDate, General.sdInternalDate);
 	}

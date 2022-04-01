@@ -208,7 +208,7 @@ public class ConfigFilter extends BasicDialog {
 
 			ConfigFilter.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			try {
-				refreshList(dbFactory.getDbFieldValues(dbField), dbDef, index);
+				refreshList(dbFactory.getFilterFieldValues(dbField), dbDef, index);
 			} catch (Exception ex) {
 				General.errorMessage(ConfigFilter.this, ex, GUIFactory.getTitle("databaseProblem"),
 						GUIFactory.getMessage("databaseReadProblem", dbFactory.getDatabaseFilename()));
@@ -410,7 +410,7 @@ public class ConfigFilter extends BasicDialog {
 		List<Object> a = null;
 		if (isKeywordFilter) {
 			try {
-				a = dbFactory.getDbFieldValues("Keyword");
+				a = dbFactory.getFilterFieldValues("Keyword");
 				cbKeywordFilter.addItem("");
 				for (Object obj : a) {
 					cbKeywordFilter.addItem(obj.toString());
@@ -425,7 +425,7 @@ public class ConfigFilter extends BasicDialog {
 		if (isContentsFilter) {
 			if (isValid) {
 				try {
-					a = dbFactory.getDbFieldValues("ContentsType");
+					a = dbFactory.getFilterFieldValues("ContentsType");
 				} catch (Exception e) {
 					// Should never occur
 				}
@@ -539,7 +539,7 @@ public class ConfigFilter extends BasicDialog {
 			jc.setActionCommand(Integer.toString(index));
 
 			try {
-				List<Object> v = dbFactory.getDbFieldValues(dbField);
+				List<Object> v = dbFactory.getFilterFieldValues(dbField);
 				for (Object obj : v) {
 					jc.addItem(General.convertObject(obj, dbDef.getFieldType()));
 				}

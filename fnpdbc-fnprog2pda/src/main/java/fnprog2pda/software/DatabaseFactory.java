@@ -455,9 +455,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		List<IniSection> list = getSections(sectionName);
 		for (IniSection section : list) {
 			for (String name : section.getItemNames()) {
-				if (!result.containsKey(name)) {
-					result.put(name, section.getItem(name).getValue());
-				}
+				result.putIfAbsent(name, section.getItem(name).getValue());
 			}
 		}
 		return result;
@@ -468,7 +466,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	@Override
-	public List<Object> getDbFieldValues(String pField) throws Exception {
+	public List<Object> getFilterFieldValues(String pField) throws Exception {
 		// Check if the field is valid
 		FieldDefinition dbField = dbFieldDefinition.get(pField);
 		List<Object> result = new ArrayList<>();

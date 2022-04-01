@@ -299,7 +299,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			return;
 		}
 
-		List<Object> fieldData = dbFactory.getDbFieldValues(pdaSettings.getCategoryField());
+		List<Object> fieldData = dbFactory.getFilterFieldValues(pdaSettings.getCategoryField());
 		final int MAX_RECORDS = fieldData.size();
 
 		int count = 1;

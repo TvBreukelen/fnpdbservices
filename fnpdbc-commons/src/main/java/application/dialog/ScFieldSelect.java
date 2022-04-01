@@ -19,6 +19,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableColumn;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
@@ -45,7 +46,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	private JButton btClear;
 
 	private JList<BasisField> lstAvailableFields;
-	private JTable tbSelectedFields;
+	private JTable table;
 	private JScrollPane scSelectedFields;
 
 	private ActionListener funcAddFields;
@@ -67,13 +68,21 @@ public class ScFieldSelect implements PropertyChangeListener {
 		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
 
 		userModel = new UserFieldModel(isTextExport);
-		tbSelectedFields = new ETable(userModel);
-		tbSelectedFields.setDefaultRenderer(Boolean.class, new BooleanRenderer());
+		table = new ETable(userModel);
+		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
+
+		TableColumn colType = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);
+		colType.setMaxWidth(100);
+
+		if (userModel.getColumnCount() > UserFieldModel.COL_TEXT_EXPORT) {
+			TableColumn colText = table.getColumnModel().getColumn(UserFieldModel.COL_TEXT_EXPORT);
+			colText.setMaxWidth(100);
+		}
 
 		funcAddFields = e -> {
 			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
-			int selectedRow = tbSelectedFields.getSelectedRow();
-			int startRow = selectedRow > -1 && selectedRow < tbSelectedFields.getRowCount() - 1 ? selectedRow
+			int selectedRow = table.getSelectedRow();
+			int startRow = selectedRow > -1 && selectedRow < table.getRowCount() - 1 ? selectedRow
 					: userModel.getRowCount();
 			selectedRow = startRow - 1;
 
@@ -81,35 +90,35 @@ public class ScFieldSelect implements PropertyChangeListener {
 				userModel.addRecord(field, ++selectedRow);
 			}
 
-			scSelectedFields.getViewport().scrollRectToVisible(tbSelectedFields.getCellRect(selectedRow, 0, true));
-			tbSelectedFields.setRowSelectionInterval(startRow, selectedRow);
+			scSelectedFields.getViewport().scrollRectToVisible(table.getCellRect(selectedRow, 0, true));
+			table.setRowSelectionInterval(startRow, selectedRow);
 			activateComponents();
 		};
 
 		ActionListener funcRemoveFields = e -> {
-			int selectedRow = tbSelectedFields.getSelectedRow();
-			userModel.removeRecords(tbSelectedFields.getSelectedRows());
+			int selectedRow = table.getSelectedRow();
+			userModel.removeRecords(table.getSelectedRows());
 			if (selectedRow > userModel.getRowCount() - 1) {
 				selectedRow = userModel.getRowCount() - 1;
 			}
 
 			if (selectedRow > -1) {
-				tbSelectedFields.setRowSelectionInterval(selectedRow, selectedRow);
+				table.setRowSelectionInterval(selectedRow, selectedRow);
 			}
 			activateComponents();
 		};
 
 		ActionListener funcMoveFieldsUp = e -> {
-			int selectedRow = tbSelectedFields.getSelectedRow();
+			int selectedRow = table.getSelectedRow();
 			if (userModel.moveRowUp(selectedRow)) {
-				tbSelectedFields.setRowSelectionInterval(--selectedRow, selectedRow);
+				table.setRowSelectionInterval(--selectedRow, selectedRow);
 			}
 		};
 
 		ActionListener funcMoveFieldsDown = e -> {
-			int selectedRow = tbSelectedFields.getSelectedRow();
+			int selectedRow = table.getSelectedRow();
 			if (userModel.moveRowDown(selectedRow)) {
-				tbSelectedFields.setRowSelectionInterval(++selectedRow, selectedRow);
+				table.setRowSelectionInterval(++selectedRow, selectedRow);
 			}
 		};
 
@@ -157,7 +166,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		scAvailableFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("availableFields")));
 
 		// Create Panel for selected FieldTypes
-		tbSelectedFields.setToolTipText(GUIFactory.getToolTip("selectedFields"));
+		table.setToolTipText(GUIFactory.getToolTip("selectedFields"));
 
 		// add mouselistener
 		mouseListener = new MouseAdapter() {
@@ -169,8 +178,8 @@ public class ScFieldSelect implements PropertyChangeListener {
 			}
 		};
 
-		tbSelectedFields.addMouseListener(mouseListener);
-		scSelectedFields = new JScrollPane(tbSelectedFields);
+		table.addMouseListener(mouseListener);
+		scSelectedFields = new JScrollPane(table);
 		scSelectedFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("selectedFields")));
 
 		panel.add(scAvailableFields, c.gridCell(1, 0, 2, 1));
@@ -212,7 +221,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 
 	public void activateComponents() {
 		btAdd.setEnabled(!availableModel.isEmpty());
-		btUp.setEnabled(tbSelectedFields.getSelectedRow() != -1);
+		btUp.setEnabled(table.getSelectedRow() != -1);
 		btDown.setEnabled(btUp.isEnabled());
 		btRemove.setEnabled(btUp.isEnabled());
 		btClear.setEnabled(userModel.getRowCount() > 0);
