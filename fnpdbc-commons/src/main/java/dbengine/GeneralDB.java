@@ -52,7 +52,6 @@ public abstract class GeneralDB {
 
 	private boolean isBooleanExport;
 	private boolean isDateExport;
-	private boolean isTimeExport;
 	private String fileOpenWarning = "";
 
 	protected boolean isInputFile;
@@ -81,7 +80,6 @@ public abstract class GeneralDB {
 
 		isBooleanExport = myExportFile.isBooleanExport();
 		isDateExport = myExportFile.isDateExport();
-		isTimeExport = myExportFile.isTimeExport();
 
 		GeneralSettings generalProps = GeneralSettings.getInstance();
 		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
@@ -219,12 +217,12 @@ public abstract class GeneralDB {
 
 	protected Object convertTime(Object dbValue, FieldDefinition field) {
 		return General.convertTime((LocalTime) dbValue,
-				!isTimeExport || field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
+				!isDateExport || field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
 	}
 
 	protected Object convertTimestamp(Object dbValue, FieldDefinition field) {
 		return General.convertTimestamp((LocalDateTime) dbValue,
-				!isTimeExport || field.isOutputAsText() ? General.getSimpleTimestampFormat()
+				!isDateExport || field.isOutputAsText() ? General.getSimpleTimestampFormat()
 						: General.sdInternalTimestamp);
 	}
 
@@ -237,10 +235,6 @@ public abstract class GeneralDB {
 			}
 		}
 		return myDBDefinition;
-	}
-
-	public List<Object> getDbFieldValues(String fieldName) throws Exception {
-		return null;
 	}
 
 	protected Object convertDate(String pDate) {

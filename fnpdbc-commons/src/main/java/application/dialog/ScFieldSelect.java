@@ -61,7 +61,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	private void init() {
-		boolean isTextExport = factory.getExportFile().isTextExport();
+		boolean isTextExport = !factory.getExportFile().isDateExport();
 
 		availableModel = new DefaultListModel<>();
 		lstAvailableFields = new JList<>(availableModel);
@@ -233,11 +233,11 @@ public class ScFieldSelect implements PropertyChangeListener {
 		ExportFile newValue = (ExportFile) evt.getNewValue();
 		ExportFile oldValue = (ExportFile) evt.getOldValue();
 
-		if (newValue.isTextExport() == oldValue.isTextExport()) {
+		if (newValue.isDateExport() == oldValue.isDateExport()) {
 			// No change in text export
 			return;
 		}
 
-		userModel.setTextOnly(newValue.isTextExport());
+		userModel.setTextOnly(!newValue.isDateExport());
 	}
 }

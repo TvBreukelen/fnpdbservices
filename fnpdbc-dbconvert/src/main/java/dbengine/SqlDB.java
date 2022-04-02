@@ -362,7 +362,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return "[" + value + "]";
 	}
 
-	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		List<Object> result = new ArrayList<>();
 

@@ -109,18 +109,6 @@ public enum ExportFile {
 		}
 	}
 
-	public boolean isTextExport() {
-		switch (this) {
-		case LIST:
-		case TEXTFILE:
-		case VCARD:
-		case XML:
-			return true;
-		default:
-			return false;
-		}
-	}
-
 	public boolean isDurationExport() {
 		return this == CALC;
 	}
@@ -131,8 +119,8 @@ public enum ExportFile {
 		case JSON:
 		case LIST:
 		case TEXTFILE:
-		case XML:
 		case VCARD:
+		case XML:
 		case YAML:
 			return false;
 		default:
@@ -144,25 +132,6 @@ public enum ExportFile {
 		switch (this) {
 		case HANDBASE:
 		case ACCESS:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	public boolean isTimeExport() {
-		switch (this) {
-		case CALC:
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
-		case MOBILEDB:
-		case PILOTDB:
-		case EXCEL:
-		case ACCESS:
-		case MARIADB:
-		case SQLITE:
-		case POSTGRESQL:
 			return true;
 		default:
 			return false;
