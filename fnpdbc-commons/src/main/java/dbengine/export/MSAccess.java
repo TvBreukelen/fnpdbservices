@@ -135,7 +135,6 @@ public class MSAccess extends GeneralDB implements IConvert {
 						break;
 					case SHORT_DATE_TIME:
 						fieldDef.setFieldType(FieldTypes.TIMESTAMP);
-						System.out.println(field + " " + fieldDef.getSize());
 						break;
 					default:
 						break;

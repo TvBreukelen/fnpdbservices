@@ -122,7 +122,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 				: FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
 		myView = isNewProfile ? "" : pdaSettings.getTableName();
 
-		funcSelectDbFile = e -> General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, "", true);
+		funcSelectDbFile = e -> {
+			General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, "", true);
+			activateComponents();
+		};
 
 		funcSelectView = e -> {
 			String view = fdView.getSelectedItem().toString();

@@ -116,7 +116,7 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		List<String> ext = new ArrayList<>();
 		ext.add(".exe");
 		p2.add(GUIFactory.getJButton("browse",
-				e -> General.getSelectedFile((JDialog) dialog, selectFile, "Windows program (*.exe)", "", true, ext)),
+				e -> General.getSelectedFile((JDialog) dialog, selectFile, "", "Windows program (*.exe)", true, ext)),
 				c.gridCell(1, 0, 0, 0));
 		p2.setBorder(BorderFactory.createTitledBorder("handbasedesktop.exe"));
 		add(p2);
