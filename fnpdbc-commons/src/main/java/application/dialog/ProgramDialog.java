@@ -469,22 +469,15 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		try {
 			JTable table = projects.get(projectID);
+			pdaSettings.setProject(projectID);
 			int row = table.getSelectedRow();
 			int modelIndex = -1;
 
 			switch (action) {
 			case DELETE:
-				pdaSettings.deleteNode(pdaSettings.getProfileID());
+				pdaSettings.deleteNode(profileID);
 				modelIndex = table.convertRowIndexToModel(row);
-				model.removeRecord(modelIndex);
-
-				if (row == table.getRowCount()) {
-					row--;
-				}
-
-				if (row > -1) {
-					modelIndex = table.convertRowIndexToModel(row);
-				}
+				model.removeRecord(modelIndex--);
 
 				if (pdaSettings.getProfiles(projectID).isEmpty()) {
 					tabPane.remove(tabPane.getSelectedIndex());
@@ -504,14 +497,14 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 			isProfileSet = true;
 			if (action != Action.TABCHANGE) {
-				row = modelIndex > -1 ? table.convertRowIndexToView(modelIndex) : -1;
+				row = modelIndex > -1 ? table.convertRowIndexToView(modelIndex) : 0;
 			}
 
 			if (row == -1) {
 				row = 0;
 			}
 
-			// Tricker a List Selection Event in MainTableSelectionListener
+			// Trigger a List Selection Event in MainTableSelectionListener
 			table.removeRowSelectionInterval(row, row);
 			table.addRowSelectionInterval(row, row);
 			activateComponents();
