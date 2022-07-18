@@ -21,7 +21,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	private int myCurrentRecord = 0;
+	private int currentRecord = 0;
 	private int appInfoId = 0;
 	private long offsetPos = 78;
 	protected int appInfoDataLength = 0;
@@ -84,21 +84,23 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		String dbType = header.getDbType();
 		String dbCreator = header.getDbCreator();
 		appInfoId = header.getAppInfoId();
-		myTotalRecords = header.getTotalRecords();
+		totalRecords = header.getTotalRecords();
 
-		if (!dbType.equals(myImportFile.getDbType()) || !dbCreator.equals(myImportFile.getCreator())) {
-			for (ExportFile exp : ExportFile.values()) {
-				if (dbType.equals(exp.getDbType()) && dbCreator.equals(exp.getCreator())) {
-					throw FNProgException.getException("differentDatabase", myDatabase, exp.getName(),
-							myImportFile.getName());
+		if (isInputFile) {
+			if (!dbType.equals(myImportFile.getDbType()) || !dbCreator.equals(myImportFile.getCreator())) {
+				for (ExportFile exp : ExportFile.values()) {
+					if (dbType.equals(exp.getDbType()) && dbCreator.equals(exp.getCreator())) {
+						throw FNProgException.getException("differentDatabase", myDatabase, exp.getName(),
+								myImportFile.getName());
+					}
 				}
+				throw FNProgException.getException("invalidDatabaseID", myDatabase, myImportFile.getName(),
+						myImportFile.getDbType() + myImportFile.getCreator(), dbType + dbCreator);
 			}
-			throw FNProgException.getException("invalidDatabaseID", myDatabase, myImportFile.getName(),
-					myImportFile.getDbType() + myImportFile.getCreator(), dbType + dbCreator);
-		}
 
-		if (myTotalRecords <= 0) {
-			throw FNProgException.getException("noRecords", myDatabase);
+			if (totalRecords <= 0) {
+				throw FNProgException.getException("noRecords", myDatabase);
+			}
 		}
 
 		int[] index = setPointer2NextRecord();
@@ -109,27 +111,19 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	protected void appendPilotDB(int totalRec, List<FieldDefinition> newFields) throws Exception {
 		readTableContents();
-
-		List<FieldDefinition> dbDef = getTableModelFields();
-		final int index1 = dbDef.size();
-		final int index2 = newFields.size();
-
-		if (index1 != index2) {
-			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(index1),
-					Integer.toString(index2));
-		}
+		compareNewFields(newFields);
 
 		// Calculate new total records
-		int oTotalRec = myTotalRecords;
-		myTotalRecords += totalRec;
+		int oTotalRec = totalRecords;
+		totalRecords += totalRec;
 		int oAppInfoId = 80 + oTotalRec * 8;
-		appInfoId = 80 + myTotalRecords * 8;
+		appInfoId = 80 + totalRecords * 8;
 		gotoRecord(0);
 
 		// Update header
 		header.setAppInfoId(appInfoId);
 		header.setPdaDatabase(myPref.getPdaDatabaseName());
-		header.setTotalRecords(myTotalRecords);
+		header.setTotalRecords(totalRecords);
 		header.updateHeader();
 
 		// get the number of bytes that we have to move
@@ -160,8 +154,8 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	}
 
 	protected void gotoRecord(int record) {
-		myCurrentRecord = record;
-		offsetPos = 78L + myCurrentRecord * 8;
+		currentRecord = record;
+		offsetPos = 78L + currentRecord * 8;
 	}
 
 	protected void skipBytes(int bytes) throws IOException {
@@ -192,7 +186,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		pdbRaf.seek(offsetPos);
 		pdbRaf.writeInt(recordOffset);
 		pdbRaf.writeInt(recordID);
-		myCurrentRecord++;
+		currentRecord++;
 		offsetPos += 8;
 	}
 
@@ -204,10 +198,10 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	 * @throws Exception
 	 */
 	protected int[] setPointer2NextRecord() throws Exception {
-		myCurrentRecord++;
-		if (myCurrentRecord > myTotalRecords) {
-			throw FNProgException.getException("noMatchFieldsDBHeader", myDatabase, Integer.toString(myCurrentRecord),
-					Integer.toString(myTotalRecords));
+		currentRecord++;
+		if (currentRecord > totalRecords) {
+			throw FNProgException.getException("noMatchFieldsDBHeader", myDatabase, Integer.toString(currentRecord),
+					Integer.toString(totalRecords));
 		}
 
 		pdbRaf.seek(offsetPos);
@@ -216,8 +210,8 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		recordID[1] = pdbRaf.readInt();
 		recordID[2] = pdbRaf.readInt();
 
-		if (myCurrentRecord == myTotalRecords) {
-			recordID[2] = (int) pdbRaf.length(); // + 1;
+		if (currentRecord == totalRecords) {
+			recordID[2] = (int) pdbRaf.length();
 		}
 
 		pdbRaf.seek(recordID[0]);

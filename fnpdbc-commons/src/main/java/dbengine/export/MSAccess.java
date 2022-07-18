@@ -318,7 +318,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	public void setTable(String tableName) throws Exception {
 		table = database.getTable(tableName);
-		myTotalRecords = table.getRowCount();
+		totalRecords = table.getRowCount();
 		myTable = tableName;
 	}
 
@@ -329,7 +329,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	@Override
 	public void readTableContents() throws Exception {
 		table = database.getTable(myTable);
-		myTotalRecords = table.getRowCount();
+		totalRecords = table.getRowCount();
 	}
 
 	@Override

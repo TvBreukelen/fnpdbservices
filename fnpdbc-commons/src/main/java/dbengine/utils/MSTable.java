@@ -277,12 +277,10 @@ public class MSTable {
 		} else {
 			for (FieldDefinition field : dbFieldsHash.values()) {
 				FieldDefinition clone = field.copy();
-				if (!clone.isHideTable()) {
-					if (clone.getFieldAlias().indexOf(".") == -1) {
-						clone.setFieldAlias(alias
-								+ (clone.getTable().equals(clone.getFieldAlias()) ? "" : "." + clone.getFieldAlias()));
-						clone.setFieldHeader(clone.getFieldAlias());
-					}
+				if (!clone.isHideTable() && clone.getFieldAlias().indexOf(".") == -1) {
+					clone.setFieldAlias(alias
+							+ (clone.getTable().equals(clone.getFieldAlias()) ? "" : "." + clone.getFieldAlias()));
+					clone.setFieldHeader(clone.getFieldAlias());
 				}
 				result.add(clone);
 			}

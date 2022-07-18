@@ -215,9 +215,11 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		rExists[0] = GUIFactory.getJRadioButton("intoNewDatabase", funcSelectExport);
+		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isDatabase() ? "intoNewTable" : "intoNewDatabase",
+				funcSelectExport);
 		rExists[1] = GUIFactory.getJRadioButton("replaceRecords", funcSelectExport);
-		rExists[2] = GUIFactory.getJRadioButton("appendRecords", funcSelectExport);
+		rExists[2] = GUIFactory.getJRadioButton(
+				myExportFile.isDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
 
 		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
 		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);

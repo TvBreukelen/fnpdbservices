@@ -45,7 +45,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 	private Element[] nodes;
 	private int index;
 	private XmlReader handler;
-	private int myCurrentRecord = 0;
+	private int currentRecord = 0;
 
 	protected List<Map<String, Object>> dbRecords;
 
@@ -229,14 +229,14 @@ public class XmlFile extends GeneralDB implements IConvert {
 		dbFieldNames = handler.getFieldNames();
 		dbFieldTypes = handler.getFieldTypes();
 		dbRecords = handler.getDbRecords();
-		myTotalRecords = dbRecords.size();
+		totalRecords = dbRecords.size();
 	}
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = dbRecords.get(myCurrentRecord);
-		dbRecords.set(myCurrentRecord, null); // Cleanup memory usage
-		myCurrentRecord++;
+		Map<String, Object> result = dbRecords.get(currentRecord);
+		dbRecords.set(currentRecord, null); // Cleanup memory usage
+		currentRecord++;
 		return result;
 	}
 

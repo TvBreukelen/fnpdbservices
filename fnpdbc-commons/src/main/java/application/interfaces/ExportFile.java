@@ -21,8 +21,7 @@ public enum ExportFile {
 	DBASE("xBase", FileType.DBF, 254, 32737, 128), DBASE3("DBase3", FileType.DBF, 254, 32737, 128),
 	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), DBASE5("DBase5", FileType.DBF, 254, 32767, 1024),
 	FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255), HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100),
-	JFILE3("JFile3", FileType.PDB, 64, 500, 20), JFILE4("JFile4", FileType.PDB, 256, 10000, 50),
-	JFILE5("JFile5", FileType.PDB, 256, 10000, 50), LIST("List", FileType.PDB, 4095, 4095, 32767),
+	JFILE("JFile5", FileType.PDB, 256, 10000, 50), LIST("List", FileType.PDB, 4095, 4095, 32767),
 	MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20), PILOTDB("Pilot-DB", FileType.PDB, 256, 3000, 256);
 
 	private String name;
@@ -178,11 +177,7 @@ public enum ExportFile {
 			return "SQLite";
 		case HANDBASE:
 			return "DATA";
-		case JFILE3:
-			return "JbDb";
-		case JFILE4:
-			return "JfDb";
-		case JFILE5:
+		case JFILE:
 			return "JfD5";
 		case LIST:
 			return "DATA";
@@ -199,11 +194,7 @@ public enum ExportFile {
 		switch (this) {
 		case HANDBASE:
 			return "HanD";
-		case JFILE3:
-			return "JBas";
-		case JFILE4:
-			return "JFil";
-		case JFILE5:
+		case JFILE:
 			return "JFi5";
 		case LIST:
 			return "LSdb";
@@ -254,9 +245,7 @@ public enum ExportFile {
 			return "T";
 		case SQLITE:
 		case HANDBASE:
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
+		case JFILE:
 		case PILOTDB:
 			return "1";
 		default:
@@ -274,9 +263,7 @@ public enum ExportFile {
 			return "F";
 		case SQLITE:
 		case HANDBASE:
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
+		case JFILE:
 		case PILOTDB:
 			return "0";
 		default:

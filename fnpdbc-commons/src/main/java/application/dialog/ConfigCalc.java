@@ -1,7 +1,6 @@
 package application.dialog;
 
 import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
@@ -22,14 +21,11 @@ public class ConfigCalc extends JPanel implements IConfigDb {
 
 	private static final long serialVersionUID = 6451018966275061118L;
 
-	transient ActionListener funcHeader = null;
 	private JCheckBox[] cHeader = new JCheckBox[2];
 	private Profiles pdaSettings;
 
 	public ConfigCalc(Profiles pref) {
 		pdaSettings = pref;
-		funcHeader = e -> activateComponents();
-
 		buildDialog();
 		activateComponents();
 	}
@@ -48,7 +44,7 @@ public class ConfigCalc extends JPanel implements IConfigDb {
 	private void buildDialog() {
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 
-		cHeader[0] = GUIFactory.getJCheckBox("includeHeaders", pdaSettings.isUseHeader(), funcHeader);
+		cHeader[0] = GUIFactory.getJCheckBox("includeHeaders", pdaSettings.isUseHeader(), e -> activateComponents());
 		cHeader[1] = GUIFactory.getJCheckBox("fontBold", pdaSettings.isBoldHeader());
 
 		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader[0], cHeader[1]));

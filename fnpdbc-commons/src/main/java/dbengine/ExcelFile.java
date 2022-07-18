@@ -39,7 +39,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	 * @version 8+
 	 */
 	private Map<String, List<FieldDefinition>> hSheets;
-	private int myCurrentRecord = 1;
+	private int currentRecord = 1;
 	protected int noOfSheets;
 
 	private File outFile;
@@ -192,8 +192,8 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
-		myTotalRecords = sheet.getLastRowNum() + 1; // Rows start with Row number 0
-		if (myTotalRecords < 2) {
+		totalRecords = sheet.getLastRowNum() + 1; // Rows start with Row number 0
+		if (totalRecords < 2) {
 			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), myDatabase);
 		}
 	}
@@ -201,7 +201,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
 		Map<String, Object> result = new HashMap<>();
-		Row row = sheet.getRow(myCurrentRecord++);
+		Row row = sheet.getRow(currentRecord++);
 		if (row == null) {
 			// File is corrupt
 			return result;

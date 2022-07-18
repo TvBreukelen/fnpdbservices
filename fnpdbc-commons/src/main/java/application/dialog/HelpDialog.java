@@ -23,6 +23,8 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
+import application.preferences.GeneralSettings;
+
 public class HelpDialog extends JDialog {
 	/**
 	 * Title: HelpDialog Description: HTML Help Dialog Class Copyright: (c)
@@ -37,6 +39,9 @@ public class HelpDialog extends JDialog {
 	private JEditorPane helpInfo;
 	private Deque<URL> urlList;
 	private JButton btBack;
+	private JScrollPane scrollPane = new JScrollPane();
+
+	transient GeneralSettings gSettings = GeneralSettings.getInstance();
 
 	public HelpDialog(String title, String topic) {
 		setModal(true);
@@ -59,9 +64,8 @@ public class HelpDialog extends JDialog {
 
 		helpInfo.addHyperlinkListener(createHyperLinkListener());
 		helpInfo.setEditable(false);
-		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.getViewport().add(helpInfo, BorderLayout.CENTER);
-		scrollPane.setPreferredSize(new Dimension(700, 500));
+		scrollPane.setPreferredSize(new Dimension(gSettings.getHelpWidth(), gSettings.getHelpHeight()));
 
 		funcExit = e -> close();
 
@@ -110,6 +114,8 @@ public class HelpDialog extends JDialog {
 	}
 
 	private void close() {
+		gSettings.setHelpHeight(scrollPane.getHeight());
+		gSettings.setHelpWidth(scrollPane.getWidth());
 		setVisible(false);
 		dispose();
 	}

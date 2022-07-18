@@ -38,6 +38,8 @@ public final class GeneralSettings {
 
 	private int width;
 	private int height;
+	private int helpWidth;
+	private int helpHeight;
 
 	private static final GeneralSettings gInstance = new GeneralSettings(getCallerApp());
 	private Preferences myPref;
@@ -64,6 +66,8 @@ public final class GeneralSettings {
 
 		height = myPref.getInt("frame.height", 500);
 		width = myPref.getInt("frame.width", 850);
+		helpHeight = myPref.getInt("help.height", 500);
+		helpWidth = myPref.getInt("help.width", 700);
 
 		isIncrementalExport = myPref.getBoolean("incremental.export", false);
 		isNewExport = myPref.getBoolean("new.export", false);
@@ -262,6 +266,24 @@ public final class GeneralSettings {
 		this.height = height;
 	}
 
+	public int getHelpWidth() {
+		return helpWidth;
+	}
+
+	public void setHelpWidth(int helpWidth) {
+		PrefUtils.writePref(myPref, "help.width", helpWidth, this.helpWidth, 700);
+		this.helpWidth = helpWidth;
+	}
+
+	public int getHelpHeight() {
+		return helpHeight;
+	}
+
+	public void setHelpHeight(int helpHeight) {
+		PrefUtils.writePref(myPref, "help.height", helpHeight, this.helpHeight, 500);
+		this.helpHeight = helpHeight;
+	}
+
 	public int getVersionDaysCheck() {
 		return versionDaysCheck;
 	}
@@ -307,6 +329,8 @@ public final class GeneralSettings {
 		buf.append(timeFormat);
 		buf.append(width);
 		buf.append(height);
+		buf.append(helpWidth);
+		buf.append(helpHeight);
 		buf.append(versionDaysCheck);
 		return General.getChecksum(buf.toString().getBytes());
 	}

@@ -2,7 +2,6 @@ package application.dialog;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -26,7 +25,6 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 	 * @since 2004
 	 */
 	private static final long serialVersionUID = 9209643909894109017L;
-	transient ActionListener funcHeader = null;
 	private JComboBox<String> fontName = null;
 	private JComboBox<String> fontSize = null;
 	private JCheckBox[] cHeader = new JCheckBox[3];
@@ -35,8 +33,6 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 
 	public ConfigExcel(Profiles pref) {
 		pdaSettings = pref;
-		funcHeader = e -> activateComponents();
-
 		buildDialog();
 		activateComponents();
 	}
@@ -78,7 +74,7 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 		p.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("generalSettings")));
 		add(p);
 
-		cHeader[0] = GUIFactory.getJCheckBox("includeHeaders", pdaSettings.isUseHeader(), funcHeader);
+		cHeader[0] = GUIFactory.getJCheckBox("includeHeaders", pdaSettings.isUseHeader(), e -> activateComponents());
 		cHeader[1] = GUIFactory.getJCheckBox("freezeHeaders", pdaSettings.isLockHeader());
 		cHeader[2] = GUIFactory.getJCheckBox("fontBold", pdaSettings.isBoldHeader());
 

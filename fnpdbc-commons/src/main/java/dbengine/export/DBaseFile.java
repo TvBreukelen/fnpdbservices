@@ -301,7 +301,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noFields", myDatabase);
 		}
 
-		myTotalRecords = reader.getRecordCount();
+		totalRecords = reader.getRecordCount();
 		if (reader.getRecordCount() < 1) {
 			throw FNProgException.getException("noRecords", myDatabase);
 		}

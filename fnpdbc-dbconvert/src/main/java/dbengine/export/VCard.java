@@ -58,7 +58,7 @@ import ezvcard.property.Url;
 import ezvcard.util.PartialDate;
 
 public class VCard extends GeneralDB implements IConvert {
-	private int myCurrentRecord;
+	private int currentRecord;
 	private List<ezvcard.VCard> vcards;
 	private Map<String, FieldTypes> fields;
 	private Map<String, Object> map;
@@ -75,9 +75,9 @@ public class VCard extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		myCurrentRecord = 0;
+		currentRecord = 0;
 		vcards = Ezvcard.parse(new File(myDatabase)).all();
-		myTotalRecords = vcards.size();
+		totalRecords = vcards.size();
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class VCard extends GeneralDB implements IConvert {
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		return dbRecords.get(myCurrentRecord++);
+		return dbRecords.get(currentRecord++);
 	}
 
 	@Override

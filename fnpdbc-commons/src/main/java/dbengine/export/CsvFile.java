@@ -32,7 +32,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	private boolean useNoLineBreaks = false;
 
-	private int myCurrentRecord = 0;
+	private int currentRecord = 0;
 	private int maxSize = 0;
 	private int fileSize = 0;
 	private int fileCounter = 1;
@@ -83,8 +83,8 @@ public class CsvFile extends GeneralDB implements IConvert {
 					.readValues(outFile);
 
 			dbRecords = csvIter.readAll();
-			myTotalRecords = dbRecords.size();
-			if (myTotalRecords == 0) {
+			totalRecords = dbRecords.size();
+			if (totalRecords == 0) {
 				return;
 			}
 
@@ -104,7 +104,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		return new HashMap<>(dbRecords.get(myCurrentRecord++));
+		return new HashMap<>(dbRecords.get(currentRecord++));
 	}
 
 	@Override

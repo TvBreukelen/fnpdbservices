@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -43,7 +42,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected Connection connection;
 	protected boolean isConnected;
 	private ResultSet dbResultSet;
-	private Statement dbStatement;
 	private Session session;
 	protected int assignedPort;
 
@@ -192,7 +190,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		Object obj = getDbFieldValues(null).get(0);
-		myTotalRecords = ((Long) obj).intValue();
+		totalRecords = ((Long) obj).intValue();
 	}
 
 	private boolean setFieldType(FieldDefinition field) {
@@ -317,22 +315,22 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
 		if (isFirstRead) {
-			dbStatement = connection.createStatement();
-
-			StringBuilder buf = new StringBuilder("SELECT ");
-			getTableModelFields().forEach(field -> {
-				buf.append(getSqlFieldOrTable(field.getFieldName()));
-				if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
-					// cast money field to numeric, otherwise a string preceded by a currency sign
-					// will be returned (like $1,000.99)
-					buf.append("::numeric");
-				}
-				buf.append(", ");
-			});
-			buf.delete(buf.length() - 2, buf.length());
-			buf.append(" FROM ").append(getSqlFieldOrTable(myTable));
-			dbResultSet = dbStatement.executeQuery(buf.toString());
-			isFirstRead = false;
+			try (Statement dbStatement = connection.createStatement()) {
+				StringBuilder buf = new StringBuilder("SELECT ");
+				getTableModelFields().forEach(field -> {
+					buf.append(getSqlFieldOrTable(field.getFieldName()));
+					if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
+						// cast money field to numeric, otherwise a string preceded by a currency sign
+						// will be returned (like $1,000.99)
+						buf.append("::numeric");
+					}
+					buf.append(", ");
+				});
+				buf.delete(buf.length() - 2, buf.length());
+				buf.append(" FROM ").append(getSqlFieldOrTable(myTable));
+				dbResultSet = dbStatement.executeQuery(buf.toString());
+				isFirstRead = false;
+			}
 		}
 
 		Map<String, Object> result = new HashMap<>();
@@ -348,8 +346,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 							"Unable to read database field '" + field.getFieldName() + "', due to\n" + e.toString());
 				}
 			}
-		} else {
-			dbStatement.close();
 		}
 		return result;
 	}
@@ -378,10 +374,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			while (rs.next()) {
 				result.add(getFieldValue(rs.getMetaData().getColumnType(1), 1, rs));
 			}
-		} catch (SQLException e) {
-			throw new Exception(
-					"Internal Program Error:\n\nSQL Statement: '" + sql.toString() + "' could not be excecuted."
-							+ "\nThe JDBC driver returned the following error: '" + e.getMessage() + "'");
 		}
 
 		return result;

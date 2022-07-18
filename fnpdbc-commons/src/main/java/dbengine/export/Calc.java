@@ -29,7 +29,7 @@ public class Calc extends GeneralDB implements IConvert {
 	private File outFile;
 
 	private Map<String, List<FieldDefinition>> hSheets;
-	private int myCurrentRecord = 1;
+	private int currentRecord = 1;
 	private int maxColumns;
 	private int calcRow = 0;
 
@@ -71,8 +71,8 @@ public class Calc extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
-		myTotalRecords = sheet.getLastRow() - 1;
-		if (myTotalRecords < 1) {
+		totalRecords = sheet.getLastRow() - 1;
+		if (totalRecords < 1) {
 			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), myDatabase);
 		}
 	}
@@ -196,7 +196,7 @@ public class Calc extends GeneralDB implements IConvert {
 	public Map<String, Object> readRecord() throws Exception {
 		List<FieldDefinition> dbDef = getTableModelFields();
 		Map<String, Object> result = new HashMap<>();
-		Range row = sheet.getRange(myCurrentRecord++, 0, 1, maxColumns);
+		Range row = sheet.getRange(currentRecord++, 0, 1, maxColumns);
 
 		int index = 0;
 		Object[][] cells = row.getValues();
@@ -225,7 +225,7 @@ public class Calc extends GeneralDB implements IConvert {
 
 	@Override
 	public void createDbHeader() throws Exception {
-		createNewSheet(myTotalRecords, dbInfo2Write.size());
+		createNewSheet(totalRecords, dbInfo2Write.size());
 
 		if (myPref.isUseHeader()) {
 			sheet.appendRow();

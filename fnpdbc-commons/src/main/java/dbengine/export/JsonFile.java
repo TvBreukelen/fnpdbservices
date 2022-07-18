@@ -32,7 +32,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 	private String dbName;
 	private String lastElement;
 	private String remainderGroup;
-	private int myCurrentRecord;
+	private int currentRecord;
 
 	public JsonFile(Profiles pref) {
 		super(pref);
@@ -42,7 +42,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myDatabase);
-		myCurrentRecord = 0;
+		currentRecord = 0;
 
 		this.isInputFile = isInputFile;
 	}
@@ -56,15 +56,15 @@ public class JsonFile extends GeneralDB implements IConvert {
 			dbName = entry.getKey();
 			if (entry.getValue() instanceof List) {
 				writeList = (List<Map<String, Object>>) entry.getValue();
-				myTotalRecords = writeList.size();
+				totalRecords = writeList.size();
 				getDBFieldNamesAndTypes();
 			} else if (entry.getValue() instanceof Map) {
 				writeList.add((Map<String, Object>) entry.getValue());
-				myTotalRecords = 1;
+				totalRecords = 1;
 				getDBFieldNamesAndTypes();
 			} else {
 				writeList.add(map);
-				myTotalRecords = 1;
+				totalRecords = 1;
 				getDBFieldNamesAndTypes();
 			}
 		}
@@ -260,8 +260,8 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = writeList.get(myCurrentRecord);
-		myCurrentRecord++;
+		Map<String, Object> result = writeList.get(currentRecord);
+		currentRecord++;
 		return result;
 	}
 }

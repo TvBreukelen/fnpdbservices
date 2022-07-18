@@ -143,9 +143,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new YamlFile(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
-		case JFILE3:
-		case JFILE4:
-		case JFILE5:
+		case JFILE:
 			return new JFile(profile);
 		case LIST:
 			return new ListDB(profile);

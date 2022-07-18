@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import application.BasicSoft;
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
@@ -44,7 +46,7 @@ public abstract class GeneralDB {
 	private List<FieldDefinition> myDBDefinition;
 	private boolean createBackup;
 
-	protected int myTotalRecords = 0;
+	protected int totalRecords = 0;
 
 	protected boolean useImages;
 	protected boolean useAppend;
@@ -138,7 +140,7 @@ public abstract class GeneralDB {
 	}
 
 	public int getTotalRecords() {
-		return myTotalRecords;
+		return totalRecords;
 	}
 
 	public Object convertDataFields(Object dbValue, FieldDefinition field) {
@@ -270,11 +272,40 @@ public abstract class GeneralDB {
 		}
 	}
 
+	public void compareNewFields(List<FieldDefinition> newFields) throws FNProgException {
+		if (CollectionUtils.isEmpty(newFields)) {
+			return;
+		}
+
+		List<FieldDefinition> dbDef = getTableModelFields();
+		if (CollectionUtils.isEmpty(dbDef)) {
+			return;
+		}
+
+		final int index1 = dbDef.size();
+		final int index2 = newFields.size();
+
+		// Verify mutual size
+		if (index1 != index2) {
+			// There are more new fields than fields in the database
+			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(index1),
+					Integer.toString(index2));
+		}
+
+		// Verify field names
+		for (int i = 0; i < index1; i++) {
+			FieldDefinition dbField = dbDef.get(i);
+			FieldDefinition newField = newFields.get(i);
+			if (!dbField.getFieldName().equals(newField.getFieldHeader())) {
+				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), dbField.getFieldName(),
+						newField.getFieldHeader());
+			}
+		}
+	}
+
 	public abstract void processData(Map<String, Object> dbRecord) throws Exception;
 
 	public void createDbHeader() throws Exception {
 		// Nothing to do here
 	}
-
-	public abstract void readTableContents() throws Exception;
 }
