@@ -1,5 +1,6 @@
 package dbengine.export;
 
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.sql.DriverManager;
@@ -35,7 +36,7 @@ public class SQLite extends SqlDB implements IConvert {
 		isConnected = true;
 	}
 
-	private void verifyHeader() throws Exception {
+	private void verifyHeader() throws IOException, FNProgException {
 		String header = null;
 
 		try (RandomAccessFile raf = new RandomAccessFile(myDatabase, "r")) {
