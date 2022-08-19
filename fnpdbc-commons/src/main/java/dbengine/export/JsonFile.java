@@ -25,7 +25,7 @@ import dbengine.IConvert;
 public class JsonFile extends GeneralDB implements IConvert {
 	private File outFile;
 	protected ObjectMapper mapper;
-	private List<Map<String, Object>> writeList = new ArrayList<>();
+	private List<Map<String, Object>> dbRecords = new ArrayList<>();
 	private List<FieldDefinition> dbFields = new ArrayList<>();
 	private Map<String, String> hElements;
 
@@ -55,15 +55,15 @@ public class JsonFile extends GeneralDB implements IConvert {
 			Entry<String, Object> entry = map.entrySet().iterator().next();
 			dbName = entry.getKey();
 			if (entry.getValue() instanceof List) {
-				writeList = (List<Map<String, Object>>) entry.getValue();
-				totalRecords = writeList.size();
+				dbRecords = (List<Map<String, Object>>) entry.getValue();
+				totalRecords = dbRecords.size();
 				getDBFieldNamesAndTypes();
 			} else if (entry.getValue() instanceof Map) {
-				writeList.add((Map<String, Object>) entry.getValue());
+				dbRecords.add((Map<String, Object>) entry.getValue());
 				totalRecords = 1;
 				getDBFieldNamesAndTypes();
 			} else {
-				writeList.add(map);
+				dbRecords.add(map);
 				totalRecords = 1;
 				getDBFieldNamesAndTypes();
 			}
@@ -73,14 +73,14 @@ public class JsonFile extends GeneralDB implements IConvert {
 	@Override
 	public void closeFile() {
 		try {
-			if (!isInputFile && !writeList.isEmpty()) {
+			if (!isInputFile && !dbRecords.isEmpty()) {
 				// Indent arrays with a line feed
 				DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
 				prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
 				ObjectWriter writer = mapper.writer(prettyPrinter);
 
 				Map<String, List<Map<String, Object>>> map = new HashMap<>();
-				map.put(myPref.getPdaDatabaseName(), writeList);
+				map.put(myPref.getPdaDatabaseName(), dbRecords);
 				writer.writeValue(outFile, map);
 			}
 		} catch (Exception e) {
@@ -92,12 +92,12 @@ public class JsonFile extends GeneralDB implements IConvert {
 	private void getDBFieldNamesAndTypes() {
 		dbFields.clear();
 
-		if (writeList.isEmpty()) {
+		if (dbRecords.isEmpty()) {
 			return;
 		}
 
 		Set<String> memoFields = new HashSet<>();
-		Map<String, Object> map = writeList.get(0);
+		Map<String, Object> map = dbRecords.get(0);
 		Map<String, Object> newMap = new LinkedHashMap<>();
 
 		map.entrySet().forEach(entry -> addFieldDefinition(entry.getKey(), entry.getValue(), newMap, memoFields));
@@ -105,7 +105,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 		// Convert Array fields to Memo fields
 		for (String field : memoFields) {
-			for (Map<String, Object> mapList : writeList) {
+			for (Map<String, Object> mapList : dbRecords) {
 				Object obj = mapList.get(field);
 				if (obj == null || obj.equals("")) {
 					mapList.put(field, "");
@@ -169,7 +169,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 		if (!map.isEmpty()) {
 			if (hElements.isEmpty()) {
-				writeList.add(map);
+				dbRecords.add(map);
 				return;
 			}
 
@@ -180,12 +180,12 @@ public class JsonFile extends GeneralDB implements IConvert {
 	@SuppressWarnings("unchecked")
 	private void createSortedMap(Map<String, Object> dbRecord) {
 		Map<String, Object> map;
-		if (writeList.isEmpty()) {
+		if (dbRecords.isEmpty()) {
 			// Create our first entry in the tree
 			map = new LinkedHashMap<>();
-			writeList.add(map);
+			dbRecords.add(map);
 		} else {
-			map = writeList.get(0);
+			map = dbRecords.get(0);
 		}
 
 		for (Entry<String, String> entry : hElements.entrySet()) {
@@ -260,8 +260,16 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = writeList.get(currentRecord);
+		Map<String, Object> result = dbRecords.get(currentRecord);
 		currentRecord++;
 		return result;
 	}
+
+	@Override
+	public List<Object> getDbFieldValues(String field) throws Exception {
+		Set<Object> result = new HashSet<>();
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		return new ArrayList<>(result);
+	}
+
 }

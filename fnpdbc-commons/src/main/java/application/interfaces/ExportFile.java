@@ -96,6 +96,17 @@ public enum ExportFile {
 		}
 	}
 
+	public boolean isSqlDatabase() {
+		switch (this) {
+		case MARIADB:
+		case POSTGRESQL:
+		case SQLITE:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public boolean isBooleanExport() {
 		switch (this) {
 		case LIST:

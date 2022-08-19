@@ -227,6 +227,13 @@ public abstract class Profiles extends Project {
 		return filterField[index];
 	}
 
+	public int noOfFilters() {
+		if (isFilterDefined()) {
+			return filterField[1].isEmpty() ? 1 : 2;
+		}
+		return 0;
+	}
+
 	public void setFilterField(int index, String filterField) {
 		PrefUtils.writePref(child, "filter" + index + ".field", filterField, this.filterField[index], "");
 		this.filterField[index] = filterField;

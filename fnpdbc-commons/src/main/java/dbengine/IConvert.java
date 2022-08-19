@@ -9,7 +9,7 @@ import dbengine.utils.DatabaseHelper;
 
 public interface IConvert {
 	/**
-	 * Title: IConvert Description: public interface for converting a PDA database
+	 * Title: IConvert Description: public interface for converting an input file
 	 * with DBConvert Copyright: (c) 2005
 	 *
 	 * @author Tom van Breukelen
@@ -24,6 +24,10 @@ public interface IConvert {
 	List<FieldDefinition> getTableModelFields() throws Exception;
 
 	List<String> getTableOrSheetNames();
+
+	default List<Object> getDbFieldValues(String field) throws Exception {
+		return null; // NOSONAR
+	}
 
 	int getTotalRecords();
 

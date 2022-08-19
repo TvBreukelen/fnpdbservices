@@ -190,7 +190,7 @@ public abstract class BasicSoft {
 		numFilter = 0;
 
 		if (isFilterDefined) {
-			numFilter = pdaSettings.getFilterField(1).isEmpty() ? 1 : 2;
+			numFilter = pdaSettings.noOfFilters();
 		}
 	}
 

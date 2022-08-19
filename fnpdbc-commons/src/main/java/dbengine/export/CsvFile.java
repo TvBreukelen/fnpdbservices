@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.MappingIterator;
@@ -183,5 +185,12 @@ public class CsvFile extends GeneralDB implements IConvert {
 				// Nothing to do
 			}
 		}
+	}
+
+	@Override
+	public List<Object> getDbFieldValues(String field) throws Exception {
+		Set<Object> result = new HashSet<>();
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		return new ArrayList<>(result);
 	}
 }

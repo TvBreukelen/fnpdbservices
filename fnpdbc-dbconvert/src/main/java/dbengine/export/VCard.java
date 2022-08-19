@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -707,5 +709,12 @@ public class VCard extends GeneralDB implements IConvert {
 
 	private String getFieldName(String field, int count, String suffix) {
 		return field + (count > 0 ? "[" + count + "]" + suffix : suffix);
+	}
+
+	@Override
+	public List<Object> getDbFieldValues(String field) throws Exception {
+		Set<Object> result = new HashSet<>();
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		return new ArrayList<>(result);
 	}
 }

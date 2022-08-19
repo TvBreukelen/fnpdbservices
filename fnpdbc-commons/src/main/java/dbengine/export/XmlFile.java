@@ -8,10 +8,12 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -234,10 +236,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = dbRecords.get(currentRecord);
-		dbRecords.set(currentRecord, null); // Cleanup memory usage
-		currentRecord++;
-		return result;
+		return dbRecords.get(currentRecord++);
 	}
 
 	private String eliminateIllegalXmlCharacters(String element) {
@@ -253,5 +252,12 @@ public class XmlFile extends GeneralDB implements IConvert {
 			}
 		}
 		return buf.toString();
+	}
+
+	@Override
+	public List<Object> getDbFieldValues(String field) throws Exception {
+		Set<Object> result = new HashSet<>();
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		return new ArrayList<>(result);
 	}
 }

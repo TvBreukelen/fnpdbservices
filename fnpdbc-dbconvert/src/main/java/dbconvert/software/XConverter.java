@@ -323,7 +323,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	private boolean isIncludeRecord(Map<String, Object> dbRecord) {
-		if (!isFilterDefined) {
+		if (!isFilterDefined || myImportFile.isSqlDatabase()) {
 			return true;
 		}
 
@@ -338,21 +338,20 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	@Override
 	public List<Object> getFilterFieldValues(String pField) throws Exception {
-		List<Object> result = new ArrayList<>();
 		FieldDefinition field = dbFieldDefinition.get(pField);
+		List<Object> result = dbIn.getDbFieldValues(field.getFieldName());
 
-		if (myModel == null) {
-			// Load entire input file in table model
-			loadInputFile();
-		}
-
-		// Read values from the table model
-		List<Map<String, Object>> table = myModel.getDataListMap();
-		for (Map<String, Object> rowData : table) {
-			Object obj = rowData.get(field.getFieldAlias());
-			if (!result.contains(obj)) {
-				result.add(obj);
+		if (result == null) {
+			if (myModel == null) {
+				// Load entire input file in table model
+				loadInputFile();
 			}
+
+			// Read values from the table model
+			Set<Object> set = new HashSet<>();
+			List<Map<String, Object>> table = myModel.getDataListMap();
+			table.forEach(m -> set.add(m.getOrDefault(pField, "")));
+			result = new ArrayList<>(set);
 		}
 
 		XComparator compare = new XComparator(field.getFieldType());
