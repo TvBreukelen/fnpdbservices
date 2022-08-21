@@ -293,7 +293,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		cbDatabases.setSelectedItem(dbExist ? dbFile : "");
 
 		if (dbExist) {
-			String node = dbSettings.getNodename(dbFile);
+			String node = dbSettings.getNodename(dbFile, myImportFile.getName());
 			if (node != null) {
 				dbSettings.setNode(node);
 				dbVerified.update(dbSettings);
@@ -396,7 +396,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			}
 		}
 
-		String node = dbSettings.getNodename(dbVerified.getDatabase());
+		String node = dbSettings.getNodename(dbVerified.getDatabase(), myImportFile.getName());
 		if (node == null) {
 			node = dbSettings.getNextDatabaseID();
 		}

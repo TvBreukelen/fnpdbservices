@@ -118,8 +118,8 @@ public class Databases implements IDatabaseHelper {
 		fillNodes();
 	}
 
-	public String getNodename(String databaseFile) {
-		return nodes.get(databaseFile.toUpperCase());
+	public String getNodename(String databaseFile, String databaseType) {
+		return nodes.get((databaseFile + "/" + databaseType).toUpperCase());
 	}
 
 	public String getNextDatabaseID() {
@@ -414,7 +414,7 @@ public class Databases implements IDatabaseHelper {
 			String[] child = parent.childrenNames();
 			for (String element : child) {
 				Preferences p = parent.node(element);
-				final String dbFile = p.get(DB_FILE, "");
+				String dbFile = p.get(DB_FILE, "") + "/" + p.get(DB_TYPE, "");
 				nodes.put(dbFile.toUpperCase(), element);
 			}
 		} catch (Exception e) {

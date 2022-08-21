@@ -276,7 +276,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		String dbFile = fdDatabase.getText().trim();
-		String node = dbSettings.getNodename(dbFile);
+		String node = dbSettings.getNodename(dbFile, myImportFile.getName());
 
 		if (node == null) {
 			node = dbSettings.getNextDatabaseID();

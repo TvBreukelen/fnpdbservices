@@ -1,6 +1,17 @@
 Release Notes
 
 
+Version 7.2.3
+-------------
+Updated PostGreSQL driver, due to security issues
+Updated SQLite driver
+The tables of SQL databases are no longer completely loaded in memory, if a filter is set. 
+Bug Fix: SQLite SELECT COUNT(*) statement doesn't return a Long value but an Integer
+causing the program to abort.
+Bug Fix: could not enter a PostGreSQL database if a MariaDB database with the same name has
+already been defined (and vice versa).  
+
+
 Version 7.2.2
 -------------
 Save the positions and size of the Help dialog

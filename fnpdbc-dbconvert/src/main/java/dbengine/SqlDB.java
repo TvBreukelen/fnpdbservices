@@ -367,7 +367,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		buf.delete(buf.length() - 2, buf.length());
 		buf.append(" FROM ").append(getSqlFieldOrTable(myTable));
 		getWhereStatement(buf);
-		buf.append(";");
 		return buf.toString();
 	}
 
