@@ -19,6 +19,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 	private String sshPassword = "";
 
 	private String privateKeyFile = "";
+	private String hostNameInCertificate = ""; // SQL Server only
 
 	private int port;
 	private int sshPort;
@@ -26,6 +27,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 	private ExportFile databaseType;
 	private boolean useSsl = false;
 	private boolean useSsh = false;
+	private boolean trustServerCertificate = false; // SQLServer only
 
 	public DatabaseHelper(String database, ExportFile databaseType) {
 		this.database = database;
@@ -181,6 +183,15 @@ public class DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
+	public String getHostNameInCertificate() {
+		return hostNameInCertificate;
+	}
+
+	public void setHostNameInCertificate(String hostNameInCertificate) {
+		this.hostNameInCertificate = hostNameInCertificate;
+	}
+
+	@Override
 	public int getSshPort() {
 		return sshPort;
 	}
@@ -198,10 +209,20 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.useSsh = useSsh;
 	}
 
+	@Override
+	public boolean isTrustServerCertificate() {
+		return trustServerCertificate;
+	}
+
+	public void setTrustServerCertificate(boolean trustServerCertificate) {
+		this.trustServerCertificate = trustServerCertificate;
+	}
+
 	public void update(IDatabaseHelper helper) {
 		setDatabase(helper.getDatabase());
 		setDatabaseType(helper.getDatabaseType());
 		setHost(helper.getHost());
+		setHostNameInCertificate(helper.getHostNameInCertificate());
 		setPort(helper.getPort());
 		setUser(helper.getUser());
 		setPassword(helper.getPassword());
@@ -216,6 +237,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 		setKeyStorePassword(helper.getKeyStorePassword());
 		setServerSslCert(helper.getServerSslCert());
 		setServerSslCaCert(helper.getServerSslCaCert());
+		setTrustServerCertificate(helper.isTrustServerCertificate());
 		setSslMode(helper.getSslMode());
 	}
 }

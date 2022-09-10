@@ -31,6 +31,7 @@ import dbconvert.dialog.ExportProcess;
 import dbconvert.preferences.PrefDBConvert;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
+import dbengine.SqlDB;
 import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
@@ -128,7 +129,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void setupDBTranslation(boolean isNew) throws Exception {
 		// Load filter and mapping fields
 		List<FieldDefinition> dbFields = dbIn.getTableModelFields();
-		totalRecords = dbIn.getTotalRecords() - firstRecord;
 
 		// Load dbFieldDefinition, dbSelectFields and dbFilterFields with all available
 		// fields of dbIn
@@ -281,6 +281,11 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		List<Map<String, Object>> result = new ArrayList<>();
 		Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
 				|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
+
+		totalRecords = dbIn.getTotalRecords() - firstRecord;
+		if (myImportFile.isSqlDatabase()) {
+			((SqlDB) dbIn).createStatement();
+		}
 
 		// Write all records into the table model
 		for (int i = 0; i < totalRecords; i++) {

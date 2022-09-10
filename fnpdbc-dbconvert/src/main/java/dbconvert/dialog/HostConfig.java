@@ -56,8 +56,10 @@ public class HostConfig extends BasicDialog {
 
 	// SSL
 	private JCheckBox ckUseSsl;
+	private JCheckBox ckTrustServerCertificate;
 	private JTextField txKeyStore;
 	private JPasswordField txKeyStorePassword;
+	private JTextField txHostNameInCertificate;
 	private JTextField txServerSslCert;
 	private JTextField txServerSslCaCert;
 	private JComboBox<String> cbMode;
@@ -70,9 +72,9 @@ public class HostConfig extends BasicDialog {
 	private String host = "localhost";
 
 	private boolean isSaved;
-	private boolean isMariaDB;
+	private boolean isMariaDb;
 	private boolean isPostgreSQL;
-	private int port;
+	private boolean isSqlServer;
 
 	private XGridBagConstraints c = new XGridBagConstraints();
 
@@ -80,8 +82,10 @@ public class HostConfig extends BasicDialog {
 
 	public HostConfig(DatabaseHelper helper) {
 		this.helper = helper;
-		isMariaDB = helper.getDatabaseType() == ExportFile.MARIADB;
+
+		isMariaDb = helper.getDatabaseType() == ExportFile.MARIADB;
 		isPostgreSQL = helper.getDatabaseType() == ExportFile.POSTGRESQL;
+		isSqlServer = helper.getDatabaseType() == ExportFile.SQLSERVER;
 
 		init();
 		buildDialog();
@@ -134,9 +138,9 @@ public class HostConfig extends BasicDialog {
 	}
 
 	private JPanel createConnectionTab() {
-		port = helper.getPort();
+		int port = helper.getPort();
 		if (port == 0) {
-			port = isMariaDB ? 3306 : 5432;
+			port = helper.getDatabaseType().getPort();
 		}
 
 		host = helper.getHost();
@@ -146,7 +150,7 @@ public class HostConfig extends BasicDialog {
 
 		String user = helper.getUser();
 		if (user.isEmpty()) {
-			user = isPostgreSQL ? "postgres" : "root";
+			user = helper.getDatabaseType().getUser();
 		}
 
 		JPanel panel = new JPanel(new GridBagLayout());
@@ -203,16 +207,35 @@ public class HostConfig extends BasicDialog {
 	private JPanel createSslTab() {
 		JPanel panel = new JPanel(new GridBagLayout());
 
+		String[] sslOptions;
+		String defaultOption;
+		switch (helper.getDatabaseType()) {
+		case MARIADB:
+			sslOptions = new String[] { "trust", "verify-ca", "verify-full" };
+			defaultOption = "trust";
+			break;
+		case POSTGRESQL:
+			sslOptions = new String[] { "allow", "prefer", "require", "verify-ca", "verify-full" };
+			defaultOption = "prefer";
+			break;
+		default:
+			sslOptions = new String[] { "true", "false", "strict" }; // SQL Server
+			defaultOption = "false";
+			break;
+		}
+
 		String sslMode = helper.getSslMode();
 		if (sslMode.isEmpty()) {
-			sslMode = isPostgreSQL ? "prefer" : "trust";
+			sslMode = defaultOption;
 		}
 
 		ckUseSsl = GUIFactory.getJCheckBox("useSsl", helper.isUseSsl(), e -> activateComponents());
-		cbMode = new JComboBox<>(isMariaDB ? new String[] { "trust", "verify-ca", "verify-full" }
-				: new String[] { "allow", "prefer", "require", "verify-ca", "verify-full" });
+		ckTrustServerCertificate = GUIFactory.getJCheckBox("trustServerCertficate", helper.isTrustServerCertificate(),
+				e -> activateComponents());
+		cbMode = new JComboBox<>(sslOptions);
 		cbMode.setSelectedItem(sslMode);
 
+		txHostNameInCertificate = GUIFactory.getJTextField("hostNameInCertificate", helper.getHostNameInCertificate());
 		txKeyStore = GUIFactory.getJTextField("sslKeyStore", helper.getKeyStore());
 		txKeyStorePassword = GUIFactory.getJPasswordField("", General.decryptPassword(helper.getKeyStorePassword()));
 		txServerSslCert = GUIFactory.getJTextField("sslCertificate", helper.getServerSslCert());
@@ -226,22 +249,33 @@ public class HostConfig extends BasicDialog {
 				e -> General.getSelectedFile(this, txServerSslCaCert, FileType.TRUSTSTORE, true));
 
 		panel.add(ckUseSsl, c.gridCell(1, 0, 0, 0));
-		panel.add(GUIFactory.getJLabel("sslMode"), c.gridCell(0, 1, 0, 0));
+		panel.add(GUIFactory.getJLabel(isSqlServer ? "encrypt" : "sslMode"), c.gridCell(0, 1, 0, 0));
 		panel.add(cbMode, c.gridCell(1, 1, 0, 0));
+
 		panel.add(GUIFactory.getJLabel("sslKeyStore"), c.gridCell(0, 2, 0, 0));
 		panel.add(txKeyStore, c.gridCell(1, 2, 2, 0));
 		panel.add(btKeyStore, c.gridCell(2, 2, 0, 0));
 		panel.add(GUIFactory.getJLabel("sslKeyStorePassword"), c.gridCell(0, 3, 0, 0));
 		panel.add(txKeyStorePassword, c.gridCell(1, 3, 0, 0));
-		panel.add(GUIFactory.getJLabel("sslCertificate"), c.gridCell(0, 4, 0, 0));
-		panel.add(txServerSslCert, c.gridCell(1, 4, 0, 0));
-		panel.add(btServerSslCert, c.gridCell(2, 4, 0, 0));
+
+		if (isMariaDb || isPostgreSQL) {
+			panel.add(GUIFactory.getJLabel("sslCertificate"), c.gridCell(0, 4, 0, 0));
+			panel.add(txServerSslCert, c.gridCell(1, 4, 0, 0));
+			panel.add(btServerSslCert, c.gridCell(2, 4, 0, 0));
+		}
 
 		if (isPostgreSQL) {
 			panel.add(GUIFactory.getJLabel("sslCaCertificate"), c.gridCell(0, 5, 0, 0));
 			panel.add(txServerSslCaCert, c.gridCell(1, 5, 0, 0));
 			panel.add(btServerSslCaCert, c.gridCell(2, 5, 0, 0));
 		}
+
+		if (isSqlServer) {
+			panel.add(ckTrustServerCertificate, c.gridCell(1, 5, 0, 0));
+			panel.add(GUIFactory.getJLabel("hostNameInCertificate"), c.gridCell(0, 6, 0, 0));
+			panel.add(txHostNameInCertificate, c.gridCell(1, 6, 0, 0));
+		}
+
 		return panel;
 	}
 
@@ -293,6 +327,8 @@ public class HostConfig extends BasicDialog {
 		verify.setServerSslCert(txServerSslCert.getText().trim());
 		verify.setServerSslCaCert(txServerSslCaCert.getText().trim());
 		verify.setSslMode(cbMode.getSelectedIndex() == -1 ? "" : cbMode.getSelectedItem().toString());
+		verify.setHostNameInCertificate(txHostNameInCertificate.getText().trim());
+		verify.setTrustServerCertificate(ckTrustServerCertificate.isSelected());
 
 		try {
 			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -312,7 +348,7 @@ public class HostConfig extends BasicDialog {
 
 	@Override
 	public void activateComponents() {
-		btTest.setEnabled(StringUtils.isNoneBlank(txHost.getText(), txUser.getText(), txDatabase.getText()));
+		btTest.setEnabled(StringUtils.isNoneBlank(txHost.getText(), txDatabase.getText()));
 		btApply.setEnabled(false);
 
 		// SSH
@@ -324,6 +360,8 @@ public class HostConfig extends BasicDialog {
 		btKeyfile.setEnabled(ckUseSsh.isSelected());
 
 		// SSL
+		ckTrustServerCertificate.setEnabled(ckUseSsl.isSelected());
+		txHostNameInCertificate.setEnabled(ckUseSsl.isSelected());
 		txKeyStore.setEnabled(ckUseSsl.isSelected());
 		txKeyStorePassword.setEnabled(ckUseSsl.isSelected());
 		txServerSslCert.setEnabled(ckUseSsl.isSelected());

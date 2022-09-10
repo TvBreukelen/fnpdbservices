@@ -24,6 +24,7 @@ import dbengine.export.MariaDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
 import dbengine.export.PostgreSQL;
+import dbengine.export.SQLServer;
 import dbengine.export.SQLite;
 import dbengine.export.VCard;
 import dbengine.export.XmlFile;
@@ -139,6 +140,8 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new MariaDB(profile);
 		case POSTGRESQL:
 			return new PostgreSQL(profile);
+		case SQLSERVER:
+			return new SQLServer(profile);
 		case YAML:
 			return new YamlFile(profile);
 		case HANDBASE:

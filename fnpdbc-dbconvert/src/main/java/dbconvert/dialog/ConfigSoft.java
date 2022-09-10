@@ -213,7 +213,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
-		reloadImportFiles(false);
+		reloadImportFiles(true, false);
 
 		myView = isNewProfile ? "" : cbDatabases.getSelectedItem().toString();
 
@@ -247,8 +247,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private void importFileNameChanged(boolean isAddNew) {
 		dbFactory.getDbInHelper()
 				.setDatabase(isAddNew ? fdDatabase.getText() : cbDatabases.getSelectedItem().toString());
-		reloadImportFiles(isAddNew);
-		verifyDatabase();
+
+		if (reloadImportFiles(false, isAddNew)) {
+			verifyDatabase();
+		}
 	}
 
 	private void importFileTypeChanged() {
@@ -269,11 +271,15 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbFactory.getTableOrSheetNames().clear();
 		dbFactory.getDbInHelper().update(dbVerified);
 
-		reloadImportFiles(false);
+		if (reloadImportFiles(true, false)) {
+			verifyDatabase();
+		}
+
 		setTablesOrWorksheets();
 	}
 
-	private void reloadImportFiles(boolean isAddNew) {
+	private boolean reloadImportFiles(boolean isInit, boolean isAddNew) {
+		boolean result = false;
 		cbDatabases.removeActionListener(funcSelectImportFile);
 		cbDatabases.removeAllItems();
 		dbVerified = dbFactory.getDbInHelper();
@@ -289,6 +295,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbExist = true;
 		}
 
+		if (!dbExist && dbFiles.size() > 1) {
+			// Take last database from the list
+			dbFile = dbFiles.get(dbFiles.size() - 1);
+			dbExist = true;
+			result = true;
+		}
+
 		dbFiles.forEach(db -> cbDatabases.addItem(db));
 		cbDatabases.setSelectedItem(dbExist ? dbFile : "");
 
@@ -296,18 +309,27 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			String node = dbSettings.getNodename(dbFile, myImportFile.getName());
 			if (node != null) {
 				dbSettings.setNode(node);
-				dbVerified.update(dbSettings);
+				if (isInit) {
+					dbVerified.update(dbSettings);
+				}
 			}
 		} else {
 			dbVerified.setDatabase("");
 		}
 
 		cbDatabases.addActionListener(funcSelectImportFile);
+		return result;
 	}
 
 	private void tableOrWorksheetChanged() {
 		pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), false);
-		verifyDatabase();
+		try {
+			dbFactory.setupDBTranslation(isNewProfile);
+			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
+		} catch (Exception e) {
+			General.errorMessage(this, e, GUIFactory.getTitle("configError"), null);
+			dbFactory.close();
+		}
 	}
 
 	@Override
@@ -427,6 +449,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbSettings.setKeyStore(isNotSsl ? "" : dbVerified.getKeyStore());
 			dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
 			dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());
+			dbSettings.setHostNameInCertificate(isNotSsl ? "" : dbVerified.getHostNameInCertificate());
+			dbSettings.setTrustServerCertificate(isNotSsl ? false : dbVerified.isTrustServerCertificate());
 		}
 
 		pdaSettings.setProject(projectID);

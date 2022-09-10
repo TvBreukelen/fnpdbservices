@@ -28,6 +28,11 @@
 			<version>42.4.1</version>
 		</dependency>
 		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>11.2.0.jre11</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.mwiede</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.2.0</version>

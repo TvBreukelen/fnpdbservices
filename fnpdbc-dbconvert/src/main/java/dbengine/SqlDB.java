@@ -16,11 +16,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
-
-import org.apache.commons.lang3.StringUtils;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -35,10 +34,9 @@ import application.utils.FieldDefinition;
 import application.utils.General;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
-	private String myTable;
-	private boolean isFirstRead = true;
-
 	private Map<Integer, List<FieldDefinition>> hTables;
+	private List<FieldDefinition> dbInfoToRead;
+	private Map<String, FieldDefinition> hFieldMap;
 	private List<String> aTables;
 
 	protected Connection connection;
@@ -139,9 +137,20 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		int index = 0;
 		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
+		String[] types;
+		switch (myImportFile) {
+		case POSTGRESQL:
+			types = new String[] { "TABLE", "VIEW" };
+			break;
+		case SQLSERVER:
+			types = new String[] { "TABLE" };
+			break;
+		default:
+			types = null;
+		}
+
 		try {
 			DatabaseMetaData metaData = connection.getMetaData();
-			String[] types = myImportFile == ExportFile.POSTGRESQL ? new String[] { "TABLE", "VIEW" } : null;
 			ResultSet rs = metaData.getTables(null, null, "%", types);
 			while (rs.next()) {
 				String tableCat = rs.getString("TABLE_CAT");
@@ -186,14 +195,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noTablesFound", "");
 		}
 
-		myTable = myPref.getTableName();
+		String myTable = myPref.getTableName();
 		if (myTable.isEmpty() || !aTables.contains(myTable)) {
 			myTable = aTables.get(0);
 			myPref.setTableName(myTable, false);
 		}
 
-		Object obj = getDbFieldValues(null).get(0);
-		totalRecords = ((Number) obj).intValue();
+		hFieldMap = getTableModelFields().stream()
+				.collect(Collectors.toMap(FieldDefinition::getFieldName, Function.identity()));
 	}
 
 	private boolean setFieldType(FieldDefinition field) {
@@ -261,11 +270,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.TIME);
 			field.setSQLType(Types.TIME);
 			break;
+		case "DECIMAL":
 		case "money":
 			field.setFieldType(FieldTypes.FLOAT);
 			field.setSQLType(Types.NUMERIC);
 			break;
-		// time and timestamps with time zones will be treated as string
+		case "nchar":
+			// time and timestamps with time zones will be treated as string
 		case "timestamptz":
 		case "timetz":
 			field.setFieldType(FieldTypes.TEXT);
@@ -311,13 +322,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		int index = aTables.indexOf(myTable);
+		int index = aTables.indexOf(myPref.getTableName());
 		return hTables.get(index == -1 ? 1 : index);
 	}
 
 	@Override
 	public String getPdaDatabase() {
-		return myTable;
+		return myPref.getTableName();
 	}
 
 	@Override
@@ -328,19 +339,25 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return aTables;
 	}
 
+	public void createStatement() throws Exception {
+		// Extract fields to read from the table model, based on what we want to write.
+		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
+		// data conversions
+
+		dbInfoToRead = new ArrayList<>();
+		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
+
+		dbStatement = connection.createStatement();
+		dbResultSet = dbStatement.executeQuery(getSqlQuery());
+	}
+
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		if (isFirstRead) {
-			dbStatement = connection.createStatement();
-			dbResultSet = dbStatement.executeQuery(getSqlQuery());
-			isFirstRead = false;
-		}
-
 		Map<String, Object> result = new HashMap<>();
 		int index = 1;
 
 		if (dbResultSet.next()) {
-			for (FieldDefinition field : getTableModelFields()) {
+			for (FieldDefinition field : dbInfoToRead) {
 				try {
 					Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
 					result.put(field.getFieldAlias(), obj);
@@ -355,8 +372,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private String getSqlQuery() {
 		StringBuilder buf = new StringBuilder("SELECT ");
-		getTableModelFields().forEach(field -> {
-			buf.append(getSqlFieldOrTable(field.getFieldName()));
+
+		dbInfoToRead.forEach(field -> {
+			buf.append(getSqlFieldName(field.getFieldName()));
 			if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
 				// cast money field to numeric, otherwise a string preceded by a currency sign
 				// will be returned (like $1,000.99)
@@ -364,8 +382,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 			buf.append(", ");
 		});
+
 		buf.delete(buf.length() - 2, buf.length());
-		buf.append(" FROM ").append(getSqlFieldOrTable(myTable));
+		buf.append(" FROM ").append(getSqlFieldName(myPref.getTableName()));
 		getWhereStatement(buf);
 		return buf.toString();
 	}
@@ -375,78 +394,75 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return;
 		}
 
-		boolean setCondition = false;
 		for (int i = 0; i < myPref.noOfFilters(); i++) {
 			String field = myPref.getFilterField(i);
 
-			Optional<FieldDefinition> def = getTableModelFields().stream().filter(e -> e.getFieldName().equals(field))
-					.findFirst();
-			if (def.isPresent()) {
-				if (setCondition) {
-					buf.append(" ").append(myPref.getFilterCondition()).append(" ");
-				} else {
-					buf.append(" WHERE ");
-				}
-
-				buf.append(field);
-				switch (myPref.getFilterOperator(i)) {
-				case IS_EQUAL_TO:
-					buf.append(" = ");
-					break;
-				case IS_GREATER_THAN:
-					buf.append(" > ");
-					break;
-				case IS_GREATER_THAN_OR_EQUAL_TO:
-					buf.append(" >= ");
-					break;
-				case IS_LESS_THAN:
-					buf.append(" < ");
-					break;
-				case IS_LESS_THAN_OR_EQUAL_TO:
-					buf.append(" <= ");
-					break;
-				case IS_NOT_EQUAL_TO:
-					buf.append(" <> ");
-					break;
-				}
-
-				switch (def.get().getFieldType()) {
-				case MEMO:
-				case TEXT:
-					buf.append("'");
-					buf.append(myPref.getFilterValue(i));
-					buf.append("'");
-					break;
-				default:
-					buf.append(myPref.getFilterValue(i));
-					break;
-				}
+			FieldDefinition def = hFieldMap.get(field);
+			if (def == null) {
+				// Should not happen
+				return;
 			}
-			setCondition = true;
+
+			if (i > 0) {
+				buf.append(" ").append(myPref.getFilterCondition()).append(" ");
+			} else {
+				buf.append(" WHERE ");
+			}
+
+			buf.append(field);
+			switch (myPref.getFilterOperator(i)) {
+			case IS_EQUAL_TO:
+				buf.append(" = ");
+				break;
+			case IS_GREATER_THAN:
+				buf.append(" > ");
+				break;
+			case IS_GREATER_THAN_OR_EQUAL_TO:
+				buf.append(" >= ");
+				break;
+			case IS_LESS_THAN:
+				buf.append(" < ");
+				break;
+			case IS_LESS_THAN_OR_EQUAL_TO:
+				buf.append(" <= ");
+				break;
+			case IS_NOT_EQUAL_TO:
+				buf.append(" <> ");
+				break;
+			}
+
+			switch (def.getFieldType()) {
+			case MEMO:
+			case TEXT:
+				buf.append("'");
+				buf.append(myPref.getFilterValue(i));
+				buf.append("'");
+				break;
+			default:
+				buf.append(myPref.getFilterValue(i));
+				break;
+			}
 		}
 	}
 
-	private String getSqlFieldOrTable(String value) {
-		if (StringUtils.isEmpty(value) || value.matches("^[a-zA-Z0-9_]*$")) {
+	private String getSqlFieldName(String value) {
+		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_]*$")) {
 			return value;
 		}
 
 		return "[" + value + "]";
 	}
 
+	private boolean isNotReservedWord(String value) {
+		return !"user".equalsIgnoreCase(value);
+	}
+
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		List<Object> result = new ArrayList<>();
 
-		StringBuilder sql = new StringBuilder(50);
-		if (StringUtils.isEmpty(field)) {
-			sql.append("SELECT COUNT(*) FROM ").append(getSqlFieldOrTable(myTable));
-			getWhereStatement(sql);
-		} else {
-			sql.append("SELECT DISTINCT ").append(getSqlFieldOrTable(field)).append(" FROM ")
-					.append(getSqlFieldOrTable(myTable));
-		}
-
+		StringBuilder sql = new StringBuilder("SELECT DISTINCT ");
+		sql.append(getSqlFieldName(field)).append(" FROM ").append(getSqlFieldName(myPref.getTableName()));
 		try (Statement statement = connection.createStatement();
 				ResultSet rs = statement.executeQuery(sql.toString())) {
 			while (rs.next()) {
@@ -455,6 +471,27 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		return result;
+	}
+
+	@Override
+	public int getTotalRecords() {
+		try {
+			StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
+			sql.append(getSqlFieldName(myPref.getTableName()));
+			getWhereStatement(sql);
+
+			try (Statement statement = connection.createStatement();
+					ResultSet rs = statement.executeQuery(sql.toString())) {
+				while (rs.next()) {
+					Object obj = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
+					return ((Number) obj).intValue();
+				}
+			}
+
+			return 0;
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws Exception {

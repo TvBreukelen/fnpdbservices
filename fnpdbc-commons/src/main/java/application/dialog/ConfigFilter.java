@@ -23,7 +23,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -69,7 +68,6 @@ public class ConfigFilter extends BasicDialog {
 	private JList<Object>[] list = new JList[2];
 	private JDialog[] dialog = new JDialog[2];
 
-	private JFormattedTextField[] formattedText = new JFormattedTextField[2];
 	private DatePicker datePicker;
 	private DateTimePicker dateTimePicker;
 
@@ -83,7 +81,6 @@ public class ConfigFilter extends BasicDialog {
 	private ActionListener funcRemoveFilter;
 	private ActionListener funcBoolFilter;
 	private ActionListener funcListFilter;
-	private ActionListener funcTextFilter;
 	private ActionListener funcSelectPressed;
 	private ActionListener funcSubSelectPressed;
 
@@ -162,11 +159,6 @@ public class ConfigFilter extends BasicDialog {
 			filterValue[Integer.parseInt(e.getActionCommand())] = value;
 		};
 
-		funcTextFilter = e -> {
-			Object value = ((JFormattedTextField) e.getSource()).getValue();
-			filterValue[Integer.parseInt(e.getActionCommand())] = value.toString();
-		};
-
 		funcSubSelectPressed = e -> {
 			int index = Integer.parseInt(e.getActionCommand());
 			if (index < 3) {
@@ -180,10 +172,6 @@ public class ConfigFilter extends BasicDialog {
 				filterValue[index] = value.toString();
 
 				switch (dbDef.getFieldType()) {
-				case FLOAT:
-				case NUMBER:
-					formattedText[index].setValue(Double.valueOf(value.toString()));
-					break;
 				case DATE:
 					datePicker.setDate((LocalDate) value);
 					break;
@@ -449,8 +437,6 @@ public class ConfigFilter extends BasicDialog {
 		JButton button = GUIFactory.getJButton("select", funcSelectPressed);
 		button.setActionCommand(Integer.toString(index));
 
-		boolean isFloat = false;
-
 		if (dbDef == null) {
 			JComboBox<?> jc = new JComboBox<>();
 			cbFilter[index].setEnabled(false);
@@ -500,24 +486,6 @@ public class ConfigFilter extends BasicDialog {
 			box.add(button1);
 			box.add(button2);
 			comp.add(box);
-			break;
-		case FLOAT:
-			isFloat = true;
-		case NUMBER:
-			formattedText[index] = isFloat ? GUIFactory.getDoubleTextField("", 0, "0")
-					: GUIFactory.getIntegerTextField("", 0, Integer.MAX_VALUE, "0");
-			formattedText[index].addActionListener(funcTextFilter);
-			formattedText[index].setActionCommand(Integer.toString(index));
-
-			try {
-				formattedText[index].setValue(Double.valueOf(filterValue[index]));
-			} catch (Exception e) {
-				formattedText[index].setValue(0);
-			}
-
-			comp.add(formattedText[index]);
-			comp.add(Box.createHorizontalStrut(10));
-			comp.add(button);
 			break;
 		case TIMESTAMP:
 			dateTimePicker.putClientProperty(INDEX, index);

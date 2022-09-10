@@ -34,10 +34,13 @@ public class Databases implements IDatabaseHelper {
 
 	// Remote databases SSL/TSL
 	private boolean useSsl = false;
+	private boolean trustServerCertificate = false;
+
 	private String serverSslCert = "";
 	private String serverSslCaCert = "";
 	private String keyStore = "";
 	private String keyStorePassword = "";
+	private String hostNameInCertificate = "";
 	private String sslMode = "";
 
 	// For the import of Text files
@@ -107,6 +110,8 @@ public class Databases implements IDatabaseHelper {
 		keyStorePassword = myPref.get("ssl.keystore.password", "");
 		serverSslCert = myPref.get("ssl.server.cert", "");
 		serverSslCaCert = myPref.get("ssl.server.ca.cert", "");
+		trustServerCertificate = myPref.getBoolean("ssl.trust.server.certificate", false);
+		hostNameInCertificate = myPref.get("ssl.hostname.in.certificate", "");
 
 		fieldSeparator = myPref.get("field.separator", ",");
 		textDelimiter = myPref.get("text.delimiter", "\"");
@@ -360,6 +365,28 @@ public class Databases implements IDatabaseHelper {
 	public void setSshPort(int sshPort) {
 		PrefUtils.writePref(myPref, "ssh.port", sshPort, this.sshPort, 0);
 		this.sshPort = sshPort;
+	}
+
+	@Override
+	public boolean isTrustServerCertificate() {
+		return trustServerCertificate;
+	}
+
+	public void setTrustServerCertificate(boolean trustServerCertificate) {
+		PrefUtils.writePref(myPref, "ssl.trust.server.certificate", trustServerCertificate, this.trustServerCertificate,
+				false);
+		this.trustServerCertificate = trustServerCertificate;
+	}
+
+	@Override
+	public String getHostNameInCertificate() {
+		return hostNameInCertificate;
+	}
+
+	public void setHostNameInCertificate(String hostNameInCertificate) {
+		PrefUtils.writePref(myPref, "ssl.hostname.in.certificate", hostNameInCertificate, this.hostNameInCertificate,
+				"");
+		this.hostNameInCertificate = hostNameInCertificate;
 	}
 
 	public String getFieldSeparator() {

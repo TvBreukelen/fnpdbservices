@@ -112,7 +112,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
 			String resourceID = "database";
-			if (myExportFile.isDatabase()) {
+			if (myExportFile.isSqlDatabase()) {
 				resourceID = "table";
 			} else if (myExportFile.isSpreadSheet()) {
 				resourceID = "worksheet";
@@ -215,11 +215,11 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isDatabase() ? "intoNewTable" : "intoNewDatabase",
+		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isSqlDatabase() ? "intoNewTable" : "intoNewDatabase",
 				funcSelectExport);
 		rExists[1] = GUIFactory.getJRadioButton("replaceRecords", funcSelectExport);
 		rExists[2] = GUIFactory.getJRadioButton(
-				myExportFile.isDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
+				myExportFile.isSqlDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
 
 		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
 		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);

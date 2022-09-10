@@ -33,6 +33,10 @@ public interface IDatabaseHelper {
 
 	String getPrivateKeyFile();
 
+	String getHostNameInCertificate();
+
+	boolean isTrustServerCertificate();
+
 	int getSshPort();
 
 	boolean isUseSsh();

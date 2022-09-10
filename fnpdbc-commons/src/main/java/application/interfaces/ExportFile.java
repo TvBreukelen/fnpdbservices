@@ -17,7 +17,8 @@ public enum ExportFile {
 	XML("Xml", FileType.XML, 32767, 32767, 32767), JSON("Json", FileType.JSON, 32767, 32767, 32767),
 	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
 	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
-	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
+	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767),
+	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
 	DBASE("xBase", FileType.DBF, 254, 32737, 128), DBASE3("DBase3", FileType.DBF, 254, 32737, 128),
 	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), DBASE5("DBase5", FileType.DBF, 254, 32767, 1024),
 	FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255), HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100),
@@ -68,6 +69,7 @@ public enum ExportFile {
 			result.remove(ACCESS.name);
 			result.remove(MARIADB.name);
 			result.remove(POSTGRESQL.name);
+			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
 		}
 
@@ -90,6 +92,7 @@ public enum ExportFile {
 		case MARIADB:
 		case POSTGRESQL:
 		case SQLITE:
+		case SQLSERVER:
 			return true;
 		default:
 			return false;
@@ -101,6 +104,7 @@ public enum ExportFile {
 		case MARIADB:
 		case POSTGRESQL:
 		case SQLITE:
+		case SQLSERVER:
 			return true;
 		default:
 			return false;
@@ -163,11 +167,35 @@ public enum ExportFile {
 	}
 
 	public boolean isConnectHost() {
-		return this == MARIADB || this == POSTGRESQL;
+		return type == FileType.HOST;
 	}
 
 	public boolean isPasswordSupported() {
-		return this == HANDBASE || this == MARIADB || this == POSTGRESQL;
+		return this == HANDBASE || isConnectHost();
+	}
+
+	public int getPort() {
+		switch (this) {
+		case MARIADB:
+			return 3306;
+		case POSTGRESQL:
+			return 5432;
+		case SQLSERVER:
+			return 1433;
+		default:
+			return 0;
+		}
+	}
+
+	public String getUser() {
+		switch (this) {
+		case MARIADB:
+			return "root";
+		case POSTGRESQL:
+			return "postgres";
+		default:
+			return "";
+		}
 	}
 
 	public boolean isSpecialFieldSort() {
