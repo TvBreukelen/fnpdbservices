@@ -131,7 +131,7 @@ public class HostConfig extends BasicDialog {
 		Map<Integer, String> mapHelp = new HashMap<>();
 		mapHelp.put(0, "export_hostdb");
 		mapHelp.put(1, "export_ssh_hostdb");
-		mapHelp.put(2, "export_ssl_hostdb");
+		mapHelp.put(2, isSqlServer ? "export_ssl_sqlserver" : "export_ssl_hostdb");
 
 		result.addChangeListener(e -> setHelpFile(mapHelp.get(result.getSelectedIndex())));
 		return result;
@@ -219,8 +219,8 @@ public class HostConfig extends BasicDialog {
 			defaultOption = "prefer";
 			break;
 		default:
-			sslOptions = new String[] { "true", "false", "strict" }; // SQL Server
-			defaultOption = "false";
+			sslOptions = new String[] { "true", "false" }; // SQL Server
+			defaultOption = "true";
 			break;
 		}
 

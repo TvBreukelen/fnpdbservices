@@ -1,12 +1,10 @@
 package application.model;
 
-import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
@@ -27,7 +25,6 @@ public class ViewerModel extends AbstractTableModel {
 	private List<FieldDefinition> fieldList;
 	private List<Map<String, Object>> tableData = new ArrayList<>();
 
-	private Font font;
 	private boolean[] columnsVisible;
 	private int totalColumns;
 	private int visibleColumns;
@@ -39,7 +36,6 @@ public class ViewerModel extends AbstractTableModel {
 
 	private void init() {
 		totalColumns = fieldList.size();
-		font = new JLabel().getFont();
 		columnsVisible = new boolean[totalColumns];
 		visibleColumns = totalColumns;
 		Arrays.fill(columnsVisible, true);
@@ -118,15 +114,7 @@ public class ViewerModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		int realCol = getNumber(col);
-		switch (fieldList.get(realCol).getFieldType()) {
-		case DURATION:
-		case IMAGE:
-		case LIST:
-			return false;
-		default:
-			return true;
-		}
+		return false;
 	}
 
 	@Override
@@ -146,14 +134,13 @@ public class ViewerModel extends AbstractTableModel {
 		case NUMBER:
 			return obj instanceof Number ? obj : obj.toString();
 		case MEMO:
-			return createMemoField(obj.toString());
-		default:
-			String s = General.convertObject(obj, field.getFieldType());
-			if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN || s.indexOf('\n') > -1) {
+			String s = obj.toString();
+			if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN) {
 				return createMemoField(s);
-			} else {
-				return s;
 			}
+			return s;
+		default:
+			return General.convertObject(obj, field.getFieldType());
 		}
 	}
 
@@ -165,8 +152,6 @@ public class ViewerModel extends AbstractTableModel {
 	}
 
 	private JTextArea createMemoField(String memo) {
-		JTextArea result = new JTextArea(General.setDialogText(memo, FieldTypes.MIN_MEMO_FIELD_LEN));
-		result.setFont(font);
-		return result;
+		return new JTextArea(General.setDialogText(memo, FieldTypes.MIN_MEMO_FIELD_LEN));
 	}
 }

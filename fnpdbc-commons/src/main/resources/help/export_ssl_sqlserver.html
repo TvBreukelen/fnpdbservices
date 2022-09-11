@@ -1,0 +1,68 @@
+<html>
+<body>
+<h1>Export from a SQL Server database</h1>
+<img src="../images/SslMode.png">
+
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+</tr>
+<tr>
+<td><img src="../images/Help.png"></td>
+<td>Shows this help screen</td>
+</tr>
+<tr>
+<td><img src="../images/Exit.png"></td>
+<td>Exits this screen</td>
+</tr>
+<tr>
+<td>Test Connection</td>
+<td>Test the connection settings</td>
+</tr>
+<tr>
+<td>Apply</td>
+<td>Apply the changes made on this screen</td>
+</tr>
+</table>
+<h2>SSL</h2>
+If your user has been setup by the database administrator to use SSL then here you can
+ define which certificates DBConvert should use to connect to the database. You can setup
+ DBConvert to use a one way or two way connection. Which one to use depends on the database
+ and user configuration.
+<br>
+<br>
+<h3>Use SSL</h3>
+If you don't need to use SSL then leave this check box deactivated. If SSL is required you
+ you'd need to activate it.
+<br>
+<br>
+<h3>Encrypt and Trust Server Certificate</h3>
+When Encrypt is set to true and Trust Server Certificate check box is selected then
+ DBConvert won't validate the SQL Server TLS certificate. This setting is common for allowing
+ connections in test environments, such as where the SQL Server instance has only a self-signed
+ certificate.<br><br>
+One should therefore never activate the Trust Server Certificate in a production environment.
+<br><br>
+When Encrypt is set to true and Trust Server Certificate property is not activated, DBConvert
+ will validate the SQL Server TLS certificate. Validating the server certificate is a part
+  of the TLS handshake and ensures that the server is the correct server to connect to. To
+  validate the server certificate, the trust material must be supplied at connection time
+  either by using the KeyStore file and Key Store Password explicitly, or  by using the
+  underlying Java Virtual Machine (JVM)'s default trust store implicitly.
+ <h3>KeyStore file</h3>
+specifies the path (including filename) to the certificate trustStore file, which contains the
+ list of certificates that the client trusts.
+ <h3>KeyStore password</h3>
+ The KeyStore password specifies the password used to check the integrity of the keyStore data
+ <h3>Host name in certificate</h3>
+ Specifies the host name of the server. The value of this property must match the subject
+  property of the certificate.<br><br>
+If Encrypt is true and Trust Server Certificate is not activated and if the server name in
+ "Host name in certificate" doesn't match the server name in the TLS certificate, the following
+ error will be issued: The driver couldn't establish a secure connection to SQL Server by using
+ Secure Sockets Layer (SSL) encryption. Error: "java.security.cert.CertificateException: Failed to
+ validate the server name in a certificate during Secure Sockets Layer (SSL) initialization.".
+ </body>
+</html>

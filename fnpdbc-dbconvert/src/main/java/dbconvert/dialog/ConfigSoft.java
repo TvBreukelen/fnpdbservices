@@ -446,6 +446,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbSettings.setPrivateKeyFile(isNotSsh ? "" : dbVerified.getPrivateKeyFile());
 
 			dbSettings.setUseSsl(dbVerified.isUseSsl());
+			dbSettings.setSslMode(isNotSsl ? "" : dbVerified.getSslMode());
 			dbSettings.setKeyStore(isNotSsl ? "" : dbVerified.getKeyStore());
 			dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
 			dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());

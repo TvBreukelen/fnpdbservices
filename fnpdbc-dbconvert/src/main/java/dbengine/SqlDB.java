@@ -32,6 +32,7 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
+import microsoft.sql.DateTimeOffset;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
 	private Map<Integer, List<FieldDefinition>> hTables;
@@ -211,6 +212,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.INTEGER:
 		case Types.SMALLINT:
 		case Types.TINYINT:
+		case Types.DECIMAL:
 			field.setFieldType(FieldTypes.NUMBER);
 			break;
 		case Types.BIT:
@@ -219,6 +221,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			break;
 		case Types.DATE:
 			field.setFieldType(FieldTypes.DATE);
+			break;
+		case microsoft.sql.Types.DATETIMEOFFSET:
+			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
 		case Types.DOUBLE:
 		case Types.FLOAT:
@@ -234,6 +239,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.TIMESTAMP:
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
+		case Types.CHAR:
+		case Types.LONGNVARCHAR:
 		case Types.VARCHAR:
 			return true;
 		default:
@@ -276,6 +283,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setSQLType(Types.NUMERIC);
 			break;
 		case "nchar":
+		case "nvarchar":
+		case "ntext":
 			// time and timestamps with time zones will be treated as string
 		case "timestamptz":
 		case "timetz":
@@ -531,6 +540,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				return date == null ? "" : date;
 			} catch (IllegalArgumentException e) {
 				// We are dealing with a Year "0000" (MariaDB)
+				return "";
+			}
+		case microsoft.sql.Types.DATETIMEOFFSET:
+			try {
+				DateTimeOffset date = rs.getObject(colNo, DateTimeOffset.class);
+				return date == null ? "" : date.getOffsetDateTime().toLocalDateTime();
+			} catch (IllegalArgumentException e) {
 				return "";
 			}
 		case Types.FLOAT:

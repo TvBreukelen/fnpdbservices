@@ -14,10 +14,14 @@ public class ETable extends JTable {
 	private Color disabledcolor = new Color(217, 217, 217);
 	private Color backgroundColor = getSelectionBackground();
 
-	public ETable(AbstractTableModel model) {
+	private boolean isNotDisabled;
+
+	public ETable(AbstractTableModel model, boolean isNotDisable) {
 		super(model);
 		setShowGrid(true);
 		setGridColor(Color.darkGray);
+
+		isNotDisabled = isNotDisable;
 	}
 
 	@Override
@@ -26,6 +30,11 @@ public class ETable extends JTable {
 
 		if (c.getBackground() == null || !c.getBackground().equals(backgroundColor)) {
 			Color secondRow = row % 2 == 0 ? alternateColor : super.getBackground();
+			if (isNotDisabled) {
+				c.setBackground(secondRow);
+				return c;
+			}
+
 			c.setBackground(getModel().isCellEditable(convertRowIndexToModel(row), convertColumnIndexToModel(column))
 					? secondRow
 					: disabledcolor);

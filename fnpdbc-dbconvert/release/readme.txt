@@ -45,7 +45,8 @@ MS-Excel        Microsoft Windows / Mac OS X
 MySQL/MariaDB   All platforms 
 Pilot-DB        Palm  
 PostgreSQL      All platforms
-SQLite          All Platforms
+SQL Server      All platforms  
+SQLite          All platforms
 TSV             All platforms
 VCard           All platforms 
 Visual Foxpro   Microsoft Windows
@@ -73,7 +74,7 @@ XML             All platforms
 YAML            All platforms
 
 
-DBConvert is compatible with all operating systems that are able to run Java (version 8 or higher).
+DBConvert is compatible with all operating systems that are able to run Java (version 11 or higher).
 DBConvert is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License 
 as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
@@ -85,12 +86,13 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Pub
 2. DBConvert requirements
 ============================================================
 
-To be able to use the DBConvert program you should have Java Runtime version 8.0 (or later) installed
+To be able to use the DBConvert program you should have Java Runtime version 11.0 (or later) installed
  
 
 Notes 
 -----
-  The Java runtime can be downloaded from http://www.oracle.com/technetwork/java/javase/downloads
+  The Java runtime can be downloaded from https://adoptium.net/en-GB/ or 
+  https://www.oracle.com/java/technologies/downloads/
 
 
 ============================================================
@@ -145,6 +147,15 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 7.3
+-----------
+Minimum Java version is now set to Java 11
+Added support for Microsoft SQL Server databases
+Switching the database or table has been improved.
+Option to manually change the viewer content has been removed, due to high memory
+consumption.
+Minor bug fixes.
 
 
 Version 7.2.3

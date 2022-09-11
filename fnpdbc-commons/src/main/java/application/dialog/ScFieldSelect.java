@@ -68,7 +68,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
 
 		userModel = new UserFieldModel(isTextExport);
-		table = new ETable(userModel);
+		table = new ETable(userModel, false);
 		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 
 		TableColumn colType = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);

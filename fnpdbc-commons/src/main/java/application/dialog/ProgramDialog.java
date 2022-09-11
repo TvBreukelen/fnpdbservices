@@ -517,7 +517,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		TableRowSorter<TableModel> sortModel = new TableRowSorter<>(model);
 		sortModel.setRowFilter(RowFilter.regexFilter(project, ProjectModel.HEADER_PROJECT));
 
-		JTable table = new ETable(model);
+		JTable table = new ETable(model, false);
 		model.setParent(tabPane);
 		projects.put(project, table);
 
