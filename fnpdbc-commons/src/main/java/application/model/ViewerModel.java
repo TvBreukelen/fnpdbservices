@@ -1,5 +1,6 @@
 package application.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.swing.table.AbstractTableModel;
 import application.interfaces.FieldTypes;
 import application.utils.FieldDefinition;
 import application.utils.General;
+import microsoft.sql.DateTimeOffset;
 
 public class ViewerModel extends AbstractTableModel {
 	/**
@@ -130,9 +132,13 @@ public class ViewerModel extends AbstractTableModel {
 		case BOOLEAN:
 		case IMAGE:
 			return obj;
+		case BIG_DECIMAL:
 		case FLOAT:
 		case NUMBER:
-			return obj instanceof Number ? obj : obj.toString();
+			return obj instanceof Number ? field.getNumberFormat().format(obj) : obj.toString();
+		case DATE_TIME_OFFSET:
+			LocalDateTime dt = ((DateTimeOffset) obj).getOffsetDateTime().toLocalDateTime();
+			return General.convertTimestamp(dt, General.getSimpleTimestampFormat());
 		case MEMO:
 			String s = obj.toString();
 			if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN) {

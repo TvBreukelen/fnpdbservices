@@ -1,9 +1,8 @@
 package dbengine;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -223,7 +222,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.DATE);
 			break;
 		case microsoft.sql.Types.DATETIMEOFFSET:
-			field.setFieldType(FieldTypes.TIMESTAMP);
+			field.setFieldType(FieldTypes.DATE_TIME_OFFSET);
 			break;
 		case Types.DOUBLE:
 		case Types.FLOAT:
@@ -266,6 +265,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setSQLType(Types.TIMESTAMP);
 			break;
 		case "INTEGER":
+		case "DECIMAL":
 			field.setFieldType(FieldTypes.NUMBER);
 			field.setSQLType(Types.INTEGER);
 			break;
@@ -277,9 +277,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.TIME);
 			field.setSQLType(Types.TIME);
 			break;
-		case "DECIMAL":
 		case "money":
-			field.setFieldType(FieldTypes.FLOAT);
+			field.setFieldType(FieldTypes.BIG_DECIMAL);
 			field.setSQLType(Types.NUMERIC);
 			break;
 		case "nchar":
@@ -441,14 +440,18 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 
 			switch (def.getFieldType()) {
-			case MEMO:
-			case TEXT:
-				buf.append("'");
+			case BOOLEAN:
+				buf.append("true".equals(myPref.getFilterValue(i)) ? 1 : 0);
+				break;
+			case CURRENCY:
+			case FLOAT:
+			case NUMBER:
 				buf.append(myPref.getFilterValue(i));
-				buf.append("'");
 				break;
 			default:
+				buf.append("'");
 				buf.append(myPref.getFilterValue(i));
+				buf.append("'");
 				break;
 			}
 		}
@@ -504,29 +507,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws Exception {
-		int c = 0;
 		switch (colType) {
-		case Types.LONGVARBINARY:
-			InputStream isr;
-			try {
-				isr = rs.getBinaryStream(colNo);
-				if (isr == null) {
-					return "";
-				}
-			} catch (NullPointerException ex) {
-				return "";
-			}
-
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte[] rb = new byte[1024];
-			// process blob
-			while ((c = isr.read(rb)) != -1) {
-				out.write(rb, 0, c);
-			}
-			byte[] b = out.toByteArray();
-			isr.close();
-			out.close();
-			return b;
 		case Types.LONGVARCHAR:
 			return readMemoField(rs, colNo);
 		case Types.BIT:
@@ -545,15 +526,20 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case microsoft.sql.Types.DATETIMEOFFSET:
 			try {
 				DateTimeOffset date = rs.getObject(colNo, DateTimeOffset.class);
-				return date == null ? "" : date.getOffsetDateTime().toLocalDateTime();
+				return date == null ? "" : date;
 			} catch (IllegalArgumentException e) {
 				return "";
 			}
 		case Types.FLOAT:
 			return rs.getFloat(colNo);
+		case Types.NUMERIC:
+			BigDecimal bd = rs.getBigDecimal(colNo);
+			return bd == null ? "" : bd;
+		case Types.DECIMAL:
 		case Types.INTEGER:
 			return rs.getInt(colNo);
 		case Types.SMALLINT:
+		case Types.TINYINT:
 			return (int) rs.getShort(colNo);
 		case Types.BIGINT:
 			return rs.getLong(colNo);

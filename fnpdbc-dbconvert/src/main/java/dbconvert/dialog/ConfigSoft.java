@@ -251,6 +251,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		if (reloadImportFiles(false, isAddNew)) {
 			verifyDatabase();
 		}
+
+		setTablesOrWorksheets();
 	}
 
 	private void importFileTypeChanged() {
@@ -274,8 +276,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		if (reloadImportFiles(true, false)) {
 			verifyDatabase();
 		}
-
-		setTablesOrWorksheets();
 	}
 
 	private boolean reloadImportFiles(boolean isInit, boolean isAddNew) {
@@ -293,6 +293,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbFiles.add(dbFile);
 			Collections.sort(dbFiles);
 			dbExist = true;
+			result = !isInit;
 		}
 
 		if (!dbExist && dbFiles.size() > 1) {

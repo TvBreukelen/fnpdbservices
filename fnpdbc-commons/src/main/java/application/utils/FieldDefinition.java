@@ -1,9 +1,8 @@
 package application.utils;
 
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import application.interfaces.FieldTypes;
-import dbengine.utils.Utils;
 
 public class FieldDefinition extends BasisField {
 	/**
@@ -19,7 +18,6 @@ public class FieldDefinition extends BasisField {
 	private int size = 1;
 	private int decimalPoint = 0;
 	private int sqlType = 0;
-	private DecimalFormat decimalFormat;
 	private boolean isExport = true;
 	private boolean isHideTable = false;
 	private boolean isRoleField = false;
@@ -60,15 +58,21 @@ public class FieldDefinition extends BasisField {
 		String s = obj.toString();
 		size = Math.max(size, s.length());
 
-		if (getFieldType() != FieldTypes.FLOAT) {
+		if (getFieldType() != FieldTypes.BIG_DECIMAL && getFieldType() != FieldTypes.FLOAT) {
 			return;
 		}
 
 		int index = s.lastIndexOf('.');
-		if (index++ != -1) {
-			if (s.endsWith("0")) {
-				index++;
+		if (++index != -1) {
+			String s1 = s.substring(index);
+			for (int i = s1.length() - 1; i > -1; i--) {
+				if (s1.charAt(i) == '0') {
+					index++;
+				} else {
+					break;
+				}
 			}
+
 			setDecimalPoint(Math.max(decimalPoint, s.length() - index));
 		}
 	}
@@ -77,17 +81,19 @@ public class FieldDefinition extends BasisField {
 		return decimalPoint;
 	}
 
-	public DecimalFormat getDecimalFormat() {
-		return decimalFormat;
+	public NumberFormat getNumberFormat() {
+		if (getFieldType().isNumeric()) {
+			NumberFormat result = NumberFormat.getNumberInstance();
+			result.setMaximumFractionDigits(decimalPoint);
+			result.setMinimumFractionDigits(0);
+			return result;
+		}
+
+		return null;
 	}
 
 	public void setDecimalPoint(int decimalPoint) {
-		setDecimalFormat(Utils.getDecimalFormat(size < 10 ? 10 : size, decimalPoint));
 		this.decimalPoint = decimalPoint;
-	}
-
-	private void setDecimalFormat(DecimalFormat format) {
-		decimalFormat = format;
 	}
 
 	public boolean isExport() {
@@ -151,7 +157,6 @@ public class FieldDefinition extends BasisField {
 
 	public FieldDefinition copy() {
 		FieldDefinition result = new FieldDefinition();
-		result.setDecimalFormat(decimalFormat);
 		result.setDecimalPoint(decimalPoint);
 		result.setExport(isExport);
 		result.setFieldAlias(getFieldAlias());

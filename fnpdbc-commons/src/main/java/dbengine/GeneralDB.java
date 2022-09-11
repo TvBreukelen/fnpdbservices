@@ -21,6 +21,7 @@ import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
+import microsoft.sql.DateTimeOffset;
 
 public abstract class GeneralDB {
 	/**
@@ -158,10 +159,11 @@ public abstract class GeneralDB {
 			return convertBoolean(dbValue, field);
 		case DATE:
 			return convertDate(dbValue, field);
+		case DATE_TIME_OFFSET:
+			Object dt = ((DateTimeOffset) dbValue).getOffsetDateTime().toLocalDateTime();
+			return convertTimestamp(dt, field);
 		case DURATION:
 			return convertDuration(dbValue, field);
-		case FLOAT:
-			return ((Number) dbValue).doubleValue();
 		case FUSSY_DATE:
 			return General.convertFussyDate(dbValue.toString().trim());
 		case MEMO:
@@ -174,8 +176,10 @@ public abstract class GeneralDB {
 				return dbField.substring(0, myExportFile.getMaxMemoSize() - 15) + " truncated...";
 			}
 			return dbField;
+		case BIG_DECIMAL:
+		case FLOAT:
 		case NUMBER:
-			return ((Number) dbValue).intValue();
+			return dbValue;
 		case TIME:
 			return convertTime(dbValue, field);
 		case TIMESTAMP:

@@ -279,8 +279,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		int emptyRecord = 0;
 
 		List<Map<String, Object>> result = new ArrayList<>();
-		Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
-				|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
+		Predicate<FieldDefinition> filter = field -> field.getFieldType().isSetFieldSize();
 
 		totalRecords = dbIn.getTotalRecords() - firstRecord;
 		if (myImportFile.isSqlDatabase()) {
