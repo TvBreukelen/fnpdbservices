@@ -2,7 +2,7 @@ package dbengine.export;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,81 +99,80 @@ public class DBaseFile extends GeneralDB implements IConvert {
 					Integer.toString(writer.getFieldCount()));
 		}
 
-		DBFField[] fields = new DBFField[numFields];
-
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-
-			fields[i] = new DBFField();
+		List<DBFField> fields = new ArrayList<>();
+		for (FieldDefinition field : dbInfo2Write) {
+			DBFField dbField = new DBFField();
 			String header = field.getFieldHeader().toUpperCase();
 			if (header.length() > 10) {
 				header = header.substring(0, 10);
 			}
 
-			fields[i].setName(header);
+			dbField.setName(header);
+			dbField.setDataType(DBFField.FIELD_TYPE_C);
 
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				if (field.isOutputAsText()) {
 					int t = getBooleanTrue().length();
 					int f = getBooleanFalse().length();
-					fields[i].setFieldLength(Math.max(t, f));
-					fields[i].setDataType(DBFField.FIELD_TYPE_C);
+					dbField.setFieldLength(Math.max(t, f));
 				} else {
-					fields[i].setDataType(DBFField.FIELD_TYPE_L);
+					dbField.setDataType(DBFField.FIELD_TYPE_L);
 				}
 				break;
 			case DATE:
 				if (field.isOutputAsText()) {
-					fields[i].setFieldLength(10);
-					fields[i].setDataType(DBFField.FIELD_TYPE_C);
+					dbField.setFieldLength(10);
 				} else {
-					fields[i].setDataType(DBFField.FIELD_TYPE_D);
+					dbField.setDataType(DBFField.FIELD_TYPE_D);
 				}
 				break;
-			case DURATION:
-				fields[i].setFieldLength(7);
-				fields[i].setDataType(DBFField.FIELD_TYPE_C);
+			case TIMESTAMP:
+			case DATE_TIME_OFFSET:
+				dbField.setFieldLength(18);
 				break;
+			case DURATION:
+				dbField.setFieldLength(7);
+				break;
+			case BIG_DECIMAL:
 			case FLOAT:
-				fields[i].setDataType(DBFField.FIELD_TYPE_F);
-				fields[i].setFieldLength(field.getSize() < 10 ? 10 : field.getSize());
-				fields[i].setDecimalCount(field.getDecimalPoint());
+				dbField.setDataType(DBFField.FIELD_TYPE_F);
+				dbField.setFieldLength(field.getSize() < 10 ? 10 : field.getSize());
+				dbField.setDecimalCount(field.getDecimalPoint());
 				break;
 			case FUSSY_DATE:
-				fields[i].setDataType(DBFField.FIELD_TYPE_C);
-				fields[i].setFieldLength(10);
+				dbField.setFieldLength(10);
 				break;
 			case MEMO:
-				fields[i].setDataType(DBFField.FIELD_TYPE_M);
-				fields[i].setFieldLength(myExportFile == ExportFile.FOXPRO ? 4 : 10);
+				dbField.setDataType(DBFField.FIELD_TYPE_M);
+				dbField.setFieldLength(myExportFile == ExportFile.FOXPRO ? 4 : 10);
 				break;
 			case NUMBER:
 				// We assume a normal integer
-				fields[i].setDataType(DBFField.FIELD_TYPE_N);
-				fields[i].setFieldLength(field.getSize());
-				fields[i].setDecimalCount(0);
+				dbField.setDataType(DBFField.FIELD_TYPE_N);
+				dbField.setFieldLength(field.getSize());
+				dbField.setDecimalCount(0);
 				break;
 			case TIME:
-				fields[i].setFieldLength(5);
-				fields[i].setDataType(DBFField.FIELD_TYPE_C);
+				dbField.setFieldLength(5);
 				break;
 			default:
 				if (field.getSize() > myExportFile.getMaxTextSize()) {
 					field.setFieldType(FieldTypes.MEMO);
-					fields[i].setDataType(DBFField.FIELD_TYPE_M);
+					dbField.setDataType(DBFField.FIELD_TYPE_M);
 				} else {
-					fields[i].setDataType(DBFField.FIELD_TYPE_C);
-					fields[i].setFieldLength(field.getSize());
+					dbField.setFieldLength(field.getSize());
 				}
 			}
+
+			fields.add(dbField);
 		}
 
 		if (useAppend) {
 			// Verify if fields match in type and size
 			for (int i = 0; i < numFields; i++) {
 				DBFField field1 = writer.getFields(i);
-				DBFField field2 = fields[i];
+				DBFField field2 = fields.get(i);
 
 				if (!field1.getName().equals(field2.getName())) {
 					throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getName(),
@@ -238,37 +237,23 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		Object[] rowData = new Object[numFields];
+		Map<String, Object> rowData = new HashMap<>();
 
 		// Read the user defined list of DB fields
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-			Object dbField = dbRecord.get(field.getFieldAlias());
-			if (dbField == null || dbField.equals("")) {
-				rowData[i] = "";
+		int index = 0;
+		for (FieldDefinition field : dbInfo2Write) {
+			DBFField db = writer.getFields(index++);
+
+			Object dbValue = dbRecord.get(field.getFieldAlias());
+			if (dbValue == null || dbValue.equals("")) {
 				continue;
 			}
 
-			switch (field.getFieldType()) {
-			case BOOLEAN:
-				boolean b = (Boolean) dbField;
-				if (field.isOutputAsText()) {
-					rowData[i] = b ? getBooleanTrue() : getBooleanFalse();
-				} else {
-					rowData[i] = b;
-				}
-				break;
-			case DATE:
-				rowData[i] = field.isOutputAsText()
-						? General.convertDate((LocalDate) dbField, General.getSimpleDateFormat())
-						: dbField;
-				break;
-			case FUSSY_DATE:
-				rowData[i] = General.convertFussyDate(dbField.toString());
-				break;
-			default:
-				rowData[i] = dbField;
+			if (field.isOutputAsText()) {
+				dbValue = convertDataFields(dbValue, field);
 			}
+
+			rowData.put(db.getName(), dbValue);
 		}
 		writer.addRecord(rowData);
 	}
@@ -278,18 +263,18 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		Map<String, Object> result = new HashMap<>();
 		List<FieldDefinition> dbDef = getTableModelFields();
 
-		Object[] rowObjects = reader.nextRecord();
-		if (rowObjects.length == 0) {
+		Map<String, Object> rowObjects = reader.nextRecord();
+		if (rowObjects.isEmpty()) {
 			return result;
 		}
 
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbDef.get(i);
-			Object dbField = rowObjects[i] == null ? "" : rowObjects[i];
-			if (field.getFieldType() == FieldTypes.NUMBER && rowObjects[i] instanceof Double) {
-				dbField = ((Double) dbField).intValue();
+			Object dbValue = rowObjects.getOrDefault(field.getFieldName(), "");
+			if (field.getFieldType() == FieldTypes.NUMBER && dbValue instanceof Double) {
+				dbValue = ((Double) dbValue).intValue();
 			}
-			result.put(dbFieldNames.get(i), dbField);
+			result.put(dbFieldNames.get(i), dbValue);
 		}
 		return result;
 	}
@@ -350,7 +335,6 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		String[] charset = result.split(",");
 		String[] charSets = General.getCharacterSets();
 
-		result = "";
 		for (String cSet : charSets) {
 			if (cSet.equals(charset[1])) {
 				return cSet;

@@ -61,13 +61,11 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	private void init() {
-		boolean isTextExport = !factory.getExportFile().isDateExport();
-
 		availableModel = new DefaultListModel<>();
 		lstAvailableFields = new JList<>(availableModel);
 		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
 
-		userModel = new UserFieldModel(isTextExport);
+		userModel = new UserFieldModel(factory.getExportFile());
 		table = new ETable(userModel, false);
 		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 
@@ -238,6 +236,6 @@ public class ScFieldSelect implements PropertyChangeListener {
 			return;
 		}
 
-		userModel.setTextOnly(!newValue.isDateExport());
+		userModel.setInputFile(newValue);
 	}
 }

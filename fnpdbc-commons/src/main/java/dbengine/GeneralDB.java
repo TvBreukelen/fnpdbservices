@@ -55,6 +55,7 @@ public abstract class GeneralDB {
 
 	private boolean isBooleanExport;
 	private boolean isDateExport;
+	private boolean isTimeExport;
 	private String fileOpenWarning = "";
 
 	protected boolean isInputFile;
@@ -83,6 +84,7 @@ public abstract class GeneralDB {
 
 		isBooleanExport = myExportFile.isBooleanExport();
 		isDateExport = myExportFile.isDateExport();
+		isTimeExport = myExportFile.isSqlDatabase();
 
 		GeneralSettings generalProps = GeneralSettings.getInstance();
 		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
@@ -202,8 +204,10 @@ public abstract class GeneralDB {
 	}
 
 	protected Object convertDate(Object dbValue, FieldDefinition field) {
-		return General.convertDate((LocalDate) dbValue,
-				!isDateExport || field.isOutputAsText() ? General.getSimpleDateFormat() : General.sdInternalDate);
+		if (!isDateExport || field.isOutputAsText()) {
+			return General.convertDate((LocalDate) dbValue, General.getSimpleDateFormat());
+		}
+		return dbValue;
 	}
 
 	protected Object convertDuration(Object dbValue, FieldDefinition field) {
@@ -222,14 +226,17 @@ public abstract class GeneralDB {
 	}
 
 	protected Object convertTime(Object dbValue, FieldDefinition field) {
-		return General.convertTime((LocalTime) dbValue,
-				!isDateExport || field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
+		if (!isTimeExport || field.isOutputAsText()) {
+			return General.convertTime((LocalTime) dbValue, General.getSimpleTimeFormat());
+		}
+		return dbValue;
 	}
 
 	protected Object convertTimestamp(Object dbValue, FieldDefinition field) {
-		return General.convertTimestamp((LocalDateTime) dbValue,
-				!isDateExport || field.isOutputAsText() ? General.getSimpleTimestampFormat()
-						: General.sdInternalTimestamp);
+		if (!isTimeExport || field.isOutputAsText()) {
+			return General.convertTimestamp((LocalDateTime) dbValue, General.getSimpleTimestampFormat());
+		}
+		return dbValue;
 	}
 
 	public List<FieldDefinition> getTableModelFields() {
@@ -241,10 +248,6 @@ public abstract class GeneralDB {
 			}
 		}
 		return myDBDefinition;
-	}
-
-	protected Object convertDate(String pDate) {
-		return General.convertDate2DB(pDate, General.sdInternalDate);
 	}
 
 	public String getFileOpenWarning() {

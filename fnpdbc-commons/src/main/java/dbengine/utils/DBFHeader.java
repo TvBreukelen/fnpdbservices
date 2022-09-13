@@ -49,7 +49,7 @@ public class DBFHeader {
 	byte mdxFlag; /* 28 */
 	byte languageDriver; /* 29 */
 	short reserv4; /* 30-31 */
-	DBFField[] fieldArray; /* each 32 or 48 bytes */
+	List<DBFField> fieldArray; /* each 32 or 48 bytes */
 	byte terminator1; /* n+1 */
 	/* DBF structure ends here */
 
@@ -89,11 +89,11 @@ public class DBFHeader {
 
 		int fieldLen = isDB7() ? 48 : 32;
 
-		List<DBFField> vFields = new ArrayList<>();
+		fieldArray = new ArrayList<>();
 		while (read <= headerLength - fieldLen) {
 			DBFField field = DBFField.createField(in, isDB7());
 			if (field != null) {
-				vFields.add(field);
+				fieldArray.add(field);
 				read += fieldLen;
 			} else {
 				// field descriptor array terminator found
@@ -101,9 +101,6 @@ public class DBFHeader {
 				break;
 			}
 		}
-
-		fieldArray = new DBFField[vFields.size()];
-		vFields.toArray(fieldArray);
 
 		/* it might be required to leap to the start of records at times */
 		int skip = headerLength - read;
@@ -169,9 +166,9 @@ public class DBFHeader {
 
 	private short findHeaderLength() {
 		if (isDB7()) {
-			return (short) (48 + 48 * fieldArray.length + 1);
+			return (short) (48 + 48 * fieldArray.size() + 1);
 		}
-		return (short) (32 + 32 * fieldArray.length + 1);
+		return (short) (32 + 32 * fieldArray.size() + 1);
 	}
 
 	private short findRecordLength() {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import application.interfaces.ExportFile;
 import application.utils.BasisField;
 import application.utils.GUIFactory;
 
@@ -18,15 +19,15 @@ public class UserFieldModel extends AbstractTableModel {
 
 	private List<BasisField> tableData = new ArrayList<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
-	private boolean isTextOnly = false;
+	private ExportFile inputFile;
 
-	public UserFieldModel(boolean isTextOnlyExport) {
-		isTextOnly = isTextOnlyExport;
+	public UserFieldModel(ExportFile exp) {
+		inputFile = exp;
 	}
 
-	public void setTextOnly(boolean isTextOnlyExport) {
-		isTextOnly = isTextOnlyExport;
-		if (!isTextOnlyExport) {
+	public void setInputFile(ExportFile exp) {
+		inputFile = exp;
+		if (inputFile.isDateExport()) {
 			// Reset text fields
 			tableData.forEach(e -> e.setOutputAsText(false));
 		}
@@ -57,7 +58,7 @@ public class UserFieldModel extends AbstractTableModel {
 
 	@Override
 	public int getColumnCount() {
-		return isTextOnly ? 3 : 4;
+		return inputFile.isDateExport() ? 4 : 3;
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class UserFieldModel extends AbstractTableModel {
 		case 2:
 			return field.getFieldHeader();
 		case 3:
-			return field.getFieldType().isTextConvertable() ? field.isOutputAsText() : null;
+			return field.getFieldType().isTextConvertable(inputFile.isSqlDatabase()) ? field.isOutputAsText() : null;
 		default:
 			return null;
 		}

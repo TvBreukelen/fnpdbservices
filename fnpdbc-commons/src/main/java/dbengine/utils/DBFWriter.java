@@ -12,6 +12,8 @@ package dbengine.utils;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 import application.utils.FNProgException;
 import application.utils.General;
@@ -71,22 +73,22 @@ public class DBFWriter extends DBFBase {
 	/**
 	 * Sets fields for new DBF files only!
 	 */
-	public void setFields(DBFField[] fields, byte signature) throws Exception {
+	public void setFields(List<DBFField> fields, byte signature) throws Exception {
 		boolean hasMemoFields = false;
 		if (header.fieldArray != null) {
 			throw new Exception("FieldTypes has already been set");
 		}
 
-		if (fields == null || fields.length == 0) {
+		if (fields == null || fields.isEmpty()) {
 			throw new Exception("Should have at least one field");
 		}
 
-		for (int i = 0; i < fields.length; i++) {
-			if (fields[i] == null) {
-				throw new Exception("Field " + (i + 1) + " is null");
+		for (DBFField field : fields) {
+			if (field == null) {
+				throw new Exception("Found a null Field");
 			}
 
-			if (!hasMemoFields && fields[i].getDataType() == DBFField.FIELD_TYPE_M) {
+			if (!hasMemoFields && field.getDataType() == DBFField.FIELD_TYPE_M) {
 				hasMemoFields = true;
 			}
 		}
@@ -111,58 +113,62 @@ public class DBFWriter extends DBFBase {
 	/**
 	 * Add a record.
 	 */
-	public void addRecord(Object[] values) throws Exception {
-		if (values == null) {
-			throw new Exception("Null cannot be added as row");
+	public void addRecord(Map<String, Object> values) throws Exception {
+		if (values == null || values.isEmpty()) {
+			throw new Exception("Empty record cannot be added as row");
 		}
 
-		if (values.length != header.fieldArray.length) {
-			throw new Exception("Invalid record. Invalid number of fields in row");
-		}
+		raf.write((byte) ' ');
+		for (DBFField field : header.fieldArray) { /* iterate throught fields */
+			Object dbValue = values.get(field.getName());
 
-		for (int i = 0; i < header.fieldArray.length; i++) {
-			if (values[i] == null) {
-				continue;
-			}
-
-			if (values[i].equals("")) {
-				values[i] = null;
-				continue;
-			}
-
-			switch (header.fieldArray[i].getDataType()) {
-			case DBFField.FIELD_TYPE_M:
+			switch (field.getDataType()) {
 			case DBFField.FIELD_TYPE_C:
-				if (!(values[i] instanceof String)) {
-					throw new Exception("Invalid value '" + values[i].toString() + "' for text field "
-							+ header.fieldArray[i].getName());
-				}
-				break;
-			case DBFField.FIELD_TYPE_L:
-				if (!(values[i] instanceof Boolean)) {
-					throw new Exception("Invalid value '" + values[i].toString() + "' for boolean field "
-							+ header.fieldArray[i].getName());
+				if (dbValue != null) {
+					raf.write(Utils.textPadding(dbValue.toString(), characterSetName, field.getFieldLength()));
+				} else {
+					raf.write(Utils.textPadding("", characterSetName, field.getFieldLength()));
 				}
 				break;
 			case DBFField.FIELD_TYPE_D:
-				if (!(values[i] instanceof LocalDate)) {
-					throw new Exception("Invalid value '" + values[i].toString() + "' for date field "
-							+ header.fieldArray[i].getName());
-				}
+				raf.writeBytes(dbValue != null ? General.convertDate((LocalDate) dbValue, General.sdInternalDate)
+						: "        ");
 				break;
 			case DBFField.FIELD_TYPE_F:
 			case DBFField.FIELD_TYPE_N:
-			case DBFField.FIELD_TYPE_Y:
-				if (!(values[i] instanceof Number)) {
-					throw new Exception("Invalid value '" + values[i].toString() + "' for numeric field "
-							+ header.fieldArray[i].getName());
+				if (dbValue != null) {
+					raf.write(Utils.numberFormating((Number) dbValue, field));
+				} else {
+					raf.write(Utils.textPadding(" ", "", field.getFieldLength(), Utils.ALIGN_RIGHT));
 				}
-			default:
 				break;
+			case DBFField.FIELD_TYPE_L:
+				raf.write(Boolean.TRUE.equals(dbValue) ? (byte) 'T' : (byte) 'F');
+				break;
+			case DBFField.FIELD_TYPE_M:
+				if (dbValue != null && !dbValue.toString().isEmpty()) {
+					memo.writeMemo(dbValue.toString());
+					if (header.signature == DBFHeader.SIG_FOXPRO_WITH_MEMO) {
+						raf.writeInt(Integer.reverseBytes(memo.getNextMemoIndex()));
+					} else {
+						raf.write(General.getNullTerminatedString(Long.toString(memo.getNextMemoIndex()), 10,
+								characterSetName));
+					}
+				} else {
+					raf.writeBytes("          ".substring(0, field.getFieldLength()));
+				}
+				break;
+			case DBFField.FIELD_TYPE_Y:
+				if (dbValue != null) {
+					raf.writeLong(Long.reverseBytes((long) ((Double) dbValue * 10000.0)));
+				} else {
+					raf.writeBytes("          ".substring(0, field.getFieldLength()));
+				}
+				break;
+			default:
+				throw new Exception("Unknown field type " + field.getDataType());
 			}
 		}
-
-		writeRecord(values);
 		recordCount++;
 	}
 
@@ -176,67 +182,5 @@ public class DBFWriter extends DBFBase {
 		raf.writeByte(END_OF_DATA);
 		raf.close();
 		memo.closeMemoFile();
-	}
-
-	private void writeRecord(Object[] objectArray) throws Exception {
-		raf.write((byte) ' ');
-		for (int j = 0; j < getFieldCount(); j++) { /* iterate throught fields */
-			switch (header.fieldArray[j].getDataType()) {
-			case DBFField.FIELD_TYPE_C:
-				if (objectArray[j] != null) {
-					String str_value = objectArray[j].toString();
-					raf.write(Utils.textPadding(str_value, characterSetName, header.fieldArray[j].getFieldLength()));
-				} else {
-					raf.write(Utils.textPadding("", characterSetName, header.fieldArray[j].getFieldLength()));
-				}
-				break;
-			case DBFField.FIELD_TYPE_D:
-				raf.writeBytes(
-						objectArray[j] != null ? General.convertDate((LocalDate) objectArray[j], General.sdInternalDate)
-								: "        ");
-				break;
-			case DBFField.FIELD_TYPE_F:
-			case DBFField.FIELD_TYPE_N:
-				if (objectArray[j] != null) {
-					raf.write(Utils.numberFormating((Number) objectArray[j], header.fieldArray[j]));
-				} else {
-					raf.write(Utils.textPadding(" ", "", header.fieldArray[j].getFieldLength(), Utils.ALIGN_RIGHT));
-				}
-				break;
-			case DBFField.FIELD_TYPE_L:
-				if (objectArray[j] != null) {
-					if ((Boolean) objectArray[j]) {
-						raf.write((byte) 'T');
-					} else {
-						raf.write((byte) 'F');
-					}
-				} else {
-					raf.write((byte) '?');
-				}
-				break;
-			case DBFField.FIELD_TYPE_M:
-				if (objectArray[j] != null && objectArray[j].toString().length() != 0) {
-					memo.writeMemo(objectArray[j].toString());
-					if (header.signature == DBFHeader.SIG_FOXPRO_WITH_MEMO) {
-						raf.writeInt(Integer.reverseBytes(memo.getNextMemoIndex()));
-					} else {
-						raf.write(General.getNullTerminatedString(Long.toString(memo.getNextMemoIndex()), 10,
-								characterSetName));
-					}
-				} else {
-					raf.writeBytes("          ".substring(0, header.fieldArray[j].getFieldLength()));
-				}
-				break;
-			case DBFField.FIELD_TYPE_Y:
-				if (objectArray[j] != null) {
-					raf.writeLong(Long.reverseBytes((long) ((Double) objectArray[j] * 10000.0)));
-				} else {
-					raf.writeBytes("          ".substring(0, header.fieldArray[j].getFieldLength()));
-				}
-				break;
-			default:
-				throw new Exception("Unknown field type " + header.fieldArray[j].getDataType());
-			}
-		}
 	}
 }

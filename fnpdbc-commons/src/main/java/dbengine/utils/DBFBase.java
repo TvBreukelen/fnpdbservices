@@ -37,11 +37,11 @@ public abstract class DBFBase {
 	}
 
 	public int getFieldCount() {
-		return header.fieldArray.length;
+		return header.fieldArray.size();
 	}
 
 	public DBFField getFields(int i) {
-		return header.fieldArray[i];
+		return header.fieldArray.get(i);
 	}
 
 }

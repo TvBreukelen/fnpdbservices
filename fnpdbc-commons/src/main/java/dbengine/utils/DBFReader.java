@@ -18,6 +18,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.JulianFields;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import application.utils.General;
 
@@ -75,7 +78,11 @@ public class DBFReader extends DBFBase {
 	 * @param index. Index of the field. Index of the first field is zero.
 	 */
 	public DBFField getField(int index) {
-		return header.fieldArray[index];
+		return header.fieldArray.get(index);
+	}
+
+	public List<DBFField> getFields() {
+		return header.fieldArray;
 	}
 
 	public DBFHeader getDBFHeader() {
@@ -88,8 +95,9 @@ public class DBFReader extends DBFBase {
 	 * @returns The next row as an Object array. Types of the elements these arrays
 	 *          follow the convention mentioned in the class description.
 	 */
-	public Object[] nextRecord() throws Exception {
-		Object[] recordObjects = new Object[getFieldCount()];
+	public Map<String, Object> nextRecord() throws Exception {
+		Map<String, Object> result = new HashMap<>();
+
 		try {
 			boolean isDeleted = false;
 			do {
@@ -99,19 +107,19 @@ public class DBFReader extends DBFBase {
 
 				int tByte = dataInputStream.readByte();
 				if (tByte == END_OF_DATA) {
-					return new Object[0];
+					return result;
 				}
 
 				isDeleted = tByte == '*';
 			} while (isDeleted);
 
-			for (int i = 0; i < getFieldCount(); i++) {
-				switch (header.fieldArray[i].getDataType()) {
+			for (DBFField field : header.fieldArray) {
+				switch (field.getDataType()) {
 				case DBFField.FIELD_TYPE_C:
-					byte[] bArray = new byte[header.fieldArray[i].getFieldLength()];
+					byte[] bArray = new byte[field.getFieldLength()];
 					dataInputStream.read(bArray);
-					recordObjects[i] = characterSetName.equals("") ? new String(bArray).trim()
-							: new String(bArray, characterSetName).trim();
+					result.put(field.getName(), characterSetName.equals("") ? new String(bArray).trim()
+							: new String(bArray, characterSetName).trim());
 					break;
 				case DBFField.FIELD_TYPE_D:
 					byte[] bYear = new byte[4];
@@ -121,45 +129,41 @@ public class DBFReader extends DBFBase {
 					dataInputStream.read(bMonth);
 					dataInputStream.read(bDay);
 					try {
-						recordObjects[i] = LocalDate.of(Integer.parseInt(new String(bYear)),
-								Integer.parseInt(new String(bMonth)), Integer.parseInt(new String(bDay)));
+						result.put(field.getName(), LocalDate.of(Integer.parseInt(new String(bYear)),
+								Integer.parseInt(new String(bMonth)), Integer.parseInt(new String(bDay))));
 					} catch (NumberFormatException e) {
 						/* this field may be empty or may have improper value set */
-						recordObjects[i] = null;
+						result.put(field.getName(), "");
 					}
 					break;
 				case DBFField.FIELD_TYPE_I:
-					byte[] bInteger = new byte[header.fieldArray[i].getFieldLength()];
+					byte[] bInteger = new byte[field.getFieldLength()];
 					dataInputStream.read(bInteger);
-					recordObjects[i] = General.intLittleEndian(bInteger);
+					result.put(field.getName(), General.intLittleEndian(bInteger));
 					break;
 				case DBFField.FIELD_TYPE_F:
 				case DBFField.FIELD_TYPE_N:
 					try {
-						byte[] bNumeric = new byte[header.fieldArray[i].getFieldLength()];
+						byte[] bNumeric = new byte[field.getFieldLength()];
 						dataInputStream.read(bNumeric);
 						bNumeric = Utils.trimLeftSpaces(bNumeric);
 						if (bNumeric.length > 0 && !Utils.contains(bNumeric, (byte) '?')) {
-							recordObjects[i] = Double.valueOf(new String(bNumeric).replace(',', '.'));
-						} else {
-							recordObjects[i] = null;
+							result.put(field.getName(), Double.valueOf(new String(bNumeric).replace(',', '.')));
 						}
 					} catch (NumberFormatException e) {
-						throw new Exception("Failed to parse Number: " + e.getMessage());
+						result.put(field.getName(), "");
 					}
 					break;
 				case DBFField.FIELD_TYPE_L:
 					byte bLogical = dataInputStream.readByte();
-					if (bLogical == 'Y' || bLogical == 't' || bLogical == 'T' || bLogical == 'y') {
-						recordObjects[i] = Boolean.TRUE;
-					} else {
-						recordObjects[i] = Boolean.FALSE;
-					}
+					result.put(field.getName(),
+							bLogical == 'Y' || bLogical == 't' || bLogical == 'T' || bLogical == 'y' ? Boolean.TRUE
+									: Boolean.FALSE);
 					break;
 				case DBFField.FIELD_TYPE_M:
 					String s = "";
 					int index = 0;
-					byte[] bMemo = new byte[header.fieldArray[i].getFieldLength()];
+					byte[] bMemo = new byte[field.getFieldLength()];
 					dataInputStream.read(bMemo);
 
 					if (header.hasMemoFile()) {
@@ -172,13 +176,12 @@ public class DBFReader extends DBFBase {
 								index = Integer.parseInt(s);
 							}
 						}
-						recordObjects[i] = index == 0 ? null : memo.readMemo(index);
+						result.put(field.getName(), index == 0 ? null : memo.readMemo(index));
 					}
 					break;
 				case DBFField.FIELD_TYPE_T:
 					// case DBFField.FIELD_TYPE_TS:
-					byte[] bDatetime = new byte[header.fieldArray[i].getFieldLength()];
-					recordObjects[i] = null;
+					byte[] bDatetime = new byte[field.getFieldLength()];
 					dataInputStream.read(bDatetime);
 					if (bDatetime.length > 7) {
 						byte[] bDate = { bDatetime[0], bDatetime[1], bDatetime[2], bDatetime[3] };
@@ -189,24 +192,23 @@ public class DBFReader extends DBFBase {
 							LocalDate ld = LocalDate.MAX.with(JulianFields.JULIAN_DAY, date);
 							LocalTime lt = LocalTime.ofNanoOfDay(time * 1000000);
 							LocalDateTime dt = LocalDateTime.of(ld, lt);
-							recordObjects[i] = dt;
+							result.put(field.getName(), dt);
 						}
 					}
 					break;
 				case DBFField.FIELD_TYPE_Y:
-					byte[] bCurrency = new byte[header.fieldArray[i].getFieldLength()];
+					byte[] bCurrency = new byte[field.getFieldLength()];
 					dataInputStream.read(bCurrency);
-					recordObjects[i] = General.longLittleEndian(bCurrency) / 10000.0;
+					result.put(field.getName(), General.longLittleEndian(bCurrency) / 10000.0);
 					break;
 				default:
-					byte[] bUnknown = new byte[header.fieldArray[i].getFieldLength()];
+					byte[] bUnknown = new byte[field.getFieldLength()];
 					dataInputStream.read(bUnknown);
-					recordObjects[i] = null;
 				}
 			}
 		} catch (EOFException e) {
-			return new Object[0];
+			return new HashMap<>();
 		}
-		return recordObjects;
+		return result;
 	}
 }

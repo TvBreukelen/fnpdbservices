@@ -26,15 +26,16 @@ public enum FieldTypes {
 		return FieldTypes.TEXT;
 	}
 
-	public boolean isTextConvertable() {
+	public boolean isTextConvertable(boolean isTimeExport) {
 		switch (this) {
 		case BOOLEAN:
 		case DATE:
+			return true;
 		case DATE_TIME_OFFSET:
 		case DURATION:
 		case TIME:
 		case TIMESTAMP:
-			return true;
+			return isTimeExport;
 		default:
 			return false;
 		}
