@@ -221,7 +221,7 @@ invalidDatabaseID.mesg=File '%0' has an invalid database id. Expected for '%1' d
 invalidKeyfile.mesg=private key file '%0' has the wrong format.\nI Expected an OpenSSH file with BEGIN and END tags.
 keywordFilter.title=Keyword Filter
 keywordFilter.tooltip=Keyword to select (blank = no filter on Keywords)
-languageDriver.title=Language Driver
+languageDriver.title=Character set
 largeFileSplit.title=Large File Split
 lastExport.text=Last Export
 lastExportDate.tooltip=Last Export Date

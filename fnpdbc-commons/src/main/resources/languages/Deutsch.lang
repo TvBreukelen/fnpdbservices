@@ -221,7 +221,7 @@ invalidKeyfile.mesg=private Schlüsseldatei '%0' hat das falsche Format.\nIch er
 invalidDatabaseID.mesg=Datei '%0' hat eine falsche Datenbank-Erkennung. Erwartete für '%1' Databanken die Erkennung '%2' statt '%3'.
 keywordFilter.title=Schlüsselwort Filter
 keywordFilter.tooltip=Filtern auf Schlüsselwort (leer = Filter deaktivieren)
-languageDriver.title=Sprachtreiber
+languageDriver.title=Zeichensatz
 largeFileSplit.title=Große Datei Splitt
 lastExport.text=Letzter Export
 lastExportDate.tooltip=Datum des letzten Exports
