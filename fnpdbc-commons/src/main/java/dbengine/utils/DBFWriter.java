@@ -29,7 +29,7 @@ import application.utils.General;
  */
 public class DBFWriter extends DBFBase {
 	private int recordCount = 0;
-	RandomAccessFile raf = null; /* Open and append records to an existing DBF */
+	private RandomAccessFile raf = null; /* Open and append records to an existing DBF */
 
 	/**
 	 * Creates a DBFWriter which can append to records to an existing DBF file.
@@ -38,7 +38,7 @@ public class DBFWriter extends DBFBase {
 	 * @exception Throws DBFException if the passed in file does exist but not a
 	 *                   valid DBF file, or if an IO error occurs.
 	 */
-	public DBFWriter(File dbfFile, File dbtFile) throws Exception {
+	public DBFWriter(File dbfFile, File dbtFile, int languageDriver) throws Exception {
 		raf = new RandomAccessFile(dbfFile, "rw");
 
 		/*
@@ -47,6 +47,7 @@ public class DBFWriter extends DBFBase {
 		 */
 		if (!dbfFile.exists() || dbfFile.length() == 0) {
 			header = new DBFHeader();
+			header.setLanguageDriver((byte) languageDriver);
 			memo = new DBFMemo(dbtFile, header);
 			return;
 		}
@@ -125,9 +126,9 @@ public class DBFWriter extends DBFBase {
 			switch (field.getDataType()) {
 			case DBFField.FIELD_TYPE_C:
 				if (dbValue != null) {
-					raf.write(Utils.textPadding(dbValue.toString(), characterSetName, field.getFieldLength()));
+					raf.write(Utils.textPadding(dbValue.toString(), header.getCharacterSet(), field.getFieldLength()));
 				} else {
-					raf.write(Utils.textPadding("", characterSetName, field.getFieldLength()));
+					raf.write(Utils.textPadding("", null, field.getFieldLength()));
 				}
 				break;
 			case DBFField.FIELD_TYPE_D:
@@ -139,7 +140,7 @@ public class DBFWriter extends DBFBase {
 				if (dbValue != null) {
 					raf.write(Utils.numberFormating((Number) dbValue, field));
 				} else {
-					raf.write(Utils.textPadding(" ", "", field.getFieldLength(), Utils.ALIGN_RIGHT));
+					raf.write(Utils.textPadding(" ", null, field.getFieldLength(), Utils.ALIGN_RIGHT));
 				}
 				break;
 			case DBFField.FIELD_TYPE_L:
@@ -151,8 +152,7 @@ public class DBFWriter extends DBFBase {
 					if (header.signature == DBFHeader.SIG_FOXPRO_WITH_MEMO) {
 						raf.writeInt(Integer.reverseBytes(memo.getNextMemoIndex()));
 					} else {
-						raf.write(General.getNullTerminatedString(Long.toString(memo.getNextMemoIndex()), 10,
-								characterSetName));
+						raf.write(General.getNullTerminatedString(Long.toString(memo.getNextMemoIndex()), null, 10));
 					}
 				} else {
 					raf.writeBytes("          ".substring(0, field.getFieldLength()));
@@ -182,5 +182,9 @@ public class DBFWriter extends DBFBase {
 		raf.writeByte(END_OF_DATA);
 		raf.close();
 		memo.closeMemoFile();
+	}
+
+	public int getLanguageDriver() {
+		return Byte.toUnsignedInt(header.languageDriver);
 	}
 }

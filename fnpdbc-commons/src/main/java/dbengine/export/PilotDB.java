@@ -93,7 +93,7 @@ public class PilotDB extends PalmDB {
 			default:
 				break;
 			}
-			buf.append(new String(General.getNullTerminatedString(field.getFieldHeader(), 0, "")));
+			buf.append(new String(General.getNullTerminatedString(field.getFieldHeader(), null, 0)));
 		}
 
 		pdbRaf.writeShort(0);
@@ -110,11 +110,11 @@ public class PilotDB extends PalmDB {
 		// View and sort fields?
 		pdbRaf.writeShort(65);
 		pdbRaf.writeShort(4);
-		pdbRaf.write(General.getNullTerminatedString(null, 4, ""));
+		pdbRaf.write(General.getNullTerminatedString(null, null, 4));
 
 		pdbRaf.writeShort(128);
 		pdbRaf.writeShort(2);
-		pdbRaf.write(General.getNullTerminatedString(null, 2, ""));
+		pdbRaf.write(General.getNullTerminatedString(null, null, 2));
 	}
 
 	@Override
@@ -160,13 +160,13 @@ public class PilotDB extends PalmDB {
 				result[0] = b ? (byte) 1 : 0;
 				return result;
 			}
-			return General.getNullTerminatedString(b ? booleanTrue : booleanFalse, 0, "");
+			return General.getNullTerminatedString(b ? booleanTrue : booleanFalse, null, 0);
 		case DATE:
 			return isNoTextExport ? (byte[]) convertDate((LocalDate) dbField)
 					: General.getNullTerminatedString(General.convertDate((LocalDate) dbField, General.sdInternalDate),
-							0, "");
+							null, 0);
 		case FUSSY_DATE:
-			return General.getNullTerminatedString(General.convertFussyDate(dbValue), 0, "");
+			return General.getNullTerminatedString(General.convertFussyDate(dbValue), null, 0);
 		case FLOAT:
 			return getDouble((Double) dbField);
 		case MEMO:
@@ -175,14 +175,14 @@ public class PilotDB extends PalmDB {
 			return getInt((Integer) dbField);
 		case TIME:
 			dbValue = General.convertTime((LocalTime) dbField, General.sdInternalTime);
-			return isNoTextExport ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, 0, "");
+			return isNoTextExport ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, null, 0);
 		case DURATION:
-			return General.getNullTerminatedString(General.convertDuration((Duration) dbField), 0, "");
+			return General.getNullTerminatedString(General.convertDuration((Duration) dbField), null, 0);
 		default:
 			if (dbValue.length() > myExportFile.getMaxTextSize()) {
 				return convertMemo(dbValue);
 			} else {
-				return General.getNullTerminatedString(dbValue, 0, PalmDB.CODE_PAGE);
+				return General.getNullTerminatedString(dbValue, null, 0);
 			}
 		}
 	}
@@ -373,7 +373,7 @@ public class PilotDB extends PalmDB {
 	 * Converts a PilotDB text back to a String
 	 */
 	private String convertText2DB(byte[] data) {
-		String result = General.convertBytes2String(data, PalmDB.CODE_PAGE) + "\0";
+		String result = General.convertByteArrayToString(data, null) + "\0";
 		return result.substring(0, result.indexOf('\0'));
 	}
 
@@ -463,7 +463,7 @@ public class PilotDB extends PalmDB {
 		int length = data.length - 5;
 		byte[] dataField = new byte[length];
 		System.arraycopy(data, 4, dataField, 0, length);
-		return General.convertBytes2String(dataField, "");
+		return General.convertByteArrayToString(dataField, null);
 	}
 
 	private String convertMemo2DB(byte[] fieldData, byte[] data, ArrayList<int[]> fieldLen, int fieldNum) {
@@ -471,7 +471,7 @@ public class PilotDB extends PalmDB {
 			return "";
 		}
 
-		String s = General.convertBytes2String(fieldData, PalmDB.CODE_PAGE);
+		String s = General.convertByteArrayToString(fieldData, null);
 		int index0 = s.indexOf('\0');
 		String header = s.substring(0, index0);
 
@@ -503,7 +503,7 @@ public class PilotDB extends PalmDB {
 				len[1] = offSet;
 				fieldLen.set(i, len);
 				System.arraycopy(data, offSet, dataField, 0, dataField.length);
-				return General.convertBytes2String(dataField, PalmDB.CODE_PAGE);
+				return General.convertByteArrayToString(dataField, null);
 			}
 		}
 		return "";
@@ -536,10 +536,10 @@ public class PilotDB extends PalmDB {
 		DataOutputStream out = new DataOutputStream(result);
 
 		try {
-			out.write(General.convertString2Bytes(pMemo.substring(0, textLen), PalmDB.CODE_PAGE));
+			out.write(General.convertStringToByteArray(pMemo.substring(0, textLen), null));
 			out.writeByte(0);
 			out.writeShort(offSet + out.size() + 2);
-			out.write(General.convertString2Bytes(pMemo, PalmDB.CODE_PAGE));
+			out.write(General.convertStringToByteArray(pMemo, null));
 			out.writeByte(0);
 			return result.toByteArray();
 		} catch (Exception e) {

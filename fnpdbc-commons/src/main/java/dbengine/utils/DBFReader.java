@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.JulianFields;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import application.utils.General;
@@ -65,31 +64,6 @@ public class DBFReader extends DBFBase {
 	}
 
 	/**
-	 * Returns the number of records in the DBF.
-	 */
-	public int getRecordCount() {
-		return header.numberOfRecords;
-	}
-
-	/**
-	 * Returns the asked Field. In case of an invalid index, it returns a
-	 * ArrayIndexOutofboundsException.
-	 *
-	 * @param index. Index of the field. Index of the first field is zero.
-	 */
-	public DBFField getField(int index) {
-		return header.fieldArray.get(index);
-	}
-
-	public List<DBFField> getFields() {
-		return header.fieldArray;
-	}
-
-	public DBFHeader getDBFHeader() {
-		return header;
-	}
-
-	/**
 	 * Reads the returns the next row in the DBF stream.
 	 *
 	 * @returns The next row as an Object array. Types of the elements these arrays
@@ -118,8 +92,7 @@ public class DBFReader extends DBFBase {
 				case DBFField.FIELD_TYPE_C:
 					byte[] bArray = new byte[field.getFieldLength()];
 					dataInputStream.read(bArray);
-					result.put(field.getName(), characterSetName.equals("") ? new String(bArray).trim()
-							: new String(bArray, characterSetName).trim());
+					result.put(field.getName(), General.convertByteArrayToString(bArray, header.getCharacterSet()));
 					break;
 				case DBFField.FIELD_TYPE_D:
 					byte[] bYear = new byte[4];
@@ -146,7 +119,7 @@ public class DBFReader extends DBFBase {
 					try {
 						byte[] bNumeric = new byte[field.getFieldLength()];
 						dataInputStream.read(bNumeric);
-						bNumeric = Utils.trimLeftSpaces(bNumeric);
+						bNumeric = Utils.trimLeftSpaces(bNumeric, null);
 						if (bNumeric.length > 0 && !Utils.contains(bNumeric, (byte) '?')) {
 							result.put(field.getName(), Double.valueOf(new String(bNumeric).replace(',', '.')));
 						}
@@ -180,7 +153,6 @@ public class DBFReader extends DBFBase {
 					}
 					break;
 				case DBFField.FIELD_TYPE_T:
-					// case DBFField.FIELD_TYPE_TS:
 					byte[] bDatetime = new byte[field.getFieldLength()];
 					dataInputStream.read(bDatetime);
 					if (bDatetime.length > 7) {

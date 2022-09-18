@@ -29,7 +29,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	protected RandomAccessFile pdbRaf = null;
 	protected ByteArrayOutputStream pdbBaos = new ByteArrayOutputStream();
 	protected DataOutputStream pdbDas = new DataOutputStream(pdbBaos);
-	protected static final String CODE_PAGE = "Cp1252";
 
 	private PilotHeader header;
 

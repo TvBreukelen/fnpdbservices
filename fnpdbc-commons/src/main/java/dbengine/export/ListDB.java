@@ -99,7 +99,7 @@ public class ListDB extends PalmDB {
 		catList = mySoft.getCategories();
 		int catSize = catList.size();
 		for (int i = 0; i < catSize; i++) {
-			pdbRaf.write(General.getNullTerminatedString(catList.get(i), 16, PalmDB.CODE_PAGE));
+			pdbRaf.write(General.getNullTerminatedString(catList.get(i), null, 16));
 		}
 
 		for (int i = catSize; i < 16; i++) {
@@ -116,8 +116,8 @@ public class ListDB extends PalmDB {
 		pdbRaf.writeByte(128); // Display style
 		pdbRaf.writeByte(0); // Write protect
 		pdbRaf.writeByte(catSize - 1); // lastCategory used
-		pdbRaf.write(General.getNullTerminatedString(header[0], 16, PalmDB.CODE_PAGE));
-		pdbRaf.write(General.getNullTerminatedString(header[1], 16, PalmDB.CODE_PAGE));
+		pdbRaf.write(General.getNullTerminatedString(header[0], null, 16));
+		pdbRaf.write(General.getNullTerminatedString(header[1], null, 16));
 		pdbRaf.write(new byte[202]); // padding
 	}
 
@@ -135,7 +135,7 @@ public class ListDB extends PalmDB {
 
 		readLn(bytes);
 
-		String s = General.convertBytes2String(bytes, PalmDB.CODE_PAGE).substring(3);
+		String s = General.convertByteArrayToString(bytes, null).substring(3);
 		String[] rec = new String[4];
 		Arrays.fill(rec, "");
 
@@ -197,8 +197,8 @@ public class ListDB extends PalmDB {
 		}
 
 		// Now we can buildup the record to be written to the Export file
-		byte[] bData1 = General.convertString2Bytes(fieldData1, PalmDB.CODE_PAGE);
-		byte[] bData2 = General.convertString2Bytes(fieldData2, PalmDB.CODE_PAGE);
+		byte[] bData1 = General.convertStringToByteArray(fieldData1, null);
+		byte[] bData2 = General.convertStringToByteArray(fieldData2, null);
 
 		pdbDas.write(3); // Offset from start for field1
 		pdbDas.write(3 + bData1.length + 1); // offset from start for field2
@@ -207,7 +207,7 @@ public class ListDB extends PalmDB {
 		pdbDas.write(0);
 		pdbDas.write(bData2);
 		pdbDas.write(0);
-		pdbDas.write(General.convertString2Bytes(sb.toString(), PalmDB.CODE_PAGE));
+		pdbDas.write(General.convertStringToByteArray(sb.toString(), null));
 		pdbDas.write(0);
 
 		writeRecord(pdbBaos.toByteArray(), categoryID);
@@ -293,7 +293,7 @@ public class ListDB extends PalmDB {
 			byte[] filler = new byte[16];
 
 			for (int i = 0; i < catSize; i++) {
-				out.write(General.getNullTerminatedString(catList.get(i), 16, PalmDB.CODE_PAGE));
+				out.write(General.getNullTerminatedString(catList.get(i), null, 16));
 			}
 
 			for (int i = catSize; i < 16; i++) {

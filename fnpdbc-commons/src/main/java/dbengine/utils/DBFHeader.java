@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+
+import application.utils.General;
 
 public class DBFHeader {
 
@@ -54,6 +57,7 @@ public class DBFHeader {
 	/* DBF structure ends here */
 
 	private boolean hasMemoFile = false;
+	private String characterSet;
 
 	public DBFHeader() {
 		signature = SIG_DBASE_III;
@@ -119,10 +123,38 @@ public class DBFHeader {
 		default:
 			hasMemoFile = false;
 		}
+
+		setCharacterSet();
 	}
 
 	public boolean isDB7() {
 		return (signature & 0x7) == DBASE_LEVEL_7;
+	}
+
+	private void setCharacterSet() {
+		// Check if the database uses a non ANSI characterset
+		characterSet = "";
+		Properties properties = General.getProperties("dBase");
+		int test = Byte.toUnsignedInt(languageDriver);
+		String result = properties.getProperty(Integer.toString(test), "");
+
+		if (result.isEmpty()) {
+			return;
+		}
+
+		String[] charset = result.split(",");
+		String[] charSets = General.getCharacterSets();
+
+		for (String cSet : charSets) {
+			if (cSet.equalsIgnoreCase(charset[1])) {
+				characterSet = cSet;
+				break;
+			}
+		}
+	}
+
+	public String getCharacterSet() {
+		return characterSet;
 	}
 
 	public void write(DataOutput dataOutput) throws IOException {
@@ -214,5 +246,6 @@ public class DBFHeader {
 
 	public void setLanguageDriver(byte driver) {
 		languageDriver = driver;
+		setCharacterSet();
 	}
 }

@@ -1,5 +1,7 @@
 package dbengine.export;
 
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +51,14 @@ public class HanDBase extends CsvFile {
 		final String dbName = pref.getPdaDatabaseName();
 		final int exportOption = pref.getExportOption();
 		final int importOption = pref.getImportOption();
+
+		// Read input file and convert to Ansi
+		super.closeFile();
+		String exp = General.readFile(exportFile);
+
+		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(exportFile), "windows-1252")) {
+			writer.write(exp);
+		}
 
 		cmd.add(handbaseProgram);
 		cmd.add("CONVERT:TOPDB");

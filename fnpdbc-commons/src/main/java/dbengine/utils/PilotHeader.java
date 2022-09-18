@@ -49,7 +49,7 @@ public class PilotHeader {
 	public void writeHeader() throws Exception {
 		FileLock pilotLock = pilotChannel.lock();
 		pilotRaf.seek(0);
-		pilotRaf.write(General.getNullTerminatedString(pdaDatabase, DB_NAME_LENGTH, "")); // byte[32] name
+		pilotRaf.write(General.getNullTerminatedString(pdaDatabase, null, DB_NAME_LENGTH)); // byte[32] name
 		pilotRaf.writeShort(8); // short attribute (Normal DB)
 		pilotRaf.writeShort(0); // short version
 		pilotRaf.writeInt(getPalmDate()); // int creationDate (current date)
@@ -71,7 +71,7 @@ public class PilotHeader {
 	public void updateHeader() throws Exception {
 		FileLock pilotLock = pilotChannel.lock();
 		pilotRaf.seek(0);
-		pilotRaf.write(General.getNullTerminatedString(pdaDatabase, DB_NAME_LENGTH, "")); // byte[32] name
+		pilotRaf.write(General.getNullTerminatedString(pdaDatabase, null, DB_NAME_LENGTH)); // byte[32] name
 		pilotRaf.seek(28);
 		pilotRaf.writeInt(getPalmDate()); // int modificationDate (current date)
 		pilotRaf.seek(52);

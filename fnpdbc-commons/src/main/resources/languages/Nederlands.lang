@@ -221,6 +221,7 @@ invalidDatabaseID.mesg=Bestand %0 heeft een onjuiste Database-Id. Verwachte voor
 invalidKeyfile.mesg=privé sleutelbestand '%0' heeft het verkeerde formaat.\nIk verwachte een OpenSSH bestand met BEGIN en END tags.
 keywordFilter.title=Sleutelwoord filter
 keywordFilter.tooltip=Filter op sleutelwoord (leeg = filter deaktiveren)
+languageDriver.title=Karakterset
 largeFileSplit.title=Groot bestand split
 lastExport.text=Laatste Export
 lastExportDate.tooltip=Laatste export datum

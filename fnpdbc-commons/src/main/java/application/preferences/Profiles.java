@@ -32,6 +32,7 @@ public abstract class Profiles extends Project {
 	private String pdaDatabaseName = "";
 	private String remainingField = "";
 	private String tableName = "";
+	private int languageDriver = 3; // xBase
 
 	private String[] filterField = new String[] { "", "" };
 	private FilterOperator[] filterOperator = new FilterOperator[2];
@@ -110,6 +111,7 @@ public abstract class Profiles extends Project {
 		notes = child.get("export.notes", "");
 
 		tableName = child.get("table.name", "");
+		languageDriver = child.getInt("dbf.language.driver", 3);
 
 		appendRecords = child.getBoolean("append.records", false);
 		categoryField = child.get("category.field", "");
@@ -310,6 +312,15 @@ public abstract class Profiles extends Project {
 	public void setExportImages(boolean exportImages) {
 		PrefUtils.writePref(child, "export.images", exportImages, this.exportImages, false);
 		this.exportImages = exportImages;
+	}
+
+	public int getLanguageDriver() {
+		return languageDriver;
+	}
+
+	public void setLanguageDriver(int languageDriver) {
+		PrefUtils.writePref(child, "dbf.language.driver", languageDriver, this.languageDriver, 3);
+		this.languageDriver = languageDriver;
 	}
 
 	public int getImageOption() {

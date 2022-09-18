@@ -52,12 +52,12 @@ public class MobileDB extends PalmDB {
 
 		// ApplicationInfo
 		pdbRaf.writeShort(0); // unsigned int renamedCategories
-		pdbRaf.write(General.getNullTerminatedString("Unfiled", 16, ""));
-		pdbRaf.write(General.getNullTerminatedString("FieldLabels", 16, ""));
-		pdbRaf.write(General.getNullTerminatedString("DataRecords", 16, ""));
-		pdbRaf.write(General.getNullTerminatedString("DataRecordsFout", 16, ""));
-		pdbRaf.write(General.getNullTerminatedString("Preferences", 16, ""));
-		pdbRaf.write(General.getNullTerminatedString("DataType", 16, ""));
+		pdbRaf.write(General.getNullTerminatedString("Unfiled", null, 16));
+		pdbRaf.write(General.getNullTerminatedString("FieldLabels", null, 16));
+		pdbRaf.write(General.getNullTerminatedString("DataRecords", null, 16));
+		pdbRaf.write(General.getNullTerminatedString("DataRecordsFout", null, 16));
+		pdbRaf.write(General.getNullTerminatedString("Preferences", null, 16));
+		pdbRaf.write(General.getNullTerminatedString("DataType", null, 16));
 		pdbRaf.write(new byte[160]); // padding
 
 		// byte[16] categoryUniqIDs
@@ -185,7 +185,7 @@ public class MobileDB extends PalmDB {
 			FieldDefinition field = dbInfo2Write.get(i);
 			String dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString();
 			pdbDas.writeShort(i);
-			pdbDas.write(General.convertString2Bytes(dbField, PalmDB.CODE_PAGE));
+			pdbDas.write(General.convertStringToByteArray(dbField, null));
 		}
 
 		pdbDas.write(RECORD_FOOTER);
@@ -262,7 +262,7 @@ public class MobileDB extends PalmDB {
 		byte[] bytes = new byte[recordID[2] - (recordID[0] + 7)];
 		skipBytes(6);
 		readLn(bytes);
-		String s = General.convertBytes2String(bytes, PalmDB.CODE_PAGE);
+		String s = General.convertByteArrayToString(bytes, null);
 
 		final int MAX = s.length();
 		int[] index = new int[2];

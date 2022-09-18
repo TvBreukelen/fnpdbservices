@@ -153,6 +153,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			case TEXTFILE:
 				dbConfig = new ConfigTextFile(pdaSettings, true);
 				break;
+			case DBASE3:
+			case DBASE4:
+			case DBASE5:
+			case FOXPRO:
+				dbConfig = new XBaseCharsets(pdaSettings);
+				break;
 			default:
 				break;
 			}
@@ -325,11 +331,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		}
 
 		pdaSettings.setPdaDatabaseName(dbFile);
-
-		if (pOtherOptions.isVisible()) {
-			IConfigDb myDialog = (IConfigDb) pOtherOptions.getComponent(0);
-			myDialog.setProperties();
+		if (dbConfig != null) {
+			dbConfig.setProperties();
 		}
+
 		pdaSettings.setLastSaved();
 	}
 
@@ -345,6 +350,13 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		switch (myExportFile) {
 		case CALC:
 		case EXCEL:
+			pTopContainer.add(pOtherOptions);
+			break;
+		case DBASE3:
+		case DBASE4:
+		case DBASE5:
+		case FOXPRO:
+			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;
 		case TEXTFILE:

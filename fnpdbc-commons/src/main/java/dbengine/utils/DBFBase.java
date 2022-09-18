@@ -11,37 +11,25 @@
 package dbengine.utils;
 
 public abstract class DBFBase {
-	protected String characterSetName = "8859_1";
 	protected static final int END_OF_DATA = 0x1A;
 	protected DBFHeader header;
 	protected DBFMemo memo;
 
-	/*
-	 * If the library is used in a non-latin environment use this method to set
-	 * corresponding character set. More information:
-	 * http://www.iana.org/assignments/character-sets Also see the documentation of
-	 * the class java.nio.charset.Charset
+	/**
+	 * Returns the number of fields in the DBF.
 	 */
-	public String getCharactersetName() {
-		return characterSetName;
-	}
-
-	public void setCharactersetName(String characterSet) {
-		if (!characterSet.isEmpty()) {
-			characterSetName = characterSet;
-		}
-
-		if (!(this instanceof DBFMemo) && memo != null) {
-			memo.setCharactersetName(characterSetName);
-		}
-	}
-
 	public int getFieldCount() {
 		return header.fieldArray.size();
 	}
 
-	public DBFField getFields(int i) {
-		return header.fieldArray.get(i);
+	/**
+	 * Returns the number of records in the DBF.
+	 */
+	public int getRecordCount() {
+		return header.numberOfRecords;
 	}
 
+	public DBFField getField(int i) {
+		return header.fieldArray.get(i);
+	}
 }

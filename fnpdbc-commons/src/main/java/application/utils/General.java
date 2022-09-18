@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -127,18 +128,6 @@ public final class General {
 			result.setBorder(BorderFactory.createTitledBorder(title));
 		}
 		return result;
-	}
-
-	public static String convertBytes2String(byte[] b, String encoding) {
-		if (encoding.isEmpty()) {
-			return new String(b);
-		}
-
-		try {
-			return new String(b, encoding);
-		} catch (Exception e) {
-			return new String(b);
-		}
 	}
 
 	/**
@@ -395,19 +384,6 @@ public final class General {
 		return buf.toString();
 	}
 
-	public static byte[] convertString2Bytes(String s, String encoding) {
-		if (encoding.isEmpty()) {
-			return s.getBytes();
-		}
-
-		try {
-			return s.getBytes(encoding);
-		} catch (Exception e) {
-			// Encoding is not supported
-			return s.getBytes();
-		}
-	}
-
 	public static List<String> convertStringToList(String dbValue) {
 		return new ArrayList<>(Arrays.asList(dbValue.split("\n")));
 	}
@@ -513,6 +489,34 @@ public final class General {
 
 	public static LocalDate convertDateToLocalDate(Date dateToConvert) {
 		return dateToConvert.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	}
+
+	public static String readFile(String path) throws IOException {
+		return Files.readString(Paths.get(path));
+	}
+
+	public static byte[] convertStringToByteArray(String s1, String characterSet) {
+		if (StringUtils.isEmpty(characterSet)) {
+			return s1.getBytes(StandardCharsets.ISO_8859_1);
+		}
+
+		try {
+			return s1.getBytes(characterSet);
+		} catch (UnsupportedEncodingException e) {
+			return s1.getBytes(StandardCharsets.ISO_8859_1);
+		}
+	}
+
+	public static String convertByteArrayToString(byte[] b1, String characterSet) {
+		if (StringUtils.isEmpty(characterSet)) {
+			return new String(b1, StandardCharsets.ISO_8859_1);
+		}
+
+		try {
+			return new String(b1, characterSet);
+		} catch (UnsupportedEncodingException e) {
+			return new String(b1, StandardCharsets.ISO_8859_1);
+		}
 	}
 
 	public static boolean copyFile(String fromFile, String toFile) throws Exception {
@@ -684,7 +688,7 @@ public final class General {
 	 *
 	 * @see splitNullTerminatedString
 	 */
-	public static byte[] getNullTerminatedString(String field, int length, String encoding) {
+	public static byte[] getNullTerminatedString(String field, String characterSet, int length) {
 		if (StringUtils.isEmpty(field)) {
 			return new byte[length];
 		}
@@ -700,7 +704,7 @@ public final class General {
 
 		final int FIELD_LENGTH = field.length();
 		byte[] result = new byte[length];
-		System.arraycopy(convertString2Bytes(field, encoding), 0, result, 0, FIELD_LENGTH);
+		System.arraycopy(convertStringToByteArray(field, characterSet), 0, result, 0, FIELD_LENGTH);
 		return result;
 	}
 

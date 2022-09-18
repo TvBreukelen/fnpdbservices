@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
@@ -66,10 +65,8 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		if (isInputFile) {
 			in = new FileInputStream(myDatabase);
 			reader = new DBFReader(in, memoFile);
-			reader.setCharactersetName(getOEMEncoding());
 		} else {
-			writer = new DBFWriter(outFile, memoFile);
-			writer.setCharactersetName("");
+			writer = new DBFWriter(outFile, memoFile, myPref.getLanguageDriver());
 		}
 	}
 
@@ -81,6 +78,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				reader.closeDBFFile();
 			} else {
 				writer.closeDBFFile();
+				myPref.setLanguageDriver(writer.getLanguageDriver());
 			}
 		} catch (Exception e) {
 			// Log the error
@@ -171,7 +169,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		if (useAppend) {
 			// Verify if fields match in type and size
 			for (int i = 0; i < numFields; i++) {
-				DBFField field1 = writer.getFields(i);
+				DBFField field1 = writer.getField(i);
 				DBFField field2 = fields.get(i);
 
 				if (!field1.getName().equals(field2.getName())) {
@@ -242,7 +240,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		// Read the user defined list of DB fields
 		int index = 0;
 		for (FieldDefinition field : dbInfo2Write) {
-			DBFField db = writer.getFields(index++);
+			DBFField db = writer.getField(index++);
 
 			Object dbValue = dbRecord.get(field.getFieldAlias());
 			if (dbValue == null || dbValue.equals("")) {
@@ -322,25 +320,5 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				dbFieldTypes.add(FieldTypes.TEXT);
 			}
 		}
-	}
-
-	private String getOEMEncoding() {
-		byte languageDriver = reader.getDBFHeader().getLanguageDriver();
-		Properties properties = General.getProperties(myImportFile == ExportFile.FOXPRO ? "foxpro" : "dBase");
-		String result = properties.getProperty(Byte.toString(languageDriver), "");
-		if (result.isEmpty()) {
-			return "";
-		}
-
-		String[] charset = result.split(",");
-		String[] charSets = General.getCharacterSets();
-
-		for (String cSet : charSets) {
-			if (cSet.equals(charset[1])) {
-				return cSet;
-			}
-		}
-
-		return result;
 	}
 }

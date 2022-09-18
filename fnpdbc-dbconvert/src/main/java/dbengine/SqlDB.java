@@ -159,6 +159,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				}
 
 				String table = rs.getString(3);
+				if ("trace_xe_action_map".equals(table) || "trace_xe_event_map".equals(table)) {
+					// SQL Server internal tables
+					continue;
+				}
+
 				ResultSet columns;
 				try {
 					columns = metaData.getColumns(null, null, table, null);

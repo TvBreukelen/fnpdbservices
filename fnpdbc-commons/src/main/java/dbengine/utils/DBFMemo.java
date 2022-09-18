@@ -16,6 +16,7 @@ public class DBFMemo extends DBFBase {
 	private DataOutputStream memoDas = new DataOutputStream(memoBaos);
 	private int memoBlockSize = 512;
 	private int nextMemoIndex = 1;
+	private DBFHeader header;
 
 	public DBFMemo(File memoFile, DBFHeader header) {
 		this.memoFile = memoFile;
@@ -122,8 +123,7 @@ public class DBFMemo extends DBFBase {
 				}
 				mBaos.write((byte) b);
 			}
-			return characterSetName.equals("") ? new String(mBaos.toByteArray())
-					: new String(mBaos.toByteArray(), characterSetName);
+			return General.convertByteArrayToString(mBaos.toByteArray(), header.getCharacterSet());
 		case DBFHeader.SIG_DBASE_IV_WITH_MEMO:
 		case DBFHeader.SIG_DBASE_V_WITH_MEMO:
 			memoRaf.read(buf); // ignore "FFh FFh 08h 00h"
@@ -142,7 +142,7 @@ public class DBFMemo extends DBFBase {
 
 		buf = new byte[len];
 		memoRaf.read(buf); // returns memo data
-		return characterSetName.equals("") ? new String(buf).trim() : new String(buf, characterSetName).trim();
+		return General.convertByteArrayToString(buf, header.getCharacterSet());
 	}
 
 	private void readNextMemoIndex() throws IOException {
@@ -214,7 +214,7 @@ public class DBFMemo extends DBFBase {
 			}
 		}
 
-		memoDas.write(General.convertString2Bytes(memo, characterSetName));
+		memoDas.write(General.convertStringToByteArray(memo, header.getCharacterSet()));
 		memoDas.write(END_OF_DATA);
 		memoDas.write(END_OF_DATA);
 

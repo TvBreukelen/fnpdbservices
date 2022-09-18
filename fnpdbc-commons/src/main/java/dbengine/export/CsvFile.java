@@ -44,7 +44,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	private CsvMapper mapper = new CsvMapper();
 	private CsvSchema schema;
-	private SequenceWriter writer;
+	protected SequenceWriter writer;
 
 	public CsvFile(Profiles pref) {
 		super(pref);

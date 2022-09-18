@@ -34,7 +34,6 @@ import dbengine.utils.MSTable;
 public class MSAccess extends GeneralDB implements IConvert {
 	private Database database;
 	private Table table;
-	private String myTable;
 	private boolean isIndexSupported = true;
 
 	private Map<String, MSTable> hTables;
@@ -59,9 +58,9 @@ public class MSAccess extends GeneralDB implements IConvert {
 		}
 
 		getDBFieldNamesAndTypes();
-		myTable = myPref.getTableName();
+		String myTable = myPref.getTableName();
 		if (myTable.isEmpty() || !aTables.contains(myTable)) {
-			myTable = aTables.get(0);
+			myPref.setTableName(aTables.get(0), false);
 		}
 
 		if (!error.isEmpty()) {
@@ -292,7 +291,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		return hTables.get(myTable).getDbFields();
+		return hTables.get(myPref.getTableName()).getDbFields();
 	}
 
 	public List<FieldDefinition> getTableModelFields(String table) {
@@ -305,7 +304,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	@Override
 	public String getPdaDatabase() {
-		return myTable;
+		return myPref.getTableName();
 	}
 
 	@Override
@@ -316,19 +315,13 @@ public class MSAccess extends GeneralDB implements IConvert {
 		return aTables;
 	}
 
-	public void setTable(String tableName) throws Exception {
-		table = database.getTable(tableName);
-		totalRecords = table.getRowCount();
-		myTable = tableName;
-	}
-
 	public Table getTable() {
 		return table;
 	}
 
 	@Override
 	public void readTableContents() throws Exception {
-		table = database.getTable(myTable);
+		table = database.getTable(myPref.getTableName());
 		totalRecords = table.getRowCount();
 	}
 
