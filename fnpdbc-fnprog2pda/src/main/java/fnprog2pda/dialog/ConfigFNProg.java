@@ -1,7 +1,6 @@
 package fnprog2pda.dialog;
 
 import application.dialog.ProgramDialog;
-import application.interfaces.FNPSoftware;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
@@ -9,6 +8,7 @@ import application.preferences.Databases;
 import fnprog2pda.FNProg2PDA;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
+import fnprog2pda.software.FNPSoftware;
 
 public class ConfigFNProg extends ProgramDialog {
 	/**

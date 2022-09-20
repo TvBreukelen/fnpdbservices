@@ -94,7 +94,7 @@ public class UserFieldModel extends AbstractTableModel {
 		case 2:
 			return field.getFieldHeader();
 		case 3:
-			return field.getFieldType().isTextConvertable(inputFile.isSqlDatabase()) ? field.isOutputAsText() : null;
+			return field.getFieldType().isTextConvertable(inputFile) ? field.isOutputAsText() : null;
 		default:
 			return null;
 		}

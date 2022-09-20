@@ -29,7 +29,6 @@ import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
 import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
-import application.interfaces.FNPSoftware;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.FilterData;
@@ -46,6 +45,7 @@ import dbengine.utils.DatabaseHelper;
 import fnprog2pda.model.MiscellaneousData;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
+import fnprog2pda.software.FNPSoftware;
 import fnprog2pda.software.FNProgramvare;
 
 public class ConfigSoft extends BasicDialog implements IConfigSoft {

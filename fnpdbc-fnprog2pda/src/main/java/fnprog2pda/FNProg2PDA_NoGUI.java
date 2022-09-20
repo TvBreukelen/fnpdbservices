@@ -4,13 +4,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import application.interfaces.ExportFile;
-import application.interfaces.FNPSoftware;
 import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
 import application.preferences.Databases;
 import application.utils.GUIFactory;
 import application.utils.General;
 import fnprog2pda.preferences.PrefFNProg;
+import fnprog2pda.software.FNPSoftware;
 import fnprog2pda.software.FNProgramvare;
 import fnprog2pda.utils.ConvertOldVersion;
 

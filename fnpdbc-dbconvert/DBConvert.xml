@@ -8,7 +8,7 @@
   <cmdLine></cmdLine>
   <chdir></chdir>
   <priority>normal</priority>
-  <downloadUrl>http://www.oracle.com/technetwork/java/javase/downloads</downloadUrl>
+  <downloadUrl>https://adoptium.net/en-GB/</downloadUrl>
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
@@ -18,7 +18,7 @@
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
-    <minVersion>1.8.0</minVersion>
+    <minVersion>11.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
@@ -26,11 +26,11 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>7.2.3.0</fileVersion>
-    <txtFileVersion>Version 7.23</txtFileVersion>
+    <fileVersion>7.3.0.0</fileVersion>
+    <txtFileVersion>Version 7.3</txtFileVersion>
     <fileDescription>DBConvert</fileDescription>
     <copyright>Tom van Breukelen 2004-2022</copyright>
-    <productVersion>7.2.3.0</productVersion>
+    <productVersion>7.3.0.0</productVersion>
     <txtProductVersion>Version 7.2.3</txtProductVersion>
     <productName>DBConvert</productName>
     <companyName>TvBSoftware</companyName>

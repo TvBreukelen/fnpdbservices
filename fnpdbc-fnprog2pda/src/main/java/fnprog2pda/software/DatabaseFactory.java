@@ -19,7 +19,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import com.healthmarketscience.jackcess.Cursor;
 
 import application.interfaces.ExportFile;
-import application.interfaces.FNPSoftware;
 import application.interfaces.FieldTypes;
 import application.interfaces.FilterOperator;
 import application.interfaces.IDatabaseFactory;

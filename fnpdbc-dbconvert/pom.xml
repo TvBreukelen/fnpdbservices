@@ -8,8 +8,10 @@
 		<version>9.0.0</version>
 	</parent>
 
+	<name>DBConvert</name>
 	<artifactId>fnpdbc-dbconvert</artifactId>
 	<description>DBConvert</description>
+	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
@@ -107,6 +109,18 @@
 				<groupId>sh.tak.appbundler</groupId>
 				<artifactId>appbundle-maven-plugin</artifactId>
 				<version>1.2.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-archiver</artifactId>
+						<version>RELEASE</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.velocity</groupId>
+						<artifactId>velocity-tools</artifactId>
+						<version>2.0</version>
+					</dependency>
+				</dependencies>
 				<configuration>
 					<mainClass>dbconvert.DBConvert</mainClass>
 					<generateDiskImageFile>true</generateDiskImageFile>

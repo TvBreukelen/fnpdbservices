@@ -1,4 +1,4 @@
-package application.interfaces;
+package fnprog2pda.software;
 
 public enum FNPSoftware {
 	/**

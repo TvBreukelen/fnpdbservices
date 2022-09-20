@@ -27,7 +27,6 @@ import com.healthmarketscience.jackcess.Row;
 
 import application.BasicSoft;
 import application.interfaces.ExportFile;
-import application.interfaces.FNPSoftware;
 import application.interfaces.FieldTypes;
 import application.interfaces.FilterOperator;
 import application.interfaces.TvBSoftware;

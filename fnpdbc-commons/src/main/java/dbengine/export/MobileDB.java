@@ -1,6 +1,7 @@
 package dbengine.export;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,6 +156,9 @@ public class MobileDB extends PalmDB {
 			case DATE:
 				dbValue = convertDate2DB(dbValue.toString());
 				break;
+			case TIME:
+				dbValue = General.convertTime2DB(dbValue.toString(), General.sdInternalTime);
+				break;
 			default:
 				break;
 			}
@@ -183,9 +187,26 @@ public class MobileDB extends PalmDB {
 		pdbDas.write(RECORD_HEADER);
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbInfo2Write.get(i);
-			String dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString();
+			Object dbValue = dbRecord.get(field.getFieldAlias());
+			if (dbValue == null) {
+				dbValue = "";
+			}
+
+			if (!dbValue.equals("")) {
+				switch (field.getFieldType()) {
+				case DATE:
+					dbValue = field.isOutputAsText() ? convertDate(dbValue, field) : convertDate((LocalDate) dbValue);
+					break;
+				case TIME:
+					dbValue = General.convertTime((LocalTime) dbValue,
+							field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
+					break;
+				default:
+					dbValue = convertDataFields(dbValue, field);
+				}
+			}
 			pdbDas.writeShort(i);
-			pdbDas.write(General.convertStringToByteArray(dbField, null));
+			pdbDas.write(General.convertStringToByteArray(dbValue.toString(), null));
 		}
 
 		pdbDas.write(RECORD_FOOTER);

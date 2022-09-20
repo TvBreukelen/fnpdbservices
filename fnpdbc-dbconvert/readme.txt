@@ -4,6 +4,7 @@ Version 7.3
 -----------
 Minimum Java version is now set to Java 11
 Added support for Microsoft SQL Server databases
+Added international languages support for exporting to Handbase and xBase databases
 Switching the database or table has been improved.
 Option to manually change the viewer content has been removed, due to high memory
 consumption.

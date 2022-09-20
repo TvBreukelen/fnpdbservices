@@ -2,6 +2,7 @@ package dbengine.export;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -137,12 +138,7 @@ public class JFile extends PalmDB {
 						dbValue = Boolean.parseBoolean(dbValue.toString());
 						break;
 					case DATE:
-						LocalDate date = General.convertDate2DB(dbValue.toString(), General.sdInternalDate);
-						if (date == null) {
-							field.setFieldType(FieldTypes.TEXT);
-						} else {
-							dbValue = date;
-						}
+						dbValue = General.convertDate2DB(dbValue.toString(), General.sdInternalDate);
 						break;
 					case NUMBER:
 						dbValue = Integer.parseInt(dbValue.toString());
@@ -181,7 +177,27 @@ public class JFile extends PalmDB {
 
 		// Read the user defined list of DB fields
 		for (FieldDefinition field : dbInfo2Write) {
-			String dbField = convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString();
+			Object dbValue = dbRecord.get(field.getFieldAlias());
+			if (dbValue == null) {
+				dbValue = "";
+			}
+
+			if (!dbValue.equals("")) {
+				switch (field.getFieldType()) {
+				case DATE:
+					dbValue = General.convertDate((LocalDate) dbValue,
+							field.isOutputAsText() ? General.getSimpleDateFormat() : General.sdInternalDate);
+					break;
+				case TIME:
+					dbValue = General.convertTime((LocalTime) dbValue,
+							field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
+					break;
+				default:
+					dbValue = convertDataFields(dbValue, field);
+				}
+			}
+
+			String dbField = dbValue.toString();
 			bf.append(dbField);
 			bf.append('\0');
 			pdbDas.writeShort(dbField.length() + 1);

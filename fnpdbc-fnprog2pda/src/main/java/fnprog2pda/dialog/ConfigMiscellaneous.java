@@ -12,9 +12,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import application.dialog.BasicDialog;
-import application.interfaces.FNPSoftware;
 import application.utils.GUIFactory;
 import fnprog2pda.model.MiscellaneousData;
+import fnprog2pda.software.FNPSoftware;
 
 public class ConfigMiscellaneous extends BasicDialog {
 	/**

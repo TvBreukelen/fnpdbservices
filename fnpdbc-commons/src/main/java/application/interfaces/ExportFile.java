@@ -99,6 +99,19 @@ public enum ExportFile {
 		}
 	}
 
+	public boolean isxBase() {
+		switch (this) {
+		case DBASE:
+		case DBASE3:
+		case DBASE4:
+		case DBASE5:
+		case FOXPRO:
+			return true;
+		default:
+			return false;
+		}
+	}
+
 	public boolean isSqlDatabase() {
 		switch (this) {
 		case MARIADB:
@@ -139,6 +152,29 @@ public enum ExportFile {
 			return false;
 		default:
 			return true;
+		}
+	}
+
+	public boolean isTimeExport() {
+		switch (this) {
+		case CALC:
+		case EXCEL:
+		case JFILE:
+		case MOBILEDB:
+		case PILOTDB:
+			return true;
+		default:
+			return isDatabase() || isxBase();
+		}
+	}
+
+	public boolean isTimestampExport() {
+		switch (this) {
+		case CALC:
+		case EXCEL:
+			return true;
+		default:
+			return isDatabase() || isxBase();
 		}
 	}
 
