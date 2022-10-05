@@ -22,6 +22,8 @@ public class FieldDefinition extends BasisField {
 	private boolean isHideTable = false;
 	private boolean isRoleField = false;
 	private boolean isComposed = false;
+	private boolean isNullable = false;
+	private boolean isAutoIncrement = false;
 	private int indexValue = 0;
 	private String indexField = "";
 
@@ -155,6 +157,22 @@ public class FieldDefinition extends BasisField {
 		isComposed = isContentsField;
 	}
 
+	public boolean isNullable() {
+		return isNullable;
+	}
+
+	public void setNullable(boolean isNullable) {
+		this.isNullable = isNullable;
+	}
+
+	public boolean isAutoIncrement() {
+		return isAutoIncrement;
+	}
+
+	public void setAutoIncrement(boolean isAutoIncrement) {
+		this.isAutoIncrement = isAutoIncrement;
+	}
+
 	public FieldDefinition copy() {
 		FieldDefinition result = new FieldDefinition();
 		result.setDecimalPoint(decimalPoint);
@@ -171,6 +189,8 @@ public class FieldDefinition extends BasisField {
 		result.setIndexField(indexField);
 		result.setIndexValue(indexValue);
 		result.setSQLType(sqlType);
+		result.setNullable(isNullable);
+		result.setAutoIncrement(isAutoIncrement);
 		return result;
 	}
 

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -31,13 +33,19 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
+import dbengine.utils.ForeignKey;
+import dbengine.utils.SqlTable;
 import microsoft.sql.DateTimeOffset;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
-	private Map<Integer, List<FieldDefinition>> hTables;
 	private List<FieldDefinition> dbInfoToRead;
 	private Map<String, FieldDefinition> hFieldMap;
-	private List<String> aTables;
+	private Map<String, SqlTable> aTables;
+
+	private static final String TABLE_CAT = "TABLE_CAT";
+	private static final String TABLE_NAME = "TABLE_NAME";
+	private static final String COLUMN_NAME = "COLUMN_NAME";
+	private static final String TABLE_SCHEM = "TABLE_SCHEM";
 
 	protected Connection connection;
 	protected boolean isConnected;
@@ -131,10 +139,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public void readTableContents() throws Exception {
 		// read all tables in the database
-		hTables = new HashMap<>();
-		aTables = new ArrayList<>();
+		aTables = new LinkedHashMap<>();
 
-		int index = 0;
 		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
 		String[] types;
@@ -149,48 +155,42 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			types = null;
 		}
 
-		try {
-			DatabaseMetaData metaData = connection.getMetaData();
-			ResultSet rs = metaData.getTables(null, null, "%", types);
+		DatabaseMetaData metaData = connection.getMetaData();
+		try (ResultSet rs = metaData.getTables(null, null, "%", types)) {
 			while (rs.next()) {
-				String tableCat = rs.getString("TABLE_CAT");
+				String tableCat = rs.getString(TABLE_CAT);
 				if (tableCat != null && !tableCat.equals(db)) {
 					continue;
 				}
 
-				String table = rs.getString(3);
+				String table = rs.getString(TABLE_NAME);
+
 				if ("trace_xe_action_map".equals(table) || "trace_xe_event_map".equals(table)) {
 					// SQL Server internal tables
 					continue;
 				}
 
-				ResultSet columns;
-				try {
-					columns = metaData.getColumns(null, null, table, null);
-				} catch (Exception e) {
-					continue;
-				}
+				SqlTable sqlTable = new SqlTable();
+				sqlTable.setName(table);
 
-				List<FieldDefinition> aFields = new ArrayList<>();
-				while (columns.next()) {
-					String field = columns.getString(4);
-					FieldDefinition fieldDef = new FieldDefinition(field, field, FieldTypes.TEXT);
-					fieldDef.setSQLType(columns.getInt(5));
-
-					String type = columns.getString(6);
-					if (!(type.isEmpty() || type.equals("TEXT"))) {
-						if (!(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
-							// Non SQL compatible field
-							continue;
-						}
+				String schema = rs.getString(TABLE_SCHEM);
+				try (ResultSet primaryKeys = metaData.getPrimaryKeys(tableCat, schema, table)) {
+					while (primaryKeys.next()) {
+						sqlTable.getPkList().add(primaryKeys.getString(COLUMN_NAME));
 					}
-					aFields.add(fieldDef);
 				}
 
-				if (!aFields.isEmpty()) {
-					hTables.put(index++, aFields);
-					aTables.add(table);
+				try (ResultSet foreignKeys = metaData.getExportedKeys(tableCat, schema, table)) {
+					while (foreignKeys.next()) {
+						ForeignKey fk = new ForeignKey();
+						fk.setFkTable(foreignKeys.getString("FKTABLE_NAME"));
+						fk.setFkColumn(foreignKeys.getString("FKCOLUMN_NAME"));
+						sqlTable.getFkList().put(foreignKeys.getString("PKCOLUMN_NAME"), fk);
+					}
 				}
+
+				ResultSet columns = metaData.getColumns(tableCat, schema, table, null);
+				getColumns(sqlTable, columns);
 			}
 		} catch (Exception e) {
 			// should not occur
@@ -201,13 +201,42 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		String myTable = myPref.getTableName();
-		if (myTable.isEmpty() || !aTables.contains(myTable)) {
-			myTable = aTables.get(0);
+		if (myTable.isEmpty() || !aTables.containsKey(myTable)) {
+			// Get first table from the database
+			Map.Entry<String, SqlTable> entry = aTables.entrySet().iterator().next();
+			myTable = entry.getValue().getName();
 			myPref.setTableName(myTable, false);
 		}
 
 		hFieldMap = getTableModelFields().stream()
 				.collect(Collectors.toMap(FieldDefinition::getFieldName, Function.identity()));
+	}
+
+	private void getColumns(SqlTable table, ResultSet columns) throws SQLException {
+		List<FieldDefinition> aFields = new ArrayList<>();
+		while (columns.next()) {
+			String columnName = columns.getString(COLUMN_NAME);
+
+			FieldDefinition fieldDef = new FieldDefinition(columnName, columnName, FieldTypes.TEXT);
+			fieldDef.setSQLType(columns.getInt("DATA_TYPE"));
+
+			String type = columns.getString(6);
+			if (!(type.isEmpty() || type.equals("TEXT")) && !(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
+				// Non SQL compatible field
+				continue;
+			}
+
+			fieldDef.setSize(columns.getInt("COLUMN_SIZE"));
+			fieldDef.setAutoIncrement(columns.getBoolean("IS_AUTOINCREMENT"));
+			fieldDef.setNullable(columns.getBoolean("IS_NULLABLE"));
+
+			aFields.add(fieldDef);
+		}
+
+		if (!aFields.isEmpty()) {
+			table.setDbFields(aFields);
+			aTables.put(table.getName(), table);
+		}
 	}
 
 	private boolean setFieldType(FieldDefinition field) {
@@ -335,8 +364,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		int index = aTables.indexOf(myPref.getTableName());
-		return hTables.get(index == -1 ? 1 : index);
+		return aTables.get(myPref.getTableName()).getDbFields();
 	}
 
 	@Override
@@ -349,7 +377,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		if (aTables == null) {
 			return new ArrayList<>();
 		}
-		return aTables;
+		return new ArrayList<>(aTables.keySet());
 	}
 
 	public void createStatement() throws Exception {
