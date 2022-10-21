@@ -49,12 +49,14 @@ To be able to use the FNProg2PDA programs you'll need to have the following on y
 
   AssetCAT, BookCAT, CATraxx, CATVids, StampCAT or SoftCAT database(s)
   MS-Windows, Mac OS X or Linux
-  Java 8.0 (or later)
+  Java 11.0 (or later)
 
 
 Notes 
 -----
-The Java runtime can be downloaded from http://www.oracle.com/technetwork/java/javase/downloads
+The Java runtime can be downloaded from https://adoptium.net/en-GB/ or 
+  https://www.oracle.com/java/technologies/downloads/
+
 All FNProgramvare products can be found at http://www.fnprg.com. BookCAT, CATraxx, CATVids and
 StampCAT are shareware programs. SoftCAT has been released as freeware and shareware version.
 
@@ -127,6 +129,18 @@ General Public License for more details.
 ===================================================================================================
 5. What is New?
 ===================================================================================================
+
+
+Version 9.8
+-----------
+Minimum Java version is now set to Java 11
+Added international languages support for exporting to Handbase and xBase databases
+Option to manually change the viewer content has been removed, due to high memory
+consumption.
+Save the positions and size of the Help dialog
+Added the slf4j-nop library so that the logging warning no longer appears in batch
+Removed support for JFile 3 and 4
+Bug Fix: appending new records to Palm database files didn't function correctly
 
 
 Version 9.7

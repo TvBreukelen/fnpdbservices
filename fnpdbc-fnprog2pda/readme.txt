@@ -1,12 +1,24 @@
 Release Notes
 
 
+Version 9.8
+-----------
+Minimum Java version is now set to Java 11
+Added international languages support for exporting to Handbase and xBase databases
+Option to manually change the viewer content has been removed, due to high memory
+consumption.
+Save the positions and size of the Help dialog
+Added the slf4j-nop library so that the logging warning no longer appears in batch
+Removed support for JFile 3 and 4
+Bug Fix: appending new records to Palm database files didn't function correctly
+
+
 Version 9.7
 -----------
 Removed DBConvert as a tool. This program has a different function than FNProg2PDA and is available
-separately. Both programs still use the same code base, but are now functionaly separated. This makes
-maitainance easier, because there is no need to release a new version of one program when only the
-other progam has changed.
+separately. Both programs still use the same code base, but are now functionally separated. This makes
+maintenance easier, because there is no need to release a new version of one program when only the
+other program has changed.
 
 Bug fix: export to a non standard CSV file with "Incl. Field Names" switched off caused an error (
 null pointer exception).
