@@ -85,7 +85,6 @@ import application.table.BooleanRenderer;
 import application.utils.gui.XGridBagConstraints;
 import application.utils.ini.IniFile;
 import application.utils.ini.IniFileReader;
-import microsoft.sql.DateTimeOffset;
 
 public final class General {
 	/**
@@ -468,9 +467,6 @@ public final class General {
 		switch (dbField) {
 		case DATE:
 			return convertDate((LocalDate) obj, General.getSimpleDateFormat());
-		case DATE_TIME_OFFSET:
-			LocalDateTime dt = ((DateTimeOffset) obj).getOffsetDateTime().toLocalDateTime();
-			return General.convertTimestamp(dt, General.getSimpleTimestampFormat());
 		case FUSSY_DATE:
 			return convertFussyDate(obj.toString());
 		case DURATION:

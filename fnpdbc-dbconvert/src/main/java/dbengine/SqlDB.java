@@ -254,9 +254,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.DATE:
 			field.setFieldType(FieldTypes.DATE);
 			break;
-		case microsoft.sql.Types.DATETIMEOFFSET:
-			field.setFieldType(FieldTypes.DATE_TIME_OFFSET);
-			break;
 		case Types.DOUBLE:
 		case Types.FLOAT:
 		case Types.REAL:
@@ -268,6 +265,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.TIME:
 			field.setFieldType(FieldTypes.TIME);
 			break;
+		case microsoft.sql.Types.DATETIMEOFFSET:
 		case Types.TIMESTAMP:
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
@@ -558,7 +556,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case microsoft.sql.Types.DATETIMEOFFSET:
 			try {
 				DateTimeOffset date = rs.getObject(colNo, DateTimeOffset.class);
-				return date == null ? "" : date;
+				return date == null ? "" : date.getOffsetDateTime().toLocalDateTime();
 			} catch (IllegalArgumentException e) {
 				return "";
 			}

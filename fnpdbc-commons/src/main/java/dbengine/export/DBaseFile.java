@@ -126,7 +126,6 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				}
 				break;
 			case TIMESTAMP:
-			case DATE_TIME_OFFSET:
 				dbField.setFieldLength(18);
 				break;
 			case DURATION:

@@ -21,7 +21,6 @@ import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
-import microsoft.sql.DateTimeOffset;
 
 public abstract class GeneralDB {
 	/**
@@ -161,9 +160,6 @@ public abstract class GeneralDB {
 			return convertBoolean(dbValue, field);
 		case DATE:
 			return convertDate(dbValue, field);
-		case DATE_TIME_OFFSET:
-			Object dt = ((DateTimeOffset) dbValue).getOffsetDateTime().toLocalDateTime();
-			return convertTimestamp(dt, field);
 		case DURATION:
 			return convertDuration(dbValue, field);
 		case FUSSY_DATE:

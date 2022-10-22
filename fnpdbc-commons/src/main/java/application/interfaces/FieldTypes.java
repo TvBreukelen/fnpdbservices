@@ -7,9 +7,9 @@ public enum FieldTypes {
 	 * @author Tom van Breukelen
 	 */
 
-	BIG_DECIMAL('b'), BOOLEAN('B'), CURRENCY('C'), DATE('D'), DATE_TIME_OFFSET('O'), DURATION('t'), FLOAT('F'),
-	FUSSY_DATE('d'), IMAGE('I'), LINKED('l'), LIST('L'), MEMO('M'), NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'),
-	TIMESTAMP('S'), YEAR('Y'), UNKNOWN('U');
+	BIG_DECIMAL('b'), BOOLEAN('B'), CURRENCY('C'), DATE('D'), DURATION('t'), FLOAT('F'), FUSSY_DATE('d'), IMAGE('I'),
+	LINKED('l'), LIST('L'), MEMO('M'), NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'), TIMESTAMP('S'), YEAR('Y'),
+	UNKNOWN('U');
 
 	private char typeID;
 
@@ -32,7 +32,6 @@ public enum FieldTypes {
 			return file.isBooleanExport();
 		case DATE:
 			return file.isDateExport();
-		case DATE_TIME_OFFSET:
 		case TIMESTAMP:
 			return file.isTimestampExport();
 		case DURATION:
