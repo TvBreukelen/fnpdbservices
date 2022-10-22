@@ -15,6 +15,7 @@ import dbengine.export.Calc;
 import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
+import dbengine.export.Firebird;
 import dbengine.export.HanDBase;
 import dbengine.export.JFile;
 import dbengine.export.JsonFile;
@@ -136,6 +137,8 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new Calc(profile);
 		case JSON:
 			return new JsonFile(profile);
+		case FIREBIRD:
+			return new Firebird(profile);
 		case MARIADB:
 			return new MariaDB(profile);
 		case POSTGRESQL:

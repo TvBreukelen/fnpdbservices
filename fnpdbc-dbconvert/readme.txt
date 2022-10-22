@@ -1,5 +1,12 @@
 Release Notes
 
+Version 7.4
+-----------
+Added support for Firebase databases
+Updated external libraries
+Minor bug fixes
+
+
 Version 7.3
 -----------
 Minimum Java version is now set to Java 11

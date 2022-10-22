@@ -25,7 +25,7 @@ without a console window under MS-Windows, Linux or Apple OS.
 
 3. Which JAVA run-time version do I need?
 ----------------------------------------
-JAVA JRE 8.0 or higher.
+JAVA JRE 11.0 or higher.
 
 
 4. How do I install the program?

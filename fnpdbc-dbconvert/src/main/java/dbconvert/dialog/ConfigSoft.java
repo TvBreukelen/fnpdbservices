@@ -210,7 +210,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		gPanel.add(lTablesWorkSheets, c.gridCell(1, 1, 0, 0));
 		gPanel.add(bTablesWorksheets, c.gridCell(2, 1, 0, 0));
-		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 4, 1));
+		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 3, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
 		reloadImportFiles(true, false);
@@ -272,6 +272,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbVerified = new DatabaseHelper(db, myImportFile);
 		dbFactory.getTableOrSheetNames().clear();
 		dbFactory.getDbInHelper().update(dbVerified);
+		setTablesOrWorksheets();
 
 		if (reloadImportFiles(true, false)) {
 			verifyDatabase();

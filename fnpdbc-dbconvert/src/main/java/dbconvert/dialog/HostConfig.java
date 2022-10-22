@@ -73,6 +73,7 @@ public class HostConfig extends BasicDialog {
 
 	private boolean isSaved;
 	private boolean isMariaDb;
+	private boolean isFirebird;
 	private boolean isPostgreSQL;
 	private boolean isSqlServer;
 
@@ -83,6 +84,7 @@ public class HostConfig extends BasicDialog {
 	public HostConfig(DatabaseHelper helper) {
 		this.helper = helper;
 
+		isFirebird = helper.getDatabaseType() == ExportFile.FIREBIRD;
 		isMariaDb = helper.getDatabaseType() == ExportFile.MARIADB;
 		isPostgreSQL = helper.getDatabaseType() == ExportFile.POSTGRESQL;
 		isSqlServer = helper.getDatabaseType() == ExportFile.SQLSERVER;
@@ -96,7 +98,6 @@ public class HostConfig extends BasicDialog {
 	private void init() {
 		isSaved = false;
 		init(helper.getDatabaseType().getName() + " " + GUIFactory.getText("configuration"));
-		setHelpFile("export_hostdb");
 	}
 
 	@Override
@@ -129,11 +130,18 @@ public class HostConfig extends BasicDialog {
 		result.addTab("SSL", createSslTab());
 
 		Map<Integer, String> mapHelp = new HashMap<>();
-		mapHelp.put(0, "export_hostdb");
+		mapHelp.put(0, isFirebird ? "export_firebird" : "export_hostdb");
 		mapHelp.put(1, "export_ssh_hostdb");
 		mapHelp.put(2, isSqlServer ? "export_ssl_sqlserver" : "export_ssl_hostdb");
 
 		result.addChangeListener(e -> setHelpFile(mapHelp.get(result.getSelectedIndex())));
+		setHelpFile(mapHelp.get(0));
+
+		if (isFirebird) {
+			result.setEnabledAt(1, false);
+			result.setEnabledAt(2, false);
+		}
+
 		return result;
 	}
 
@@ -173,7 +181,15 @@ public class HostConfig extends BasicDialog {
 		panel.add(GUIFactory.getJLabel("password"), c.gridCell(2, 1, 0, 0));
 		panel.add(txPassword, c.gridCell(3, 1, 2, 0));
 		panel.add(GUIFactory.getJLabel("database"), c.gridCell(0, 2, 0, 0));
-		panel.add(txDatabase, c.gridCell(1, 2, 2, 0));
+
+		if (isFirebird) {
+			panel.add(txDatabase, c.gridmultipleCell(1, 2, 1, 0, 2, 0));
+			panel.add(GUIFactory.getJButton("browseFile", e -> {
+				General.getSelectedFile(HostConfig.this, txDatabase, FileType.FIREBIRD, true);
+			}), c.gridCell(3, 2, 1, 0));
+		} else {
+			panel.add(txDatabase, c.gridCell(1, 2, 2, 0));
+		}
 		return panel;
 	}
 
@@ -181,7 +197,6 @@ public class HostConfig extends BasicDialog {
 		JPanel panel = new JPanel(new GridBagLayout());
 
 		ckUseSsh = GUIFactory.getJCheckBox("useSsh", helper.isUseSsh(), e -> activateComponents());
-
 		txSshHost = GUIFactory.getJTextField("sshHost", helper.getSshHost().isEmpty() ? host : helper.getSshHost());
 		txSshPort = getPortSpinner("", helper.getSshPort() == 0 ? 22 : helper.getSshPort());
 		txSshUser = GUIFactory.getJTextField("sshUser", helper.getSshUser());
@@ -201,6 +216,7 @@ public class HostConfig extends BasicDialog {
 		panel.add(GUIFactory.getJLabel("sshPrivateKey"), c.gridCell(0, 3, 0, 0));
 		panel.add(txKeyfile, c.gridCell(1, 3, 0, 0));
 		panel.add(btKeyfile, c.gridCell(2, 3, 0, 0));
+
 		return panel;
 	}
 

@@ -149,10 +149,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			types = new String[] { "TABLE", "VIEW" };
 			break;
 		case SQLSERVER:
+		default:
 			types = new String[] { "TABLE" };
 			break;
-		default:
-			types = null;
 		}
 
 		DatabaseMetaData metaData = connection.getMetaData();

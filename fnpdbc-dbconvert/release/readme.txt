@@ -35,6 +35,7 @@ Name            OS
 Calc            All platforms
 CSV             All platforms
 DBase           Microsoft Windows
+Firebird        All Platforms
 Foxpro          Microsoft Windows 
 JFile           Palm
 List            Palm 
@@ -147,6 +148,13 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 7.4
+-----------
+Added support for Firebase databases
+Updated external libraries
+Minor bug fixes
+
 
 Version 7.3
 -----------

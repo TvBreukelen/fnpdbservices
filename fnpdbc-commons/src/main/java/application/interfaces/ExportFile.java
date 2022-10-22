@@ -18,6 +18,7 @@ public enum ExportFile {
 	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
 	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
 	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767),
+	FIREBIRD("Firebird", FileType.HOST, 32767, 32767, 32767),
 	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
 	DBASE("xBase", FileType.DBF, 254, 32737, 128), DBASE3("DBase3", FileType.DBF, 254, 32737, 128),
 	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), DBASE5("DBase5", FileType.DBF, 254, 32767, 1024),
@@ -67,6 +68,7 @@ public enum ExportFile {
 			result.remove(DBASE.name);
 			result.remove(SQLITE.name);
 			result.remove(ACCESS.name);
+			result.remove(FIREBIRD.name);
 			result.remove(MARIADB.name);
 			result.remove(POSTGRESQL.name);
 			result.remove(SQLSERVER.name);
@@ -89,6 +91,7 @@ public enum ExportFile {
 	public boolean isDatabase() {
 		switch (this) {
 		case ACCESS:
+		case FIREBIRD:
 		case MARIADB:
 		case POSTGRESQL:
 		case SQLITE:
@@ -114,6 +117,7 @@ public enum ExportFile {
 
 	public boolean isSqlDatabase() {
 		switch (this) {
+		case FIREBIRD:
 		case MARIADB:
 		case POSTGRESQL:
 		case SQLITE:
@@ -212,6 +216,8 @@ public enum ExportFile {
 
 	public int getPort() {
 		switch (this) {
+		case FIREBIRD:
+			return 3050;
 		case MARIADB:
 			return 3306;
 		case POSTGRESQL:
@@ -225,6 +231,8 @@ public enum ExportFile {
 
 	public String getUser() {
 		switch (this) {
+		case FIREBIRD:
+			return "sysdba";
 		case MARIADB:
 			return "root";
 		case POSTGRESQL:
