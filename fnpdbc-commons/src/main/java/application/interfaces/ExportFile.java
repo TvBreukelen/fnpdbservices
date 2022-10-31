@@ -66,11 +66,11 @@ public enum ExportFile {
 			result.remove(FOXPRO.name);
 		} else {
 			result.remove(DBASE.name);
-			result.remove(SQLITE.name);
 			result.remove(ACCESS.name);
 			result.remove(FIREBIRD.name);
 			result.remove(MARIADB.name);
 			result.remove(POSTGRESQL.name);
+			result.remove(SQLITE.name);
 			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
 		}

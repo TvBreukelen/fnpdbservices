@@ -75,6 +75,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 				mySoftware = new XConverter();
 				mySoftware.connect2DB();
 				mySoftware.setupDBTranslation(false);
+				mySoftware.checkNumberOfFields();
 				mySoftware.loadInputFile();
 				mySoftware.sortTableModel();
 				buildViewer();

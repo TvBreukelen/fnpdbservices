@@ -524,9 +524,4 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	public ExportFile getExportFile() {
 		return ExportFile.getExportFile(pdaSettings.getProjectID());
 	}
-
-	@Override
-	public boolean isDbConvert() {
-		return false;
-	}
 }

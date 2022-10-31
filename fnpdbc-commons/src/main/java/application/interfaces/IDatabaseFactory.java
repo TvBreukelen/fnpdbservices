@@ -24,6 +24,4 @@ public interface IDatabaseFactory {
 	String getDatabaseFilename();
 
 	void close();
-
-	boolean isDbConvert();
 }

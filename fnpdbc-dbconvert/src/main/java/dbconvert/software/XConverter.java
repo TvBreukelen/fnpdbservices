@@ -282,8 +282,14 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		Predicate<FieldDefinition> filter = field -> field.getFieldType().isSetFieldSize();
 
 		totalRecords = dbIn.getTotalRecords() - firstRecord;
+
+		// Check if there are any records to process
+		if (totalRecords == 0) {
+			throw FNProgException.getException("noRecordsFound", myImportFile.getName());
+		}
+
 		if (myImportFile.isSqlDatabase()) {
-			((SqlDB) dbIn).createStatement();
+			((SqlDB) dbIn).createQueryStatement();
 		}
 
 		// Write all records into the table model
@@ -406,11 +412,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			throw FNProgException.getException("maxFieldsOverride", Integer.toString(userFields),
 					myExportFile.getName(), Integer.toString(myExportFile.getMaxFields()));
 		}
-
-		// Check if there are any records to process
-		if (totalRecords == 0) {
-			throw FNProgException.getException("noRecordsFound", myImportFile.getName());
-		}
 	}
 
 	@Override
@@ -497,10 +498,5 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	@Override
 	public ExportFile getExportFile() {
 		return ExportFile.getExportFile(pdaSettings.getProjectID());
-	}
-
-	@Override
-	public boolean isDbConvert() {
-		return true;
 	}
 }

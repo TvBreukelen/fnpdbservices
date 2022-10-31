@@ -1,10 +1,13 @@
 package dbengine;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,8 +52,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	protected Connection connection;
 	protected boolean isConnected;
-	private ResultSet dbResultSet;
 	private Statement dbStatement;
+	private ResultSet dbResultSet;
 	private Session session;
 	protected int assignedPort;
 
@@ -110,7 +113,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	protected void verifyKeyFile(String keyFile) throws Exception {
+	protected void verifyKeyFile(String keyFile) throws FileNotFoundException, FNProgException {
 		if (!General.existFile(keyFile)) {
 			// Should not occur unless file has been deleted
 			throw FNProgException.getException("noDatabaseExists", keyFile);
@@ -143,15 +146,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
-		String[] types;
-		switch (myImportFile) {
-		case POSTGRESQL:
+		String[] types = null;
+		if (myImportFile == ExportFile.POSTGRESQL) {
 			types = new String[] { "TABLE", "VIEW" };
-			break;
-		case SQLSERVER:
-		default:
+		} else if (myImportFile == ExportFile.SQLSERVER) {
 			types = new String[] { "TABLE" };
-			break;
 		}
 
 		DatabaseMetaData metaData = connection.getMetaData();
@@ -191,8 +190,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				ResultSet columns = metaData.getColumns(tableCat, schema, table, null);
 				getColumns(sqlTable, columns);
 			}
-		} catch (Exception e) {
-			// should not occur
 		}
 
 		if (aTables.isEmpty()) {
@@ -377,7 +374,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return new ArrayList<>(aTables.keySet());
 	}
 
-	public void createStatement() throws Exception {
+	public void createInsertStatement() throws SQLException {
+		dbStatement = connection.prepareStatement(getSqlInsert());
+	}
+
+	public void createQueryStatement() throws SQLException {
 		// Extract fields to read from the table model, based on what we want to write.
 		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
 		// data conversions
@@ -406,6 +407,26 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 		}
 		return result;
+	}
+
+	private String getSqlInsert() {
+		StringBuilder buf1 = new StringBuilder("INSERT INTO ").append(getSqlFieldName(myPref.getTableName()))
+				.append(" (");
+		StringBuilder buf2 = new StringBuilder("VALUES (");
+
+		mySoft.getDbInfoToWrite().forEach(field -> {
+			buf1.append(field.getFieldHeader()).append(", ");
+			buf2.append("?, ");
+		});
+
+		buf1.delete(buf1.length() - 2, buf1.length());
+		buf2.delete(buf2.length() - 2, buf2.length());
+
+		buf1.append(") ");
+		buf2.append(")");
+
+		buf1.append(buf2.toString());
+		return buf1.toString();
 	}
 
 	private String getSqlQuery() {
@@ -585,7 +606,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private String readMemoField(ResultSet rs, int colNo) throws Exception {
+	private String readMemoField(ResultSet rs, int colNo) throws SQLException, IOException {
 		Reader reader;
 		int c = 0;
 		try {
@@ -614,6 +635,15 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		// We are currently not writing to the SQL databases
+		PreparedStatement stat = (PreparedStatement) dbStatement;
+		stat.clearParameters();
+
+		int index = 1;
+		for (FieldDefinition field : dbInfo2Write) {
+			stat.setObject(index++, dbRecord.getOrDefault(field.getFieldName(), null));
+		}
+
+		stat.addBatch();
+
 	}
 }

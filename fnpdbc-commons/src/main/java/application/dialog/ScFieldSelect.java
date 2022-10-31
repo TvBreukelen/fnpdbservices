@@ -137,6 +137,11 @@ public class ScFieldSelect implements PropertyChangeListener {
 		factory.getDbSelectFields().forEach(availableModel::addElement);
 		lstAvailableFields.setSelectedIndex(0);
 		userModel.setTableData(userFields);
+
+		if (lstAvailableFields.getPreferredSize().getWidth() < 100) {
+			lstAvailableFields.setFixedCellWidth(100);
+		}
+
 		activateComponents();
 	}
 
@@ -158,6 +163,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 			}
 		};
 		lstAvailableFields.addMouseListener(mouseListener);
+		// lstAvailableFields.setFixedCellWidth(140);
 
 		// Add scrollpane
 		JScrollPane scAvailableFields = new JScrollPane(lstAvailableFields);
