@@ -147,10 +147,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
 		String[] types = null;
-		if (myImportFile == ExportFile.POSTGRESQL) {
+		switch (myImportFile) {
+		case POSTGRESQL:
 			types = new String[] { "TABLE", "VIEW" };
-		} else if (myImportFile == ExportFile.SQLSERVER) {
+			break;
+		case SQLSERVER:
+		case FIREBIRD:
 			types = new String[] { "TABLE" };
+			break;
+		default:
+			break;
 		}
 
 		DatabaseMetaData metaData = connection.getMetaData();
