@@ -37,4 +37,8 @@ public class SqlTable {
 	public Map<String, ForeignKey> getFkList() {
 		return fkList;
 	}
+
+	public void addFkList(String key, ForeignKey value) {
+		fkList.put(key, value);
+	}
 }

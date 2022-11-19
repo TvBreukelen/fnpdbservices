@@ -7,7 +7,6 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,11 +16,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -163,13 +165,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		try (ResultSet rs = metaData.getTables(null, null, "%", types)) {
 			while (rs.next()) {
 				String tableCat = rs.getString(TABLE_CAT);
-				if (tableCat != null && !tableCat.equals(db)) {
-					continue;
-				}
-
 				String table = rs.getString(TABLE_NAME);
 
-				if ("trace_xe_action_map".equals(table) || "trace_xe_event_map".equals(table)) {
+				if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
+						|| "trace_xe_event_map".equals(table)) {
 					// SQL Server internal tables
 					continue;
 				}
@@ -184,12 +183,21 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					}
 				}
 
+				try (ResultSet foreignKeys = metaData.getImportedKeys(tableCat, schema, table)) {
+					while (foreignKeys.next()) {
+						ForeignKey fk = new ForeignKey();
+						fk.setColumnFrom(foreignKeys.getString("PKCOLUMN_NAME"));
+						fk.setColumnTo(foreignKeys.getString("FKCOLUMN_NAME"));
+						sqlTable.addFkList(foreignKeys.getString("PKTABLE_NAME"), fk);
+					}
+				}
+
 				try (ResultSet foreignKeys = metaData.getExportedKeys(tableCat, schema, table)) {
 					while (foreignKeys.next()) {
 						ForeignKey fk = new ForeignKey();
-						fk.setFkTable(foreignKeys.getString("FKTABLE_NAME"));
-						fk.setFkColumn(foreignKeys.getString("FKCOLUMN_NAME"));
-						sqlTable.getFkList().put(foreignKeys.getString("PKCOLUMN_NAME"), fk);
+						fk.setColumnFrom(foreignKeys.getString("FKCOLUMN_NAME"));
+						fk.setColumnTo(foreignKeys.getString("PKCOLUMN_NAME"));
+						sqlTable.addFkList(foreignKeys.getString("FKTABLE_NAME"), fk);
 					}
 				}
 
@@ -364,7 +372,23 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		return aTables.get(myPref.getTableName()).getDbFields();
+		SqlTable table = aTables.get(myPref.getTableName());
+		List<FieldDefinition> result = new ArrayList<>(table.getDbFields());
+
+		for (String pkTable : table.getFkList().keySet()) {
+			Optional<SqlTable> optPkTable = Optional.ofNullable(aTables.get(pkTable));
+			if (optPkTable.isPresent()) {
+				optPkTable.get().getDbFields().forEach(f -> {
+					FieldDefinition fd = f.copy();
+					fd.setFieldName(pkTable + "." + f.getFieldName());
+					fd.setFieldAlias(fd.getFieldName());
+					fd.setFieldHeader(fd.getFieldName());
+					result.add(fd);
+				});
+			}
+		}
+
+		return result;
 	}
 
 	@Override
@@ -380,18 +404,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return new ArrayList<>(aTables.keySet());
 	}
 
-	public void createInsertStatement() throws SQLException {
-		dbStatement = connection.prepareStatement(getSqlInsert());
-	}
-
 	public void createQueryStatement() throws SQLException {
-		// Extract fields to read from the table model, based on what we want to write.
-		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
-		// data conversions
-
-		dbInfoToRead = new ArrayList<>();
-		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
-
 		dbStatement = connection.createStatement();
 		dbResultSet = dbStatement.executeQuery(getSqlQuery());
 	}
@@ -415,31 +428,25 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return result;
 	}
 
-	private String getSqlInsert() {
-		StringBuilder buf1 = new StringBuilder("INSERT INTO ").append(getSqlFieldName(myPref.getTableName()))
-				.append(" (");
-		StringBuilder buf2 = new StringBuilder("VALUES (");
-
-		mySoft.getDbInfoToWrite().forEach(field -> {
-			buf1.append(field.getFieldHeader()).append(", ");
-			buf2.append("?, ");
-		});
-
-		buf1.delete(buf1.length() - 2, buf1.length());
-		buf2.delete(buf2.length() - 2, buf2.length());
-
-		buf1.append(") ");
-		buf2.append(")");
-
-		buf1.append(buf2.toString());
-		return buf1.toString();
-	}
-
 	private String getSqlQuery() {
 		StringBuilder buf = new StringBuilder("SELECT ");
+		SqlTable table = aTables.get(myPref.getTableName());
+
+		Set<String> linkedKeys = new HashSet<>();
+		dbInfoToRead.forEach(field -> {
+			if (field.getFieldName().contains(".")) {
+				String linkedTable = field.getFieldName().substring(0, field.getFieldName().indexOf("."));
+				Optional<ForeignKey> key = Optional.ofNullable(table.getFkList().get(linkedTable));
+				if (key.isPresent()) {
+					linkedKeys.add(key.get().getColumnFrom());
+				}
+			}
+		});
 
 		dbInfoToRead.forEach(field -> {
-			buf.append(getSqlFieldName(field.getFieldName()));
+			String fieldName = linkedKeys.contains(field.getFieldName()) ? table.getName() + "." + field.getFieldName()
+					: field.getFieldName();
+			buf.append(fieldName);
 			if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
 				// cast money field to numeric, otherwise a string preceded by a currency sign
 				// will be returned (like $1,000.99)
@@ -449,9 +456,48 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		});
 
 		buf.delete(buf.length() - 2, buf.length());
-		buf.append(" FROM ").append(getSqlFieldName(myPref.getTableName()));
+		buf.append("\nFROM ").append(getSqlFieldName(myPref.getTableName()));
+
+		getJoinStatement(buf, table);
 		getWhereStatement(buf);
 		return buf.toString();
+	}
+
+	private void getJoinStatement(StringBuilder buf, SqlTable table) {
+		if (table.getFkList().isEmpty()) {
+			return;
+		}
+
+		// Check if foreign keys are used in fields to be read
+		Set<String> linkedTables = new HashSet<>();
+		dbInfoToRead.forEach(field -> {
+			if (field.getFieldName().contains(".")) {
+				linkedTables.add(field.getFieldName().substring(0, field.getFieldName().indexOf(".")));
+			}
+		});
+
+		// Verify the filters for foreign keys
+		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
+			for (int i = 0; i < myPref.noOfFilters(); i++) {
+				String fieldName = myPref.getFilterField(i);
+				if (fieldName.contains(".")) {
+					linkedTables.add(fieldName.substring(0, fieldName.indexOf(".")));
+				}
+			}
+		}
+
+		if (linkedTables.isEmpty()) {
+			return;
+		}
+
+		for (String link : linkedTables) {
+			Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
+			if (fk.isPresent()) {
+				buf.append("\nLEFT JOIN ").append(link).append(" ON\n").append(link).append(".")
+						.append(fk.get().getColumnTo()).append(" = ").append(table.getName()).append(".")
+						.append(fk.get().getColumnFrom());
+			}
+		}
 	}
 
 	private void getWhereStatement(StringBuilder buf) {
@@ -530,8 +576,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		List<Object> result = new ArrayList<>();
 
+		String table = myPref.getTableName();
+
 		StringBuilder sql = new StringBuilder("SELECT DISTINCT ");
-		sql.append(getSqlFieldName(field)).append(" FROM ").append(getSqlFieldName(myPref.getTableName()));
+		if (field.contains(".")) {
+			int index = field.indexOf(".");
+			table = field.substring(0, index);
+			field = field.substring(index + 1);
+		}
+
+		sql.append(getSqlFieldName(field)).append(" FROM ").append(getSqlFieldName(table));
+
 		try (Statement statement = connection.createStatement();
 				ResultSet rs = statement.executeQuery(sql.toString())) {
 			while (rs.next()) {
@@ -544,9 +599,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public int getTotalRecords() {
+		// Extract fields to read from the table model, based on what we want to write.
+		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
+		// data conversions
+
+		dbInfoToRead = new ArrayList<>();
+		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
+
 		try {
 			StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
 			sql.append(getSqlFieldName(myPref.getTableName()));
+			getJoinStatement(sql, aTables.get(myPref.getTableName()));
 			getWhereStatement(sql);
 
 			try (Statement statement = connection.createStatement();
@@ -641,14 +704,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		PreparedStatement stat = (PreparedStatement) dbStatement;
-		stat.clearParameters();
-
-		int index = 1;
-		for (FieldDefinition field : dbInfo2Write) {
-			stat.setObject(index++, dbRecord.getOrDefault(field.getFieldName(), null));
-		}
-
-		stat.addBatch();
+		// Not supported yet
 	}
 }
