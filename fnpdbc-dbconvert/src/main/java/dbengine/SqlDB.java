@@ -59,6 +59,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private Session session;
 	protected int assignedPort;
 
+	private Set<String> ambiguousFields = new HashSet<>();
+	private Set<String> linkedTables = new HashSet<>();
+
 	protected SqlDB(Profiles pref) {
 		super(pref);
 	}
@@ -429,89 +432,54 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	private String getSqlQuery() {
-		StringBuilder buf = new StringBuilder("SELECT ");
+		StringBuilder sql = new StringBuilder("SELECT ");
 		SqlTable table = aTables.get(myPref.getTableName());
 
-		Set<String> linkedKeys = new HashSet<>();
 		dbInfoToRead.forEach(field -> {
-			if (field.getFieldName().contains(".")) {
-				String linkedTable = field.getFieldName().substring(0, field.getFieldName().indexOf("."));
-				Optional<ForeignKey> key = Optional.ofNullable(table.getFkList().get(linkedTable));
-				if (key.isPresent()) {
-					linkedKeys.add(key.get().getColumnFrom());
-				}
+			String fieldName = field.getFieldName();
+			if (!linkedTables.isEmpty() && ambiguousFields.contains(field.getFieldName())) {
+				fieldName = table.getName() + "." + field.getFieldName();
 			}
-		});
 
-		dbInfoToRead.forEach(field -> {
-			String fieldName = linkedKeys.contains(field.getFieldName()) ? table.getName() + "." + field.getFieldName()
-					: field.getFieldName();
-			buf.append(fieldName);
+			sql.append(getSqlFieldName(fieldName));
 			if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
 				// cast money field to numeric, otherwise a string preceded by a currency sign
 				// will be returned (like $1,000.99)
-				buf.append("::numeric");
+				sql.append("::numeric");
 			}
-			buf.append(", ");
+			sql.append(", ");
 		});
 
-		buf.delete(buf.length() - 2, buf.length());
-		buf.append("\nFROM ").append(getSqlFieldName(myPref.getTableName()));
+		sql.delete(sql.length() - 2, sql.length());
+		sql.append("\nFROM ").append(getSqlFieldName(myPref.getTableName()));
 
-		getJoinStatement(buf, table);
-		getWhereStatement(buf);
-		return buf.toString();
+		getJoinStatement(sql, table);
+		sql.append(getWhereStatement());
+		return sql.toString();
 	}
 
 	private void getJoinStatement(StringBuilder buf, SqlTable table) {
-		if (table.getFkList().isEmpty()) {
-			return;
-		}
-
-		// Check if foreign keys are used in fields to be read
-		Set<String> linkedTables = new HashSet<>();
-		dbInfoToRead.forEach(field -> {
-			if (field.getFieldName().contains(".")) {
-				linkedTables.add(field.getFieldName().substring(0, field.getFieldName().indexOf(".")));
-			}
-		});
-
-		// Verify the filters for foreign keys
-		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
-			for (int i = 0; i < myPref.noOfFilters(); i++) {
-				String fieldName = myPref.getFilterField(i);
-				if (fieldName.contains(".")) {
-					linkedTables.add(fieldName.substring(0, fieldName.indexOf(".")));
-				}
-			}
-		}
-
-		if (linkedTables.isEmpty()) {
-			return;
-		}
-
 		for (String link : linkedTables) {
 			Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
 			if (fk.isPresent()) {
-				buf.append("\nLEFT JOIN ").append(link).append(" ON\n").append(link).append(".")
-						.append(fk.get().getColumnTo()).append(" = ").append(table.getName()).append(".")
-						.append(fk.get().getColumnFrom());
+				buf.append("\nLEFT JOIN ").append(link).append(" ON ")
+						.append(getSqlFieldName(link + "." + fk.get().getColumnTo())).append(" = ")
+						.append(getSqlFieldName(table.getName() + "." + fk.get().getColumnFrom()));
 			}
 		}
 	}
 
-	private void getWhereStatement(StringBuilder buf) {
+	private String getWhereStatement() {
 		if (GeneralSettings.getInstance().isNoFilterExport() || myPref.isNoFilters()) {
-			return;
+			return "";
 		}
 
+		StringBuilder buf = new StringBuilder();
 		for (int i = 0; i < myPref.noOfFilters(); i++) {
-			String field = myPref.getFilterField(i);
-
-			FieldDefinition def = hFieldMap.get(field);
-			if (def == null) {
+			FieldDefinition field = hFieldMap.get(myPref.getFilterField(i));
+			if (field == null) {
 				// Should not happen
-				return;
+				return "";
 			}
 
 			if (i > 0) {
@@ -520,48 +488,59 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				buf.append(" WHERE ");
 			}
 
-			buf.append(field);
-			switch (myPref.getFilterOperator(i)) {
-			case IS_EQUAL_TO:
-				buf.append(" = ");
-				break;
-			case IS_GREATER_THAN:
-				buf.append(" > ");
-				break;
-			case IS_GREATER_THAN_OR_EQUAL_TO:
-				buf.append(" >= ");
-				break;
-			case IS_LESS_THAN:
-				buf.append(" < ");
-				break;
-			case IS_LESS_THAN_OR_EQUAL_TO:
-				buf.append(" <= ");
-				break;
-			case IS_NOT_EQUAL_TO:
-				buf.append(" <> ");
-				break;
+			String fieldName = field.getFieldName();
+			if (!linkedTables.isEmpty() && ambiguousFields.contains(field.getFieldName())) {
+				fieldName = myPref.getTableName() + "." + field.getFieldName();
 			}
 
-			switch (def.getFieldType()) {
-			case BOOLEAN:
-				buf.append("true".equals(myPref.getFilterValue(i)) ? 1 : 0);
-				break;
-			case CURRENCY:
-			case FLOAT:
-			case NUMBER:
-				buf.append(myPref.getFilterValue(i));
-				break;
-			default:
-				buf.append("'");
-				buf.append(myPref.getFilterValue(i));
-				buf.append("'");
-				break;
-			}
+			buf.append(getSqlFieldName(fieldName));
+			getFilterOperatorAndValue(buf, i, field);
+		}
+
+		return buf.toString();
+	}
+
+	private void getFilterOperatorAndValue(StringBuilder buf, int i, FieldDefinition field) {
+		switch (myPref.getFilterOperator(i)) {
+		case IS_EQUAL_TO:
+			buf.append(" = ");
+			break;
+		case IS_GREATER_THAN:
+			buf.append(" > ");
+			break;
+		case IS_GREATER_THAN_OR_EQUAL_TO:
+			buf.append(" >= ");
+			break;
+		case IS_LESS_THAN:
+			buf.append(" < ");
+			break;
+		case IS_LESS_THAN_OR_EQUAL_TO:
+			buf.append(" <= ");
+			break;
+		case IS_NOT_EQUAL_TO:
+			buf.append(" <> ");
+			break;
+		}
+
+		switch (field.getFieldType()) {
+		case BOOLEAN:
+			buf.append("true".equals(myPref.getFilterValue(i)) ? 1 : 0);
+			break;
+		case CURRENCY:
+		case FLOAT:
+		case NUMBER:
+			buf.append(myPref.getFilterValue(i));
+			break;
+		default:
+			buf.append("'");
+			buf.append(myPref.getFilterValue(i));
+			buf.append("'");
+			break;
 		}
 	}
 
 	private String getSqlFieldName(String value) {
-		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_]*$")) {
+		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
 			return value;
 		}
 
@@ -603,14 +582,33 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
 		// data conversions
 
+		SqlTable table = aTables.get(myPref.getTableName());
 		dbInfoToRead = new ArrayList<>();
 		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
+
+		ambiguousFields.clear();
+		linkedTables.clear();
+
+		// Check if foreign keys are used in fields to be read
+		dbInfoToRead.forEach(field -> {
+			getLinkedTableAndKeys(table, field);
+		});
+
+		// Verify the filters for foreign keys
+		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
+			for (int i = 0; i < myPref.noOfFilters(); i++) {
+				getLinkedTableAndKeys(table, hFieldMap.get(myPref.getFilterField(i)));
+			}
+		}
 
 		try {
 			StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
 			sql.append(getSqlFieldName(myPref.getTableName()));
-			getJoinStatement(sql, aTables.get(myPref.getTableName()));
-			getWhereStatement(sql);
+			String where = getWhereStatement();
+			if (!where.isEmpty()) {
+				getJoinStatement(sql, table);
+				sql.append(where);
+			}
 
 			try (Statement statement = connection.createStatement();
 					ResultSet rs = statement.executeQuery(sql.toString())) {
@@ -623,6 +621,24 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return 0;
 		} catch (Exception e) {
 			return 0;
+		}
+	}
+
+	private void getLinkedTableAndKeys(SqlTable table, FieldDefinition field) {
+		if (field != null && field.getFieldName().contains(".")) {
+			String linkedTable = field.getFieldName().substring(0, field.getFieldName().indexOf("."));
+			Optional<ForeignKey> key = Optional.ofNullable(table.getFkList().get(linkedTable));
+			if (key.isPresent()) {
+				linkedTables.add(linkedTable);
+				SqlTable fkTable = aTables.get(linkedTable);
+
+				// Get identical field names
+				fkTable.getDbFields().forEach(f -> {
+					if (hFieldMap.containsKey(f.getFieldName())) {
+						ambiguousFields.add(f.getFieldName());
+					}
+				});
+			}
 		}
 	}
 
