@@ -444,25 +444,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		if (myImportFile.isConnectHost()) {
-			boolean isNotSsh = !dbVerified.isUseSsh();
-			boolean isNotSsl = !dbVerified.isUseSsl();
-
-			dbSettings.setHost(dbVerified.getHost());
-			dbSettings.setPort(dbVerified.getPort());
-			dbSettings.setUseSsh(dbVerified.isUseSsh());
-			dbSettings.setSshHost(isNotSsh ? "" : dbVerified.getSshHost());
-			dbSettings.setSshPort(isNotSsh ? 0 : dbVerified.getSshPort());
-			dbSettings.setSshUser(isNotSsh ? "" : dbVerified.getSshUser());
-			dbSettings.setSshPassword(isNotSsh ? "" : dbVerified.getSshPassword());
-			dbSettings.setPrivateKeyFile(isNotSsh ? "" : dbVerified.getPrivateKeyFile());
-
-			dbSettings.setUseSsl(dbVerified.isUseSsl());
-			dbSettings.setSslMode(isNotSsl ? "" : dbVerified.getSslMode());
-			dbSettings.setKeyStore(isNotSsl ? "" : dbVerified.getKeyStore());
-			dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
-			dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());
-			dbSettings.setHostNameInCertificate(isNotSsl ? "" : dbVerified.getHostNameInCertificate());
-			dbSettings.setTrustServerCertificate(isNotSsl ? isNotSsl : dbVerified.isTrustServerCertificate());
+			saveRemoteDatabase();
 		}
 
 		pdaSettings.setProject(projectID);
@@ -485,6 +467,28 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
 
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
+	}
+
+	private void saveRemoteDatabase() {
+		boolean isNotSsh = !dbVerified.isUseSsh();
+		boolean isNotSsl = !dbVerified.isUseSsl();
+
+		dbSettings.setHost(dbVerified.getHost());
+		dbSettings.setPort(dbVerified.getPort());
+		dbSettings.setUseSsh(dbVerified.isUseSsh());
+		dbSettings.setSshHost(isNotSsh ? "" : dbVerified.getSshHost());
+		dbSettings.setSshPort(isNotSsh ? 0 : dbVerified.getSshPort());
+		dbSettings.setSshUser(isNotSsh ? "" : dbVerified.getSshUser());
+		dbSettings.setSshPassword(isNotSsh ? "" : dbVerified.getSshPassword());
+		dbSettings.setPrivateKeyFile(isNotSsh ? "" : dbVerified.getPrivateKeyFile());
+
+		dbSettings.setUseSsl(dbVerified.isUseSsl());
+		dbSettings.setSslMode(isNotSsl ? "" : dbVerified.getSslMode());
+		dbSettings.setKeyStore(isNotSsl ? "" : dbVerified.getKeyStore());
+		dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
+		dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());
+		dbSettings.setHostNameInCertificate(isNotSsl ? "" : dbVerified.getHostNameInCertificate());
+		dbSettings.setTrustServerCertificate(isNotSsl ? isNotSsl : dbVerified.isTrustServerCertificate());
 	}
 
 	@Override

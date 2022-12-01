@@ -347,6 +347,7 @@ programExecError.mesg=Program '%0' returned the following error: %1.
 record.text=RecordID
 recordsProcessed.mesg=%0 Records Processed
 recordsRead.mesg=%0 Records Read
+relationships.title=Relationships
 remainderGroup.text=Remaining
 remainderGroup.tooltip=Group name for remaining data
 replaceRecords.text=Replace Records in Database

@@ -349,6 +349,7 @@ programExecError.mesg=Programma '%0' gaf de volgende foutmelding: %1.
 record.text=ID Nummer
 recordsProcessed.mesg=%0 Records verwerkt
 recordsRead.mesg=%0 Records ingelezen
+relationships.title=Relaties
 remainderGroup.text=Resterend
 remainderGroup.tooltip=Groepsnaam voor resterende gegevens
 replaceRecords.text=Bestaande gegevens overschrijven

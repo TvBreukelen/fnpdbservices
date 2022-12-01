@@ -346,6 +346,7 @@ programExecError.mesg=Programm '%0' erwidert die folgenden Fehlermeldung: %1.
 record.text=ID-Nummer
 recordsProcessed.mesg=%0 Datensätze verarbeitet
 recordsRead.mesg=%0 Datensätze eingelesen
+relationships.title=Beziehungen
 remainderGroup.text=Verbleibend
 remainderGroup.tooltip=Gruppenname für verbleibende Daten
 replaceRecords.text=Alte Daten überschreiben
