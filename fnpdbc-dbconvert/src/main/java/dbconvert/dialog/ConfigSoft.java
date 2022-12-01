@@ -61,6 +61,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private JButton btFilter;
 	private JButton btSortOrder;
+	private JButton btRelationships;
 
 	private JComboBox<String> bDatabase;
 	private JComboBox<String> bTablesWorksheets;
@@ -106,6 +107,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
+		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
+				e -> {
+					ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.get(myView));
+					sort.setVisible(true);
+				});
+
 		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
 			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.get(myView));
 			sort.setVisible(true);
@@ -148,6 +155,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		result.add(btSave);
 		result.add(addToToolbar());
 		result.add(Box.createRigidArea(new Dimension(5, 42)));
+		result.add(btRelationships);
+		result.add(Box.createHorizontalStrut(2));
 		result.add(btSortOrder);
 		result.add(Box.createHorizontalStrut(2));
 		result.add(btFilter);
@@ -453,7 +462,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
 			dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());
 			dbSettings.setHostNameInCertificate(isNotSsl ? "" : dbVerified.getHostNameInCertificate());
-			dbSettings.setTrustServerCertificate(isNotSsl ? false : dbVerified.isTrustServerCertificate());
+			dbSettings.setTrustServerCertificate(isNotSsl ? isNotSsl : dbVerified.isTrustServerCertificate());
 		}
 
 		pdaSettings.setProject(projectID);
@@ -497,6 +506,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		btSave.setEnabled(isFileValid && isValidProfile);
 		btFilter.setEnabled(isFileValid);
 		btSortOrder.setEnabled(isFileValid);
+		btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase());
 		myView = dbFactory.getDatabaseFilename();
 
 		if (btFilter.isEnabled()) {

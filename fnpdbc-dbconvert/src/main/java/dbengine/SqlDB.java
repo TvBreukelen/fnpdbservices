@@ -184,6 +184,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					while (primaryKeys.next()) {
 						sqlTable.getPkList().add(primaryKeys.getString(COLUMN_NAME));
 					}
+				} catch (Exception ex) {
+					// Cannot read primary keys from table, due data corruption or missing query
+					// (SQLite)
+					continue;
 				}
 
 				try (ResultSet foreignKeys = metaData.getImportedKeys(tableCat, schema, table)) {
@@ -204,8 +208,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					}
 				}
 
-				ResultSet columns = metaData.getColumns(tableCat, schema, table, null);
-				getColumns(sqlTable, columns);
+				try (ResultSet columns = metaData.getColumns(tableCat, schema, table, null)) {
+					getColumns(sqlTable, columns);
+				}
 			}
 		}
 
@@ -451,7 +456,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		});
 
 		sql.delete(sql.length() - 2, sql.length());
-		sql.append("\nFROM ").append(getSqlFieldName(myPref.getTableName()));
+		sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
 
 		getJoinStatement(sql, table);
 		sql.append(getWhereStatement());
@@ -590,9 +595,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		linkedTables.clear();
 
 		// Check if foreign keys are used in fields to be read
-		dbInfoToRead.forEach(field -> {
-			getLinkedTableAndKeys(table, field);
-		});
+		dbInfoToRead.forEach(field -> getLinkedTableAndKeys(table, field));
 
 		// Verify the filters for foreign keys
 		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
