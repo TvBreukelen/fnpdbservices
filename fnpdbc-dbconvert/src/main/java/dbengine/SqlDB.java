@@ -59,7 +59,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private Session session;
 	protected int assignedPort;
 
-	private Set<String> ambiguousFields = new HashSet<>();
 	private Set<String> linkedTables = new HashSet<>();
 
 	protected SqlDB(Profiles pref) {
@@ -442,11 +441,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		dbInfoToRead.forEach(field -> {
 			String fieldName = field.getFieldName();
-			if (!linkedTables.isEmpty() && ambiguousFields.contains(field.getFieldName())) {
-				fieldName = table.getName() + "." + field.getFieldName();
-			}
-
-			sql.append(getSqlFieldName(fieldName));
+			sql.append(getSqlFieldName(fieldName.contains(".") ? fieldName : "A." + fieldName));
 			if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
 				// cast money field to numeric, otherwise a string preceded by a currency sign
 				// will be returned (like $1,000.99)
@@ -457,6 +452,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		sql.delete(sql.length() - 2, sql.length());
 		sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
+		sql.append(" AS A");
 
 		getJoinStatement(sql, table);
 		sql.append(getWhereStatement());
@@ -469,7 +465,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			if (fk.isPresent()) {
 				buf.append("\nLEFT JOIN ").append(link).append(" ON ")
 						.append(getSqlFieldName(link + "." + fk.get().getColumnTo())).append(" = ")
-						.append(getSqlFieldName(table.getName() + "." + fk.get().getColumnFrom()));
+						.append(getSqlFieldName("A." + fk.get().getColumnFrom()));
 			}
 		}
 	}
@@ -479,7 +475,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return "";
 		}
 
-		StringBuilder buf = new StringBuilder();
+		StringBuilder sql = new StringBuilder();
 		for (int i = 0; i < myPref.noOfFilters(); i++) {
 			FieldDefinition field = hFieldMap.get(myPref.getFilterField(i));
 			if (field == null) {
@@ -488,21 +484,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 
 			if (i > 0) {
-				buf.append(" ").append(myPref.getFilterCondition()).append(" ");
+				sql.append(" ").append(myPref.getFilterCondition()).append(" ");
 			} else {
-				buf.append(" WHERE ");
+				sql.append("\nWHERE ");
 			}
 
 			String fieldName = field.getFieldName();
-			if (!linkedTables.isEmpty() && ambiguousFields.contains(field.getFieldName())) {
-				fieldName = myPref.getTableName() + "." + field.getFieldName();
-			}
-
-			buf.append(getSqlFieldName(fieldName));
-			getFilterOperatorAndValue(buf, i, field);
+			sql.append(getSqlFieldName(fieldName.contains(".") ? fieldName : "A." + fieldName));
+			getFilterOperatorAndValue(sql, i, field);
 		}
 
-		return buf.toString();
+		return sql.toString();
 	}
 
 	private void getFilterOperatorAndValue(StringBuilder buf, int i, FieldDefinition field) {
@@ -591,24 +583,25 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		dbInfoToRead = new ArrayList<>();
 		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
 
-		ambiguousFields.clear();
 		linkedTables.clear();
 
 		// Check if foreign keys are used in fields to be read
-		dbInfoToRead.forEach(field -> getLinkedTableAndKeys(table, field));
+		dbInfoToRead.forEach(field -> getLinkedTables(table, field));
 
 		// Verify the filters for foreign keys
 		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
 			for (int i = 0; i < myPref.noOfFilters(); i++) {
-				getLinkedTableAndKeys(table, hFieldMap.get(myPref.getFilterField(i)));
+				getLinkedTables(table, hFieldMap.get(myPref.getFilterField(i)));
 			}
 		}
 
 		try {
 			StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
 			sql.append(getSqlFieldName(myPref.getTableName()));
+
 			String where = getWhereStatement();
 			if (!where.isEmpty()) {
+				sql.append(" AS A");
 				getJoinStatement(sql, table);
 				sql.append(where);
 			}
@@ -627,20 +620,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private void getLinkedTableAndKeys(SqlTable table, FieldDefinition field) {
+	private void getLinkedTables(SqlTable table, FieldDefinition field) {
 		if (field != null && field.getFieldName().contains(".")) {
 			String linkedTable = field.getFieldName().substring(0, field.getFieldName().indexOf("."));
 			Optional<ForeignKey> key = Optional.ofNullable(table.getFkList().get(linkedTable));
 			if (key.isPresent()) {
 				linkedTables.add(linkedTable);
-				SqlTable fkTable = aTables.get(linkedTable);
-
-				// Get identical field names
-				fkTable.getDbFields().forEach(f -> {
-					if (hFieldMap.containsKey(f.getFieldName())) {
-						ambiguousFields.add(f.getFieldName());
-					}
-				});
 			}
 		}
 	}
