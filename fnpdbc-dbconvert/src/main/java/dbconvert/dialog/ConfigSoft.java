@@ -109,8 +109,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
 				e -> {
-					ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.get(myView));
-					sort.setVisible(true);
+					Relations relation = new Relations(dbFactory.getSqlDB());
+					relation.setVisible(true);
 				});
 
 		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {

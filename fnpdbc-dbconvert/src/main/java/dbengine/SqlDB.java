@@ -411,6 +411,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return new ArrayList<>(aTables.keySet());
 	}
 
+	public SqlTable getSqlTable() {
+		return getSqlTable(myPref.getTableName());
+	}
+
+	public SqlTable getSqlTable(String table) {
+		return aTables.get(table);
+	}
+
 	public void createQueryStatement() throws SQLException {
 		dbStatement = connection.createStatement();
 		dbResultSet = dbStatement.executeQuery(getSqlQuery());
@@ -456,6 +464,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		getJoinStatement(sql, table);
 		sql.append(getWhereStatement());
+		sql.append(getOrderBy());
 		return sql.toString();
 	}
 
@@ -464,8 +473,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
 			if (fk.isPresent()) {
 				buf.append("\nLEFT JOIN ").append(link).append(" ON ")
-						.append(getSqlFieldName(link + "." + fk.get().getColumnTo())).append(" = ")
-						.append(getSqlFieldName("A." + fk.get().getColumnFrom()));
+						.append(getSqlFieldName(link + "." + fk.get().getColumnFrom())).append(" = ")
+						.append(getSqlFieldName("A." + fk.get().getColumnTo()));
 			}
 		}
 	}
@@ -475,7 +484,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return "";
 		}
 
-		StringBuilder sql = new StringBuilder();
+		StringBuilder sql = new StringBuilder("\nWHERE ");
 		for (int i = 0; i < myPref.noOfFilters(); i++) {
 			FieldDefinition field = hFieldMap.get(myPref.getFilterField(i));
 			if (field == null) {
@@ -485,8 +494,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 			if (i > 0) {
 				sql.append(" ").append(myPref.getFilterCondition()).append(" ");
-			} else {
-				sql.append("\nWHERE ");
 			}
 
 			String fieldName = field.getFieldName();
@@ -495,6 +502,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		return sql.toString();
+	}
+
+	private String getOrderBy() {
+		List<String> list = myPref.getSortFields();
+		if (list.isEmpty()) {
+			return "";
+		}
+
+		StringBuilder sql = new StringBuilder("\nORDER BY ");
+		list.forEach(s -> sql.append(getSqlFieldName(s.contains(".") ? s : "A." + s)).append(", "));
+		return sql.toString().substring(0, sql.lastIndexOf(","));
 	}
 
 	private void getFilterOperatorAndValue(StringBuilder buf, int i, FieldDefinition field) {
@@ -604,6 +622,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				sql.append(" AS A");
 				getJoinStatement(sql, table);
 				sql.append(where);
+			}
+
+			// Add linked field(s) for SortBy statement
+			if (myPref.isSortFieldDefined()) {
+				myPref.getSortFields().forEach(s -> getLinkedTables(table, hFieldMap.get(s)));
 			}
 
 			try (Statement statement = connection.createStatement();

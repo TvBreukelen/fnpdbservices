@@ -177,8 +177,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public void sortTableModel() {
-		// If we have no or only one record then we don't need to sort
-		if (myModel.getRowCount() <= 1) {
+		// If we have less than one record or we importing from a SQL database then we
+		// don't need to sort
+		if (myModel.getRowCount() <= 1 || myImportFile.isSqlDatabase()) {
 			return;
 		}
 
@@ -398,6 +399,10 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	public GeneralDB getDbOut() {
 		return dbOut;
+	}
+
+	public SqlDB getSqlDB() {
+		return myImportFile.isSqlDatabase() ? (SqlDB) dbIn : null;
 	}
 
 	public void checkNumberOfFields() throws Exception {

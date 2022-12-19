@@ -15,6 +15,7 @@ public interface IConvert {
 	 * @author Tom van Breukelen
 	 * @version 4.6
 	 */
+
 	void setSoftware(BasicSoft pSoft);
 
 	void openFile(DatabaseHelper helper, boolean isInputFile) throws Exception;
