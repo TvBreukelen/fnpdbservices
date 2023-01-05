@@ -91,6 +91,10 @@ public abstract class GeneralDB {
 		handbaseProgram = generalProps.getHandbaseConversionProgram();
 	}
 
+	public ExportFile getImportFile() {
+		return myImportFile;
+	}
+
 	public String getBooleanFalse() {
 		return booleanFalse;
 	}

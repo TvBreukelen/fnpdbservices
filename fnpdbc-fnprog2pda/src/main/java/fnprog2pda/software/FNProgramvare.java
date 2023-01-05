@@ -241,8 +241,8 @@ public abstract class FNProgramvare extends BasicSoft {
 		isCatraxx = dbFactory.getDatabaseType() == FNPSoftware.CATRAXX;
 
 		// Get the total number of records to process
-		dbFactory.getMSAccess().readTableContents();
-		msAccess = dbFactory.getMSAccess();
+		dbFactory.getInputFile().readTableContents();
+		msAccess = (MSAccess) dbFactory.getInputFile();
 		msAccess.setSoftware(this);
 		totalRecords = msAccess.getTotalRecords();
 	}

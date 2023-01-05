@@ -5,8 +5,11 @@ import java.util.Map;
 
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
+import dbengine.IConvert;
 
 public interface IDatabaseFactory {
+	IConvert getInputFile();
+
 	Map<String, FieldDefinition> getDbFieldDefinition();
 
 	List<FieldDefinition> getDbSelectFields();

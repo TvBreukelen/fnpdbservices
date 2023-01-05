@@ -322,7 +322,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbFactory.verifyDatabase(dbVerified);
 
 			if (isFirstRun) {
-				MSAccess msAccess = dbFactory.getMSAccess();
+				MSAccess msAccess = (MSAccess) dbFactory.getInputFile();
 				if (!msAccess.getFileOpenWarning().isEmpty()) {
 					General.showMessage(this, msAccess.getFileOpenWarning(), GUIFactory.getTitle("warning"), false);
 					msAccess.setFileOpenWarning("");

@@ -30,6 +30,7 @@ import application.utils.XComparator;
 import application.utils.ini.IniFile;
 import application.utils.ini.IniItem;
 import application.utils.ini.IniSection;
+import dbengine.IConvert;
 import dbengine.export.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
@@ -511,7 +512,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		return result;
 	}
 
-	public MSAccess getMSAccess() {
+	@Override
+	public IConvert getInputFile() {
 		return msAccess;
 	}
 

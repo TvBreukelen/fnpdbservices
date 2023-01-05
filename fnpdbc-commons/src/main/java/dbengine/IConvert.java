@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import application.BasicSoft;
+import application.interfaces.ExportFile;
 import application.utils.FieldDefinition;
 import dbengine.utils.DatabaseHelper;
 
@@ -15,6 +16,8 @@ public interface IConvert {
 	 * @author Tom van Breukelen
 	 * @version 4.6
 	 */
+
+	ExportFile getImportFile();
 
 	void setSoftware(BasicSoft pSoft);
 

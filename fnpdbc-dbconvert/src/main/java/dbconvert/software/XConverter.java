@@ -122,6 +122,11 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	@Override
+	public IConvert getInputFile() {
+		return dbIn;
+	}
+
+	@Override
 	public Profiles getProfiles() {
 		return pdaSettings;
 	}

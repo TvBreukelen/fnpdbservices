@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Scanner;
@@ -38,6 +39,7 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
+import dbconvert.model.RelationData;
 import dbengine.utils.ForeignKey;
 import dbengine.utils.SqlTable;
 import microsoft.sql.DateTimeOffset;
@@ -194,7 +196,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 						ForeignKey fk = new ForeignKey();
 						fk.setColumnFrom(foreignKeys.getString("PKCOLUMN_NAME"));
 						fk.setColumnTo(foreignKeys.getString("FKCOLUMN_NAME"));
-						sqlTable.addFkList(foreignKeys.getString("PKTABLE_NAME"), fk);
+						fk.setTableTo(foreignKeys.getString("FKTABLE_NAME"));
+						sqlTable.addFkList(fk.getTableTo(), fk);
 					}
 				}
 
@@ -203,7 +206,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 						ForeignKey fk = new ForeignKey();
 						fk.setColumnFrom(foreignKeys.getString("FKCOLUMN_NAME"));
 						fk.setColumnTo(foreignKeys.getString("PKCOLUMN_NAME"));
-						sqlTable.addFkList(foreignKeys.getString("FKTABLE_NAME"), fk);
+						fk.setTableTo(foreignKeys.getString("FKTABLE_NAME"));
+						sqlTable.addFkList(fk.getTableTo(), fk);
 					}
 				}
 
@@ -380,14 +384,18 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
 		SqlTable table = aTables.get(myPref.getTableName());
-		List<FieldDefinition> result = new ArrayList<>(table.getDbFields());
+		Map<String, ForeignKey> map = table.getFkList();
+		RelationData joinData = new RelationData();
+		joinData.loadProfile(myPref); // Read foreign key definitions from registry
 
-		for (String pkTable : table.getFkList().keySet()) {
-			Optional<SqlTable> optPkTable = Optional.ofNullable(aTables.get(pkTable));
+		List<FieldDefinition> result = new ArrayList<>(table.getDbFields());
+		for (Entry<String, ForeignKey> entry : map.entrySet()) {
+			Optional<SqlTable> optPkTable = Optional.ofNullable(aTables.get(entry.getKey()));
 			if (optPkTable.isPresent()) {
+				entry.getValue().setJoin(joinData.getForeignKey(entry.getKey()).getJoin());
 				optPkTable.get().getDbFields().forEach(f -> {
 					FieldDefinition fd = f.copy();
-					fd.setFieldName(pkTable + "." + f.getFieldName());
+					fd.setFieldName(entry.getKey() + "." + f.getFieldName());
 					fd.setFieldAlias(fd.getFieldName());
 					fd.setFieldHeader(fd.getFieldName());
 					result.add(fd);
@@ -472,7 +480,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		for (String link : linkedTables) {
 			Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
 			if (fk.isPresent()) {
-				buf.append("\nLEFT JOIN ").append(link).append(" ON ")
+				buf.append("\n").append(fk.get().getJoin().toUpperCase()).append(" ").append(link).append(" ON ")
 						.append(getSqlFieldName(link + "." + fk.get().getColumnFrom())).append(" = ")
 						.append(getSqlFieldName("A." + fk.get().getColumnTo()));
 			}

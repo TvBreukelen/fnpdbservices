@@ -41,6 +41,7 @@ import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
+import dbconvert.model.RelationData;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
 import dbengine.utils.DatabaseHelper;
@@ -90,6 +91,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	transient Databases dbSettings = pdaSettings.getDbSettings();
 	transient Map<String, FilterData> filterDataMap = new HashMap<>();
 	transient Map<String, SortData> sortDataMap = new HashMap<>();
+	transient Map<String, RelationData> relationDataMap = new HashMap<>();
 
 	private ProgramDialog dialog;
 	private ProjectModel model;
@@ -109,17 +111,19 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
 				e -> {
-					Relations relation = new Relations(dbFactory.getSqlDB());
+					Relations relation = new Relations(dbFactory,
+							relationDataMap.computeIfAbsent(myView, r -> new RelationData()));
 					relation.setVisible(true);
 				});
 
 		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
-			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.get(myView));
+			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.computeIfAbsent(myView, s -> new SortData()));
 			sort.setVisible(true);
 		});
 
 		btFilter = GUIFactory.createToolBarButton(GUIFactory.getTitle("filter"), "Filter.png", e -> {
-			ConfigFilter filter = new ConfigFilter(dbFactory, filterDataMap.get(myView));
+			ConfigFilter filter = new ConfigFilter(dbFactory,
+					filterDataMap.computeIfAbsent(myView, f -> new FilterData()));
 			filter.setVisible(true);
 		});
 
@@ -224,7 +228,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		reloadImportFiles(true, false);
 
-		myView = isNewProfile ? "" : cbDatabases.getSelectedItem().toString();
+		myView = isNewProfile ? "" : cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
 
 		if (isNewProfile) {
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -236,9 +240,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			panel.add(p1);
 		} else {
 			FilterData filter = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
+			SortData sort = sortDataMap.computeIfAbsent(myView, e -> new SortData());
+			RelationData relation = relationDataMap.computeIfAbsent(myView, e -> new RelationData());
 			filter.loadProfile(pdaSettings);
-			SortData data = sortDataMap.computeIfAbsent(myView, e -> new SortData());
-			data.loadProfile(pdaSettings);
+			sort.loadProfile(pdaSettings);
+			relation.loadProfile(pdaSettings);
 		}
 
 		panel.add(gPanel);
@@ -334,6 +340,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void tableOrWorksheetChanged() {
 		pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), false);
+		myView = cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
+
 		try {
 			dbFactory.setupDBTranslation(isNewProfile);
 			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
@@ -465,6 +473,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
 		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
+		relationDataMap.getOrDefault(myView, new RelationData()).saveProfile(pdaSettings);
 
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
 	}
@@ -511,7 +520,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		btFilter.setEnabled(isFileValid);
 		btSortOrder.setEnabled(isFileValid);
 		btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase());
-		myView = dbFactory.getDatabaseFilename();
 
 		if (btFilter.isEnabled()) {
 			FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
@@ -521,6 +529,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		if (btFilter.isEnabled()) {
 			sortDataMap.computeIfAbsent(myView, e -> new SortData());
+		}
+
+		if (btRelationships.isVisible()) {
+			relationDataMap.computeIfAbsent(myView, e -> new RelationData());
 		}
 
 		if (tabPane != null) {

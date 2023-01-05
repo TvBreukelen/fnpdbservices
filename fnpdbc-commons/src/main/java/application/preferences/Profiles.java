@@ -40,6 +40,7 @@ public abstract class Profiles extends Project {
 	private String[] sortField = new String[] { "", "", "", "" };
 	private String[] groupField = new String[] { "", "", "", "" };
 	private String[] groupingField = new String[] { "", "", "", "" };
+	private List<String> relations = new ArrayList<>();
 
 	private boolean appendRecords;
 	private boolean createBackup;
@@ -76,7 +77,7 @@ public abstract class Profiles extends Project {
 	private int maxFileSize;
 	private boolean useLinebreak;
 
-	private Preferences child;
+	protected Preferences child;
 
 	protected Profiles(TvBSoftware software) {
 		super(software);
@@ -144,6 +145,16 @@ public abstract class Profiles extends Project {
 		groupingField[3] = child.get("grouping.field3", "");
 
 		userList.clear();
+		relations.clear();
+
+		int i = 0;
+		while (true) {
+			String element = child.get("relation" + i++, "");
+			if (element.isEmpty()) {
+				break;
+			}
+			relations.add(element);
+		}
 
 		// HanDBase
 		autoInstUser = child.get("autoinst.user", "");
@@ -206,6 +217,11 @@ public abstract class Profiles extends Project {
 	public void setExportFile(String exportFile) {
 		PrefUtils.writePref(child, "export.file", exportFile, this.exportFile, "");
 		this.exportFile = exportFile;
+	}
+
+	public void setRelation(int index, String relation) {
+		PrefUtils.writePref(child, "relation" + index + ".field", relation, this.filterField[index], "");
+		this.filterField[index] = relation;
 	}
 
 	public String getFilterCondition() {
@@ -494,6 +510,26 @@ public abstract class Profiles extends Project {
 
 	public List<String> getGroupingFields() {
 		return getStringList(groupingField);
+	}
+
+	public List<String> getRelations() {
+		return relations;
+	}
+
+	public void setRelations(List<String> relations) {
+		int i = 0;
+		for (String element : relations) {
+			child.put("relation" + i++, element);
+		}
+
+		if (i < this.relations.size()) {
+			for (int j = i; j < this.relations.size(); j++) {
+				child.remove("relation" + j);
+			}
+		}
+
+		this.relations.clear();
+		this.relations.addAll(relations);
 	}
 
 	public String getTableName() {
