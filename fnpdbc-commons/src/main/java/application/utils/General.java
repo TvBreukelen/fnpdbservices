@@ -383,18 +383,27 @@ public final class General {
 		return buf.toString();
 	}
 
-	public static List<String> convertStringToList(String dbValue) {
-		return new ArrayList<>(Arrays.asList(dbValue.split("\n")));
+	public static List<String> convertStringToList(String dbValue, String separator) {
+		return new ArrayList<>(Arrays.asList(dbValue.split(separator)));
 	}
 
-	public static String convertListToString(List<?> dbValue) {
+	public static List<String> convertStringToList(String dbValue) {
+		return convertStringToList(dbValue, "\n");
+	}
+
+	public static String convertListToString(List<?> dbValue, final String separator) {
 		if (CollectionUtils.isEmpty(dbValue)) {
 			return "";
 		}
 
 		StringBuilder buf = new StringBuilder();
-		dbValue.forEach(o -> buf.append(o.toString()).append("\n"));
+		dbValue.forEach(o -> buf.append(o.toString()).append(separator));
 		return buf.toString().trim();
+
+	}
+
+	public static String convertListToString(List<?> dbValue) {
+		return convertListToString(dbValue, "\n");
 	}
 
 	/**

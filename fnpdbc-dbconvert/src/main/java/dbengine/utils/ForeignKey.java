@@ -1,25 +1,40 @@
 package dbengine.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import application.utils.General;
+
 public class ForeignKey {
-	private String columnFrom;
+	private List<String> columnFrom = new ArrayList<>();
+	private List<String> columnTo = new ArrayList<>();
 	private String tableTo;
-	private String columnTo;
 	private String join = "Left Join";
 
-	public String getColumnFrom() {
+	public List<String> getColumnFrom() {
 		return columnFrom;
 	}
 
 	public void setColumnFrom(String pkColumn) {
-		this.columnFrom = pkColumn;
+		columnFrom.add(pkColumn);
 	}
 
-	public String getColumnTo() {
+	public void setColumnFrom(List<String> pkColumn) {
+		columnFrom.clear();
+		columnFrom.addAll(pkColumn);
+	}
+
+	public List<String> getColumnTo() {
 		return columnTo;
 	}
 
 	public void setColumnTo(String fkColumn) {
-		this.columnTo = fkColumn;
+		columnTo.add(fkColumn);
+	}
+
+	public void setColumnTo(List<String> fkColumn) {
+		columnTo.clear();
+		columnTo.addAll(fkColumn);
 	}
 
 	public String getTableTo() {
@@ -41,8 +56,8 @@ public class ForeignKey {
 	public static ForeignKey getFromString(String registry) {
 		String[] element = registry.split("; ");
 		ForeignKey result = new ForeignKey();
-		result.setColumnFrom(element[0]);
-		result.setColumnTo(element[1]);
+		result.columnFrom = General.convertStringToList(element[0], ", ");
+		result.columnTo = General.convertStringToList(element[1], ", ");
 		result.setTableTo(element[2]);
 		result.setJoin(element[3]);
 		return result;
@@ -51,8 +66,18 @@ public class ForeignKey {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(getColumnFrom()).append("; ").append(getColumnTo()).append("; ").append(getTableTo()).append("; ")
+		sb.append(General.convertListToString(getColumnFrom(), ", ")).append("; ")
+				.append(General.convertListToString(getColumnTo(), ", ")).append("; ").append(getTableTo()).append("; ")
 				.append(getJoin());
 		return sb.toString();
+	}
+
+	public ForeignKey copy() {
+		ForeignKey result = new ForeignKey();
+		result.columnFrom.addAll(columnFrom);
+		result.columnTo.addAll(columnTo);
+		result.setJoin(getJoin());
+		result.setTableTo(getTableTo());
+		return result;
 	}
 }

@@ -149,7 +149,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	public void readTableContents() throws Exception {
 		// read all tables in the database
 		aTables = new LinkedHashMap<>();
-
 		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 
 		String[] types = null;
@@ -193,21 +192,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 				try (ResultSet foreignKeys = metaData.getImportedKeys(tableCat, schema, table)) {
 					while (foreignKeys.next()) {
-						ForeignKey fk = new ForeignKey();
-						fk.setColumnFrom(foreignKeys.getString("PKCOLUMN_NAME"));
-						fk.setColumnTo(foreignKeys.getString("FKCOLUMN_NAME"));
-						fk.setTableTo(foreignKeys.getString("FKTABLE_NAME"));
-						sqlTable.addFkList(fk.getTableTo(), fk);
-					}
-				}
-
-				try (ResultSet foreignKeys = metaData.getExportedKeys(tableCat, schema, table)) {
-					while (foreignKeys.next()) {
-						ForeignKey fk = new ForeignKey();
+						String pmTable = foreignKeys.getString("PKTABLE_NAME");
+						ForeignKey fk = sqlTable.getFkList().computeIfAbsent(pmTable, e -> new ForeignKey());
 						fk.setColumnFrom(foreignKeys.getString("FKCOLUMN_NAME"));
 						fk.setColumnTo(foreignKeys.getString("PKCOLUMN_NAME"));
-						fk.setTableTo(foreignKeys.getString("FKTABLE_NAME"));
-						sqlTable.addFkList(fk.getTableTo(), fk);
+						fk.setTableTo(pmTable);
 					}
 				}
 
@@ -480,9 +469,29 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		for (String link : linkedTables) {
 			Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
 			if (fk.isPresent()) {
-				buf.append("\n").append(fk.get().getJoin().toUpperCase()).append(" ").append(link).append(" ON ")
-						.append(getSqlFieldName(link + "." + fk.get().getColumnFrom())).append(" = ")
-						.append(getSqlFieldName("A." + fk.get().getColumnTo()));
+				ForeignKey key = fk.get().copy();
+				String join = key.getJoin();
+				String tableFrom = "A.";
+				String tableTo = link + ".";
+
+				if (myImportFile == ExportFile.SQLITE && join.equals("Right Join")) {
+					// SQLite doesn't support a Right Join, so we'll swap the From and To Tables
+					// and use a Left Join instead
+					key.setJoin("Left Join");
+					key.setColumnFrom(key.getColumnTo());
+					key.setColumnTo(fk.get().getColumnFrom());
+					tableFrom = tableFrom + tableTo;
+					tableTo = tableFrom.substring(0, tableFrom.length() - tableTo.length());
+					tableFrom = tableFrom.substring(tableTo.length());
+				}
+
+				buf.append("\n").append(key.getJoin().toUpperCase()).append(" ").append(link);
+				for (int row = 0; row < key.getColumnFrom().size(); row++) {
+					buf.append(row == 0 ? "\nON " : "\nAND ")
+							.append(getSqlFieldName(tableTo + key.getColumnTo().get(row))).append(" = ")
+							.append(getSqlFieldName(tableFrom + key.getColumnFrom().get(row)));
+
+				}
 			}
 		}
 	}

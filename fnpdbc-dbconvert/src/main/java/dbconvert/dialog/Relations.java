@@ -88,13 +88,25 @@ public class Relations extends BasicDialog {
 		cb.setSelectedItem(pdaSettings.getForeignKey(fk.getTableTo()).getJoin());
 		pdaSettings.deleteForeignKey(fk.getTableTo());
 
-		panel.add(new JLabel(GUIFactory.getText("fromField")), c.gridCell(0, 0, 0, 0));
-		panel.add(getTableOrField(fk.getColumnTo()), c.gridCell(1, 0, 0, 0));
+		panel.add(new JLabel(GUIFactory.getText("FromTable")), c.gridCell(0, 0, 0, 0));
+		panel.add(getTableOrField(sqlTable.getName()), c.gridCell(1, 0, 0, 0));
+		panel.add(new JLabel(GUIFactory.getText("fromField")), c.gridCell(0, 1, 0, 0));
+
+		int row = 1;
+		for (String col : fk.getColumnFrom()) {
+			panel.add(getTableOrField(col), c.gridCell(1, row++, 0, 0));
+		}
+
 		panel.add(cb, c.gridCell(2, 0, 0, 0));
 		panel.add(new JLabel(GUIFactory.getText("toTable")), c.gridCell(3, 0, 0, 0));
 		panel.add(getTableOrField(fk.getTableTo()), c.gridCell(4, 0, 0, 0));
 		panel.add(new JLabel(GUIFactory.getText("toField")), c.gridCell(3, 1, 0, 0));
-		panel.add(getTableOrField(fk.getColumnFrom()), c.gridCell(4, 1, 0, 0));
+
+		row = 1;
+		for (String col : fk.getColumnTo()) {
+			panel.add(getTableOrField(col), c.gridCell(4, row++, 0, 0));
+		}
+
 		panel.setBorder(BorderFactory.createEtchedBorder());
 		return panel;
 	}
@@ -110,10 +122,10 @@ public class Relations extends BasicDialog {
 		JComboBox<String> result = new JComboBox<>();
 		result.setPreferredSize(new Dimension(100, 25));
 		result.addItem("Left Join");
+		result.addItem("Right Join");
 		result.addItem("Inner join");
 
 		if (sqlDb.getImportFile() != ExportFile.SQLITE) {
-			result.addItem("Right Join");
 			result.addItem("Full Join");
 		}
 
