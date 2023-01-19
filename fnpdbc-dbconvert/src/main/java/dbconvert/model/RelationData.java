@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import application.preferences.Profiles;
 import dbengine.utils.ForeignKey;
@@ -20,13 +21,17 @@ public class RelationData {
 	}
 
 	public void saveProfile(Profiles profile) {
-		List<String> relations = new ArrayList<>();
-		relationMap.values().forEach(e -> relations.add(e.toString()));
-		profile.setRelations(relations);
+		profile.setRelations(
+				relationMap.values().stream().filter(e -> e.isUserDefined() || !e.getJoin().equals("Left Join"))
+						.map(ForeignKey::toString).collect(Collectors.toList()));
 	}
 
 	public ForeignKey getForeignKey(String toTable) {
 		return relationMap.getOrDefault(toTable, new ForeignKey());
+	}
+
+	public void addForeignKey(ForeignKey key) {
+		relationMap.put(key.getTableTo(), key);
 	}
 
 	public void deleteForeignKey(String toTable) {

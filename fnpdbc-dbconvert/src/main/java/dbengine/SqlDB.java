@@ -196,6 +196,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 						ForeignKey fk = sqlTable.getFkList().computeIfAbsent(pmTable, e -> new ForeignKey());
 						fk.setColumnFrom(foreignKeys.getString("FKCOLUMN_NAME"));
 						fk.setColumnTo(foreignKeys.getString("PKCOLUMN_NAME"));
+						fk.setTableFrom(table);
 						fk.setTableTo(pmTable);
 					}
 				}
@@ -210,6 +211,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noTablesFound", "");
 		}
 
+		setReversedForeignKeys();
+
 		String myTable = myPref.getTableName();
 		if (myTable.isEmpty() || !aTables.containsKey(myTable)) {
 			// Get first table from the database
@@ -220,6 +223,25 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		hFieldMap = getTableModelFields().stream()
 				.collect(Collectors.toMap(FieldDefinition::getFieldName, Function.identity()));
+	}
+
+	private void setReversedForeignKeys() {
+		// Add reversed ForeignKeys
+		aTables.entrySet().forEach(e -> {
+			SqlTable table = e.getValue();
+			table.getFkList().entrySet().forEach(f -> {
+				SqlTable fromTable = aTables.get(f.getKey());
+				if (!table.getName().equals(fromTable.getName())) {
+					ForeignKey fk1 = f.getValue();
+					ForeignKey fk2 = new ForeignKey();
+					fk2.setColumnFrom(fk1.getColumnTo());
+					fk2.setColumnTo(fk1.getColumnFrom());
+					fk2.setTableFrom(fk1.getTableTo());
+					fk2.setTableTo(table.getName());
+					fromTable.getFkList().putIfAbsent(table.getName(), fk2);
+				}
+			});
+		});
 	}
 
 	private void getColumns(SqlTable table, ResultSet columns) throws SQLException {

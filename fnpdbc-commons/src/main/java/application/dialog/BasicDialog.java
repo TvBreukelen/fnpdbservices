@@ -48,6 +48,8 @@ public abstract class BasicDialog extends JDialog {
 
 	protected void init(String title) {
 		setTitle(title);
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation((dim.width - getSize().width) / 3, (dim.height - getSize().height) / 3);
 
 		funcDocumentChange = new DocumentListener() {
 			@Override
@@ -121,13 +123,6 @@ public abstract class BasicDialog extends JDialog {
 		result.add(Box.createHorizontalStrut(5));
 		result.setBorder(BorderFactory.createRaisedBevelBorder());
 		return result;
-	}
-
-	@Override
-	public void setVisible(boolean b) {
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		setLocation((dim.width - getSize().width) / 3, (dim.height - getSize().height) / 3);
-		super.setVisible(b);
 	}
 
 	public void activateComponents() {

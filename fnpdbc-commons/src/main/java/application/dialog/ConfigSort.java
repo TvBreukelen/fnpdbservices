@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -37,6 +38,10 @@ public class ConfigSort extends BasicDialog {
 	private JTextField[] txGroupingField;
 	private JTextField txRemainField;
 	private JCheckBox[] cbGroupField;
+
+	private JButton btDelete;
+	private JButton btApply;
+
 	private final int numSort;
 
 	private String[] dbFilterFields;
@@ -62,6 +67,14 @@ public class ConfigSort extends BasicDialog {
 
 	private void init() {
 		init(myExportFile.getName() + " " + GUIFactory.getText("menuSortOrder"));
+
+		btDelete = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png", e -> {
+			btApply.setEnabled(true);
+			btDelete.setEnabled(false);
+			Arrays.stream(jcSortField).forEach(cb -> cb.setSelectedItem(""));
+		});
+
+		btApply = GUIFactory.getJButton("apply", funcSave);
 
 		switch (myExportFile) {
 		case LIST:
@@ -98,8 +111,7 @@ public class ConfigSort extends BasicDialog {
 
 	@Override
 	protected Component addToToolbar() {
-		return GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png",
-				e -> Arrays.stream(jcSortField).forEach(cb -> cb.setSelectedItem("")));
+		return btDelete;
 	}
 
 	@Override
@@ -151,11 +163,17 @@ public class ConfigSort extends BasicDialog {
 			String sortField = findFilterField(pdaSettings.getSortField(i));
 			jcSortField[i] = new JComboBox<>(dbFilterFields);
 			jcSortField[i].setSelectedItem(sortField);
-			jcSortField[i].addActionListener(e -> activateComponents());
+			jcSortField[i].addActionListener(e -> {
+				btApply.setEnabled(true);
+				activateComponents();
+			});
 
 			cbGroupField[i] = new JCheckBox();
 			cbGroupField[i].setVisible(isGroupBy);
-			cbGroupField[i].addActionListener(e -> activateComponents());
+			cbGroupField[i].addActionListener(e -> {
+				btApply.setEnabled(true);
+				activateComponents();
+			});
 
 			txGroupingField[i] = GUIFactory.getJTextField("groupby", "");
 			txGroupingField[i].setVisible(hasGrouping);
@@ -193,7 +211,8 @@ public class ConfigSort extends BasicDialog {
 
 	private Component createBottomPanel() {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panel.add(GUIFactory.getJButton("apply", funcSave));
+		panel.add(btApply);
+		btApply.setEnabled(false);
 		return panel;
 	}
 
@@ -207,7 +226,7 @@ public class ConfigSort extends BasicDialog {
 	}
 
 	@Override
-	protected void save() throws Exception {
+	protected void save() {
 		Set<String> map = new HashSet<>();
 		int sortIndex = 0;
 		int groupIndex = 0;
@@ -238,6 +257,7 @@ public class ConfigSort extends BasicDialog {
 
 	@Override
 	public void activateComponents() {
+		btDelete.setEnabled(Arrays.stream(jcSortField).anyMatch(e -> !e.getSelectedItem().toString().isEmpty()));
 		if (!isGroupBy) {
 			return;
 		}

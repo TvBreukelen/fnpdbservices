@@ -534,7 +534,7 @@ public class ConfigFilter extends BasicDialog {
 	}
 
 	@Override
-	protected void save() throws Exception {
+	protected void save() {
 		int counter = -1;
 		pdaSettings.clearFilterFields();
 

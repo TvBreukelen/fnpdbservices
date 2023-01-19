@@ -519,7 +519,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		btSave.setEnabled(isFileValid && isValidProfile);
 		btFilter.setEnabled(isFileValid);
 		btSortOrder.setEnabled(isFileValid);
-		btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase());
 
 		if (btFilter.isEnabled()) {
 			FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
@@ -540,6 +539,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			tabPane.setEnabledAt(1, isFileValid);
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
+			btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase() && bTablesWorksheets.isEnabled());
 		}
 	}
 }

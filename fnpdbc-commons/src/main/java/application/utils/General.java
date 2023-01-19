@@ -398,8 +398,8 @@ public final class General {
 
 		StringBuilder buf = new StringBuilder();
 		dbValue.forEach(o -> buf.append(o.toString()).append(separator));
+		buf.delete(buf.lastIndexOf(separator), buf.length());
 		return buf.toString().trim();
-
 	}
 
 	public static String convertListToString(List<?> dbValue) {
