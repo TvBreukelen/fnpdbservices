@@ -303,6 +303,7 @@ noFields.mesg=Geen velden gevonden in bestand '%0', het bevat geen velden of hee
 noFieldsDefined.mesg=Er zijn geen databasevelden definieerd voor '%0'.
 noFNprogramwareDB.mesg=Database '%0' is geen geldige '%1' database.
 noForeignKey.mesg=Geen referende sleutel gevonden voor tabel '%0'.
+noForeignkeyTable.text=<html><h2>Relaties</h2>De tabel waarmee u werkt scheint geen referende sleutels te hebben. Als u wilt dat uw export profiel uit een<br>andere tabel leest, moet u manueel een relatie toevoegen<p>Om een ​​nieuwe relatie toe te voegen, drukt u op de knop "Nieuwe relatie toevoegen" (linksboven). Om af te<br>breken, drukt u op "Sluit venster" (rechtsboven) of voor meer hulp drukt u op de knop "Help over dit scherm".</p></html>
 noHandbaseDesktop.mesg=Het HanDBase Desktop programma, dat voor de database conversie nodig is, is niet gedefinieert in de HanDBase instellingen.
 noHandbaseDesktopExists.mesg=HandDBase Desktop programma '%0' bestaat niet, verifieer de HanDBase instellingen.
 noImagePath.text=Exporteer de plaatjes bestandsnamen zonder de path-aanduiding.

@@ -1,19 +1,26 @@
 package dbconvert.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.Collection;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 
 import org.jdesktop.swingx.VerticalLayout;
 
 import application.dialog.BasicDialog;
-import application.interfaces.ExportFile;
 import application.utils.GUIFactory;
 import application.utils.gui.XGridBagConstraints;
 import dbengine.SqlDB;
@@ -29,9 +36,11 @@ public class ManualRelation extends BasicDialog {
 	private Collection<ForeignKey> foreignKeys;
 	private JComboBox<String> cbFromTable;
 	private JComboBox<String> cbToTable;
-	private JComboBox<String> cbFromColumn;
-	private JComboBox<String> cbToColumn;
-	private JComboBox<String> cbJoins;
+	private JList<String> cbFromColumn;
+	private JList<String> cbToColumn;
+	private DefaultListModel<String> fromColModel;
+	private DefaultListModel<String> toColModel;
+	private JButton btApply;
 
 	public ManualRelation(SqlDB db, Collection<ForeignKey> keys, ForeignKey key) {
 		sqlDb = db;
@@ -48,36 +57,47 @@ public class ManualRelation extends BasicDialog {
 	}
 
 	@Override
+	protected void buildDialog() {
+		btSave.setVisible(false);
+		btApply = GUIFactory.getJButton("apply", funcSave);
+
+		getContentPane().add(createToolBar(), BorderLayout.NORTH);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.EAST);
+		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
+		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
+		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
+	}
+
+	@Override
 	protected Component createCenterPanel() {
 		JPanel panel = new JPanel(new VerticalLayout(5));
-
 		getTablesComboxBox();
-		getJoinsCombobox();
-
 		panel.add(createForeignKeyPanel());
 		panel.setBorder(BorderFactory.createEtchedBorder());
 		return panel;
 	}
 
-	private void getJoinsCombobox() {
-		cbJoins = new JComboBox<>();
-		cbJoins.setPreferredSize(new Dimension(100, 25));
-		cbJoins.addItem("Left Join");
-		cbJoins.addItem("Right Join");
-		cbJoins.addItem("Inner join");
-
-		if (sqlDb.getImportFile() != ExportFile.SQLITE) {
-			cbJoins.addItem("Full Join");
-		}
-
-		cbJoins.setSelectedItem("Left Join");
+	private Component createBottomPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel.add(btApply);
+		return panel;
 	}
 
 	private void getTablesComboxBox() {
 		cbFromTable = new JComboBox<>();
-		cbFromColumn = new JComboBox<>();
+		cbFromColumn = new JList<>();
 		cbToTable = new JComboBox<>();
-		cbToColumn = new JComboBox<>();
+		cbToColumn = new JList<>();
+		fromColModel = new DefaultListModel<>();
+		toColModel = new DefaultListModel<>();
+
+		cbFromColumn.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		cbFromColumn.setModel(fromColModel);
+		cbFromColumn.addListSelectionListener(e -> activateComponents());
+
+		cbToColumn.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		cbToColumn.setModel(toColModel);
+		cbToColumn.addListSelectionListener(e -> activateComponents());
 
 		cbFromTable.addItem(sqlTable.getName());
 		sqlDb.getTableOrSheetNames().forEach(cbToTable::addItem);
@@ -90,9 +110,8 @@ public class ManualRelation extends BasicDialog {
 			}
 		});
 
-		cbFromTable
-				.addActionListener(e -> refreshColumnCombobox(cbFromColumn, cbFromTable.getSelectedItem().toString()));
-		cbToTable.addActionListener(e -> refreshColumnCombobox(cbToColumn, cbToTable.getSelectedItem().toString()));
+		cbFromTable.addActionListener(e -> refreshColumnList(cbFromTable.getSelectedItem().toString(), true));
+		cbToTable.addActionListener(e -> refreshColumnList(cbToTable.getSelectedItem().toString(), false));
 
 		cbFromTable.setSelectedIndex(0);
 		cbToTable.setSelectedIndex(0);
@@ -102,34 +121,50 @@ public class ManualRelation extends BasicDialog {
 		JPanel panel = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
+		JScrollPane scrollFrom = new JScrollPane(cbFromColumn);
+		JScrollPane scrollTo = new JScrollPane(cbToColumn);
+		scrollFrom.setPreferredSize(new Dimension(120, 200));
+		scrollTo.setPreferredSize(new Dimension(120, 200));
+
 		panel.add(new JLabel(GUIFactory.getText("fromTable")), c.gridCell(0, 0, 0, 0));
-		panel.add(cbFromTable, c.gridCell(1, 0, 0, 0));
-		panel.add(new JLabel(GUIFactory.getText("fromField")), c.gridCell(0, 1, 0, 0));
-		panel.add(cbFromColumn, c.gridCell(1, 1, 0, 0));
-		panel.add(cbJoins, c.gridCell(2, 0, 0, 0));
-		panel.add(new JLabel(GUIFactory.getText("toTable")), c.gridCell(3, 0, 0, 0));
-		panel.add(cbToTable, c.gridCell(4, 0, 0, 0));
-		panel.add(new JLabel(GUIFactory.getText("toField")), c.gridCell(3, 1, 0, 0));
-		panel.add(cbToColumn, c.gridCell(4, 1, 0, 0));
+		panel.add(new JLabel(GUIFactory.getText("toTable")), c.gridCell(1, 0, 0, 0));
+		panel.add(cbFromTable, c.gridCell(0, 1, 0, 0));
+		panel.add(cbToTable, c.gridCell(1, 1, 0, 0));
+		panel.add(Box.createVerticalStrut(5), c.gridCell(0, 2, 0, 0));
+
+		panel.add(new JLabel(GUIFactory.getText("fromField")), c.gridCell(0, 3, 0, 0));
+		panel.add(new JLabel(GUIFactory.getText("toField")), c.gridCell(1, 3, 0, 0));
+		panel.add(scrollFrom, c.gridCell(0, 4, 0, 0));
+		panel.add(scrollTo, c.gridCell(1, 4, 0, 0));
 
 		panel.setBorder(BorderFactory.createEtchedBorder());
 		return panel;
 	}
 
-	private void refreshColumnCombobox(JComboBox<String> cb, String table) {
+	private void refreshColumnList(String table, boolean isFromTable) {
 		SqlTable sTable = sqlDb.getSqlTable(table);
-		cb.removeAllItems();
-		sTable.getDbFields().forEach(field -> cb.addItem(field.getFieldAlias()));
-		cb.setSelectedIndex(0);
+		DefaultListModel<String> model = isFromTable ? fromColModel : toColModel;
+		JList<String> list = isFromTable ? cbFromColumn : cbToColumn;
+
+		model.clear();
+		sTable.getDbFields().forEach(field -> model.addElement(field.getFieldAlias()));
+		list.setSelectedIndex(0);
+
+		activateComponents();
 	}
 
 	@Override
 	protected void save() {
-		pdaSettings.setColumnFrom(cbFromColumn.getSelectedItem().toString());
-		pdaSettings.setColumnTo(cbToColumn.getSelectedItem().toString());
+		pdaSettings.setColumnFrom(cbFromColumn.getSelectedValuesList());
+		pdaSettings.setColumnTo(cbToColumn.getSelectedValuesList());
 		pdaSettings.setTableFrom(cbFromTable.getSelectedItem().toString());
 		pdaSettings.setTableTo(cbToTable.getSelectedItem().toString());
-		pdaSettings.setJoin(cbJoins.getSelectedItem().toString());
 		pdaSettings.setUserDefined(true);
 	}
+
+	@Override
+	public void activateComponents() {
+		btApply.setEnabled(cbFromColumn.getSelectedValuesList().size() == cbToColumn.getSelectedValuesList().size());
+	}
+
 }

@@ -394,16 +394,27 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
+		return getTableModelFields(true);
+
+	}
+
+	@Override
+	public List<FieldDefinition> getTableModelFields(boolean loadFromRegistry) {
 		SqlTable table = aTables.get(myPref.getTableName());
 		Map<String, ForeignKey> map = table.getFkList();
-		RelationData joinData = new RelationData();
-		joinData.loadProfile(myPref); // Read foreign key definitions from registry
+
+		if (loadFromRegistry) {
+			RelationData joinData = new RelationData();
+			joinData.loadProfile(myPref); // Read foreign key definitions from registry
+
+			// Update system keys and add user keys to map
+			joinData.getUserKeys().forEach(fk -> map.put(fk.getTableTo(), fk));
+		}
 
 		List<FieldDefinition> result = new ArrayList<>(table.getDbFields());
 		for (Entry<String, ForeignKey> entry : map.entrySet()) {
 			Optional<SqlTable> optPkTable = Optional.ofNullable(aTables.get(entry.getKey()));
 			if (optPkTable.isPresent()) {
-				entry.getValue().setJoin(joinData.getForeignKey(entry.getKey()).getJoin());
 				optPkTable.get().getDbFields().forEach(f -> {
 					FieldDefinition fd = f.copy();
 					fd.setFieldName(entry.getKey() + "." + f.getFieldName());
@@ -439,8 +450,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	public void createQueryStatement() throws SQLException {
+		createQueryStatement(getSqlQuery());
+	}
+
+	public void createQueryStatement(String query) throws SQLException {
 		dbStatement = connection.createStatement();
-		dbResultSet = dbStatement.executeQuery(getSqlQuery());
+		dbResultSet = dbStatement.executeQuery(query);
 	}
 
 	@Override
@@ -489,32 +504,48 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private void getJoinStatement(StringBuilder buf, SqlTable table) {
 		for (String link : linkedTables) {
-			Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
-			if (fk.isPresent()) {
+			List<ForeignKey> keys = new ArrayList<>();
+			while (true) {
+				Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
+				if (fk.isEmpty()) {
+					break;
+				}
+
 				ForeignKey key = fk.get().copy();
-				String join = key.getJoin();
-				String tableFrom = "A.";
-				String tableTo = link + ".";
+				keys.add(0, key);
 
-				if (myImportFile == ExportFile.SQLITE && join.equals("Right Join")) {
-					// SQLite doesn't support a Right Join, so we'll swap the From and To Tables
-					// and use a Left Join instead
-					key.setJoin("Left Join");
-					key.setColumnFrom(key.getColumnTo());
-					key.setColumnTo(fk.get().getColumnFrom());
-					tableFrom = tableFrom + tableTo;
-					tableTo = tableFrom.substring(0, tableFrom.length() - tableTo.length());
-					tableFrom = tableFrom.substring(tableTo.length());
+				if (key.getTableFrom().equals(table.getName())) {
+					key.setTableFrom("A");
+					break;
 				}
 
-				buf.append("\n").append(key.getJoin().toUpperCase()).append(" ").append(link);
-				for (int row = 0; row < key.getColumnFrom().size(); row++) {
-					buf.append(row == 0 ? "\nON " : "\nAND ")
-							.append(getSqlFieldName(tableTo + key.getColumnTo().get(row))).append(" = ")
-							.append(getSqlFieldName(tableFrom + key.getColumnFrom().get(row)));
-
-				}
+				link = key.getTableFrom();
 			}
+
+			keys.forEach(key -> getJoinedTable(buf, key));
+		}
+	}
+
+	public void getJoinedTable(StringBuilder buf, ForeignKey key) {
+		if (myImportFile == ExportFile.SQLITE && key.getJoin().equals("Right Join")) {
+			// SQLite doesn't support a Right Join, so we'll swap the From and To Tables
+			// and use a Left Join instead
+			List<String> columnTo = new ArrayList<>(key.getColumnFrom());
+			key.setJoin("Left Join");
+			key.setColumnFrom(key.getColumnTo());
+			key.setColumnTo(columnTo);
+
+			String tableFrom = key.getTableFrom() + key.getTableTo();
+			key.setTableTo(tableFrom.substring(0, tableFrom.length() - key.getTableTo().length()));
+			key.setTableFrom(tableFrom.substring(key.getTableTo().length()));
+		}
+
+		buf.append("\n").append(key.getJoin().toUpperCase()).append(" ").append(key.getTableTo());
+		for (int row = 0; row < key.getColumnFrom().size(); row++) {
+			buf.append(row == 0 ? "\nON " : "\nAND ")
+					.append(getSqlFieldName(key.getTableTo() + "." + key.getColumnTo().get(row))).append(" = ")
+					.append(getSqlFieldName(key.getTableFrom() + "." + key.getColumnFrom().get(row)));
+
 		}
 	}
 

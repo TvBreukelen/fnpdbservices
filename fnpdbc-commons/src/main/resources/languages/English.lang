@@ -301,6 +301,7 @@ noFields.mesg=No fields found in file '%0', either it doesn't contain any fields
 noFieldsDefined.mesg=There are no database fields defined for '%0'.
 noFNprogramwareDB.mesg=Database '%0' is not a valid '%1' database.
 noForeignKey.mesg=No foreign key found for table '%0'.
+noForeignkeyTable.text=<html><h2>Relationships</h2>The table you are working with doesn't seem to have any foreign keys. If you would like your export<br>profile to read from another table, you should add a relationship manually<p>To add a new relationship, press "Add a new Relationship" Button (Top Left). To "bail out", press<br>"Exit Screen" (Top Right) or for more help, press the "Help about this screen" button.</p></html>
 noHandbaseDesktop.mesg=The HanDBase Desktop program that is required for the database conversion has not been defined in the HanDBase Configuration.
 noHandbaseDesktopExists.mesg=HandDBase Desktop program '%0' doesn't exist. Please check the HanDBase Configuration.
 noImagePath.text=Export Image file names without the path.

@@ -109,9 +109,16 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
+		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
+		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
+		dbFactory = new XConverter();
+		fieldSelect = new ScFieldSelect(dbFactory);
+
+		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
+
 		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
 				e -> {
-					Relations relation = new Relations(dbFactory,
+					Relations relation = new Relations(dbFactory, fieldSelect,
 							relationDataMap.computeIfAbsent(myView, r -> new RelationData()));
 					relation.setVisible(true);
 				});
@@ -127,19 +134,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			filter.setVisible(true);
 		});
 
-		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
-		dbFactory = new XConverter();
-
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
 		funcSelectImportFile = e -> importFileNameChanged(false);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 		profile.setPreferredSize(new Dimension(100, 25));
-
-		fieldSelect = new ScFieldSelect(dbFactory);
-		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
 
 		buildDialog();
 		verifyDatabase();
@@ -343,7 +343,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		myView = cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
 
 		try {
-			dbFactory.setupDBTranslation(isNewProfile);
+			dbFactory.setupDBTranslation(isNewProfile, true);
 			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 		} catch (Exception e) {
 			General.errorMessage(this, e, GUIFactory.getTitle("configError"), null);
@@ -360,7 +360,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			try {
 				if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
 					dbFactory.connect2DB(dbVerified);
-					dbFactory.setupDBTranslation(isNewProfile);
+					dbFactory.setupDBTranslation(isNewProfile, true);
 					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 				} else {
 					throw FNProgException.getException("noValidExtension", dbVerified.getDatabase(),

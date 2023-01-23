@@ -300,6 +300,7 @@ noFields.mesg=Keine Felder in Datei '%0' gefunden, entweder enthält sie keine F
 noFieldsDefined.mesg=Für '%0' sind keine Datenbankfelder definiert.
 noFNprogramwareDB.mesg=Datenbank '%0' is keine gültige '%1' Datenbank.
 noForeignKey.mesg=Keine Fremdschlüssel gefunden für die Tabelle '%0'.
+noForeignkeyTable.text=<html><h2>Beziehungen</h2>Die Tabelle, mit der Sie arbeiten, scheint keine Fremdschlüssel zu haben. Wenn Sie möchten, dass Ihr<br>Exportprofil Daten aus einer anderen Tabelle lest, sollten Sie eine Beziehung manuell hinzufügen.<p>Um eine neue Beziehung hinzuzufügen, klicken Sie auf die Schaltfläche "Neue Beziehung anlegen"<br>(oben links). Um abzubrechen, drücken Sie den „Schließe Fenster“ (oben rechts) oder für weitere Hilfe<br>die Schaltfläche „Information über dieses Fenster“.</p></html>
 noHandbaseDesktop.mesg=Das HanDBase Desktop Programm, das für die Datenbankumwandlung notwendig ist, ist nicht definiert in der HanDBase Konfiguration.
 noHandbaseDesktopExists.mesg=HandDBase Desktop Programm '%0' ist nicht vorhanden. Bitter überprüfen Sie die HanDBase Konfiguration.
 noImagePath.text=Exportiere Bild-Dateienamen ohne den Pfad.

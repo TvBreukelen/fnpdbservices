@@ -15,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -22,12 +23,14 @@ import javax.swing.JTextField;
 import org.jdesktop.swingx.VerticalLayout;
 
 import application.dialog.BasicDialog;
+import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 import dbconvert.model.RelationData;
+import dbconvert.software.XConverter;
 import dbengine.SqlDB;
 import dbengine.utils.ForeignKey;
 import dbengine.utils.SqlTable;
@@ -37,6 +40,8 @@ public class Relations extends BasicDialog {
 	private SqlDB sqlDb;
 	private SqlTable sqlTable;
 	private RelationData pdaSettings;
+	private XConverter dbFactory;
+	private ScFieldSelect fieldSelect;
 
 	private Map<String, ForeignKey> mapFk = new HashMap<>();
 	private Map<String, JPanel> mapPanel = new HashMap<>();
@@ -44,7 +49,10 @@ public class Relations extends BasicDialog {
 	private JPanel centerPanel;
 	private JButton btApply;
 
-	public Relations(IDatabaseFactory dbFactory, RelationData data) {
+	public Relations(IDatabaseFactory dbFactory, ScFieldSelect fieldSelect, RelationData data) {
+		this.dbFactory = (XConverter) dbFactory;
+		this.fieldSelect = fieldSelect;
+
 		sqlDb = (SqlDB) dbFactory.getInputFile();
 		sqlTable = sqlDb.getSqlTable();
 		pdaSettings = data;
@@ -55,7 +63,6 @@ public class Relations extends BasicDialog {
 		init(GUIFactory.getText("table") + " " + sqlTable.getName() + " - " + GUIFactory.getTitle("relationships"));
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((dim.width - getSize().width) / 6, (dim.height - getSize().height) / 7);
-
 		buildDialog();
 		pack();
 	}
@@ -70,23 +77,25 @@ public class Relations extends BasicDialog {
 		getContentPane().add(Box.createHorizontalStrut(5), BorderLayout.WEST);
 		getContentPane().add(createCenterPanel(), BorderLayout.CENTER);
 		getContentPane().add(createBottomPanel(), BorderLayout.SOUTH);
-		setMinimumSize(new Dimension(400, 200));
 	}
 
 	@Override
-	protected void save() {
+	protected void save() throws Exception {
 		pdaSettings.setForeignKeys(mapFk.values());
+		sqlTable.setFkList(mapFk);
+		dbFactory.setupDBTranslation(false, false);
+		fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 	}
 
 	@Override
 	protected Component createCenterPanel() {
 		centerPanel = new JPanel(new VerticalLayout(5));
 
-		// Foreign keys from table design
-		sqlTable.getFkList().values().forEach(fk -> centerPanel.add(createForeignKeyPanel(fk)));
-
-		// Foreign keys which were manually entered
-		pdaSettings.getForeignKeys().forEach(fk -> centerPanel.add(createForeignKeyPanel(fk)));
+		if (sqlTable.getFkList().isEmpty()) {
+			centerPanel.add(createNoForeignKeyScreen());
+		} else {
+			sqlTable.getFkList().values().forEach(fk -> centerPanel.add(createForeignKeyPanel(fk)));
+		}
 
 		centerPanel.setBorder(BorderFactory.createEtchedBorder());
 		return centerPanel;
@@ -107,14 +116,26 @@ public class Relations extends BasicDialog {
 		});
 	}
 
+	private Component createNoForeignKeyScreen() {
+		JEditorPane result = new JEditorPane();
+		result.setContentType("text/html");
+		result.setText(GUIFactory.getText("noForeignkeyTable"));
+		result.setEditable(false);
+		return result;
+	}
+
 	private JPanel createForeignKeyPanel(ForeignKey fk) {
 		JPanel panel = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
+
+		if (mapFk.isEmpty()) {
+			centerPanel.removeAll();
+		}
+
 		mapFk.put(fk.getTableTo(), fk);
 
 		JComboBox<String> cb = getJoins(fk.getTableTo());
 		cb.setSelectedItem(pdaSettings.getForeignKey(fk.getTableTo()).getJoin());
-		pdaSettings.deleteForeignKey(fk.getTableTo());
 
 		panel.add(new JLabel(GUIFactory.getText("fromTable")), c.gridCell(0, 0, 0, 0));
 		panel.add(getTableOrField(fk.getTableFrom()), c.gridCell(1, 0, 0, 0));
@@ -182,6 +203,11 @@ public class Relations extends BasicDialog {
 				}
 
 				table = tables.get(0);
+			}
+
+			if (mapFk.isEmpty()) {
+				centerPanel.removeAll();
+				centerPanel.add(createNoForeignKeyScreen());
 			}
 		}
 

@@ -131,9 +131,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		return pdaSettings;
 	}
 
-	public void setupDBTranslation(boolean isNew) throws Exception {
+	public void setupDBTranslation(boolean isNew, boolean loadFromRegistry) throws Exception {
 		// Load filter and mapping fields
-		List<FieldDefinition> dbFields = dbIn.getTableModelFields();
+		List<FieldDefinition> dbFields = dbIn.getTableModelFields(loadFromRegistry);
 
 		// Load dbFieldDefinition, dbSelectFields and dbFilterFields with all available
 		// fields of dbIn

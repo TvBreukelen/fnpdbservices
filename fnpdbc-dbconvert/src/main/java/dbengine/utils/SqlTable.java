@@ -1,7 +1,7 @@
 package dbengine.utils;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,7 +12,7 @@ public class SqlTable {
 	private String name;
 	private List<FieldDefinition> dbFields;
 	private Set<String> pkList = new HashSet<>();
-	private Map<String, ForeignKey> fkList = new HashMap<>();
+	private Map<String, ForeignKey> fkList = new LinkedHashMap<>();
 
 	public String getName() {
 		return name;
@@ -36,5 +36,10 @@ public class SqlTable {
 
 	public Map<String, ForeignKey> getFkList() {
 		return fkList;
+	}
+
+	public void setFkList(Map<String, ForeignKey> fkMap) {
+		fkList.clear();
+		fkList.putAll(fkMap);
 	}
 }

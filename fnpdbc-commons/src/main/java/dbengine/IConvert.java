@@ -1,5 +1,6 @@
 package dbengine;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,10 @@ public interface IConvert {
 	String getPdaDatabase();
 
 	List<FieldDefinition> getTableModelFields() throws Exception;
+
+	default List<FieldDefinition> getTableModelFields(boolean loadFromRegistry) throws Exception {
+		return new ArrayList<>();
+	}
 
 	List<String> getTableOrSheetNames();
 
