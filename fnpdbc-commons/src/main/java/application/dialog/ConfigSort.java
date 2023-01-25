@@ -118,7 +118,7 @@ public class ConfigSort extends BasicDialog {
 	protected Component createCenterPanel() {
 		JPanel result = new JPanel(new GridBagLayout());
 		int index = 0;
-		final String SERIF = "serif";
+		Font boldFont = new Font("serif", Font.BOLD, 14);
 
 		XGridBagConstraints c = new XGridBagConstraints();
 
@@ -151,10 +151,9 @@ public class ConfigSort extends BasicDialog {
 			result.add(GUIFactory.getJLabel("category"), c.gridCell(1, index, 0, 0));
 			result.add(jcCategoryField, c.gridCell(2, index++, 2, 0));
 		} else {
-			result.add(GUIFactory.getJLabel("sortby", new Font(SERIF, Font.BOLD, 14)), c.gridCell(2, index, 2, 0));
+			result.add(GUIFactory.getJLabel("sortby", boldFont), c.gridCell(2, index, 2, 0));
 			if (isGroupBy) {
-				result.add(GUIFactory.getJLabel("groupby", new Font(SERIF, Font.BOLD, 14)),
-						c.gridmultipleCell(3, index, 0, 0, 2, 1));
+				result.add(GUIFactory.getJLabel("groupby", boldFont), c.gridmultipleCell(3, index, 0, 0, 2, 1));
 			}
 			index++;
 		}
@@ -197,7 +196,7 @@ public class ConfigSort extends BasicDialog {
 
 		if (hasGrouping) {
 			Box box = Box.createHorizontalBox();
-			box.add(GUIFactory.getJLabel("remainderGroup", new Font(SERIF, Font.BOLD, 14)));
+			box.add(GUIFactory.getJLabel("remainderGroup", boldFont));
 			box.add(Box.createHorizontalStrut(5));
 			box.add(Box.createHorizontalGlue());
 			box.add(txRemainField);

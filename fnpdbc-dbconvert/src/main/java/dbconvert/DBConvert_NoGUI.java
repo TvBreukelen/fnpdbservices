@@ -117,7 +117,7 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 
 		try {
 			mySoftware.connect2DB();
-			mySoftware.setupDBTranslation(false, true);
+			mySoftware.setupDBTranslation(true);
 			mySoftware.checkNumberOfFields();
 			tabModel = new ViewerModel(mySoftware.getTableModelFields());
 			mySoftware.openToFile();

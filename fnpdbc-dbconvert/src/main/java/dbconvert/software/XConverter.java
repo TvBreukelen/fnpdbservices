@@ -131,7 +131,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		return pdaSettings;
 	}
 
-	public void setupDBTranslation(boolean isNew, boolean loadFromRegistry) throws Exception {
+	public void setupDBTranslation(boolean loadFromRegistry) throws Exception {
 		// Load filter and mapping fields
 		List<FieldDefinition> dbFields = dbIn.getTableModelFields(loadFromRegistry);
 
@@ -173,12 +173,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		dbFilterFields = filterFields.stream().sorted().toArray(String[]::new);
-
-		if (isNew) {
-			dbUserFields = new ArrayList<>();
-		} else {
-			refreshUserFields();
-		}
+		refreshUserFields();
 	}
 
 	public void sortTableModel() {

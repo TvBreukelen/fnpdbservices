@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.util.Collection;
 
@@ -12,7 +13,6 @@ import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -52,6 +52,7 @@ public class ManualRelation extends BasicDialog {
 
 	private void init() {
 		init(GUIFactory.getTitle("funcNewRelation"));
+		setHelpFile("add_relationship");
 		buildDialog();
 		pack();
 	}
@@ -120,20 +121,21 @@ public class ManualRelation extends BasicDialog {
 	private JPanel createForeignKeyPanel() {
 		JPanel panel = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
+		Font boldFont = new Font("serif", Font.BOLD, 14);
 
 		JScrollPane scrollFrom = new JScrollPane(cbFromColumn);
 		JScrollPane scrollTo = new JScrollPane(cbToColumn);
-		scrollFrom.setPreferredSize(new Dimension(120, 200));
-		scrollTo.setPreferredSize(new Dimension(120, 200));
+		scrollFrom.setPreferredSize(new Dimension(150, 200));
+		scrollTo.setPreferredSize(new Dimension(150, 200));
 
-		panel.add(new JLabel(GUIFactory.getText("fromTable")), c.gridCell(0, 0, 0, 0));
-		panel.add(new JLabel(GUIFactory.getText("toTable")), c.gridCell(1, 0, 0, 0));
+		panel.add(GUIFactory.getJLabel("fromTable", boldFont), c.gridCell(0, 0, 0, 0));
+		panel.add(GUIFactory.getJLabel("toTable", boldFont), c.gridCell(1, 0, 0, 0));
 		panel.add(cbFromTable, c.gridCell(0, 1, 0, 0));
 		panel.add(cbToTable, c.gridCell(1, 1, 0, 0));
 		panel.add(Box.createVerticalStrut(5), c.gridCell(0, 2, 0, 0));
 
-		panel.add(new JLabel(GUIFactory.getText("fromField")), c.gridCell(0, 3, 0, 0));
-		panel.add(new JLabel(GUIFactory.getText("toField")), c.gridCell(1, 3, 0, 0));
+		panel.add(GUIFactory.getJLabel("fromField", boldFont), c.gridCell(0, 3, 0, 0));
+		panel.add(GUIFactory.getJLabel("toField", boldFont), c.gridCell(1, 3, 0, 0));
 		panel.add(scrollFrom, c.gridCell(0, 4, 0, 0));
 		panel.add(scrollTo, c.gridCell(1, 4, 0, 0));
 

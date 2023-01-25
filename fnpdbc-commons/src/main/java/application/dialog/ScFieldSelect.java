@@ -1,7 +1,6 @@
 package application.dialog;
 
 import java.awt.Component;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -12,7 +11,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -20,6 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
+
+import org.jdesktop.swingx.HorizontalLayout;
+import org.jdesktop.swingx.VerticalLayout;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
@@ -29,7 +30,6 @@ import application.table.ETable;
 import application.utils.BasisField;
 import application.utils.GUIFactory;
 import application.utils.General;
-import application.utils.gui.XGridBagConstraints;
 
 public class ScFieldSelect implements PropertyChangeListener {
 	/**
@@ -54,6 +54,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	private DefaultListModel<BasisField> availableModel;
 	private UserFieldModel userModel;
 	private IDatabaseFactory factory;
+	private JPanel fieldPanel = new JPanel(new HorizontalLayout(5));
 
 	public ScFieldSelect(IDatabaseFactory factory) {
 		this.factory = factory;
@@ -137,12 +138,8 @@ public class ScFieldSelect implements PropertyChangeListener {
 		factory.getDbSelectFields().forEach(availableModel::addElement);
 		lstAvailableFields.setSelectedIndex(0);
 		userModel.setTableData(userFields);
-
-		if (lstAvailableFields.getPreferredSize().getWidth() < 100) {
-			lstAvailableFields.setFixedCellWidth(100);
-		}
-
 		activateComponents();
+		fieldPanel.updateUI();
 	}
 
 	public List<BasisField> getFieldList() {
@@ -150,9 +147,6 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	public Component createFieldPanel() {
-		JPanel panel = new JPanel(new GridBagLayout());
-		XGridBagConstraints c = new XGridBagConstraints();
-
 		// Add Mouse listener event for double click
 		MouseListener mouseListener = new MouseAdapter() {
 			@Override
@@ -163,7 +157,6 @@ public class ScFieldSelect implements PropertyChangeListener {
 			}
 		};
 		lstAvailableFields.addMouseListener(mouseListener);
-		// lstAvailableFields.setFixedCellWidth(140);
 
 		// Add scrollpane
 		JScrollPane scAvailableFields = new JScrollPane(lstAvailableFields);
@@ -186,18 +179,17 @@ public class ScFieldSelect implements PropertyChangeListener {
 		scSelectedFields = new JScrollPane(table);
 		scSelectedFields.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("selectedFields")));
 
-		panel.add(scAvailableFields, c.gridCell(1, 0, 2, 1));
-		panel.add(createButtonPanel(), c.gridCell(2, 0, 1, 0));
-		panel.add(scSelectedFields, c.gridCell(3, 0, 2, 1));
-		panel.setBorder(BorderFactory.createEtchedBorder());
+		fieldPanel.add(scAvailableFields);
+		fieldPanel.add(createButtonPanel());
+		fieldPanel.add(scSelectedFields);
+		fieldPanel.setBorder(BorderFactory.createEtchedBorder());
 
 		lstAvailableFields.setSelectedIndex(0);
-		return panel;
+		return fieldPanel;
 	}
 
 	private JPanel createButtonPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		JPanel panel = new JPanel(new VerticalLayout());
 		panel.add(Box.createVerticalStrut(20));
 
 		panel.add(btAdd);

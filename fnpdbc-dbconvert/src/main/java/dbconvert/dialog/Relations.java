@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +44,7 @@ public class Relations extends BasicDialog {
 	private XConverter dbFactory;
 	private ScFieldSelect fieldSelect;
 
-	private Map<String, ForeignKey> mapFk = new HashMap<>();
+	private Map<String, ForeignKey> mapFk = new LinkedHashMap<>();
 	private Map<String, JPanel> mapPanel = new HashMap<>();
 
 	private JPanel centerPanel;
@@ -61,6 +62,8 @@ public class Relations extends BasicDialog {
 
 	private void init() {
 		init(GUIFactory.getText("table") + " " + sqlTable.getName() + " - " + GUIFactory.getTitle("relationships"));
+		setHelpFile("relationships");
+
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation((dim.width - getSize().width) / 6, (dim.height - getSize().height) / 7);
 		buildDialog();
@@ -83,7 +86,7 @@ public class Relations extends BasicDialog {
 	protected void save() throws Exception {
 		pdaSettings.setForeignKeys(mapFk.values());
 		sqlTable.setFkList(mapFk);
-		dbFactory.setupDBTranslation(false, false);
+		dbFactory.setupDBTranslation(false);
 		fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 	}
 

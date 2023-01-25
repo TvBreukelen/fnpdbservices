@@ -1,0 +1,77 @@
+<html>
+<body>
+<h1>Relationships</h1>
+In this screen you can join one or more tables together in the database. By default you'll see here the
+ already existing relationships in the database from the current table to another table (and vice versa) 
+ that are defined with foreign keys. Foreign keys link data in one table to the data in another table.
+ A foreign key column in a table points to a column (= field) with unique values in another table (often the
+ primary key column) to create a way of cross-referencing the two tables. If a column is assigned a
+ foreign key, each row of that column must contain a value that exists in the "foreign" column it references.
+ The referenced (i.e. "foreign") column must contain only unique values - often it is the primary key of
+ its table.<br><br>
+<img src="../images/relationships.png">
+<h2>Buttons</h2>
+<table border="1">
+<tr>
+<th>Button</th>
+<th>Description</th>
+<tr>
+<td><img src="../images/new_relationship.png"></td>
+<td>Add a new relationship</td>
+</tr>
+<tr>
+<td> <img src="../images/Help.png"></td>
+<td>Shows information about this screen</td>
+</tr>
+<tr>
+<td> <img src="../images/Exit.png"></td>
+<td>Exits the screen</td>
+</tr>
+<tr>
+<td>Remove</td>
+<td>Removes a manually defined relationship</td>
+</tr>
+<tr>
+<td>Apply</td>
+<td>Apply the changes made on this screen</td>
+</tr>
+</table>
+<h2>Notes</h2>
+DBConvert shows foreign key relationships only one level deep. This means that it shows the relation from 
+ table "Artists" to "Albums" but doesn't show the relationship between "Albums" and table "Tracks" as well.
+ This last relationship can however be added manually by clicking the "Add a new relationship" button.
+ Like done here:<br><br> 
+<img src="../images/relationship_added.png"><br><br>
+Note that you have the option to remove that relationship with the "Remove" button in case you no longer
+ need it. Existing foreign key relationships cannot be deleted.
+<h2>Field Definition</h2>
+All fields on this screen are read only, with the exception of the "Join" combobox. 
+<ul>
+<li><b>From Table</b></li>
+Shows the table you are linking from (the "left" table). First entry would be the current selected table.
+<br><br>
+<li><b>Join</b></li>
+The SQL JOIN is a command clause that combines records from two or more tables in a database.
+ It is a means of combining data in fields from two tables by using values common to each table.
+ Here are the different types of the Joins in SQL (note: some databases may not support them all):
+<p>
+<ul>
+<li><b>Inner Join</b>: Returns records that have matching values in both tables</li>
+<li><b>Left Join</b>: Returns all records from the left table, and the matched records from the right table</li>
+<li><b>Right Join</b>: Returns all records from the right table, and the matched records from the left table</li>
+<li><b>Full Join</b>: Returns all records when there is a match in either left or right table</li>
+<img src="../images/joins.png">
+</ul>
+</p>
+<li><b>To Table</b></li>
+Shows the table you are linking to (the "right" table).
+<br><br>
+<li><b>From Field</b></li>
+The "From Table" field(s) or foreign key used for linking with the "To Table". 
+<br><br>
+<li><b>To Field</b></li>
+The "To Table" field(s) used for the link with the "From Table".
+<br><br>
+</ul> 
+</body>
+</html>  

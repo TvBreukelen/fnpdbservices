@@ -343,7 +343,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		myView = cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
 
 		try {
-			dbFactory.setupDBTranslation(isNewProfile, true);
+			dbFactory.setupDBTranslation(true);
 			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 		} catch (Exception e) {
 			General.errorMessage(this, e, GUIFactory.getTitle("configError"), null);
@@ -360,7 +360,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			try {
 				if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
 					dbFactory.connect2DB(dbVerified);
-					dbFactory.setupDBTranslation(isNewProfile, true);
+					dbFactory.setupDBTranslation(true);
 					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 				} else {
 					throw FNProgException.getException("noValidExtension", dbVerified.getDatabase(),
