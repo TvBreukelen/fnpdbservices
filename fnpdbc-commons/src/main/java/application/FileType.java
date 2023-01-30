@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum FileType {
-	JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
+	NEW(""), JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
 	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
 	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
 	MDB(" MS Access Database (*.mdb, *.accdb)"), FIREBIRD(" Firebird (*.fdb)"),
@@ -78,6 +78,7 @@ public enum FileType {
 			result.add(".vcf");
 			break;
 		case HOST:
+		case NEW:
 			break;
 		}
 		return result;

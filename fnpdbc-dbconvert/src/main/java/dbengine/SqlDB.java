@@ -60,6 +60,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private ResultSet dbResultSet;
 	private Session session;
 	protected int assignedPort;
+	private String sqlQuery;
 
 	private Set<String> linkedTables = new HashSet<>();
 
@@ -259,8 +260,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 
 			fieldDef.setSize(columns.getInt("COLUMN_SIZE"));
-			fieldDef.setAutoIncrement(columns.getBoolean("IS_AUTOINCREMENT"));
-			fieldDef.setNullable(columns.getBoolean("IS_NULLABLE"));
+
+			if (myImportFile == ExportFile.ACCESS) {
+				fieldDef.setAutoIncrement("YES".equals(columns.getString("IS_NULLABLE")));
+				fieldDef.setNullable("YES".equals(columns.getString("IS_AUTOINCREMENT")));
+			} else {
+				fieldDef.setAutoIncrement(columns.getBoolean("IS_AUTOINCREMENT"));
+				fieldDef.setNullable(columns.getBoolean("IS_NULLABLE"));
+			}
 
 			aFields.add(fieldDef);
 		}
@@ -395,7 +402,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
 		return getTableModelFields(true);
-
 	}
 
 	@Override
@@ -408,7 +414,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			joinData.loadProfile(myPref); // Read foreign key definitions from registry
 
 			// Update system keys and add user keys to map
-			joinData.getUserKeys().forEach(fk -> map.put(fk.getTableTo(), fk));
+			map.putAll(joinData.getRelationMap());
 		}
 
 		List<FieldDefinition> result = new ArrayList<>(table.getDbFields());
@@ -450,12 +456,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	public void createQueryStatement() throws SQLException {
-		createQueryStatement(getSqlQuery());
-	}
-
-	public void createQueryStatement(String query) throws SQLException {
 		dbStatement = connection.createStatement();
-		dbResultSet = dbStatement.executeQuery(query);
+		dbResultSet = dbStatement.executeQuery(sqlQuery);
 	}
 
 	@Override
@@ -503,9 +505,15 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	private void getJoinStatement(StringBuilder buf, SqlTable table) {
+		List<ForeignKey> keys = new ArrayList<>();
+		Set<String> linked = new HashSet<>();
 		for (String link : linkedTables) {
-			List<ForeignKey> keys = new ArrayList<>();
 			while (true) {
+				if (linked.contains(link)) {
+					break;
+				}
+
+				linked.add(link);
 				Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
 				if (fk.isEmpty()) {
 					break;
@@ -521,9 +529,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 				link = key.getTableFrom();
 			}
-
-			keys.forEach(key -> getJoinedTable(buf, key));
 		}
+		keys.forEach(key -> getJoinedTable(buf, key));
 	}
 
 	public void getJoinedTable(StringBuilder buf, ForeignKey key) {
@@ -609,8 +616,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		switch (field.getFieldType()) {
 		case BOOLEAN:
-			buf.append("true".equals(myPref.getFilterValue(i)) ? 1 : 0);
-			break;
 		case CURRENCY:
 		case FLOAT:
 		case NUMBER:
@@ -683,20 +688,21 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 		}
 
+		// Add linked field(s) for SortBy statement
+		if (myPref.isSortFieldDefined()) {
+			myPref.getSortFields().forEach(s -> getLinkedTables(table, hFieldMap.get(s)));
+		}
+
+		// Build Query
+		sqlQuery = getSqlQuery();
+
 		try {
-			StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ");
-			sql.append(getSqlFieldName(myPref.getTableName()));
-
-			String where = getWhereStatement();
-			if (!where.isEmpty()) {
-				sql.append(" AS A");
-				getJoinStatement(sql, table);
-				sql.append(where);
-			}
-
-			// Add linked field(s) for SortBy statement
+			StringBuilder sql = new StringBuilder("SELECT COUNT(*)");
 			if (myPref.isSortFieldDefined()) {
-				myPref.getSortFields().forEach(s -> getLinkedTables(table, hFieldMap.get(s)));
+				// Remove Order statement
+				sql.append(sqlQuery.substring(sqlQuery.indexOf("\n"), sqlQuery.lastIndexOf("\n")));
+			} else {
+				sql.append(sqlQuery.substring(sqlQuery.indexOf("\n")));
 			}
 
 			try (Statement statement = connection.createStatement();

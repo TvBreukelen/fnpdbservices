@@ -189,6 +189,27 @@ public abstract class Profiles extends Project {
 		}
 	}
 
+	public void reset() {
+		filterCondition = "AND";
+		filterField[0] = "";
+		filterField[1] = "";
+		filterOperator[0] = FilterOperator.IS_EQUAL_TO;
+		filterOperator[1] = FilterOperator.IS_EQUAL_TO;
+		filterValue[0] = "";
+		filterValue[1] = "";
+		keywordFilter = "";
+		remainingField = "";
+
+		for (int i = 0; i < 4; i++) {
+			sortField[i] = "";
+			groupField[i] = "";
+			groupingField[i] = "";
+		}
+
+		relations.clear();
+		userList.clear();
+	}
+
 	public String getContentsFilter() {
 		return contentsFilter;
 	}

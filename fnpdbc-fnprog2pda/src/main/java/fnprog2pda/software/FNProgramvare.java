@@ -42,9 +42,9 @@ import application.utils.XComparator;
 import dbengine.GeneralDB;
 import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
-import dbengine.export.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
+import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.dialog.ExportProcess;
 import fnprog2pda.preferences.PrefFNProg;
 

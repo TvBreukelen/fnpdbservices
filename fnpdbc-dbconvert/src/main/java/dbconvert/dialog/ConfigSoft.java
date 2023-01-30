@@ -109,8 +109,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
+		if (isNewProfile) {
+			pdaSettings.reset();
+		}
+
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
+		myImportFile = isNewProfile ? ExportFile.NEW : dbSettings.getDatabaseType();
 		dbFactory = new XConverter();
 		fieldSelect = new ScFieldSelect(dbFactory);
 
@@ -228,9 +232,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		reloadImportFiles(true, false);
 
-		myView = isNewProfile ? "" : cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
-
 		if (isNewProfile) {
+			myView = "";
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			p1.setBorder(BorderFactory.createEtchedBorder());
 			p1.add(Box.createVerticalStrut(40));
@@ -239,6 +242,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			p1.add(profile);
 			panel.add(p1);
 		} else {
+			myView = cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
 			FilterData filter = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
 			SortData sort = sortDataMap.computeIfAbsent(myView, e -> new SortData());
 			RelationData relation = relationDataMap.computeIfAbsent(myView, e -> new RelationData());
@@ -315,8 +319,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		if (!dbExist && dbFiles.size() > 1) {
 			// Take last database from the list
 			dbFile = dbFiles.get(dbFiles.size() - 1);
-			dbExist = true;
-			result = true;
+			if (myExportFile.isConnectHost()) {
+				dbExist = true;
+			} else {
+				dbExist = General.existFile(dbFile);
+
+			}
+			result = dbExist;
 		}
 
 		dbFiles.forEach(db -> cbDatabases.addItem(db));

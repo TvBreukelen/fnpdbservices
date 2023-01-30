@@ -40,6 +40,11 @@
 			<version>4.0.6.java11</version>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.ucanaccess</groupId>
+			<artifactId>ucanaccess</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.mwiede</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.2.0</version>

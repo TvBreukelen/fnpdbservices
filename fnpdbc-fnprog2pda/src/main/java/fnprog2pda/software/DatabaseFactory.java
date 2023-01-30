@@ -31,9 +31,9 @@ import application.utils.ini.IniFile;
 import application.utils.ini.IniItem;
 import application.utils.ini.IniSection;
 import dbengine.IConvert;
-import dbengine.export.MSAccess;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.MSTable;
+import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.preferences.PrefFNProg;
 
 public final class DatabaseFactory implements IDatabaseFactory {

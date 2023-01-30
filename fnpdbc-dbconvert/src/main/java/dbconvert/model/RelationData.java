@@ -1,9 +1,7 @@
 package dbconvert.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -34,19 +32,8 @@ public class RelationData {
 		relationMap.put(key.getTableTo(), key);
 	}
 
-	public List<ForeignKey> getForeignKeys() {
-		return new ArrayList<>(relationMap.values());
-	}
-
-	public List<ForeignKey> getUserKeys() {
-		ArrayList<ForeignKey> result = new ArrayList<>();
-		relationMap.values().forEach(fk -> {
-			if (fk.isUserDefined()) {
-				result.add(fk);
-			}
-		});
-
-		return result;
+	public Map<String, ForeignKey> getRelationMap() {
+		return relationMap;
 	}
 
 	public void setForeignKeys(Collection<ForeignKey> keys) {
