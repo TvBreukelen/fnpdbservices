@@ -1,5 +1,12 @@
 Release Notes
 
+Version 7.5
+-----------
+For SQL databses it is now possible to use existing table relationships (foreign keys ->
+primary keys) or define your own. This allows you to join tables together for SQL queries.
+MS-Access is now accessed via the UCanAccess java JDBC Driver.
+
+
 Version 7.4
 -----------
 Added support for Firebase databases
