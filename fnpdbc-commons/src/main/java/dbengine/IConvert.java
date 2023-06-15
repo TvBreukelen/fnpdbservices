@@ -1,6 +1,5 @@
 package dbengine;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,7 @@ public interface IConvert {
 	List<FieldDefinition> getTableModelFields() throws Exception;
 
 	default List<FieldDefinition> getTableModelFields(boolean loadFromRegistry) throws Exception {
-		return new ArrayList<>();
+		return getTableModelFields();
 	}
 
 	List<String> getTableOrSheetNames();

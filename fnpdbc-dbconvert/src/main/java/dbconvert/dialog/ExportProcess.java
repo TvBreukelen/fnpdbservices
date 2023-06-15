@@ -161,6 +161,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 		case EXCEL:
 			return new Excel(profile);
 		case TEXTFILE:
+		case NEW:
 			return new CsvFile(profile);
 		case VCARD:
 			return new VCard(profile);
