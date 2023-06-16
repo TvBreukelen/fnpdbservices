@@ -12,11 +12,11 @@ public enum ExportFile {
 	 *
 	 * @author Tom van Breukelen
 	 */
-	NEW("New", FileType.NEW, 255, 255, 255), ACCESS("MS-Access", FileType.MDB, 255, 255, 255),
-	EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767), CALC("Calc", FileType.ODS, 256, 1048576, 1048576),
-	TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767), XML("Xml", FileType.XML, 32767, 32767, 32767),
-	JSON("Json", FileType.JSON, 32767, 32767, 32767), YAML("Yaml", FileType.YAML, 32767, 32767, 32767),
-	SQLITE("SQLite", FileType.DB, 255, 255, 255), MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
+	ACCESS("MS-Access", FileType.MDB, 255, 255, 255), EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767),
+	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767),
+	XML("Xml", FileType.XML, 32767, 32767, 32767), JSON("Json", FileType.JSON, 32767, 32767, 32767),
+	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
+	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
 	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767),
 	FIREBIRD("Firebird", FileType.HOST, 32767, 32767, 32767),
 	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
@@ -55,9 +55,7 @@ public enum ExportFile {
 			result.add(exp.name);
 		}
 
-		result.remove(NEW.name);
-
-		if (!General.IS_WINDOWS) {
+		if (isImport || !General.IS_WINDOWS) {
 			result.remove(HANDBASE.name);
 		}
 

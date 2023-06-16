@@ -112,13 +112,15 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
 
+		dbFactory = new XConverter();
+
 		if (isNewProfile) {
 			pdaSettings.reset();
+			dbFactory.getDbInHelper().setDatabase("");
 		}
 
-		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.NEW : dbSettings.getDatabaseType();
-		dbFactory = new XConverter();
+		myExportFile = isNewProfile ? ExportFile.TEXTFILE : ExportFile.getExportFile(pdaSettings.getProjectID());
+		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
 		fieldSelect = new ScFieldSelect(dbFactory);
 
 		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
@@ -286,7 +288,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
 		String db = dbVerified.getDatabase();
 
-		if (!isNewProfile && software != myImportFile && !db.isEmpty()) {
+		if (software != myImportFile && !db.isEmpty()) {
 			boolean abort = false;
 			if (!software.isConnectHost() == myImportFile.isConnectHost()) {
 				General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", ""), CONFIG_ERROR, true);
@@ -326,7 +328,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		String dbFile = dbVerified.getDatabase();
 
 		if (dbFile.isBlank()) {
-			if (dbFiles.size() > 1) {
+			if (!isNewProfile && dbFiles.size() > 1) {
 				// Take last database from the list
 				dbFile = dbFiles.get(dbFiles.size() - 1);
 			}
@@ -395,7 +397,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 					dbFactory.setupDBTranslation(true);
 					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 				} else {
+					dbFactory.close();
 					dbVerified.setDatabase("");
+					cbDatabases.setSelectedItem("");
 					setTablesOrWorksheets();
 				}
 			} catch (Exception e) {

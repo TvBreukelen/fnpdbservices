@@ -1,8 +1,15 @@
 Release Notes
 
+Version 7.5.1
+-------------
+Improved validation when databases files are of the wrong format or no longer exists. 
+Fixed a bug that caused some files not to be loaded correctly.
+Updated SQlite driver. 
+ 
+
 Version 7.5
 -----------
-For SQL databses it is now possible to use existing table relationships (foreign keys ->
+For SQL databases it is now possible to use existing table relationships (foreign keys ->
 primary keys) or define your own. This allows you to join tables together for SQL queries.
 MS-Access is now accessed via the UCanAccess java JDBC Driver.
 

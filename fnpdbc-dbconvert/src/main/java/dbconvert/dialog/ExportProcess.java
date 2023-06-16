@@ -12,7 +12,6 @@ import application.utils.General;
 import dbconvert.software.XConverter;
 import dbengine.GeneralDB;
 import dbengine.export.Calc;
-import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
 import dbengine.export.Firebird;
@@ -161,8 +160,6 @@ public class ExportProcess implements Runnable, IExportProcess {
 		case EXCEL:
 			return new Excel(profile);
 		case TEXTFILE:
-		case NEW:
-			return new CsvFile(profile);
 		case VCARD:
 			return new VCard(profile);
 		case DBASE:
