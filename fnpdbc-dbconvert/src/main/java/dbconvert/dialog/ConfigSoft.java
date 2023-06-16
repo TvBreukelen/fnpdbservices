@@ -72,6 +72,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	transient ActionListener funcSelectTableOrSheet;
 	transient ActionListener funcSelectImportFile;
+	transient ActionListener funcSelectImportFileType;
 
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
@@ -86,6 +87,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private static final String FUNC_NEW = "funcNew";
 	private static final String TABLE = "table";
 	private static final String WORKSHEET = "worksheet";
+	private static final String CONFIG_ERROR = GUIFactory.getTitle("configError");
 
 	transient XConverter dbFactory;
 	transient PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
@@ -140,6 +142,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
+		funcSelectImportFileType = e -> importFileTypeChanged();
 		funcSelectImportFile = e -> importFileNameChanged(false);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
@@ -196,7 +199,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(true));
 		bDatabase.setSelectedItem(myImportFile.getName());
-		bDatabase.addActionListener(e -> importFileTypeChanged());
+		bDatabase.addActionListener(funcSelectImportFileType);
 		bDatabase.setPreferredSize(configDb.getComboBoxSize());
 		cbDatabases = new JComboBox<>();
 		dbFiles = dbSettings.getDatabaseFiles(myImportFile);
@@ -235,7 +238,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 3, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
-		reloadImportFiles(true, false);
+		reloadImportFiles();
 
 		if (isNewProfile) {
 			myView = "";
@@ -272,7 +275,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbFactory.getDbInHelper()
 				.setDatabase(isAddNew ? fdDatabase.getText() : cbDatabases.getSelectedItem().toString());
 
-		if (reloadImportFiles(false, isAddNew)) {
+		if (reloadImportFiles()) {
 			verifyDatabase();
 		}
 
@@ -283,13 +286,23 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
 		String db = dbVerified.getDatabase();
 
-		if (!isNewProfile && software != myImportFile && !db.isEmpty()
-				&& !General.showConfirmMessage(this,
+		if (!isNewProfile && software != myImportFile && !db.isEmpty()) {
+			boolean abort = false;
+			if (!software.isConnectHost() == myImportFile.isConnectHost()) {
+				General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", ""), CONFIG_ERROR, true);
+				abort = true;
+			} else {
+				abort = !General.showConfirmMessage(this,
 						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
-						GUIFactory.getTitle("warning"))) {
+						GUIFactory.getTitle("warning"));
+			}
 
-			bDatabase.setSelectedItem(myImportFile.getName());
-			return;
+			if (abort) {
+				bDatabase.removeActionListener(funcSelectImportFileType);
+				bDatabase.setSelectedItem(myImportFile.getName());
+				bDatabase.addActionListener(funcSelectImportFileType);
+				return;
+			}
 		}
 
 		myImportFile = software;
@@ -299,35 +312,35 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		setTablesOrWorksheets();
 		dbFiles = dbSettings.getDatabaseFiles(myImportFile);
 
-		if (reloadImportFiles(true, false)) {
+		if (reloadImportFiles()) {
 			verifyDatabase();
 		}
 	}
 
-	private boolean reloadImportFiles(boolean isInit, boolean isAddNew) {
+	private boolean reloadImportFiles() {
 		boolean result = false;
 		cbDatabases.removeActionListener(funcSelectImportFile);
 		cbDatabases.removeAllItems();
+
 		dbVerified = dbFactory.getDbInHelper();
-
 		String dbFile = dbVerified.getDatabase();
-		result = dbFiles.contains(dbFile);
 
-		if (isAddNew && !result) {
-			dbFiles.add(dbFile);
-			Collections.sort(dbFiles);
-			result = true;
+		if (dbFile.isBlank()) {
+			if (dbFiles.size() > 1) {
+				// Take last database from the list
+				dbFile = dbFiles.get(dbFiles.size() - 1);
+			}
+		} else {
+			if (!dbFiles.contains(dbFile)) {
+				dbFiles.add(dbFile);
+				Collections.sort(dbFiles);
+			}
 		}
 
-		if ((!result || dbFile.isBlank()) && dbFiles.size() > 1) {
-			// Take last database from the list
-			dbFile = dbFiles.get(dbFiles.size() - 1);
-		}
-
-		if (myExportFile.isConnectHost()) {
+		if (myImportFile.isConnectHost()) {
 			result = true;
 		} else {
-			result = General.existFile(dbFile);
+			result = !dbFile.isBlank() && General.existFile(dbFile);
 		}
 
 		dbFiles.forEach(db -> cbDatabases.addItem(db));
@@ -337,22 +350,20 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			String node = dbSettings.getNodename(dbFile, myImportFile.getName());
 			if (node != null) {
 				dbSettings.setNode(node);
-				if (isInit) {
-					dbVerified.update(dbSettings);
-				}
+				dbVerified.update(dbSettings);
 			}
 		} else {
 			if (!dbFile.isBlank()) {
-				General.showMessage(this, GUIFactory.getMessage("noDatabaseExists", dbFile),
-						GUIFactory.getTitle("configError"), true);
+				General.showMessage(this, GUIFactory.getMessage("noDatabaseExists", dbFile), CONFIG_ERROR, true);
 			}
 
-			cbDatabases.setSelectedItem("");
-			dbVerified.setDatabase("");
 			btSave.setEnabled(false);
 			btFilter.setEnabled(false);
 			btSortOrder.setEnabled(false);
-			tabPane.setEnabledAt(1, false);
+
+			if (tabPane.getTabCount() == 2) {
+				tabPane.setEnabledAt(1, false);
+			}
 		}
 
 		cbDatabases.addActionListener(funcSelectImportFile);
@@ -367,7 +378,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbFactory.setupDBTranslation(true);
 			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 		} catch (Exception e) {
-			General.errorMessage(this, e, GUIFactory.getTitle("configError"), null);
+			General.errorMessage(this, e, CONFIG_ERROR, null);
 			dbFactory.close();
 		}
 	}
@@ -388,7 +399,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 					setTablesOrWorksheets();
 				}
 			} catch (Exception e) {
-				General.errorMessage(this, e, GUIFactory.getTitle("configError"), null);
+				General.errorMessage(this, e, CONFIG_ERROR, null);
 				dbFactory.close();
 			}
 		}

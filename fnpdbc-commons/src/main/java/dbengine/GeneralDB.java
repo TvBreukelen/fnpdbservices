@@ -104,6 +104,8 @@ public abstract class GeneralDB {
 	}
 
 	public void openFile(DatabaseHelper helper, boolean isInputFile) throws Exception {
+		this.isInputFile = isInputFile;
+
 		if (helper.getDatabase().isEmpty()) {
 			throw FNProgException.getException("noDatabaseDefined");
 		}

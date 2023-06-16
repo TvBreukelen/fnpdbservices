@@ -222,6 +222,7 @@ intoNewDatabase.tooltip=Creëer een nieuwe database en schrijf daarin de gegeven
 intoNewTable.text=Naar nieuwe tabelle
 intoNewTable.tooltip=Creëer een nieuwe tabelle en schreijf daarin de gegevens (DROP TABLE / CREATE TABLE)
 invalidDatabaseID.mesg=Bestand %0 heeft een onjuiste Database-Id. Verwachte voor '%1' databases een id van '%2' i.p.v. '%3'.
+invalidDatabaseSwitch.mesg=Overstappen van een lokale database naar een remote database of vice versa is niet mogelijk.
 invalidKeyfile.mesg=privé sleutelbestand '%0' heeft het verkeerde formaat.\nIk verwachte een OpenSSH bestand met BEGIN en END tags.
 keywordFilter.title=Sleutelwoord filter
 keywordFilter.tooltip=Filter op sleutelwoord (leeg = filter deaktiveren)

@@ -222,6 +222,7 @@ intoNewDatabase.tooltip=Create a new database and place the records into it
 intoNewTable.text=Into new table
 intoNewTable.tooltip=Create a new table and write the records into it (DROP TABLE / CREATE TABLE)
 invalidDatabaseID.mesg=File '%0' has an invalid database id. Expected for '%1' databases an id of '%2', but found '%3' instead.
+invalidDatabaseSwitch.mesg=Cannot switch from a local database to a remote database and vice versa.
 invalidKeyfile.mesg=private key file '%0' has the wrong format.\nI Expected an OpenSSH file with BEGIN and END tags.
 keywordFilter.title=Keyword Filter
 keywordFilter.tooltip=Keyword to select (blank = no filter on Keywords)
