@@ -95,11 +95,17 @@ Here you can choose a time format to be used for the exported duration fields:
 <b>Examples:</b> "123:54", "25:25", "08:50 or "00:16"
 <br> 
 </ol>
-
 <br>
 <li><b>Boolean Values</b></li>
 Enter here the values to be used as a text replacement for the boolean values True or False
 </ul>
+<p><b>Notes:</b>
+<p>
+The difference between time and duration is that duration represents the length of time of a CD, track or video)
+ and time the time of a day. Duration fields are always exported as text. Time fields can either be exported to
+ text and (for some export file formats) also as time fields.<br>
+</p>
+</p>
 
 <h2>Internet - Automatically check for program updates</h2>
 <img src="../images/GSettingInternet.gif">
@@ -139,23 +145,12 @@ When used, the program still creates the image files in the Image Folder, but wr
 <li>When selected, it removes the path information from the file name</li>
 For example: image.jpeg instead of d:/data/images/image.jpeg
 </ul>
-
-<p><b>Notes:</b>
-<p>
-FNProg2PDA uses two internal date types, namely  "incomplete" and "standard" dates. Incomplete dates are
- dates in the FNProgramvare databases that don't need to be completely entered. For example: a published date,
- that is entered without a day, like 05.2006 (May, 2006). Standard dates are dates that need to be entered
- completely in the FNProgramvare database. For example: the due date of a reserved book.
+<h2>HanDBase</h2>
+<img src="../images/GSettingHanDBase.gif">
+<p> 
+Here you will can specify the fully qualified filename of the HanDBase database conversion program
+ (handbasedesktop.exe) which is used to create or update the HanDBase databases. The Browse button allows you to find this
+  program on your PC more easily.
 </p> 
-<p>
-"Incomplete" date fields are always exported as text. "Standard" date fields however can be exported as text
- and (for some export file formats) also as date fields.
-</p> 
-<p>
-The difference between time and duration is that duration represents the length of time of a CD, track or video)
- and time the time of a day. Duration fields are always exported as text. Time fields can either be exported to
- text and (for some export file formats) also as time fields.<br>
-</p>
-</p>
 </body>
 </html>

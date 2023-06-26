@@ -3,13 +3,10 @@ package application.dialog;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -37,7 +34,6 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 	private JRadioButton physicalOrder;
 
 	private JTextField autoInstallUser;
-	private JTextField selectFile;
 
 	private JLabel userLabel;
 	transient IConfigSoft dialog;
@@ -62,7 +58,6 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 	public void setProperties() {
 		pdaSettings.setImportOption(fieldOrder.isSelected() ? 0 : 1);
 		pdaSettings.setAutoInstUser(autoInstallAllUsers.isSelected() ? "ALL USERS" : autoInstallUser.getText().trim());
-		generalSettings.setHandbaseConversionProgram(selectFile.getText().trim());
 	}
 
 	@Override
@@ -108,17 +103,5 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 		p2.setBorder(BorderFactory.createTitledBorder("AutoInstall"));
 		p1.add(p2);
 		add(p1);
-
-		selectFile = GUIFactory.getJTextField("selectFile", generalSettings.getHandbaseConversionProgram());
-		p2 = new JPanel(new GridBagLayout());
-		p2.add(selectFile, c.gridCell(0, 0, 2, 0));
-
-		List<String> ext = new ArrayList<>();
-		ext.add(".exe");
-		p2.add(GUIFactory.getJButton("browse",
-				e -> General.getSelectedFile((JDialog) dialog, selectFile, "", "Windows program (*.exe)", true, ext)),
-				c.gridCell(1, 0, 0, 0));
-		p2.setBorder(BorderFactory.createTitledBorder("handbasedesktop.exe"));
-		add(p2);
 	}
 }

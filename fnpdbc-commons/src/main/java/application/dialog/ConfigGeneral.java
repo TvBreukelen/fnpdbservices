@@ -7,12 +7,15 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -41,6 +44,7 @@ public class ConfigGeneral extends BasicDialog {
 	private JTextField defaultBackupFolder;
 	private JTextField defaultImageFolder;
 	private JTextField defaultPdaFolder;
+	private JTextField handbaseDesktopFile;
 
 	private JCheckBox noImagePath;
 
@@ -95,6 +99,10 @@ public class ConfigGeneral extends BasicDialog {
 		pane.addTab(GUIFactory.getText("conversions"), addDateTimeTab());
 		pane.addTab("Internet", addInternetTab());
 		pane.addTab(GUIFactory.getText("folders"), addFoldersTab());
+
+		if (General.IS_WINDOWS) {
+			pane.addTab("HanDBase", addHanDBaseTab());
+		}
 
 		result.add(pane);
 		return result;
@@ -227,7 +235,25 @@ public class ConfigGeneral extends BasicDialog {
 		result.add(defaultPdaFolder, c.gridCell(1, 4, 2, 0));
 		result.add(Box.createVerticalStrut(10), c.gridCell(0, 5, 0, 0));
 		result.add(noImagePath, c.gridmultipleCell(0, 6, 3, 0, 0, 0));
+		result.add(Box.createVerticalStrut(50), c.gridCell(0, 7, 0, 0));
 		result.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("folders")));
+		return result;
+	}
+
+	private Component addHanDBaseTab() {
+		JPanel result = new JPanel(new GridBagLayout());
+
+		List<String> ext = new ArrayList<>();
+		ext.add(".exe");
+		handbaseDesktopFile = GUIFactory.getJTextField("selectFile", generalSettings.getHandbaseConversionProgram());
+
+		result.add(new JLabel("HanDBase Desktop"), c.gridCell(0, 0, 0, 0));
+		result.add(handbaseDesktopFile, c.gridCell(0, 1, 2, 0));
+
+		result.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile(ConfigGeneral.this, handbaseDesktopFile,
+				"", "Windows program (*.exe)", true, ext)), c.gridCell(1, 1, 0, 0));
+		result.add(Box.createVerticalStrut(130), c.gridCell(0, 2, 0, 0));
+		result.setBorder(BorderFactory.createTitledBorder("HanDBase"));
 		return result;
 	}
 
@@ -263,6 +289,10 @@ public class ConfigGeneral extends BasicDialog {
 		generalSettings.setDefaultPdaFolder(defaultPdaFolder.getText().trim());
 		generalSettings.setVersionDaysCheck(versionDaysCheck);
 		generalSettings.setNoImagePath(noImagePath.isSelected());
+
+		if (General.IS_WINDOWS) {
+			generalSettings.setHandbaseConversionProgram(handbaseDesktopFile.getText().trim());
+		}
 	}
 
 	@Override
