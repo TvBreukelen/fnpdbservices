@@ -10,7 +10,7 @@ public class FNProgException extends Exception {
 	 */
 	private static final long serialVersionUID = 2632073785952240467L;
 
-	private FNProgException(String arg0) {
+	public FNProgException(String arg0) {
 		super(arg0);
 	}
 

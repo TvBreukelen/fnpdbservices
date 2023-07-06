@@ -2,10 +2,16 @@ package dbengine.export;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.linuxense.javadbf.DBFCharsetHelper;
+import com.linuxense.javadbf.DBFDataType;
+import com.linuxense.javadbf.DBFException;
+import com.linuxense.javadbf.DBFField;
+import com.linuxense.javadbf.DBFReader;
+import com.linuxense.javadbf.DBFWriter;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
@@ -15,10 +21,6 @@ import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
-import dbengine.utils.DBFField;
-import dbengine.utils.DBFHeader;
-import dbengine.utils.DBFReader;
-import dbengine.utils.DBFWriter;
 
 public class DBaseFile extends GeneralDB implements IConvert {
 	private DBFReader reader;
@@ -64,9 +66,19 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 		if (isInputFile) {
 			in = new FileInputStream(myDatabase);
-			reader = new DBFReader(in, memoFile);
+			reader = new DBFReader(in);
+			if (memoFile.exists()) {
+				reader.setMemoFile(memoFile);
+			}
 		} else {
-			writer = new DBFWriter(outFile, memoFile, myPref.getLanguageDriver());
+			if (useAppend) {
+				in = new FileInputStream(myDatabase);
+				reader = new DBFReader(in);
+				in.close();
+				reader.close();
+			}
+
+			writer = new DBFWriter(outFile, DBFCharsetHelper.getCharsetByByte(myPref.getLanguageDriver()));
 		}
 	}
 
@@ -75,10 +87,9 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		try {
 			if (isInputFile) {
 				in.close();
-				reader.closeDBFFile();
+				reader.close();
 			} else {
-				writer.closeDBFFile();
-				myPref.setLanguageDriver(writer.getLanguageDriver());
+				writer.close();
 			}
 		} catch (Exception e) {
 			// Log the error
@@ -92,12 +103,14 @@ public class DBaseFile extends GeneralDB implements IConvert {
 	@Override
 	public void createDbHeader() throws Exception {
 		numFields = dbInfo2Write.size();
-		if (useAppend && numFields != writer.getFieldCount()) {
+		if (useAppend && numFields != reader.getFieldCount()) {
 			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
-					Integer.toString(writer.getFieldCount()));
+					Integer.toString(reader.getFieldCount()));
 		}
 
-		List<DBFField> fields = new ArrayList<>();
+		DBFField[] fields = new DBFField[numFields];
+		int index = 0;
+
 		for (FieldDefinition field : dbInfo2Write) {
 			DBFField dbField = new DBFField();
 			String header = field.getFieldHeader().toUpperCase();
@@ -106,119 +119,103 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			}
 
 			dbField.setName(header);
-			dbField.setDataType(DBFField.FIELD_TYPE_C);
+			dbField.setType(DBFDataType.CHARACTER);
 
 			switch (field.getFieldType()) {
 			case BOOLEAN:
 				if (field.isOutputAsText()) {
 					int t = getBooleanTrue().length();
 					int f = getBooleanFalse().length();
-					dbField.setFieldLength(Math.max(t, f));
+					dbField.setLength(Math.max(t, f));
 				} else {
-					dbField.setDataType(DBFField.FIELD_TYPE_L);
+					dbField.setType(DBFDataType.LOGICAL);
 				}
 				break;
 			case DATE:
 				if (field.isOutputAsText()) {
-					dbField.setFieldLength(10);
+					dbField.setLength(10);
 				} else {
-					dbField.setDataType(DBFField.FIELD_TYPE_D);
+					dbField.setType(DBFDataType.DATE);
 				}
 				break;
+			case MEMO:
+				dbField.setLength(myExportFile.getMaxTextSize());
+				break;
 			case TIMESTAMP:
-				dbField.setFieldLength(18);
+				dbField.setLength(18);
 				break;
 			case DURATION:
-				dbField.setFieldLength(7);
+				dbField.setLength(7);
 				break;
 			case BIG_DECIMAL:
 			case FLOAT:
-				dbField.setDataType(DBFField.FIELD_TYPE_F);
-				dbField.setFieldLength(field.getSize() < 10 ? 10 : field.getSize());
+				int size = field.getSize();
+				if (size < 10) {
+					size = 10;
+				} else if (size > 20) {
+					size = 20;
+				}
+				dbField.setType(DBFDataType.FLOATING_POINT);
+				dbField.setLength(size);
 				dbField.setDecimalCount(field.getDecimalPoint());
 				break;
 			case FUSSY_DATE:
-				dbField.setFieldLength(10);
-				break;
-			case MEMO:
-				dbField.setDataType(DBFField.FIELD_TYPE_M);
-				dbField.setFieldLength(myExportFile == ExportFile.FOXPRO ? 4 : 10);
+				dbField.setLength(10);
 				break;
 			case NUMBER:
 				// We assume a normal integer
-				dbField.setDataType(DBFField.FIELD_TYPE_N);
-				dbField.setFieldLength(field.getSize());
+				dbField.setType(DBFDataType.NUMERIC);
+				dbField.setLength(field.getSize());
 				dbField.setDecimalCount(0);
 				break;
 			case TIME:
-				dbField.setFieldLength(5);
+				dbField.setLength(5);
 				break;
 			default:
-				if (field.getSize() > myExportFile.getMaxTextSize()) {
-					field.setFieldType(FieldTypes.MEMO);
-					dbField.setDataType(DBFField.FIELD_TYPE_M);
-				} else {
-					dbField.setFieldLength(field.getSize());
-				}
+				dbField.setLength(field.getSize() > myExportFile.getMaxTextSize() ? myExportFile.getMaxTextSize()
+						: field.getSize());
 			}
 
-			fields.add(dbField);
+			fields[index++] = dbField;
 		}
 
 		if (useAppend) {
 			// Verify if fields match in type and size
 			for (int i = 0; i < numFields; i++) {
-				DBFField field1 = writer.getField(i);
-				DBFField field2 = fields.get(i);
+				DBFField field1 = reader.getField(i);
+				DBFField field2 = fields[i];
 
 				if (!field1.getName().equals(field2.getName())) {
 					throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getName(),
 							field2.getName());
 				}
 
-				if (field1.getDataType() != field2.getDataType()) {
-					if (field1.getDataType() == DBFField.FIELD_TYPE_M) {
-						field2.setDataType(DBFField.FIELD_TYPE_M);
-						FieldDefinition field = dbInfo2Write.get(i);
-						field.setFieldType(FieldTypes.MEMO);
-					} else {
-						throw FNProgException.getException("noMatchFieldType", field1.getName(), field2.getName());
-					}
+				if (field1.getType() != field2.getType()) {
+					throw FNProgException.getException("noMatchFieldType", field1.getName(), field2.getName());
 				}
 
-				if (field1.getFieldLength() < field2.getFieldLength()) {
+				if (field1.getLength() < field2.getLength()) {
 					throw FNProgException.getException("noMatchFieldLength", field1.getName(),
-							Integer.toString(field1.getFieldLength()), Integer.toString(field2.getFieldLength()));
+							Integer.toString(field1.getLength()), Integer.toString(field2.getLength()));
 				}
 			}
 		} else {
-			writer.setFields(fields, getDBaseSignature());
-		}
-	}
-
-	private byte getDBaseSignature() {
-		switch (myImportFile) {
-		case DBASE3:
-			return DBFHeader.SIG_DBASE_III;
-		case DBASE4:
-		case DBASE5:
-			return DBFHeader.SIG_DBASE_IV;
-		case FOXPRO:
-			return DBFHeader.SIG_FOXPRO;
-		default:
-			return DBFHeader.SIG_DBASE_III;
+			writer.setFields(fields);
 		}
 	}
 
 	@Override
 	public void deleteFile() {
 		closeFile();
-		if (outFile.exists()) {
-			outFile.delete();
-		}
 
-		if (memoFile.exists()) {
-			memoFile.delete();
+		if (!useAppend || hasBackup) {
+			if (outFile.exists()) {
+				outFile.delete();
+			}
+
+			if (memoFile.exists()) {
+				memoFile.delete();
+			}
 		}
 
 		if (hasBackup) {
@@ -234,25 +231,23 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
-		Map<String, Object> rowData = new HashMap<>();
-
 		// Read the user defined list of DB fields
 		int index = 0;
+		Object[] rowData = new Object[dbInfo2Write.size()];
 		for (FieldDefinition field : dbInfo2Write) {
-			DBFField db = writer.getField(index++);
-
 			Object dbValue = dbRecord.get(field.getFieldAlias());
-			if (dbValue == null || dbValue.equals("")) {
-				continue;
-			}
-
-			if (field.isOutputAsText()) {
+			if (dbValue != null && !dbValue.equals("")) {
 				dbValue = convertDataFields(dbValue, field);
 			}
 
-			rowData.put(db.getName(), dbValue);
+			rowData[index++] = dbValue;
 		}
-		writer.addRecord(rowData);
+
+		try {
+			writer.addRecord(rowData);
+		} catch (DBFException ex) {
+			throw new FNProgException(ex.getMessage());
+		}
 	}
 
 	@Override
@@ -260,14 +255,14 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		Map<String, Object> result = new HashMap<>();
 		List<FieldDefinition> dbDef = getTableModelFields();
 
-		Map<String, Object> rowObjects = reader.nextRecord();
-		if (rowObjects.isEmpty()) {
+		Object[] rowObjects = reader.nextRecord();
+		if (rowObjects == null) {
 			return result;
 		}
 
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbDef.get(i);
-			Object dbValue = rowObjects.getOrDefault(field.getFieldName(), "");
+			Object dbValue = rowObjects[i];
 			if (field.getFieldType() == FieldTypes.NUMBER && dbValue instanceof Double) {
 				dbValue = ((Double) dbValue).intValue();
 			}
@@ -294,25 +289,25 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		for (int i = 0; i < numFields; i++) {
 			DBFField dbField = reader.getField(i);
 			dbFieldNames.add(dbField.getName());
-			switch (dbField.getDataType()) {
-			case DBFField.FIELD_TYPE_D:
+			switch (dbField.getType()) {
+			case DATE:
 				dbFieldTypes.add(FieldTypes.DATE);
 				break;
-			case DBFField.FIELD_TYPE_I:
-				dbFieldTypes.add(FieldTypes.NUMBER);
-				break;
-			case DBFField.FIELD_TYPE_F:
-			case DBFField.FIELD_TYPE_N:
-			case DBFField.FIELD_TYPE_Y:
+			case AUTOINCREMENT:
+			case DOUBLE:
+			case FLOATING_POINT:
+			case LONG:
+			case NUMERIC:
 				dbFieldTypes.add(dbField.getDecimalCount() == 0 ? FieldTypes.NUMBER : FieldTypes.FLOAT);
 				break;
-			case DBFField.FIELD_TYPE_L:
+			case LOGICAL:
 				dbFieldTypes.add(FieldTypes.BOOLEAN);
 				break;
-			case DBFField.FIELD_TYPE_M:
+			case MEMO:
 				dbFieldTypes.add(FieldTypes.MEMO);
 				break;
-			case DBFField.FIELD_TYPE_T:
+			case TIMESTAMP:
+			case TIMESTAMP_DBASE7:
 				dbFieldTypes.add(FieldTypes.TIMESTAMP);
 				break;
 			default:

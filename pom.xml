@@ -65,6 +65,11 @@
 			<version>1.4.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.github.albfernandez</groupId>
+			<artifactId>javadbf</artifactId>
+			<version>1.14.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.healthmarketscience.jackcess</groupId>
 			<artifactId>jackcess</artifactId>
 			<version>4.0.4</version>
