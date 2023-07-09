@@ -30,6 +30,11 @@
 			<version>3.0.3</version>
 		</dependency>
 		<dependency>
+			<groupId>com.googlecode.paradoxdriver</groupId>
+			<artifactId>paradoxdriver</artifactId>
+			<version>1.6.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.4.3</version>

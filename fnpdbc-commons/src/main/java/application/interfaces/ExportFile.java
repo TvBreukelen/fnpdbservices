@@ -17,7 +17,7 @@ public enum ExportFile {
 	XML("Xml", FileType.XML, 32767, 32767, 32767), JSON("Json", FileType.JSON, 32767, 32767, 32767),
 	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
 	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
-	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767),
+	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), PARADOX("Paradox", FileType.PARADOX, 254, 32737, 128),
 	FIREBIRD("Firebird", FileType.HOST, 32767, 32767, 32767),
 	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
 	DBASE("xBase", FileType.DBF, 254, 32737, 128), DBASE3("DBase3", FileType.DBF, 254, 32737, 128),
@@ -93,6 +93,7 @@ public enum ExportFile {
 		case ACCESS:
 		case FIREBIRD:
 		case MARIADB:
+		case PARADOX:
 		case POSTGRESQL:
 		case SQLITE:
 		case SQLSERVER:
@@ -120,6 +121,7 @@ public enum ExportFile {
 		case ACCESS:
 		case FIREBIRD:
 		case MARIADB:
+		case PARADOX:
 		case POSTGRESQL:
 		case SQLITE:
 		case SQLSERVER:
@@ -326,6 +328,7 @@ public enum ExportFile {
 		case DBASE4:
 		case DBASE5:
 		case FOXPRO:
+		case PARADOX:
 			return "T";
 		case SQLITE:
 		case HANDBASE:
@@ -344,6 +347,7 @@ public enum ExportFile {
 		case DBASE4:
 		case DBASE5:
 		case FOXPRO:
+		case PARADOX:
 			return "F";
 		case SQLITE:
 		case HANDBASE:

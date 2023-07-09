@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.nio.file.FileSystems;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -151,6 +152,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// read all tables in the database
 		aTables = new LinkedHashMap<>();
 		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
+		if (myImportFile == ExportFile.PARADOX) {
+			db = myDatabase.substring(myDatabase.lastIndexOf(FileSystems.getDefault().getSeparator()) + 1,
+					myDatabase.lastIndexOf("."));
+		}
 
 		String[] types = null;
 		switch (myImportFile) {
@@ -158,6 +163,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			types = new String[] { "TABLE", "VIEW" };
 			break;
 		case SQLSERVER:
+		case PARADOX:
 		case FIREBIRD:
 			types = new String[] { "TABLE" };
 			break;
@@ -171,7 +177,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				String tableCat = rs.getString(TABLE_CAT);
 				String table = rs.getString(TABLE_NAME);
 
-				if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
+				if (myImportFile == ExportFile.PARADOX) {
+					if (!db.equals(table)) {
+						continue;
+					}
+				} else if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
 						|| "trace_xe_event_map".equals(table)) {
 					// SQL Server internal tables
 					continue;
@@ -337,8 +347,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			break;
 		case "INTEGER":
 		case "DECIMAL":
+		case "NUMBER":
 			field.setFieldType(FieldTypes.NUMBER);
 			field.setSQLType(Types.INTEGER);
+			break;
+		case "MEMO":
+			field.setFieldType(FieldTypes.MEMO);
+			field.setSQLType(Types.VARCHAR);
 			break;
 		case "REAL":
 			field.setFieldType(FieldTypes.FLOAT);
@@ -485,7 +500,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		dbInfoToRead.forEach(field -> {
 			String fieldName = field.getFieldName();
-			sql.append(getSqlFieldName(fieldName.contains(".") ? fieldName : "A." + fieldName));
+			sql.append(fieldName.contains(".") ? fieldName : "A." + getSqlFieldName(fieldName));
 			if (field.getSQLType() == Types.NUMERIC && myImportFile == ExportFile.POSTGRESQL) {
 				// cast money field to numeric, otherwise a string preceded by a currency sign
 				// will be returned (like $1,000.99)
@@ -574,7 +589,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 
 			String fieldName = field.getFieldName();
-			sql.append(getSqlFieldName(fieldName.contains(".") ? fieldName : "A." + fieldName));
+			sql.append(fieldName.contains(".") ? fieldName : "A." + getSqlFieldName(fieldName));
 			getFilterOperatorAndValue(sql, i, field);
 		}
 
@@ -588,7 +603,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		StringBuilder sql = new StringBuilder("\nORDER BY ");
-		list.forEach(s -> sql.append(getSqlFieldName(s.contains(".") ? s : "A." + s)).append(", "));
+		list.forEach(s -> sql.append(s.contains(".") ? s : "A." + getSqlFieldName(s)).append(", "));
 		return sql.toString().substring(0, sql.lastIndexOf(","));
 	}
 
@@ -629,7 +644,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private String getSqlFieldName(String value) {
+	protected String getSqlFieldName(String value) {
 		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
 			return value;
 		}
@@ -637,7 +652,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return "[" + value + "]";
 	}
 
-	private boolean isNotReservedWord(String value) {
+	protected boolean isNotReservedWord(String value) {
 		return !"user".equalsIgnoreCase(value);
 	}
 

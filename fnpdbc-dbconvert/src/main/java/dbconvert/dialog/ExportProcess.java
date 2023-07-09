@@ -12,6 +12,7 @@ import application.utils.General;
 import dbconvert.software.XConverter;
 import dbengine.GeneralDB;
 import dbengine.export.Calc;
+import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
 import dbengine.export.Firebird;
@@ -22,6 +23,7 @@ import dbengine.export.ListDB;
 import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
 import dbengine.export.MobileDB;
+import dbengine.export.Paradox;
 import dbengine.export.PilotDB;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLServer;
@@ -141,6 +143,8 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new Firebird(profile);
 		case MARIADB:
 			return new MariaDB(profile);
+		case PARADOX:
+			return new Paradox(profile);
 		case POSTGRESQL:
 			return new PostgreSQL(profile);
 		case SQLSERVER:
@@ -160,6 +164,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 		case EXCEL:
 			return new Excel(profile);
 		case TEXTFILE:
+			return new CsvFile(profile);
 		case VCARD:
 			return new VCard(profile);
 		case DBASE:

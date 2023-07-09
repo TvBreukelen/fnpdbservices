@@ -18,7 +18,6 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 
@@ -46,10 +45,6 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 		outFile = new File(myDatabase);
 		memoFile = new File(memoF);
-
-		if (hasBackup) {
-			General.copyFile(memoF, memoFile + ".bak");
-		}
 
 		if (isInputFile) {
 			useAppend = false;
@@ -149,14 +144,8 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				break;
 			case BIG_DECIMAL:
 			case FLOAT:
-				int size = field.getSize();
-				if (size < 10) {
-					size = 10;
-				} else if (size > 20) {
-					size = 20;
-				}
 				dbField.setType(DBFDataType.FLOATING_POINT);
-				dbField.setLength(size);
+				dbField.setLength(getNumericalSize(field));
 				dbField.setDecimalCount(field.getDecimalPoint());
 				break;
 			case FUSSY_DATE:
@@ -165,7 +154,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			case NUMBER:
 				// We assume a normal integer
 				dbField.setType(DBFDataType.NUMERIC);
-				dbField.setLength(field.getSize());
+				dbField.setLength(getNumericalSize(field));
 				dbField.setDecimalCount(0);
 				break;
 			case TIME:
@@ -202,6 +191,16 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		} else {
 			writer.setFields(fields);
 		}
+	}
+
+	private int getNumericalSize(FieldDefinition field) {
+		int size = field.getSize();
+		if (size < 10) {
+			size = 10;
+		} else if (size > 20) {
+			size = 20;
+		}
+		return size;
 	}
 
 	@Override
@@ -294,6 +293,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				dbFieldTypes.add(FieldTypes.DATE);
 				break;
 			case AUTOINCREMENT:
+			case CURRENCY:
 			case DOUBLE:
 			case FLOATING_POINT:
 			case LONG:

@@ -6,7 +6,7 @@ import java.util.List;
 public enum FileType {
 	NEW(""), JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"), TXT(" textfile (*.csv, *.tsv, *.txt)"),
 	XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"), DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"),
-	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), XML(" XML File (*.xml)"),
+	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), PARADOX("Paradox (*.db"), XML(" XML File (*.xml)"),
 	MDB(" MS Access Database (*.mdb, *.accdb)"), FIREBIRD(" Firebird (*.fdb)"),
 	TRUSTSTORE(" Certificate (*.crt, *.pem)"), KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"),
 	PPK(" PuTTy private key ('*.pkk)"), VCF("VCard (*.vcf)"), YAML(" Yaml (*.yml, *.yaml)");
@@ -50,6 +50,9 @@ public enum FileType {
 			break;
 		case DBF:
 			result.add(".dbf");
+			break;
+		case PARADOX:
+			result.add(".db");
 			break;
 		case XML:
 			result.add(".xml");
