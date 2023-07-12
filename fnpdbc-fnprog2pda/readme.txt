@@ -1,5 +1,11 @@
 Release Notes
 
+Version 9.9
+-----------
+Created a Settings option for the HanDBase Desktop program. 
+Replaced local fork of JavaDBF with standard version.
+Minor bug fixes.
+
 
 Version 9.8
 -----------

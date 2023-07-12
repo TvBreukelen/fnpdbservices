@@ -1,5 +1,14 @@
 Release Notes
 
+
+Version 7.6
+-----------
+Added support for Paradox legacy databases.
+Replaced local fork of JavaDBF with standard version.
+Created a Settings option for the HanDBase Desktop program. 
+Fixed the export to text file bug created in 7.5.1.
+
+
 Version 7.5.1
 -------------
 Improved validation when databases files are of the wrong format or no longer exists. 

@@ -234,16 +234,22 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			validateUserFields(usrList, true);
 		}
 
-		// Add special fields for list or Xml to the fields to
-		// export and to write, but deactivate their visibility
-		for (String dbField : pdaSettings.getSpecialFields()) {
+		// Verify sort fields
+		for (String dbField : pdaSettings.getSortFields()) {
 			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
 			if (fieldDef == null) {
 				pdaSettings.removeSortField(dbField);
 				pdaSettings.removeGroupField(dbField);
-				continue;
 			}
+		}
 
+		// Verify filter fields
+		verifyFilter();
+
+		// Add special fields for list or Xml to the fields to
+		// export and to write, but deactivate their visibility
+		for (String dbField : pdaSettings.getSpecialFields()) {
+			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
 			if (!dbTableModelFields.contains(fieldDef)) {
 				dbTableModelFields.add(new FieldDefinition(dbField, fieldDef.getFieldType(), false));
 			}
@@ -267,8 +273,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public void loadInputFile() throws Exception {
-		verifyFilter();
-
 		List<FieldDefinition> dbFields = new ArrayList<>(dbIn.getTableModelFields());
 		dbFields.add(new FieldDefinition(FILTER_FIELD, FieldTypes.BOOLEAN, false));
 		myModel = new ViewerModel(dbFields);

@@ -44,6 +44,7 @@ MobileDB        Palm/PocketPC
 MS-Access       Microsoft Windows / Mac OS X
 MS-Excel        Microsoft Windows / Mac OS X
 MySQL/MariaDB   All platforms 
+Paradox         PC
 Pilot-DB        Palm  
 PostgreSQL      All platforms
 SQL Server      All platforms  
@@ -148,6 +149,14 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 7.6
+-----------
+Added support for Paradox legacy databases.
+Created a Settings option for the HanDBase Desktop program. 
+Replaced local fork of JavaDBF with standard version. 
+Fixed the export to text file bug created in 7.5.1.
+
 
 Version 7.5.1
 -------------

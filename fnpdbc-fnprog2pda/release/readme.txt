@@ -131,6 +131,13 @@ General Public License for more details.
 ===================================================================================================
 
 
+Version 9.9
+-----------
+Created a Settings option for the HanDBase Desktop program. 
+Replaced local fork of JavaDBF with standard version.
+Minor bug fixes.
+
+
 Version 9.8
 -----------
 Minimum Java version is now set to Java 11

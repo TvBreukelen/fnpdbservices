@@ -11,7 +11,7 @@ CATraxx, CATVids, SoftCAT or StampCAT databases to a PDA Database, Microsoft Exc
 
 FYI: FNProgramvare has ceased operations, but their software is still regularly updated. 
 
-DBConvert is a database cross converter for PDA- and PC Databases, user definable text files (csv) and other file formats. It supports the same file formats as FNProg2PDA. It is currently the more popular project. Users of FNProg2PDA don't need to download it, because it is included as tool in FNProg2PDA.
+DBConvert is a database cross converter for PDA- and PC Databases, user definable text files (csv) and other file formats. It supports the same file formats as FNProg2PDA. It is currently the more popular project.
 
 Notes
 -----
