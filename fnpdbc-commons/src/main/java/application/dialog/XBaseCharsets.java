@@ -21,9 +21,7 @@ public class XBaseCharsets extends JPanel implements IConfigDb {
 
 	public XBaseCharsets(Profiles pref) {
 		pdaSettings = pref;
-
 		buildDialog();
-		activateComponents();
 	}
 
 	private void buildDialog() {

@@ -391,6 +391,7 @@ sortFieldXml1.text=Element 2
 sortFieldXml2.text=Element 3
 sortFieldXml3.text=Element 4
 sortOrder.title=Sort Order
+sqlLimit.text=Max. Select Limit (0 = No Limit)
 splitFile.tooltip=File limit for splitting large text files into smaller files
 sshHost.text=SSH Host
 sshHost.tooltip=Remote computer

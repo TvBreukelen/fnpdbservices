@@ -55,6 +55,8 @@ public abstract class Profiles extends Project {
 
 	private List<BasisField> userList = new ArrayList<>();
 
+	private int sqlSelectLimit = 0;
+
 	// HanDBase Settings
 	private String autoInstUser;
 	private int exportOption;
@@ -175,6 +177,7 @@ public abstract class Profiles extends Project {
 		textFileFormat = child.get("textfile.format", "standardCsv");
 		maxFileSize = child.getInt("textfile.maxsize", 0);
 		useLinebreak = child.getBoolean("use.linebreak", true);
+		sqlSelectLimit = child.getInt("sql.select.limit", 0);
 
 		// Files to be imported
 		if (!databaseFromFile.isEmpty()) {
@@ -883,5 +886,14 @@ public abstract class Profiles extends Project {
 		setExportFile(exportFile);
 		setExportUser(exportUser);
 		setExportPassword(filePassword);
+	}
+
+	public int getSqlSelectLimit() {
+		return sqlSelectLimit;
+	}
+
+	public void setSqlSelectLimit(int sqlSelectLimit) {
+		PrefUtils.writePref(child, "sql.select.limit", sqlSelectLimit, this.sqlSelectLimit, 0);
+		this.sqlSelectLimit = sqlSelectLimit;
 	}
 }

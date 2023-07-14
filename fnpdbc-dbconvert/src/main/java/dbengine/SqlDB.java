@@ -496,6 +496,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private String getSqlQuery() {
 		StringBuilder sql = new StringBuilder("SELECT ");
+		if (myPref.getSqlSelectLimit() > 0 && myImportFile == ExportFile.SQLSERVER) {
+			sql.append("TOP ").append(myPref.getSqlSelectLimit()).append(" ");
+		}
+
 		SqlTable table = aTables.get(myPref.getTableName());
 
 		dbInfoToRead.forEach(field -> {
@@ -516,6 +520,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		getJoinStatement(sql, table);
 		sql.append(getWhereStatement());
 		sql.append(getOrderBy());
+
+		if (myPref.getSqlSelectLimit() > 0 && myImportFile != ExportFile.SQLSERVER) {
+			sql.append("\nLIMIT ").append(myPref.getSqlSelectLimit());
+		}
+
 		return sql.toString();
 	}
 
@@ -682,7 +691,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public int getTotalRecords() {
+	public int getTotalRecords() throws Exception {
 		// Extract fields to read from the table model, based on what we want to write.
 		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
 		// data conversions
@@ -711,27 +720,25 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// Build Query
 		sqlQuery = getSqlQuery();
 
-		try {
-			StringBuilder sql = new StringBuilder("SELECT COUNT(*)");
-			if (myPref.isSortFieldDefined()) {
-				// Remove Order statement
-				sql.append(sqlQuery.substring(sqlQuery.indexOf("\n"), sqlQuery.lastIndexOf("\n")));
-			} else {
-				sql.append(sqlQuery.substring(sqlQuery.indexOf("\n")));
-			}
-
-			try (Statement statement = connection.createStatement();
-					ResultSet rs = statement.executeQuery(sql.toString())) {
-				while (rs.next()) {
-					Object obj = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
-					return ((Number) obj).intValue();
-				}
-			}
-
-			return 0;
-		} catch (Exception e) {
-			return 0;
+		// try {
+		StringBuilder sql = new StringBuilder("SELECT COUNT(*)");
+		if (myPref.isSortFieldDefined()) {
+			// Remove Order statement
+			sql.append(sqlQuery.substring(sqlQuery.indexOf("\n"), sqlQuery.indexOf("ORDER BY")));
+		} else {
+			sql.append(sqlQuery.substring(sqlQuery.indexOf("\n")));
 		}
+
+		try (Statement statement = connection.createStatement();
+				ResultSet rs = statement.executeQuery(sql.toString())) {
+			while (rs.next()) {
+				Object obj = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
+				int total = ((Number) obj).intValue();
+				return myPref.getSqlSelectLimit() == 0 ? total : Math.min(total, myPref.getSqlSelectLimit());
+			}
+		}
+
+		return 0;
 	}
 
 	private void getLinkedTables(SqlTable table, FieldDefinition field) {

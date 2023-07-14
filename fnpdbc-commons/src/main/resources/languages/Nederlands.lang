@@ -394,6 +394,7 @@ sortFieldXml2.text=Element 3
 sortFieldXml3.text=Element 4
 sortOrder.title=Sorteer Volgorde
 splitFile.tooltip=Bestandslimiet voor het splitsen van grote tekstbestanden in kleiner bestanden
+sqlLimit.text=Lezen limiet (0 = geen limiet)
 sshHost.text=SSH Host
 sshHost.tooltip=SSH server
 sshKeyPhrase.text=Sleutel wachtwoord

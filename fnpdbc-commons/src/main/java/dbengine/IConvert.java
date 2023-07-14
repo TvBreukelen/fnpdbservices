@@ -37,7 +37,7 @@ public interface IConvert {
 		return null; // NOSONAR
 	}
 
-	int getTotalRecords();
+	int getTotalRecords() throws Exception;
 
 	Map<String, Object> readRecord() throws Exception;
 

@@ -390,6 +390,7 @@ sortFieldXml1.text=Element 2
 sortFieldXml2.text=Element 3
 sortFieldXml3.text=Element 4
 sortOrder.title=Sortierfolge
+sqlLimit.text=Max. Lesen Limit (0 = Kein Limit)
 sshHost.text=SSH-Server
 sshHost.tooltip=SSH-Server
 sshKeyPhrase.text=Schlüssel-Passphrase

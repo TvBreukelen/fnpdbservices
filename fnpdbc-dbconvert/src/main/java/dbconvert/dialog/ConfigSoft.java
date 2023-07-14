@@ -18,8 +18,10 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 
 import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
@@ -67,7 +69,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private JComboBox<String> bDatabase;
 	private JComboBox<String> bTablesWorksheets;
 	private JComboBox<String> cbDatabases;
+	private JSpinner spSqlLimit;
+	private SpinnerNumberModel sModel;
+
 	private JLabel lTablesWorkSheets;
+	private JLabel lSqlLimit;
 	private List<String> dbFiles;
 
 	transient ActionListener funcSelectTableOrSheet;
@@ -228,6 +234,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		bTablesWorksheets = new JComboBox<>();
 		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
 
+		lSqlLimit = GUIFactory.getJLabel("sqlLimit");
+		sModel = new SpinnerNumberModel(pdaSettings.getSqlSelectLimit(), 0, 10000, 100);
+		spSqlLimit = new JSpinner(sModel);
+
 		XGridBagConstraints c = new XGridBagConstraints();
 
 		JPanel gPanel = new JPanel(new GridBagLayout());
@@ -235,8 +245,17 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		gPanel.add(cbDatabases, c.gridmultipleCell(1, 0, 2, 0, 3, 1));
 		gPanel.add(btBrowse, c.gridCell(4, 0, 0, 0));
 
-		gPanel.add(lTablesWorkSheets, c.gridCell(1, 1, 0, 0));
-		gPanel.add(bTablesWorksheets, c.gridCell(2, 1, 0, 0));
+		Box box = Box.createHorizontalBox();
+		box.add(lTablesWorkSheets);
+		box.add(Box.createHorizontalStrut(2));
+		box.add(bTablesWorksheets);
+		box.add(Box.createHorizontalStrut(10));
+		box.add(spSqlLimit);
+		box.add(Box.createHorizontalStrut(2));
+		box.add(lSqlLimit);
+		box.add(Box.createHorizontalGlue());
+
+		gPanel.add(box, c.gridmultipleCell(1, 1, 2, 0, 3, 1));
 		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 3, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
@@ -415,6 +434,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		bTablesWorksheets.removeAllItems();
 		bTablesWorksheets.setVisible(false);
 		lTablesWorkSheets.setVisible(false);
+		lSqlLimit.setVisible(false);
+		spSqlLimit.setVisible(false);
 
 		if (dbFactory.getDatabaseFilename().isEmpty()) {
 			return;
@@ -441,6 +462,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
 
 		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
+
+		if (myImportFile.isSqlDatabase()) {
+			sModel.setValue(pdaSettings.getSqlSelectLimit());
+			lSqlLimit.setVisible(true);
+			spSqlLimit.setVisible(true);
+		}
 	}
 
 	@Override
@@ -499,9 +526,12 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		if (myImportFile == ExportFile.TEXTFILE) {
 			textImport.setProperties();
-		} else if (myImportFile.isDatabase() || myImportFile.isSpreadSheet()) {
-			pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), true);
 		}
+
+		pdaSettings.setTableName(myImportFile.isDatabase() || myImportFile.isSpreadSheet()
+				? bTablesWorksheets.getSelectedItem().toString()
+				: "", true);
+		pdaSettings.setSqlSelectLimit(myImportFile.isSqlDatabase() ? sModel.getNumber().intValue() : 0);
 
 		pdaSettings.setLastIndex(0);
 		pdaSettings.setLastModified("");

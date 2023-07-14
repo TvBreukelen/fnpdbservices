@@ -147,7 +147,7 @@ public abstract class GeneralDB {
 		return new ArrayList<>();
 	}
 
-	public int getTotalRecords() {
+	public int getTotalRecords() throws Exception {
 		return totalRecords;
 	}
 
