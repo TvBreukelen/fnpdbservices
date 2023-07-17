@@ -333,6 +333,8 @@ oncePerWeek.text=Once a week
 oncePerMonth.text=Once a month
 otherCsv.text=Other
 otherCsv.tooltip=Other delimited text file
+pagination.text=Pagination
+pagination.tooltip=Database Pagination
 paragraphHeader.text=Incl. Paragraph Fieldname
 paragraphHeader.tooltip=Include the fieldname in the paragraph field
 parameterError.mesg=Expected at least one 'Profile Name' and one 'Export File Type' as parameter.
@@ -391,7 +393,7 @@ sortFieldXml1.text=Element 2
 sortFieldXml2.text=Element 3
 sortFieldXml3.text=Element 4
 sortOrder.title=Sort Order
-sqlLimit.text=Max. Select Limit (0 = No Limit)
+sqlLimit.text=Read Limit (0 = No Limit)
 splitFile.tooltip=File limit for splitting large text files into smaller files
 sshHost.text=SSH Host
 sshHost.tooltip=Remote computer

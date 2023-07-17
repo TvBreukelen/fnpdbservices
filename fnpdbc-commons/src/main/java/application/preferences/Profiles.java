@@ -55,7 +55,9 @@ public abstract class Profiles extends Project {
 
 	private List<BasisField> userList = new ArrayList<>();
 
+	// Sql database pagination
 	private int sqlSelectLimit = 0;
+	private boolean pagination;
 
 	// HanDBase Settings
 	private String autoInstUser;
@@ -177,7 +179,10 @@ public abstract class Profiles extends Project {
 		textFileFormat = child.get("textfile.format", "standardCsv");
 		maxFileSize = child.getInt("textfile.maxsize", 0);
 		useLinebreak = child.getBoolean("use.linebreak", true);
+
+		// Sql Databases
 		sqlSelectLimit = child.getInt("sql.select.limit", 0);
+		pagination = child.getBoolean("database.pagination", false);
 
 		// Files to be imported
 		if (!databaseFromFile.isEmpty()) {
@@ -895,5 +900,14 @@ public abstract class Profiles extends Project {
 	public void setSqlSelectLimit(int sqlSelectLimit) {
 		PrefUtils.writePref(child, "sql.select.limit", sqlSelectLimit, this.sqlSelectLimit, 0);
 		this.sqlSelectLimit = sqlSelectLimit;
+	}
+
+	public boolean isPagination() {
+		return pagination;
+	}
+
+	public void setPagination(boolean pagination) {
+		PrefUtils.writePref(child, "database.pagination", pagination, this.pagination, false);
+		this.pagination = pagination;
 	}
 }
