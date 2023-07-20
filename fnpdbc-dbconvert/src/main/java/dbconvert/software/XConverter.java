@@ -294,7 +294,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		if (myImportFile.isSqlDatabase()) {
-			((SqlDB) dbIn).createQueryStatement(false);
+			((SqlDB) dbIn).createQueryStatement();
 		}
 
 		// Write all records into the table model
@@ -409,7 +409,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		return myImportFile.isSqlDatabase() ? (SqlDB) dbIn : null;
 	}
 
-	public void checkNumberOfFields() throws Exception {
+	public void checkNumberOfFields() throws FNProgException {
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		int userFields = dbInfoToWrite.size();
 

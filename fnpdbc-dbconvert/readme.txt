@@ -1,4 +1,11 @@
 Release Notes
+-------------
+
+
+Version 7.7
+-----------
+Added SQL database pagination
+SQL databases now supports joined tables filtering and filtering with NULL values.
 
 
 Version 7.6

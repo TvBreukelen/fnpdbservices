@@ -17,6 +17,12 @@ import application.utils.FNProgException;
 import application.utils.General;
 
 public abstract class Profiles extends Project {
+	private static final String RELATION = "relation";
+	private static final String ARIAL = "Arial";
+	private static final String FROM_DATABASE = "database.from.file";
+	private static final String FILTER = "filter";
+	private static final String USER_LIST = "userlist";
+
 	// General Settings
 	private String categoryField = "";
 	private String contentsFilter = "";
@@ -65,7 +71,7 @@ public abstract class Profiles extends Project {
 	private int importOption;
 
 	// MS-Excel Settings
-	private String font = "Arial";
+	private String font = ARIAL;
 	private int fontSize = 8;
 
 	private boolean boldHeader;
@@ -94,7 +100,7 @@ public abstract class Profiles extends Project {
 		}
 
 		child = getParent().node(profileID);
-		databaseFromFile = child.get("database.from.file", "");
+		databaseFromFile = child.get(FROM_DATABASE, "");
 		pdaDatabaseName = child.get("pda.database.name", "");
 
 		contentsFilter = child.get("contents.filter", "");
@@ -153,7 +159,7 @@ public abstract class Profiles extends Project {
 
 		int i = 0;
 		while (true) {
-			String element = child.get("relation" + i++, "");
+			String element = child.get(RELATION + i++, "");
 			if (element.isEmpty()) {
 				break;
 			}
@@ -167,7 +173,7 @@ public abstract class Profiles extends Project {
 
 		// MS-Excel
 		boldHeader = child.getBoolean("use.bold.headers", true);
-		font = child.get("font", "Arial");
+		font = child.get("font", ARIAL);
 		fontSize = child.getInt("font.size", 8);
 		lockHeader = child.getBoolean("lock.headers", true);
 		lock1stColumn = child.getBoolean("lock.firstcol", true);
@@ -190,10 +196,11 @@ public abstract class Profiles extends Project {
 		}
 
 		try {
-			if (child.nodeExists("userlist")) {
-				userList = (List<BasisField>) PrefObj.getObject(child, "userlist");
+			if (child.nodeExists(USER_LIST)) {
+				userList = (List<BasisField>) PrefObj.getObject(child, USER_LIST);
 			}
 		} catch (Exception e) {
+			// Should not occur
 		}
 	}
 
@@ -249,7 +256,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setRelation(int index, String relation) {
-		PrefUtils.writePref(child, "relation" + index + ".field", relation, this.filterField[index], "");
+		PrefUtils.writePref(child, RELATION + index + ".field", relation, this.filterField[index], "");
 		this.filterField[index] = relation;
 	}
 
@@ -282,7 +289,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setFilterField(int index, String filterField) {
-		PrefUtils.writePref(child, "filter" + index + ".field", filterField, this.filterField[index], "");
+		PrefUtils.writePref(child, FILTER + index + ".field", filterField, this.filterField[index], "");
 		this.filterField[index] = filterField;
 	}
 
@@ -291,7 +298,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setFilterOperator(int index, FilterOperator filterOperator) {
-		PrefUtils.writePref(child, "filter" + index + ".operator", filterOperator.getValue(),
+		PrefUtils.writePref(child, FILTER + index + ".operator", filterOperator.getValue(),
 				this.filterOperator[index].getValue(), FilterOperator.IS_EQUAL_TO.getValue());
 		this.filterOperator[index] = filterOperator;
 	}
@@ -301,7 +308,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setFilterValue(int index, String filterValue) {
-		PrefUtils.writePref(child, "filter" + index + ".value", filterValue, this.filterValue[index], "");
+		PrefUtils.writePref(child, FILTER + index + ".value", filterValue, this.filterValue[index], "");
 		this.filterValue[index] = filterValue;
 	}
 
@@ -548,12 +555,12 @@ public abstract class Profiles extends Project {
 	public void setRelations(List<String> relations) {
 		int i = 0;
 		for (String element : relations) {
-			child.put("relation" + i++, element);
+			child.put(RELATION + i++, element);
 		}
 
 		if (i < this.relations.size()) {
 			for (int j = i; j < this.relations.size(); j++) {
-				child.remove("relation" + j);
+				child.remove(RELATION + j);
 			}
 		}
 
@@ -614,7 +621,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setFont(String font) {
-		PrefUtils.writePref(child, "font", font, this.font, "Arial");
+		PrefUtils.writePref(child, "font", font, this.font, ARIAL);
 		this.font = font;
 	}
 
@@ -772,8 +779,8 @@ public abstract class Profiles extends Project {
 		try {
 			return getParent().nodeExists(profile);
 		} catch (Exception e) {
+			return false;
 		}
-		return false;
 	}
 
 	public Preferences getChild() {
@@ -810,18 +817,15 @@ public abstract class Profiles extends Project {
 	public void deleteNode(String profileID) {
 		if (profileExists(profileID)) {
 			Preferences p = getParent().node(profileID);
-			String database = p.get("database.from.file", "");
-			try {
-				PrefUtils.deleteNode(getParent(), profileID);
-				if (database.isEmpty()) {
-					// No database has been setup yet for this profile
-					return;
-				}
-
-				// Cleanup Database record in Registry
-				cleanupDatabase(database);
-			} catch (Exception e) {
+			String database = p.get(FROM_DATABASE, "");
+			PrefUtils.deleteNode(getParent(), profileID);
+			if (database.isEmpty()) {
+				// No database has been setup yet for this profile
+				return;
 			}
+
+			// Cleanup Database record in Registry
+			cleanupDatabase(database);
 		}
 	}
 
@@ -858,7 +862,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setDatabaseFromFile(String databaseFromFile) {
-		child.put("database.from.file", databaseFromFile);
+		child.put(FROM_DATABASE, databaseFromFile);
 		this.databaseFromFile = databaseFromFile;
 	}
 
@@ -882,8 +886,9 @@ public abstract class Profiles extends Project {
 	public void setUserList(List<BasisField> userlist) {
 		userList = userlist;
 		try {
-			PrefObj.putObject(child, "userlist", userList);
+			PrefObj.putObject(child, USER_LIST, userList);
 		} catch (Exception e) {
+			// Should not occur
 		}
 	}
 

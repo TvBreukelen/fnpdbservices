@@ -159,9 +159,8 @@ public class Relations extends BasicDialog {
 			panel.add(getTableOrField(col), c.gridCell(4, row++, 0, 0));
 		}
 
-		JButton bt = GUIFactory.getJButton("remove", fk.getTableTo(), e -> {
-			addOrRemoveForeignKey(fk.getTableTo(), true);
-		});
+		JButton bt = GUIFactory.getJButton("remove", fk.getTableTo(),
+				e -> addOrRemoveForeignKey(fk.getTableTo(), true));
 
 		if (fk.isUserDefined()) {
 			mapPanel.put(fk.getTableTo(), panel);

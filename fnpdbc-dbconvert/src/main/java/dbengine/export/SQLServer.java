@@ -56,9 +56,9 @@ public class SQLServer extends SqlDB {
 	}
 
 	@Override
-	protected String getPaginationSqlString(boolean isNewPage) {
+	protected String getPaginationSqlString() {
 		if (myPref.getSqlSelectLimit() > 0 && myPref.isSortFieldDefined()) {
-			return super.getPaginationSqlString(isNewPage);
+			return super.getPaginationSqlString();
 		}
 
 		// Without Sorting we cannot use pagination, we therefore fall back on a

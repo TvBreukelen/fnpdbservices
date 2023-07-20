@@ -59,7 +59,7 @@ public class DBConvert {
 
 		// Check if we are running in batch mode
 		if (args.length > 0) {
-			new DBConvert_NoGUI(args);
+			new DBConvertNoGUI(args);
 			System.exit(0);
 		}
 

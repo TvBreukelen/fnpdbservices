@@ -63,7 +63,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected int assignedPort;
 	protected String sqlQuery;
 
-	protected int totalRecords;
 	protected int offset;
 
 	private Set<String> linkedTables = new HashSet<>();
@@ -72,7 +71,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		super(pref);
 	}
 
-	protected void getSshSession() throws Exception {
+	protected void getSshSession() throws FileNotFoundException, FNProgException, JSchException {
 		// Remote host
 		final String remoteHost = myHelper.getSshHost();
 
@@ -473,12 +472,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return aTables.get(table);
 	}
 
-	public void createQueryStatement(boolean isNewPage) throws SQLException {
+	public void createQueryStatement() throws SQLException {
 		dbStatement = connection.createStatement();
-		dbResultSet = dbStatement.executeQuery(getPaginationSqlString(isNewPage));
+		dbResultSet = dbStatement.executeQuery(getPaginationSqlString());
 	}
 
-	protected String getPaginationSqlString(boolean isNewPage) {
+	protected String getPaginationSqlString() {
 		StringBuilder b = new StringBuilder(sqlQuery);
 		if (myPref.getSqlSelectLimit() > 0) {
 			b.append("\nOFFSET ").append(offset).append(" ROWS ").append("\nFETCH NEXT ")
@@ -488,7 +487,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public Map<String, Object> readRecord() throws Exception {
+	public Map<String, Object> readRecord() throws FNProgException, IOException, SQLException {
 		Map<String, Object> result = new HashMap<>();
 		int index = 1;
 
@@ -499,14 +498,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
 					result.put(field.getFieldAlias(), obj);
 				} catch (Exception e) {
-					throw new Exception(
+					throw new FNProgException(
 							"Unable to read database field '" + field.getFieldName() + "', due to\n" + e.toString());
 				}
 			}
 		} else if (myPref.isPagination() && offset < totalRecords) {
 			dbResultSet.close();
 			dbStatement.close();
-			createQueryStatement(true);
+			createQueryStatement();
 			return readRecord();
 		}
 		return result;
@@ -531,16 +530,18 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
 		sql.append(" AS A");
 
-		getJoinStatement(sql, table);
+		getJoinStatement(sql);
 		sql.append(getWhereStatement());
 		sql.append(getOrderBy());
 
 		sqlQuery = sql.toString();
 	}
 
-	private void getJoinStatement(StringBuilder buf, SqlTable table) {
+	private void getJoinStatement(StringBuilder buf) {
 		List<ForeignKey> keys = new ArrayList<>();
 		Set<String> linked = new HashSet<>();
+		SqlTable table = getSqlTable();
+
 		for (String link : linkedTables) {
 			while (true) {
 				if (linked.contains(link)) {
@@ -548,12 +549,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				}
 
 				linked.add(link);
-				Optional<ForeignKey> fk = Optional.ofNullable(table.getFkList().get(link));
-				if (fk.isEmpty()) {
-					break;
-				}
-
-				ForeignKey key = fk.get().copy();
+				ForeignKey key = table.getFkList().get(link).copy();
 				keys.add(0, key);
 
 				if (key.getTableFrom().equals(table.getName())) {
@@ -567,7 +563,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		keys.forEach(key -> getJoinedTable(buf, key));
 	}
 
-	public void getJoinedTable(StringBuilder buf, ForeignKey key) {
+	private void getJoinedTable(StringBuilder buf, ForeignKey key) {
 		if (myImportFile == ExportFile.SQLITE && key.getJoin().equals("Right Join")) {
 			// SQLite doesn't support a Right Join, so we'll swap the From and To Tables
 			// and use a Left Join instead
@@ -656,9 +652,19 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			buf.append(myPref.getFilterValue(i));
 			break;
 		default:
-			buf.append("'");
-			buf.append(myPref.getFilterValue(i));
-			buf.append("'");
+			buf.append("'").append(myPref.getFilterValue(i)).append("'");
+			if (myPref.getFilterValue(i).isBlank()) {
+				// Also check for NULL values
+				switch (myPref.getFilterOperator(i)) {
+				case IS_EQUAL_TO:
+				case IS_GREATER_THAN_OR_EQUAL_TO:
+				case IS_LESS_THAN_OR_EQUAL_TO:
+					buf.append(" OR ").append(field.getFieldName()).append(" IS NULL");
+					break;
+				default:
+					// No change
+				}
+			}
 			break;
 		}
 	}
@@ -680,15 +686,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		List<Object> result = new ArrayList<>();
 
 		String table = myPref.getTableName();
-
 		StringBuilder sql = new StringBuilder("SELECT DISTINCT ");
-		if (field.contains(".")) {
-			int index = field.indexOf(".");
-			table = field.substring(0, index);
-			field = field.substring(index + 1);
-		}
+		sql.append(getSqlFieldName(field)).append(" FROM ").append(getSqlFieldName(table)).append(" AS A");
 
-		sql.append(getSqlFieldName(field)).append(" FROM ").append(getSqlFieldName(table));
+		if (field.contains(".")) {
+			linkedTables.clear();
+			getLinkedTables(hFieldMap.get(field));
+			getJoinStatement(sql);
+		}
 
 		try (Statement statement = connection.createStatement();
 				ResultSet rs = statement.executeQuery(sql.toString())) {
@@ -706,25 +711,25 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
 		// data conversions
 
-		SqlTable table = aTables.get(myPref.getTableName());
+		aTables.get(myPref.getTableName());
 		dbInfoToRead = new ArrayList<>();
 		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
 
 		linkedTables.clear();
 
 		// Check if foreign keys are used in fields to be read
-		dbInfoToRead.forEach(field -> getLinkedTables(table, field));
+		dbInfoToRead.forEach(this::getLinkedTables);
 
 		// Verify the filters for foreign keys
 		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
 			for (int i = 0; i < myPref.noOfFilters(); i++) {
-				getLinkedTables(table, hFieldMap.get(myPref.getFilterField(i)));
+				getLinkedTables(hFieldMap.get(myPref.getFilterField(i)));
 			}
 		}
 
 		// Add linked field(s) for SortBy statement
 		if (myPref.isSortFieldDefined()) {
-			myPref.getSortFields().forEach(s -> getLinkedTables(table, hFieldMap.get(s)));
+			myPref.getSortFields().forEach(s -> getLinkedTables(hFieldMap.get(s)));
 		}
 
 		// Build Query
@@ -753,7 +758,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return totalRecords;
 	}
 
-	private void getLinkedTables(SqlTable table, FieldDefinition field) {
+	private void getLinkedTables(FieldDefinition field) {
+		SqlTable table = getSqlTable();
+
 		if (field != null && field.getFieldName().contains(".")) {
 			String linkedTable = field.getFieldName().substring(0, field.getFieldName().indexOf("."));
 			Optional<ForeignKey> key = Optional.ofNullable(table.getFkList().get(linkedTable));
@@ -763,7 +770,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws Exception {
+	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws SQLException, IOException {
 		switch (colType) {
 		case Types.LONGVARCHAR:
 			return readMemoField(rs, colNo);

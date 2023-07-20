@@ -18,6 +18,8 @@ public class Project {
 	private String lastProfile;
 	private String projectID = "";
 
+	private static final String FROM_DATABASE = "database.from.file";
+
 	public Project(TvBSoftware software) {
 		this.software = software;
 		dbSettings = Databases.getInstance(software);
@@ -61,6 +63,7 @@ public class Project {
 				result.add(project);
 			}
 		} catch (Exception e) {
+			// Should not occur
 		}
 		return result;
 	}
@@ -105,8 +108,8 @@ public class Project {
 			Preferences p = gParent.node(project);
 			return p.nodeExists(profile);
 		} catch (Exception e) {
+			return false;
 		}
-		return false;
 	}
 
 	public void deleteNode(String project, String profile) {
@@ -126,7 +129,7 @@ public class Project {
 				Preferences p1 = gParent.node(project);
 				for (String profile : p1.childrenNames()) {
 					Preferences p2 = p1.node(profile);
-					String db = p2.get("database.from.file", "");
+					String db = p2.get(FROM_DATABASE, "");
 					if (db.isEmpty() || db.equals(database)) {
 						p2.removeNode();
 					}
@@ -138,6 +141,7 @@ public class Project {
 			}
 			gParent.flush();
 		} catch (Exception e) {
+			// Should not occur
 		}
 	}
 
@@ -147,7 +151,7 @@ public class Project {
 				Preferences p1 = gParent.node(project);
 				for (String profile : p1.childrenNames()) {
 					Preferences p2 = p1.node(profile);
-					if (p2.get("database.from.file", "").equals(database)) {
+					if (p2.get(FROM_DATABASE, "").equals(database)) {
 						// Database is still in use
 						return;
 					}
@@ -157,6 +161,7 @@ public class Project {
 			// Remove Database setting since it is no longer used
 			getDbSettings().deleteNode(database);
 		} catch (Exception e) {
+			// Should not occur
 		}
 	}
 
@@ -168,6 +173,7 @@ public class Project {
 				gParent.flush();
 			}
 		} catch (Exception e) {
+			// Should not occur
 		}
 
 		if (project.equals(projectID)) {
@@ -186,7 +192,7 @@ public class Project {
 			String[] profiles = p1.childrenNames();
 			for (String profile : profiles) {
 				Preferences p2 = p1.node(profile);
-				if (p2.get("database.from.file", "").isEmpty()) {
+				if (p2.get(FROM_DATABASE, "").isEmpty()) {
 					PrefUtils.deleteNode(p1, profile);
 					if (profile.equals(lastProfile)) {
 						lastProfile = "";
@@ -198,6 +204,7 @@ public class Project {
 
 			}
 		} catch (Exception e) {
+			// Should not occur
 		}
 		return result;
 	}

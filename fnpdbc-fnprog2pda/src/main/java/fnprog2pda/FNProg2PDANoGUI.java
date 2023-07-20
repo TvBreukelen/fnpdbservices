@@ -14,7 +14,7 @@ import fnprog2pda.software.FNPSoftware;
 import fnprog2pda.software.FNProgramvare;
 import fnprog2pda.utils.ConvertOldVersion;
 
-public class FNProg2PDA_NoGUI implements PropertyChangeListener {
+public class FNProg2PDANoGUI implements PropertyChangeListener {
 
 	private String myProfileID;
 	private ExportFile databaseType;
@@ -25,7 +25,7 @@ public class FNProg2PDA_NoGUI implements PropertyChangeListener {
 	private FNProgramvare mySoftware;
 	private boolean loadModel;
 
-	public FNProg2PDA_NoGUI(String... args) {
+	public FNProg2PDANoGUI(String... args) {
 		TvBSoftware software = TvBSoftware.FNPROG2PDA;
 		System.out.println(software.getName() + " " + software.getVersion() + " - " + software.getCopyright() + "\n");
 		General.setQuietMode();

@@ -59,7 +59,7 @@ public class FNProg2PDA {
 
 		// Check if we are running in batch mode
 		if (args.length > 0) {
-			new FNProg2PDA_NoGUI(args);
+			new FNProg2PDANoGUI(args);
 			System.exit(0);
 		}
 

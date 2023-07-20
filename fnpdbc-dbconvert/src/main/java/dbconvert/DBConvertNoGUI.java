@@ -12,7 +12,7 @@ import application.utils.General;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
 
-public class DBConvert_NoGUI implements PropertyChangeListener {
+public class DBConvertNoGUI implements PropertyChangeListener {
 	private String myProfileID;
 	private ExportFile databaseType;
 
@@ -20,10 +20,9 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 	private Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
 
 	private XConverter mySoftware;
-	private ViewerModel tabModel;
 	private boolean loadModel;
 
-	public DBConvert_NoGUI(String... args) {
+	public DBConvertNoGUI(String... args) {
 		TvBSoftware software = TvBSoftware.DBCONVERT;
 		System.out.println(software.getName() + " " + software.getVersion() + " - " + software.getCopyright() + "\n");
 		General.setQuietMode();
@@ -66,9 +65,9 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		int record = (int) evt.getNewValue();
+		int recordNo = (int) evt.getNewValue();
 		System.out.println(
-				GUIFactory.getMessage(loadModel ? "recordsRead" : "recordsProcessed", Integer.toString(record)));
+				GUIFactory.getMessage(loadModel ? "recordsRead" : "recordsProcessed", Integer.toString(recordNo)));
 	}
 
 	private void runExport() throws Exception {
@@ -112,6 +111,7 @@ public class DBConvert_NoGUI implements PropertyChangeListener {
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");
 
+		ViewerModel tabModel;
 		mySoftware = new XConverter();
 		loadModel = true;
 
