@@ -279,10 +279,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
 
 		lSqlLimit = GUIFactory.getJLabel("sqlLimit");
-		sModel = new SpinnerNumberModel(100, 0, 10000, 100);
+		sModel = new SpinnerNumberModel(pdaSettings.getSqlSelectLimit(), 0, 10000, 100);
 		spSqlLimit = new JSpinner(sModel);
-		spSqlLimit.addChangeListener(e -> ckPagination.setEnabled(sModel.getNumber().intValue() > 99));
-		spSqlLimit.setValue(Integer.valueOf(pdaSettings.getSqlSelectLimit()));
+		spSqlLimit.addChangeListener(e -> ckPagination.setEnabled(sModel.getNumber().intValue() > 0));
+		ckPagination.setEnabled(pdaSettings.getSqlSelectLimit() > 0);
 
 		result.add(lTablesWorkSheets, c.gridCell(0, 0, 0, 0));
 		result.add(bTablesWorksheets, c.gridCell(1, 0, 2, 0));
@@ -550,6 +550,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
 		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
 		relationDataMap.getOrDefault(myView, new RelationData()).saveProfile(pdaSettings);
+
+		// SQL Server requires Pagination with Sort
+		if (myImportFile == ExportFile.SQLSERVER && pdaSettings.getSqlSelectLimit() > 0 && pdaSettings.isPagination()
+				&& !pdaSettings.isSortFieldDefined()) {
+			General.showMessage(this, GUIFactory.getText("paginationWarning"), GUIFactory.getTitle("paginationWarning"),
+					false);
+		}
 
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
 	}

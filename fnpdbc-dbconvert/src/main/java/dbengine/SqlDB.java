@@ -61,7 +61,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private ResultSet dbResultSet;
 	private Session session;
 	protected int assignedPort;
-	private String sqlQuery;
+	protected String sqlQuery;
+
+	protected int totalRecords;
+	protected int offset;
 
 	private Set<String> linkedTables = new HashSet<>();
 
@@ -470,9 +473,18 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return aTables.get(table);
 	}
 
-	public void createQueryStatement() throws SQLException {
+	public void createQueryStatement(boolean isNewPage) throws SQLException {
 		dbStatement = connection.createStatement();
-		dbResultSet = dbStatement.executeQuery(sqlQuery);
+		dbResultSet = dbStatement.executeQuery(getPaginationSqlString(isNewPage));
+	}
+
+	protected String getPaginationSqlString(boolean isNewPage) {
+		StringBuilder b = new StringBuilder(sqlQuery);
+		if (myPref.getSqlSelectLimit() > 0) {
+			b.append("\nOFFSET ").append(offset).append(" ROWS ").append("\nFETCH NEXT ")
+					.append(myPref.getSqlSelectLimit()).append(" ROWS ONLY");
+		}
+		return b.toString();
 	}
 
 	@Override
@@ -481,6 +493,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		int index = 1;
 
 		if (dbResultSet.next()) {
+			offset++;
 			for (FieldDefinition field : dbInfoToRead) {
 				try {
 					Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
@@ -490,16 +503,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 							"Unable to read database field '" + field.getFieldName() + "', due to\n" + e.toString());
 				}
 			}
+		} else if (myPref.isPagination() && offset < totalRecords) {
+			dbResultSet.close();
+			dbStatement.close();
+			createQueryStatement(true);
+			return readRecord();
 		}
 		return result;
 	}
 
-	private String getSqlQuery() {
+	private void getSqlQuery() {
 		StringBuilder sql = new StringBuilder("SELECT ");
-		if (myPref.getSqlSelectLimit() > 0 && myImportFile == ExportFile.SQLSERVER) {
-			sql.append("TOP ").append(myPref.getSqlSelectLimit()).append(" ");
-		}
-
 		SqlTable table = aTables.get(myPref.getTableName());
 
 		dbInfoToRead.forEach(field -> {
@@ -521,11 +535,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		sql.append(getWhereStatement());
 		sql.append(getOrderBy());
 
-		if (myPref.getSqlSelectLimit() > 0 && myImportFile != ExportFile.SQLSERVER) {
-			sql.append("\nLIMIT ").append(myPref.getSqlSelectLimit());
-		}
-
-		return sql.toString();
+		sqlQuery = sql.toString();
 	}
 
 	private void getJoinStatement(StringBuilder buf, SqlTable table) {
@@ -718,9 +728,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		// Build Query
-		sqlQuery = getSqlQuery();
+		getSqlQuery();
+		offset = 0;
+		totalRecords = 0;
 
-		// try {
 		StringBuilder sql = new StringBuilder("SELECT COUNT(*)");
 		if (myPref.isSortFieldDefined()) {
 			// Remove Order statement
@@ -733,12 +744,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				ResultSet rs = statement.executeQuery(sql.toString())) {
 			while (rs.next()) {
 				Object obj = getFieldValue(rs.getMetaData().getColumnType(1), 1, rs);
-				int total = ((Number) obj).intValue();
-				return myPref.getSqlSelectLimit() == 0 ? total : Math.min(total, myPref.getSqlSelectLimit());
+				totalRecords = ((Number) obj).intValue();
+				totalRecords = myPref.getSqlSelectLimit() == 0 || myPref.isPagination() ? totalRecords
+						: Math.min(totalRecords, myPref.getSqlSelectLimit());
 			}
 		}
 
-		return 0;
+		return totalRecords;
 	}
 
 	private void getLinkedTables(SqlTable table, FieldDefinition field) {

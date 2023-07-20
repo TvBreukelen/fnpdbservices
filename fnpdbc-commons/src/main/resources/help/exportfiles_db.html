@@ -35,8 +35,8 @@
 </table>
 	
 <h2>Export From</h2>
-<img src="../images/ExportFrom.png">
-<h3>Default Settings</h3>
+<img src="../images/StandardImport.png">
+<h3>Default Fields</h3>
 <ul>
 <li><b>Combobox (1)</b>
 </li>
@@ -47,19 +47,53 @@ In the first combobox you can select the format of the "Export From" file (Calc,
 </li>
 In the second combobox you can select a file or host database from the list of previously defined
  "Export From" files of the same kind.<br>
-<br>
+ <br>
 <li><b>Open</b>
 </li>
 You can use the Open button to select the file to be exported.<br>
-<br>
-<li><b>Table / Worksheet</b>
-</li>
-If your database or spreadsheet has more than one table or worksheet then you can select in
- this comboxbox the table/worksheet to export.<br>
+ <br>
 </ul>
+
+<h2>Export From Calc or Excel</h2>
+<img src="../images/SpreadsheetExport.png">
+<h3>Additional Field</h3>
+<ul>
+<li><b>Worksheet</b>
+</li>
+If your spreadsheet has more than one worksheet then you can select in this comboxbox the worksheet to export.<br>
 <br>
+</ul>
+
+<h2>Export From SQL database (SqLite, ProgresSQL, MariaDB etc.)</h2>
+<img src="../images/SqlDatabaseExport.png">
+<h3>Additional Fields</h3>
+<ul>
+<li><b>Table</b>
+</li>
+If your database has more than one table then you can select in this comboxbox the table to export.<br>
+<br>
+<li><b>Read Limit</b>
+</li>
+The Read Limit allows you to constrain the number of rows returned by a query. A limit of 0 returns all rows.<br>
+For example, a query may return one million rows. However, if you just need the first 10 rows then you can set<br>
+the Read Limit to 10.<br> 
+<br>
+<li><b>Pagination</b>
+</li>
+Returns all records in a query, but reading the rows from the table is done in blocks of "Read Limit" rows.<br>
+For example, if the Read limit is set to 10 and the table contains 30 records to read then DBConvert sends three<br>
+queries to the database. First query returns row 1 to 10; the second rows 11 to 20 and the third query row 21 to 30.<br>
+<br>
+<p> 
+<b>Important:</b> In SQL Server we can use Pagination only, if the query is sorted. If no sort fields are defined then<br>
+you'll see the following warning message.<br>
+<img src="../images/PaginationWarning.png">
+ </p> 
+</ul>
+
 <h2>Export From TextFile</h2>
 <img src="../images/ExportFromTextfile.gif">
+<h3>Additional Fields</h3>
 <ul>
 <li><b>Export Format</b>
 </li>The export format specifies the the textfile format you are exporting from.

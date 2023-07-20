@@ -294,7 +294,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		if (myImportFile.isSqlDatabase()) {
-			((SqlDB) dbIn).createQueryStatement();
+			((SqlDB) dbIn).createQueryStatement(false);
 		}
 
 		// Write all records into the table model

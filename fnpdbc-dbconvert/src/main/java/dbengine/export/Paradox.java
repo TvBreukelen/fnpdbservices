@@ -38,4 +38,15 @@ public class Paradox extends SqlDB {
 		return "\"" + value + "\"";
 	}
 
+	@Override
+	protected String getPaginationSqlString(boolean isNewPage) {
+		StringBuilder b = new StringBuilder(sqlQuery);
+		if (myPref.getSqlSelectLimit() > 0) {
+			b.append("\nLIMIT ").append(myPref.getSqlSelectLimit());
+			if (isNewPage) {
+				b.append("\nOFFSET ").append(offset);
+			}
+		}
+		return b.toString();
+	}
 }

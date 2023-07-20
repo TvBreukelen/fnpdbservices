@@ -55,4 +55,20 @@ public class SQLServer extends SqlDB {
 		}
 	}
 
+	@Override
+	protected String getPaginationSqlString(boolean isNewPage) {
+		if (myPref.getSqlSelectLimit() > 0 && myPref.isSortFieldDefined()) {
+			return super.getPaginationSqlString(isNewPage);
+		}
+
+		// Without Sorting we cannot use pagination, we therefore fall back on a
+		// SELECT TOP nnn statement to get the first max read number of records
+		totalRecords = Math.min(totalRecords, myPref.getSqlSelectLimit());
+		StringBuilder b = new StringBuilder(sqlQuery);
+		if (myPref.getSqlSelectLimit() > 0) {
+			b.insert(7, "TOP " + totalRecords + " ");
+		}
+		return b.toString();
+	}
+
 }
