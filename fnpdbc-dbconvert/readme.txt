@@ -4,8 +4,9 @@ Release Notes
 
 Version 7.7
 -----------
-Added SQL database pagination
-SQL databases now supports joined tables filtering and filtering with NULL values.
+Added SQL database pagination.
+Filtering on NULL values is now supported for joined SQL tables.
+VCard export now supports hcards, jcards and xcards as well.
 
 
 Version 7.6

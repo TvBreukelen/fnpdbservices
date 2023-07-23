@@ -62,24 +62,7 @@
 		<dependency>
 			<groupId>com.googlecode.ez-vcard</groupId>
 			<artifactId>ez-vcard</artifactId>
-			<version>0.11.3</version>
-			<exclusions>
-				<!-- hCard functionality not needed -->
-				<exclusion>
-					<groupId>org.jsoup</groupId>
-					<artifactId>jsoup</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.freemarker</groupId>
-					<artifactId>freemarker</artifactId>
-				</exclusion>
-
-				<!-- jCard functionality not needed -->
-				<exclusion>
-					<groupId>com.fasterxml.jackson.core</groupId>
-					<artifactId>jackson-core</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>0.12.0</version>
 		</dependency>
 		<dependency>
 			<groupId>Fnp-Dbc</groupId>

@@ -9,7 +9,7 @@ public enum FileType {
 	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), PARADOX("Paradox (*.db"), XML(" XML File (*.xml)"),
 	MDB(" MS Access Database (*.mdb, *.accdb)"), FIREBIRD(" Firebird (*.fdb)"),
 	TRUSTSTORE(" Certificate (*.crt, *.pem)"), KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"),
-	PPK(" PuTTy private key ('*.pkk)"), VCF("VCard (*.vcf)"), YAML(" Yaml (*.yml, *.yaml)");
+	PPK(" PuTTy private key ('*.pkk)"), VCF("VCard (*.vcf, *.hlml, *.json, *.xml)"), YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
@@ -79,6 +79,9 @@ public enum FileType {
 			break;
 		case VCF:
 			result.add(".vcf");
+			result.add(".xml");
+			result.add(".html");
+			result.add(".json");
 			break;
 		case HOST:
 		case NEW:

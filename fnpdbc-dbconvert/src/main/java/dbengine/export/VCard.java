@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,7 +60,6 @@ import ezvcard.property.Telephone;
 import ezvcard.property.Title;
 import ezvcard.property.Uid;
 import ezvcard.property.Url;
-import ezvcard.util.PartialDate;
 
 public class VCard extends GeneralDB implements IConvert {
 	private int currentRecord;
@@ -81,8 +80,23 @@ public class VCard extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
 		currentRecord = 0;
+
 		try (BufferedReader reader = Files.newBufferedReader(Paths.get(myDatabase), StandardCharsets.UTF_8)) {
-			vcards = Ezvcard.parse(reader).all();
+			switch (myDatabase.toLowerCase().substring(myDatabase.lastIndexOf("."))) {
+			case ".html":
+				vcards = Ezvcard.parseHtml(reader).all();
+				break;
+			case ".json":
+				vcards = Ezvcard.parseJson(reader).all();
+				break;
+			case ".xml":
+				vcards = Ezvcard.parseXml(reader).all();
+				break;
+			default:
+				vcards = Ezvcard.parse(reader).all();
+				break;
+			}
+
 			totalRecords = vcards.size();
 		}
 	}
@@ -193,16 +207,8 @@ public class VCard extends GeneralDB implements IConvert {
 		setField("Anniversary.Group", anniversary.getGroup());
 		setField("Anniversary.Language", anniversary.getLanguage());
 		setField("Anniversary.Text", anniversary.getText());
-
-		Date date = anniversary.getDate();
-		if (date != null) {
-			setField("Anniversary.Date", anniversary.getDate());
-		}
-
-		PartialDate pDate = anniversary.getPartialDate();
-		if (pDate != null) {
-			setField("Anniversary.PartialDate", anniversary.getPartialDate());
-		}
+		setField("Anniversary.Date", anniversary.getDate());
+		setField("Anniversary.PartialDate", anniversary.getPartialDate());
 	}
 
 	private void setBirthday(Birthday birthday) {
@@ -215,6 +221,7 @@ public class VCard extends GeneralDB implements IConvert {
 		setField("Birthday.Language", birthday.getLanguage());
 		setField("Birthday.Text", birthday.getText());
 		setField("Birthday.Date", birthday.getDate());
+		setField("Birthday.PartialDate", birthday.getPartialDate());
 	}
 
 	private void setBirthplace(Birthplace birthplace) {
@@ -292,7 +299,14 @@ public class VCard extends GeneralDB implements IConvert {
 		setField("Deathdate.Group", deathdate.getGroup());
 		setField("Deathdate.Language", deathdate.getLanguage());
 		setField("Deathdate.Text", deathdate.getText());
-		setField("Deathdate.Date", deathdate.getDate());
+
+		if (deathdate.getDate() != null) {
+			setField("Deathdate.Date", deathdate.getDate());
+		}
+
+		if (deathdate.getPartialDate() != null) {
+			setField("Deathdate.Date", deathdate.getPartialDate());
+		}
 	}
 
 	private void setDeathplace(Deathplace deathplace) {
@@ -698,10 +712,13 @@ public class VCard extends GeneralDB implements IConvert {
 		}
 
 		if (value instanceof List<?>) {
-			map.put(field, General.convertListToString((List<?>) value));
-			fields.putIfAbsent(field, FieldTypes.MEMO);
-		} else if (value instanceof Date) {
-			map.put(field, General.convertDateToLocalDate((Date) value));
+			String memo = General.convertListToString((List<?>) value);
+			if (!memo.isBlank()) {
+				map.put(field, General.convertListToString((List<?>) value));
+				fields.putIfAbsent(field, FieldTypes.MEMO);
+			}
+		} else if (value instanceof LocalDate) {
+			map.put(field, value);
 			fields.putIfAbsent(field, FieldTypes.DATE);
 		} else if (value instanceof Integer) {
 			map.put(field, value);

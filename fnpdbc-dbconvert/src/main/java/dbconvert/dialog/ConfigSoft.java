@@ -129,7 +129,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			dbFactory.getDbInHelper().setDatabase("");
 		}
 
-		myExportFile = isNewProfile ? ExportFile.TEXTFILE : ExportFile.getExportFile(pdaSettings.getProjectID());
+		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
 		fieldSelect = new ScFieldSelect(dbFactory);
 
