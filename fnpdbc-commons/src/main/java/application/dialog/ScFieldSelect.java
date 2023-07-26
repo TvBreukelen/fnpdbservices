@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -18,9 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
-
-import org.jdesktop.swingx.HorizontalLayout;
-import org.jdesktop.swingx.VerticalLayout;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
@@ -54,7 +52,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	private DefaultListModel<BasisField> availableModel;
 	private UserFieldModel userModel;
 	private IDatabaseFactory factory;
-	private JPanel fieldPanel = new JPanel(new HorizontalLayout(5));
+	private JPanel fieldPanel = new JPanel();
 
 	public ScFieldSelect(IDatabaseFactory factory) {
 		this.factory = factory;
@@ -62,6 +60,8 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	private void init() {
+		fieldPanel.setLayout(new BoxLayout(fieldPanel, BoxLayout.X_AXIS));
+
 		availableModel = new DefaultListModel<>();
 		lstAvailableFields = new JList<>(availableModel);
 		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
@@ -189,7 +189,8 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	private JPanel createButtonPanel() {
-		JPanel panel = new JPanel(new VerticalLayout());
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createVerticalStrut(20));
 
 		panel.add(btAdd);

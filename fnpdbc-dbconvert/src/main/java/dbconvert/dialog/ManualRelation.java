@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -17,8 +18,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-
-import org.jdesktop.swingx.VerticalLayout;
 
 import application.dialog.BasicDialog;
 import application.utils.GUIFactory;
@@ -71,7 +70,9 @@ public class ManualRelation extends BasicDialog {
 
 	@Override
 	protected Component createCenterPanel() {
-		JPanel panel = new JPanel(new VerticalLayout(5));
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
 		getTablesComboxBox();
 		panel.add(createForeignKeyPanel());
 		panel.setBorder(BorderFactory.createEtchedBorder());

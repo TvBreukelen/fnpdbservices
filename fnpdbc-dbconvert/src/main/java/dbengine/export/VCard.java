@@ -18,6 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
+import application.utils.FNProgException;
 import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
@@ -98,6 +99,9 @@ public class VCard extends GeneralDB implements IConvert {
 			}
 
 			totalRecords = vcards.size();
+			if (totalRecords == 0) {
+				throw FNProgException.getException("noFields", myDatabase);
+			}
 		}
 	}
 

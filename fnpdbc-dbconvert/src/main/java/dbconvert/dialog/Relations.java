@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import org.jdesktop.swingx.VerticalLayout;
 
 import application.dialog.BasicDialog;
 import application.dialog.ScFieldSelect;
@@ -92,7 +91,8 @@ public class Relations extends BasicDialog {
 
 	@Override
 	protected Component createCenterPanel() {
-		centerPanel = new JPanel(new VerticalLayout(5));
+		centerPanel = new JPanel();
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
 
 		if (sqlTable.getFkList().isEmpty()) {
 			centerPanel.add(createNoForeignKeyScreen());
