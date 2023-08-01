@@ -65,6 +65,11 @@
 			<version>0.12.0</version>
 		</dependency>
 		<dependency>
+			<groupId>org.mnode.ical4j</groupId>
+			<artifactId>ical4j</artifactId>
+			<version>4.0.0-beta9</version>
+		</dependency>
+		<dependency>
 			<groupId>Fnp-Dbc</groupId>
 			<artifactId>fnpdbc-commons</artifactId>
 			<version>${project.version}</version>

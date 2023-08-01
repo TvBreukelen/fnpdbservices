@@ -472,7 +472,33 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return aTables.get(table);
 	}
 
-	public void createQueryStatement() throws SQLException {
+	@Override
+	public void readInputFile() throws SQLException {
+		// Extract fields to read from the table model, based on what we want to write.
+		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
+		// data conversions
+		aTables.get(myPref.getTableName());
+		dbInfoToRead = new ArrayList<>();
+		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
+
+		linkedTables.clear();
+
+		// Check if foreign keys are used in fields to be read
+		dbInfoToRead.forEach(this::getLinkedTables);
+
+		// Verify the filters for foreign keys
+		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
+			for (int i = 0; i < myPref.noOfFilters(); i++) {
+				getLinkedTables(hFieldMap.get(myPref.getFilterField(i)));
+			}
+		}
+
+		// Add linked field(s) for SortBy statement
+		if (myPref.isSortFieldDefined()) {
+			myPref.getSortFields().forEach(s -> getLinkedTables(hFieldMap.get(s)));
+		}
+
+		getSqlQuery();
 		dbStatement = connection.createStatement();
 		dbResultSet = dbStatement.executeQuery(getPaginationSqlString());
 	}
@@ -505,7 +531,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} else if (myPref.isPagination() && offset < totalRecords) {
 			dbResultSet.close();
 			dbStatement.close();
-			createQueryStatement();
+			readInputFile();
 			return readRecord();
 		}
 		return result;
@@ -707,33 +733,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public int getTotalRecords() throws Exception {
-		// Extract fields to read from the table model, based on what we want to write.
-		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
-		// data conversions
-
-		aTables.get(myPref.getTableName());
-		dbInfoToRead = new ArrayList<>();
-		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
-
-		linkedTables.clear();
-
-		// Check if foreign keys are used in fields to be read
-		dbInfoToRead.forEach(this::getLinkedTables);
-
-		// Verify the filters for foreign keys
-		if (!GeneralSettings.getInstance().isNoFilterExport() && myPref.isFilterDefined()) {
-			for (int i = 0; i < myPref.noOfFilters(); i++) {
-				getLinkedTables(hFieldMap.get(myPref.getFilterField(i)));
-			}
-		}
-
-		// Add linked field(s) for SortBy statement
-		if (myPref.isSortFieldDefined()) {
-			myPref.getSortFields().forEach(s -> getLinkedTables(hFieldMap.get(s)));
-		}
-
-		// Build Query
-		getSqlQuery();
 		offset = 0;
 		totalRecords = 0;
 

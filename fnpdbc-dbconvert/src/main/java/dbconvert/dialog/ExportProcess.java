@@ -17,6 +17,7 @@ import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
 import dbengine.export.Firebird;
 import dbengine.export.HanDBase;
+import dbengine.export.ICalendar;
 import dbengine.export.JFile;
 import dbengine.export.JsonFile;
 import dbengine.export.ListDB;
@@ -137,6 +138,8 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new MSAccess(profile);
 		case CALC:
 			return new Calc(profile);
+		case ICAL:
+			return new ICalendar(profile);
 		case JSON:
 			return new JsonFile(profile);
 		case FIREBIRD:

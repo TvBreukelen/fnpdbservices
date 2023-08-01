@@ -9,7 +9,8 @@ public enum FileType {
 	DBF(" Dbase / FoxPro file (*.dbf)"), HOST(""), PARADOX("Paradox (*.db"), XML(" XML File (*.xml)"),
 	MDB(" MS Access Database (*.mdb, *.accdb)"), FIREBIRD(" Firebird (*.fdb)"),
 	TRUSTSTORE(" Certificate (*.crt, *.pem)"), KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"),
-	PPK(" PuTTy private key ('*.pkk)"), VCF("VCard (*.vcf, *.hlml, *.json, *.xml)"), YAML(" Yaml (*.yml, *.yaml)");
+	PPK(" PuTTy private key ('*.pkk)"), ICS("ICalendar (*.ics, *.ical, *.icalendar, *.ifb)"),
+	VCF("VCard (*.vcf, *.hlml, *.json, *.xml)"), YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;
 
@@ -20,6 +21,12 @@ public enum FileType {
 	public List<String> getExtention() {
 		List<String> result = new ArrayList<>();
 		switch (this) {
+		case ICS:
+			result.add(".ics");
+			result.add(".ical");
+			result.add(".icalendar");
+			result.add(".ifb");
+			break;
 		case JSON:
 			result.add(".json");
 			break;
@@ -40,7 +47,6 @@ public enum FileType {
 			break;
 		case FIREBIRD:
 			result.add(".fdb");
-			result.add(".FDB");
 			break;
 		case DB:
 			result.add(".db");

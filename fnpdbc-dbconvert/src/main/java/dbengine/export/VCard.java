@@ -68,7 +68,7 @@ public class VCard extends GeneralDB implements IConvert {
 	private Map<String, FieldTypes> fields;
 	private Map<String, Object> map;
 
-	protected List<Map<String, Object>> dbRecords = new ArrayList<>();
+	private List<Map<String, Object>> dbRecords = new ArrayList<>();
 
 	public VCard(Profiles pref) {
 		super(pref);
@@ -76,6 +76,7 @@ public class VCard extends GeneralDB implements IConvert {
 
 	@Override
 	public void closeFile() {
+		// Auto close
 	}
 
 	@Override

@@ -43,5 +43,9 @@ public interface IConvert {
 
 	void readTableContents() throws Exception;
 
+	default void readInputFile() throws Exception {
+		// Do Nothing
+	}
+
 	void closeFile();
 }

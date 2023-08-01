@@ -286,15 +286,12 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		List<Map<String, Object>> result = new ArrayList<>();
 		Predicate<FieldDefinition> filter = field -> field.getFieldType().isSetFieldSize();
 
+		dbIn.readInputFile();
 		totalRecords = dbIn.getTotalRecords() - firstRecord;
 
 		// Check if there are any records to process
 		if (totalRecords == 0) {
 			throw FNProgException.getException("noRecordsFound", myImportFile.getName());
-		}
-
-		if (myImportFile.isSqlDatabase()) {
-			((SqlDB) dbIn).createQueryStatement();
 		}
 
 		// Write all records into the table model

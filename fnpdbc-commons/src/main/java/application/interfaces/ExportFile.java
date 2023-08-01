@@ -12,19 +12,30 @@ public enum ExportFile {
 	 *
 	 * @author Tom van Breukelen
 	 */
-	ACCESS("MS-Access", FileType.MDB, 255, 255, 255), EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767),
-	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767),
-	XML("Xml", FileType.XML, 32767, 32767, 32767), JSON("Json", FileType.JSON, 32767, 32767, 32767),
-	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), SQLITE("SQLite", FileType.DB, 255, 255, 255),
-	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767),
-	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767),
-	FIREBIRD("Firebird", FileType.HOST, 32767, 32767, 32767),
-	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), VCARD("VCard", FileType.VCF, 256, 3000, 256),
-	DBASE("xBase", FileType.DBF, 254, 32737, 128), DBASE3("DBase3", FileType.DBF, 254, 32737, 128),
-	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), DBASE5("DBase5", FileType.DBF, 254, 32767, 1024),
-	FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255), PARADOX("Paradox", FileType.PARADOX, 254, 32737, 128),
-	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), JFILE("JFile5", FileType.PDB, 256, 10000, 50),
-	LIST("List", FileType.PDB, 4095, 4095, 32767), MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20),
+	ACCESS("MS-Access", FileType.MDB, 255, 255, 255), //
+	EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767), //
+	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), //
+	TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767), //
+	XML("Xml", FileType.XML, 32767, 32767, 32767), //
+	JSON("Json", FileType.JSON, 32767, 32767, 32767), //
+	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), //
+	SQLITE("SQLite", FileType.DB, 255, 255, 255), //
+	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767), //
+	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), //
+	FIREBIRD("Firebird", FileType.HOST, 32767, 32767, 32767), //
+	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), //
+	ICAL("iCalendar", FileType.ICS, 256, 3000, 256), //
+	VCARD("VCard", FileType.VCF, 256, 3000, 256), //
+	DBASE("xBase", FileType.DBF, 254, 32737, 128), //
+	DBASE3("DBase3", FileType.DBF, 254, 32737, 128), //
+	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), //
+	DBASE5("DBase5", FileType.DBF, 254, 32767, 1024), //
+	FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255), //
+	PARADOX("Paradox", FileType.PARADOX, 254, 32737, 128), //
+	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), //
+	JFILE("JFile5", FileType.PDB, 256, 10000, 50), //
+	LIST("List", FileType.PDB, 4095, 4095, 32767), //
+	MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20), //
 	PILOTDB("Pilot-DB", FileType.PDB, 256, 3000, 256);
 
 	private String name;
@@ -75,6 +86,7 @@ public enum ExportFile {
 			result.remove(SQLITE.name);
 			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
+			result.remove(ICAL.name);
 		}
 
 		return result.toArray(new String[result.size()]);
@@ -155,6 +167,7 @@ public enum ExportFile {
 		case JSON:
 		case LIST:
 		case TEXTFILE:
+		case ICAL:
 		case VCARD:
 		case XML:
 		case YAML:
