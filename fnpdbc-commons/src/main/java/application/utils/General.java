@@ -134,6 +134,10 @@ public final class General {
 	 *
 	 * @param pDate the date in the database table to be converted
 	 */
+	public static String convertDate(LocalDate pDate) {
+		return convertDate(pDate, getSimpleDateFormat());
+	}
+
 	public static String convertDate(LocalDate pDate, DateTimeFormatter format) {
 		if (pDate == null) {
 			return "";
@@ -168,20 +172,12 @@ public final class General {
 			return "";
 		}
 
-		return DurationFormatUtils.formatDuration(duration.toMillis(), mySettings.getDurationFormat());
-	}
-
-	/**
-	 * Convert a duration stored in the database table as Integer to a 'readable'
-	 * format
-	 */
-	public static String convertDuration(Integer duration) {
-		if (duration == null) {
+		try {
+			return DurationFormatUtils.formatDuration(duration.toMillis(), mySettings.getDurationFormat());
+		} catch (IllegalArgumentException ex) {
+			System.out.println("Invalid Duration " + duration.toString() + " " + duration.toMillis());
 			return "";
 		}
-
-		return DurationFormatUtils.formatDuration(Duration.ofSeconds(duration).toMillis(),
-				mySettings.getDurationFormat());
 	}
 
 	/**
@@ -475,7 +471,7 @@ public final class General {
 		}
 		switch (dbField) {
 		case DATE:
-			return convertDate((LocalDate) obj, General.getSimpleDateFormat());
+			return convertDate((LocalDate) obj);
 		case FUSSY_DATE:
 			return convertFussyDate(obj.toString());
 		case DURATION:

@@ -25,7 +25,7 @@ public class ObjectRenderer extends DefaultTableCellRenderer {
 			int row, int column) {
 
 		if (value instanceof Component) {
-			int rowHeight = Math.max(getPreferredHeight((Component) value), 25);
+			int rowHeight = Math.max(getPreferredHeight((Component) value), 30);
 			table.setRowHeight(row, rowHeight);
 			return (Component) value;
 		}

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.table.AbstractTableModel;
 
@@ -136,7 +137,7 @@ public class ViewerModel extends AbstractTableModel {
 			return obj instanceof Number ? field.getNumberFormat().format(obj) : obj.toString();
 		case MEMO:
 			String s = obj.toString();
-			if (s.length() > FieldTypes.MIN_MEMO_FIELD_LEN) {
+			if (s.contains("\n") || s.length() > FieldTypes.MIN_MEMO_FIELD_LEN) {
 				return createMemoField(s);
 			}
 			return s;
@@ -153,6 +154,8 @@ public class ViewerModel extends AbstractTableModel {
 	}
 
 	private JTextArea createMemoField(String memo) {
-		return new JTextArea(General.setDialogText(memo, FieldTypes.MIN_MEMO_FIELD_LEN));
+		JTextArea result = new JTextArea(General.setDialogText(memo, FieldTypes.MIN_MEMO_FIELD_LEN));
+		result.setBorder(BorderFactory.createEmptyBorder());
+		return result;
 	}
 }

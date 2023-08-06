@@ -57,7 +57,7 @@ public final class GeneralSettings {
 		defaultFileFolder = myPref.get("default.file.folder", userHome);
 		defaultImageFolder = myPref.get("default.image.folder", userHome);
 		defaultPdaFolder = myPref.get("default.pda.folder", userHome);
-		durationFormat = myPref.get("duration.format", "h:mm:ss");
+		durationFormat = myPref.get("duration.format", "H:mm:ss");
 		fnpVersion = myPref.get("fnprog2pda.version", "");
 		handbaseConversionProgram = myPref.get("handbase.conversion.program", "");
 		language = myPref.get("language", "English");
