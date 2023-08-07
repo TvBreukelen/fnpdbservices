@@ -44,12 +44,15 @@ import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.component.Participant;
 import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VFreeBusy;
 import net.fortuna.ical4j.model.component.VJournal;
+import net.fortuna.ical4j.model.component.VResource;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.property.Attendee;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.ExDate;
+import net.fortuna.ical4j.model.property.FreeBusy;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RequestStatus;
 import net.fortuna.ical4j.model.property.Status;
@@ -153,6 +156,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 				break;
 			case Component.VFREEBUSY:
 				event = "Free/Busy";
+				processFreeBusy((VFreeBusy) comp, "");
 				break;
 			case Component.VJOURNAL:
 				event = "Journal";
@@ -196,7 +200,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getDateAndTime(event.getDateTimeStart(), "DateStart", "TimeStart", false);
 		getText(event.getDescription(), "Description", false);
 		getDuration(event.getDuration(), "Duration");
-		event.getFreeBusyTime();
+		getFreeBusy(event.getFreeBusyTime(), "FreeBusyStart", "FreeBusyEnd");
 		getText(event.getGeographicPos(), "Geo", false);
 		getDateAndTime(event.getLastModified(), "LastModified", null, true);
 		getText(event.getLocation(), "Location", false);
@@ -205,10 +209,10 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getText(event.getPercentComplete(), "PercentComplete", false);
 		getText(event.getPriority(), "Priority", false);
 		getDateAndTime(event.getRecurrenceId(), "RecurrenceId", null, true);
-		event.getResources();
+		processResources(event.getResources());
 		getText(event.getStatus(), "Status", false);
 		getText(event.getSummary(), "Summary", false);
-		event.getTimeTransparency();
+		getText(event.getTimeTransparency(), "Transp", true);
 		getText(event.getUid(), "Uid", false);
 		getText(event.getUrl(), "Url", false);
 
@@ -216,6 +220,21 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getExDates(event.getProperties(Property.EXDATE), "ExDate");
 		getRules(event.getProperty(Property.RRULE));
 		event.getAlarms().forEach(alarm -> processAlarm(alarm, "Alarm"));
+	}
+
+	private void processFreeBusy(VFreeBusy freeBusy, String prefix) {
+		getAttendees(freeBusy.getProperties(Property.ATTENDEE), "Attendees");
+		getText(freeBusy.getProperty(Property.COMMENT), prefix + "Comment", false);
+		getText(freeBusy.getProperty(Property.CONTACT), prefix + "Contact", false);
+		getDateAndTime(freeBusy.getProperty(Property.DTEND), prefix + "DateEnd", prefix + "TimeEnd", false);
+		getDateAndTime(freeBusy.getProperty(Property.DTSTAMP), prefix + "TimeStamp", null, true);
+		getDateAndTime(freeBusy.getProperty(Property.DTSTART), prefix + "DateStart", prefix + "TimeStart", false);
+		getDuration(freeBusy.getProperty(Property.DURATION), prefix + "Duration");
+		getFreeBusy(freeBusy.getProperty(Property.FREEBUSY), prefix + "FreeBusyStart", prefix + "FreeBusyEnd");
+		getText(freeBusy.getProperty(Property.REQUEST_STATUS), prefix + "RequestStatus", false);
+		getText(freeBusy.getProperty(Property.ORGANIZER), prefix + "Organizer", false);
+		getText(freeBusy.getProperty(Property.UID), prefix + "Uid", false);
+		getText(freeBusy.getProperty(Property.URL), prefix + "Url", false);
 	}
 
 	private void processJournal(VJournal journal) {
@@ -233,7 +252,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getDateAndTime(journal.getDateTimeStart(), "DateStart", "TimeStart", false);
 		getText(journal.getDescription(), "Description", false);
 		getDuration(journal.getDuration(), "Duration");
-		journal.getFreeBusyTime();
+		getFreeBusy(journal.getFreeBusyTime(), "FreeBusyStart", "FreeBusyEnd");
 		getText(journal.getGeographicPos(), "Geo", false);
 		getDateAndTime(journal.getLastModified(), "LastModified", null, true);
 		getText(journal.getLocation(), "Location", false);
@@ -242,16 +261,26 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getText(journal.getPercentComplete(), "PercentComplete", false);
 		getText(journal.getPriority(), "Priority", false);
 		getText(journal.getRecurrenceId(), "RecurrenceId", false);
-		journal.getResources();
+		processResources(journal.getResources());
 		getText(journal.getStatus(), "Status", false);
 		getText(journal.getSummary(), "Summary", false);
-		journal.getTimeTransparency();
+		getText(journal.getTimeTransparency(), "Transp", true);
 		getText(journal.getUid(), "Uid", false);
 		getText(journal.getUrl(), "Url", false);
 
 		getText(journal.getProperty(Property.REQUEST_STATUS), "RequestStatus", false);
 		getExDates(journal.getProperties(Property.EXDATE), "ExDate");
 		getRules(journal.getProperty(Property.RRULE));
+	}
+
+	private void processResources(List<VResource> resources) {
+		if (resources.isEmpty()) {
+			return;
+		}
+
+		StringBuilder result = new StringBuilder();
+		resources.forEach(resource -> result.append(resource.getValue()).append("\n"));
+		map.put("Resouces", result.toString().trim());
 	}
 
 	private void processToDo(VToDo todo) {
@@ -269,7 +298,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getDateAndTime(todo.getDateTimeStart(), "DateStart", "TimeStart", false);
 		getText(todo.getDescription(), "Description", false);
 		getDuration(todo.getDuration(), "Duration");
-		todo.getFreeBusyTime();
+		getFreeBusy(todo.getFreeBusyTime(), "FreeBusyStart", "FreeBusyEnd");
 		getText(todo.getGeographicPos(), "Geo", false);
 		getDateAndTime(todo.getLastModified(), "LastModified", null, true);
 		getText(todo.getLocation(), "Location", false);
@@ -278,10 +307,10 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getText(todo.getPercentComplete(), "PercentComplete", false);
 		getText(todo.getPriority(), "Priority", false);
 		getText(todo.getRecurrenceId(), "RecurrenceId", false);
-		todo.getResources();
+		processResources(todo.getResources());
 		getText(todo.getStatus(), "Status", false);
 		getText(todo.getSummary(), "Summary", false);
-		todo.getTimeTransparency();
+		getText(todo.getTimeTransparency(), "Transp", true);
 		getText(todo.getUid(), "Uid", false);
 		getText(todo.getUrl(), "Url", false);
 
@@ -306,6 +335,22 @@ public class ICalendar extends GeneralDB implements IConvert {
 		getDuration(alarm.getProperty(Property.DURATION), prefix + "Duration");
 
 		processTrigger(alarm, prefix);
+	}
+
+	private void processParticipant(Participant participant, String prefix) {
+		getText(participant.getCalendarAddress(), prefix + "Address", false);
+		getDateAndTime(participant.getCreated(), prefix + "Created", null, true);
+		getDateAndTime(participant.getDateStamp(), prefix + "DateStamp", null, true);
+		getText(participant.getDescription(), prefix + "Description", false);
+		getDateAndTime(participant.getLastModified(), prefix + "LastModified", null, true);
+		getText(participant.getParticipantType(), prefix + "Type", false);
+		getText(participant.getPriority(), prefix + "Priority", false);
+		getText(participant.getStatus(), prefix + "Status", false);
+		getText(participant.getSummary(), prefix + "Summary", false);
+		getText(participant.getUid(), prefix + "Uid", false);
+		getText(participant.getUrl(), prefix + "Url", false);
+
+		getText(participant.getProperty(Property.GEO), prefix + "Geo", true);
 	}
 
 	private void processTrigger(VAlarm alarm, String prefix) {
@@ -346,8 +391,28 @@ public class ICalendar extends GeneralDB implements IConvert {
 		}
 	}
 
-	private void processParticipant(Participant participant, String prefix) {
-		System.out.println(participant);
+	private void getFreeBusy(Optional<FreeBusy> freeBusyOpt, String fbStartField, String fbEndField) {
+		if (freeBusyOpt.isEmpty()) {
+			return;
+		}
+
+		StringBuilder resultStart = new StringBuilder();
+		StringBuilder resultEnd = new StringBuilder();
+		FreeBusy freeBusy = freeBusyOpt.get();
+		freeBusy.getIntervals().forEach(interval -> {
+			LocalDateTime startDt = LocalDateTime.parse(interval.getStart().toString(),
+					DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault()));
+			LocalDateTime endDt = LocalDateTime.parse(interval.getEnd().toString(),
+					DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault()));
+
+			resultStart.append(General.convertTimestamp(startDt)).append("\n");
+			resultEnd.append(General.convertTimestamp(endDt)).append("\n");
+		});
+
+		map.put(fbStartField, resultStart.toString().trim());
+		map.put(fbEndField, resultEnd.toString().trim());
+		fields.putIfAbsent(fbStartField, FieldTypes.MEMO);
+		fields.putIfAbsent(fbEndField, FieldTypes.MEMO);
 	}
 
 	private void getAttendees(List<Attendee> attendees, String textField) {

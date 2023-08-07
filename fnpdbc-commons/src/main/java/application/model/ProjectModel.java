@@ -154,8 +154,7 @@ public class ProjectModel extends AbstractTableModel {
 			}
 			break;
 		case HEADER_LASTEXPORT:
-			objectData.setLastModified(s.isEmpty() ? ""
-					: General.convertTimestamp((LocalDateTime) object, General.getSimpleTimestampFormat()));
+			objectData.setLastModified(s.isEmpty() ? "" : General.convertTimestamp((LocalDateTime) object));
 			break;
 		case HEADER_NOTES:
 			objectData.setNotes(s);

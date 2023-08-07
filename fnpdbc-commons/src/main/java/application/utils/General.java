@@ -172,12 +172,19 @@ public final class General {
 			return "";
 		}
 
-		try {
-			return DurationFormatUtils.formatDuration(duration.toMillis(), mySettings.getDurationFormat());
-		} catch (IllegalArgumentException ex) {
-			System.out.println("Invalid Duration " + duration.toString() + " " + duration.toMillis());
+		return DurationFormatUtils.formatDuration(duration.toMillis(), mySettings.getDurationFormat());
+	}
+
+	/**
+	 * Convert a duration stored in the database table to a 'readable' format
+	 */
+	public static String convertDuration(Integer duration) {
+		if (duration == null) {
 			return "";
 		}
+
+		return DurationFormatUtils.formatDuration(Duration.ofSeconds(duration).toMillis(),
+				mySettings.getDurationFormat());
 	}
 
 	/**
@@ -424,6 +431,15 @@ public final class General {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	/**
+	 * Converts a database time stamp to a 'readable' format
+	 *
+	 * @param pDate the date in the database table to be converted
+	 */
+	public static String convertTimestamp(LocalDateTime pDate) {
+		return convertTimestamp(pDate, getSimpleTimestampFormat());
 	}
 
 	/**

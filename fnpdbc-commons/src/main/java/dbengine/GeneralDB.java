@@ -236,7 +236,7 @@ public abstract class GeneralDB {
 
 	protected Object convertTimestamp(Object dbValue, FieldDefinition field) {
 		if (!isTimeExport || field.isOutputAsText()) {
-			return General.convertTimestamp((LocalDateTime) dbValue, General.getSimpleTimestampFormat());
+			return General.convertTimestamp((LocalDateTime) dbValue);
 		}
 		return dbValue;
 	}
