@@ -477,7 +477,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		// Extract fields to read from the table model, based on what we want to write.
 		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
 		// data conversions
-		aTables.get(myPref.getTableName());
 		dbInfoToRead = new ArrayList<>();
 		mySoft.getDbInfoToWrite().forEach(field -> dbInfoToRead.add(hFieldMap.get(field.getFieldName())));
 

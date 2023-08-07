@@ -66,9 +66,46 @@ public class ICalendar extends GeneralDB implements IConvert {
 	private Map<String, Object> map;
 	private List<Map<String, Object>> dbRecords = new ArrayList<>();
 
+	private static final String ALARM = "Alarm";
+	private static final String ATTACHMENTS = "Attachments";
+	private static final String ATTENDEES = "Attendees";
+	private static final String CATEGORIES = "Categories";
+	private static final String CLASSIFICATION = "Classification";
+	private static final String COMMENTS = "Comments";
+	private static final String COMPLETED = "Completed";
+	private static final String CONTACT = "Contact";
+	private static final String CREATED = "Created";
+	private static final String DATE_END = "DateEnd";
+	private static final String DATE_START = "DateStart";
+	private static final String DESCRIPTION = "Description";
+	private static final String DUE_DATE = "DueDate";
+	private static final String DURATION = "Duration";
+	private static final String EVENT = "Event";
+	private static final String FREE_BUSY_END = "FreeBusyEnd";
+	private static final String FREE_BUSY_START = "FreeBusyStart";
+	private static final String FREE_BUSY_TYPE = "FreeBusyType";
+	private static final String GEO = "Geo";
+	private static final String LAST_MODIFIED = "LastModified";
+	private static final String LOCATION = "Location";
+	private static final String ORGANIZER = "Organizer";
+	private static final String PARTICIPANT = "Participant";
+	private static final String PERCENT_COMPLETE = "PercentComplete";
+	private static final String PRIORITY = "Priority";
+	private static final String RECURRENCE_ID = "RecurrenceId";
+	private static final String REPEAT = "Repeat";
+	private static final String REQUEST_STATUS = "RequestStatus";
+	private static final String STATUS = "Status";
+	private static final String SUMMARY = "Summary";
+	private static final String TIME_END = "TimeEnd";
+	private static final String TIME_START = "TimeStart";
+	private static final String TIMESTAMP = "Timestamp";
+	private static final String TRANSP = "Transp";
+	private static final String UID = "Uid";
+	private static final String URL = "Url";
+
 	private static Map<WeekDay, String> weekDays = new HashMap<>();
 	private static EnumMap<Frequency, String> frequency = new EnumMap<>(Frequency.class);
-	private static Map<String, String> status = new HashMap<>();
+	private static Map<String, String> eventStatus = new HashMap<>();
 	private static Map<String, String> reqStatus = new HashMap<>();
 
 	static {
@@ -88,14 +125,14 @@ public class ICalendar extends GeneralDB implements IConvert {
 		frequency.put(Frequency.MONTHLY, "month");
 		frequency.put(Frequency.YEARLY, "year");
 
-		status.put(Status.VALUE_CANCELLED, "Cancelled");
-		status.put(Status.VALUE_COMPLETED, "Completed");
-		status.put(Status.VALUE_CONFIRMED, "Confirmed");
-		status.put(Status.VALUE_DRAFT, "Draft");
-		status.put(Status.VALUE_FINAL, "Final");
-		status.put(Status.VALUE_IN_PROCESS, "In Process");
-		status.put(Status.VALUE_NEEDS_ACTION, "Needs Action");
-		status.put(Status.VALUE_TENTATIVE, "Tentative");
+		eventStatus.put(Status.VALUE_CANCELLED, "Cancelled");
+		eventStatus.put(Status.VALUE_COMPLETED, COMPLETED);
+		eventStatus.put(Status.VALUE_CONFIRMED, "Confirmed");
+		eventStatus.put(Status.VALUE_DRAFT, "Draft");
+		eventStatus.put(Status.VALUE_FINAL, "Final");
+		eventStatus.put(Status.VALUE_IN_PROCESS, "In Process");
+		eventStatus.put(Status.VALUE_NEEDS_ACTION, "Needs Action");
+		eventStatus.put(Status.VALUE_TENTATIVE, "Tentative");
 
 		reqStatus.put(RequestStatus.CLIENT_ERROR, "Client Error");
 		reqStatus.put(RequestStatus.PRELIM_SUCCESS, "Prelimary Success");
@@ -140,42 +177,42 @@ public class ICalendar extends GeneralDB implements IConvert {
 		// Begin Loop
 		for (CalendarComponent comp : iCals) {
 			map = new HashMap<>();
-			String event;
+			String eventType;
 
 			switch (comp.getName()) {
 			case Component.VALARM:
-				event = "Alarm";
+				eventType = ALARM;
 				processAlarm((VAlarm) comp, null);
 				break;
 			case Component.VAVAILABILITY:
-				event = "Availability";
+				eventType = "Availability";
 				break;
 			case Component.VEVENT:
-				event = "Event";
+				eventType = EVENT;
 				processEvent((VEvent) comp);
 				break;
 			case Component.VFREEBUSY:
-				event = "Free/Busy";
+				eventType = "FreeBusy";
 				processFreeBusy((VFreeBusy) comp, "");
 				break;
 			case Component.VJOURNAL:
-				event = "Journal";
+				eventType = "Journal";
 				processJournal((VJournal) comp);
 				break;
 			case Component.VTIMEZONE:
 				totalRecords--;
 				continue;
 			case Component.VTODO:
-				event = "Task";
+				eventType = "Task";
 				processToDo((VToDo) comp);
 				break;
 			default:
-				event = "Event";
+				eventType = EVENT;
 				break;
 			}
 
-			map.put("Event", event);
-			fields.putIfAbsent("Event", FieldTypes.TEXT);
+			map.put(EVENT, eventType);
+			fields.putIfAbsent(EVENT, FieldTypes.TEXT);
 
 			dbRecords.add(map);
 		}
@@ -186,89 +223,90 @@ public class ICalendar extends GeneralDB implements IConvert {
 	}
 
 	private void processEvent(VEvent event) {
-		getList(event.getAttachments(), "Attachments");
-		getAttendees(event.getAttendees(), "Attendees");
-		processList(event.getCategories(), "Categories");
-		getText(event.getClassification(), "Classification", true);
-		getList(event.getComments(), "Comments");
-		getText(event.getContact(), "Contact", false);
-		getDateAndTime(event.getCreated(), "Created", null, true);
-		getDateAndTime(event.getDateTimeCompleted(), "Completed", null, false);
-		getDateAndTime(event.getDateTimeDue(), "DueDate", null, false);
-		getDateAndTime(event.getDateTimeEnd(), "DateEnd", "TimeEnd", false);
-		getDateAndTime(event.getDateTimeStamp(), "Timestamp", null, true);
-		getDateAndTime(event.getDateTimeStart(), "DateStart", "TimeStart", false);
-		getText(event.getDescription(), "Description", false);
-		getDuration(event.getDuration(), "Duration");
-		getFreeBusy(event.getFreeBusyTime(), "FreeBusyStart", "FreeBusyEnd");
-		getText(event.getGeographicPos(), "Geo", false);
-		getDateAndTime(event.getLastModified(), "LastModified", null, true);
-		getText(event.getLocation(), "Location", false);
-		getText(event.getOrganizer(), "Organizer", false);
-		event.getParticipants().forEach(participant -> processParticipant(participant, "Participant."));
-		getText(event.getPercentComplete(), "PercentComplete", false);
-		getText(event.getPriority(), "Priority", false);
-		getDateAndTime(event.getRecurrenceId(), "RecurrenceId", null, true);
+		getList(event.getAttachments(), ATTACHMENTS);
+		getAttendees(event.getAttendees(), ATTENDEES);
+		processList(event.getCategories(), CATEGORIES);
+		getText(event.getClassification(), CLASSIFICATION, true);
+		getList(event.getComments(), COMMENTS);
+		getText(event.getContact(), CONTACT, false);
+		getDateAndTime(event.getCreated(), CREATED, null, true);
+		getDateAndTime(event.getDateTimeCompleted(), COMPLETED, null, false);
+		getDateAndTime(event.getDateTimeDue(), DUE_DATE, null, false);
+		getDateAndTime(event.getDateTimeEnd(), DATE_END, TIME_END, false);
+		getDateAndTime(event.getDateTimeStamp(), TIMESTAMP, null, true);
+		getDateAndTime(event.getDateTimeStart(), DATE_START, TIME_START, false);
+		getText(event.getDescription(), DESCRIPTION, false);
+		getDuration(event.getDuration(), DURATION);
+		getFreeBusy(event.getFreeBusyTime(), FREE_BUSY_START, FREE_BUSY_END, FREE_BUSY_TYPE);
+		getText(event.getGeographicPos(), GEO, false);
+		getDateAndTime(event.getLastModified(), LAST_MODIFIED, null, true);
+		getText(event.getLocation(), LOCATION, false);
+		getText(event.getOrganizer(), ORGANIZER, false);
+		event.getParticipants().forEach(participant -> processParticipant(participant, PARTICIPANT));
+		getText(event.getPercentComplete(), PERCENT_COMPLETE, false);
+		getText(event.getPriority(), PRIORITY, false);
+		getDateAndTime(event.getRecurrenceId(), RECURRENCE_ID, null, true);
 		processResources(event.getResources());
-		getText(event.getStatus(), "Status", false);
-		getText(event.getSummary(), "Summary", false);
-		getText(event.getTimeTransparency(), "Transp", true);
-		getText(event.getUid(), "Uid", false);
-		getText(event.getUrl(), "Url", false);
+		getText(event.getStatus(), STATUS, false);
+		getText(event.getSummary(), SUMMARY, false);
+		getText(event.getTimeTransparency(), TRANSP, true);
+		getText(event.getUid(), UID, false);
+		getText(event.getUrl(), URL, false);
 
-		getText(event.getProperty(Property.REQUEST_STATUS), "RequestStatus", false);
+		getText(event.getProperty(Property.REQUEST_STATUS), REQUEST_STATUS, false);
 		getExDates(event.getProperties(Property.EXDATE), "ExDate");
 		getRules(event.getProperty(Property.RRULE));
-		event.getAlarms().forEach(alarm -> processAlarm(alarm, "Alarm"));
+		event.getAlarms().forEach(alarm -> processAlarm(alarm, ALARM));
 	}
 
 	private void processFreeBusy(VFreeBusy freeBusy, String prefix) {
-		getAttendees(freeBusy.getProperties(Property.ATTENDEE), "Attendees");
-		getText(freeBusy.getProperty(Property.COMMENT), prefix + "Comment", false);
-		getText(freeBusy.getProperty(Property.CONTACT), prefix + "Contact", false);
-		getDateAndTime(freeBusy.getProperty(Property.DTEND), prefix + "DateEnd", prefix + "TimeEnd", false);
-		getDateAndTime(freeBusy.getProperty(Property.DTSTAMP), prefix + "TimeStamp", null, true);
-		getDateAndTime(freeBusy.getProperty(Property.DTSTART), prefix + "DateStart", prefix + "TimeStart", false);
-		getDuration(freeBusy.getProperty(Property.DURATION), prefix + "Duration");
-		getFreeBusy(freeBusy.getProperty(Property.FREEBUSY), prefix + "FreeBusyStart", prefix + "FreeBusyEnd");
-		getText(freeBusy.getProperty(Property.REQUEST_STATUS), prefix + "RequestStatus", false);
-		getText(freeBusy.getProperty(Property.ORGANIZER), prefix + "Organizer", false);
-		getText(freeBusy.getProperty(Property.UID), prefix + "Uid", false);
-		getText(freeBusy.getProperty(Property.URL), prefix + "Url", false);
+		getAttendees(freeBusy.getProperties(Property.ATTENDEE), ATTENDEES);
+		getText(freeBusy.getProperty(Property.COMMENT), prefix + COMMENTS, false);
+		getText(freeBusy.getProperty(Property.CONTACT), prefix + CONTACT, false);
+		getDateAndTime(freeBusy.getProperty(Property.DTEND), prefix + DATE_END, prefix + TIME_END, false);
+		getDateAndTime(freeBusy.getProperty(Property.DTSTAMP), prefix + TIMESTAMP, null, true);
+		getDateAndTime(freeBusy.getProperty(Property.DTSTART), prefix + DATE_START, prefix + TIME_START, false);
+		getDuration(freeBusy.getProperty(Property.DURATION), prefix + DURATION);
+		getFreeBusy(freeBusy.getProperty(Property.FREEBUSY), prefix + FREE_BUSY_START, prefix + FREE_BUSY_END,
+				prefix + FREE_BUSY_TYPE);
+		getText(freeBusy.getProperty(Property.REQUEST_STATUS), prefix + REQUEST_STATUS, false);
+		getText(freeBusy.getProperty(Property.ORGANIZER), prefix + ORGANIZER, false);
+		getText(freeBusy.getProperty(Property.UID), prefix + UID, false);
+		getText(freeBusy.getProperty(Property.URL), prefix + URL, false);
 	}
 
 	private void processJournal(VJournal journal) {
-		getList(journal.getAttachments(), "Attachments");
-		getAttendees(journal.getAttendees(), "Attendees");
-		processList(journal.getCategories(), "Categories");
-		getText(journal.getClassification(), "Classification", true);
-		getList(journal.getComments(), "Comments");
-		getText(journal.getContact(), "Contact", false);
-		getDateAndTime(journal.getCreated(), "Created", null, true);
-		getDateAndTime(journal.getDateTimeCompleted(), "Completed", null, false);
-		getDateAndTime(journal.getDateTimeDue(), "DueDate", null, false);
-		getDateAndTime(journal.getDateTimeEnd(), "DateEnd", "TimeEnd", false);
-		getDateAndTime(journal.getDateTimeStamp(), "Timestamp", null, true);
-		getDateAndTime(journal.getDateTimeStart(), "DateStart", "TimeStart", false);
-		getText(journal.getDescription(), "Description", false);
-		getDuration(journal.getDuration(), "Duration");
-		getFreeBusy(journal.getFreeBusyTime(), "FreeBusyStart", "FreeBusyEnd");
-		getText(journal.getGeographicPos(), "Geo", false);
-		getDateAndTime(journal.getLastModified(), "LastModified", null, true);
-		getText(journal.getLocation(), "Location", false);
-		getText(journal.getOrganizer(), "Organizer", false);
-		journal.getParticipants().forEach(participant -> processParticipant(participant, "Participant."));
-		getText(journal.getPercentComplete(), "PercentComplete", false);
-		getText(journal.getPriority(), "Priority", false);
-		getText(journal.getRecurrenceId(), "RecurrenceId", false);
+		getList(journal.getAttachments(), ATTACHMENTS);
+		getAttendees(journal.getAttendees(), ATTENDEES);
+		processList(journal.getCategories(), CATEGORIES);
+		getText(journal.getClassification(), CLASSIFICATION, true);
+		getList(journal.getComments(), COMMENTS);
+		getText(journal.getContact(), CONTACT, false);
+		getDateAndTime(journal.getCreated(), CREATED, null, true);
+		getDateAndTime(journal.getDateTimeCompleted(), COMPLETED, null, false);
+		getDateAndTime(journal.getDateTimeDue(), DUE_DATE, null, false);
+		getDateAndTime(journal.getDateTimeEnd(), DATE_END, TIME_END, false);
+		getDateAndTime(journal.getDateTimeStamp(), TIMESTAMP, null, true);
+		getDateAndTime(journal.getDateTimeStart(), DATE_START, TIME_START, false);
+		getText(journal.getDescription(), DESCRIPTION, false);
+		getDuration(journal.getDuration(), DURATION);
+		getFreeBusy(journal.getFreeBusyTime(), FREE_BUSY_START, FREE_BUSY_END, FREE_BUSY_TYPE);
+		getText(journal.getGeographicPos(), GEO, false);
+		getDateAndTime(journal.getLastModified(), LAST_MODIFIED, null, true);
+		getText(journal.getLocation(), LOCATION, false);
+		getText(journal.getOrganizer(), ORGANIZER, false);
+		journal.getParticipants().forEach(participant -> processParticipant(participant, PARTICIPANT));
+		getText(journal.getPercentComplete(), PERCENT_COMPLETE, false);
+		getText(journal.getPriority(), PRIORITY, false);
+		getText(journal.getRecurrenceId(), RECURRENCE_ID, false);
 		processResources(journal.getResources());
-		getText(journal.getStatus(), "Status", false);
-		getText(journal.getSummary(), "Summary", false);
-		getText(journal.getTimeTransparency(), "Transp", true);
-		getText(journal.getUid(), "Uid", false);
-		getText(journal.getUrl(), "Url", false);
+		getText(journal.getStatus(), STATUS, false);
+		getText(journal.getSummary(), SUMMARY, false);
+		getText(journal.getTimeTransparency(), TRANSP, true);
+		getText(journal.getUid(), UID, false);
+		getText(journal.getUrl(), URL, false);
 
-		getText(journal.getProperty(Property.REQUEST_STATUS), "RequestStatus", false);
+		getText(journal.getProperty(Property.REQUEST_STATUS), REQUEST_STATUS, false);
 		getExDates(journal.getProperties(Property.EXDATE), "ExDate");
 		getRules(journal.getProperty(Property.RRULE));
 	}
@@ -280,77 +318,77 @@ public class ICalendar extends GeneralDB implements IConvert {
 
 		StringBuilder result = new StringBuilder();
 		resources.forEach(resource -> result.append(resource.getValue()).append("\n"));
-		map.put("Resouces", result.toString().trim());
+		map.put("Resources", result.toString().trim());
 	}
 
 	private void processToDo(VToDo todo) {
-		getList(todo.getAttachments(), "Attachments");
-		getAttendees(todo.getAttendees(), "Attendees");
-		processList(todo.getCategories(), "Categories");
-		getText(todo.getClassification(), "Classification", true);
-		getList(todo.getComments(), "Comments");
-		getText(todo.getContact(), "Contact", false);
-		getDateAndTime(todo.getCreated(), "Created", null, true);
-		getDateAndTime(todo.getDateTimeCompleted(), "Completed", null, false);
-		getDateAndTime(todo.getDateTimeDue(), "DueDate", null, false);
-		getDateAndTime(todo.getDateTimeEnd(), "DateEnd", "TimeEnd", false);
-		getDateAndTime(todo.getDateTimeStamp(), "Timestamp", null, true);
-		getDateAndTime(todo.getDateTimeStart(), "DateStart", "TimeStart", false);
-		getText(todo.getDescription(), "Description", false);
-		getDuration(todo.getDuration(), "Duration");
-		getFreeBusy(todo.getFreeBusyTime(), "FreeBusyStart", "FreeBusyEnd");
-		getText(todo.getGeographicPos(), "Geo", false);
-		getDateAndTime(todo.getLastModified(), "LastModified", null, true);
-		getText(todo.getLocation(), "Location", false);
-		getText(todo.getOrganizer(), "Organizer", false);
-		todo.getParticipants().forEach(participant -> processParticipant(participant, "Participant."));
-		getText(todo.getPercentComplete(), "PercentComplete", false);
-		getText(todo.getPriority(), "Priority", false);
-		getText(todo.getRecurrenceId(), "RecurrenceId", false);
+		getList(todo.getAttachments(), ATTACHMENTS);
+		getAttendees(todo.getAttendees(), ATTENDEES);
+		processList(todo.getCategories(), CATEGORIES);
+		getText(todo.getClassification(), CLASSIFICATION, true);
+		getList(todo.getComments(), COMMENTS);
+		getText(todo.getContact(), CONTACT, false);
+		getDateAndTime(todo.getCreated(), CREATED, null, true);
+		getDateAndTime(todo.getDateTimeCompleted(), COMPLETED, null, false);
+		getDateAndTime(todo.getDateTimeDue(), DUE_DATE, null, false);
+		getDateAndTime(todo.getDateTimeEnd(), DATE_END, TIME_END, false);
+		getDateAndTime(todo.getDateTimeStamp(), TIMESTAMP, null, true);
+		getDateAndTime(todo.getDateTimeStart(), DATE_START, TIME_START, false);
+		getText(todo.getDescription(), DESCRIPTION, false);
+		getDuration(todo.getDuration(), DURATION);
+		getFreeBusy(todo.getFreeBusyTime(), FREE_BUSY_START, FREE_BUSY_END, FREE_BUSY_TYPE);
+		getText(todo.getGeographicPos(), GEO, false);
+		getDateAndTime(todo.getLastModified(), LAST_MODIFIED, null, true);
+		getText(todo.getLocation(), LOCATION, false);
+		getText(todo.getOrganizer(), ORGANIZER, false);
+		todo.getParticipants().forEach(participant -> processParticipant(participant, PARTICIPANT));
+		getText(todo.getPercentComplete(), PERCENT_COMPLETE, false);
+		getText(todo.getPriority(), PRIORITY, false);
+		getText(todo.getRecurrenceId(), RECURRENCE_ID, false);
 		processResources(todo.getResources());
-		getText(todo.getStatus(), "Status", false);
-		getText(todo.getSummary(), "Summary", false);
-		getText(todo.getTimeTransparency(), "Transp", true);
-		getText(todo.getUid(), "Uid", false);
-		getText(todo.getUrl(), "Url", false);
+		getText(todo.getStatus(), STATUS, false);
+		getText(todo.getSummary(), SUMMARY, false);
+		getText(todo.getTimeTransparency(), TRANSP, true);
+		getText(todo.getUid(), UID, false);
+		getText(todo.getUrl(), URL, false);
 
-		todo.getAlarms().forEach(alarm -> processAlarm(alarm, "Alarm"));
+		todo.getAlarms().forEach(alarm -> processAlarm(alarm, ALARM));
 	}
 
 	private void processAlarm(VAlarm alarm, String prefix) {
-		getList(alarm.getAttachments(), prefix + "Attachments");
-		processList(alarm.getCategories(), prefix + "Categories");
-		getText(alarm.getClassification(), prefix + "Classification", true);
-		getList(alarm.getComments(), prefix + "Comments");
-		getText(alarm.getDescription(), prefix + "Description", false);
-		getText(alarm.getGeographicPos(), prefix + "Geo", false);
-		getText(alarm.getLocation(), prefix + "Location", false);
-		getText(alarm.getPercentComplete(), prefix + "PercentComplete", false);
-		getText(alarm.getPriority(), prefix + "Priority", false);
-		getText(alarm.getStatus(), prefix + "Priority", true);
-		getText(alarm.getSummary(), prefix + "Summary", false);
+		getList(alarm.getAttachments(), prefix + ATTACHMENTS);
+		processList(alarm.getCategories(), prefix + CATEGORIES);
+		getText(alarm.getClassification(), prefix + CLASSIFICATION, true);
+		getList(alarm.getComments(), prefix + COMMENTS);
+		getText(alarm.getDescription(), prefix + DESCRIPTION, false);
+		getText(alarm.getGeographicPos(), prefix + GEO, false);
+		getText(alarm.getLocation(), prefix + LOCATION, false);
+		getText(alarm.getPercentComplete(), prefix + PERCENT_COMPLETE, false);
+		getText(alarm.getPriority(), prefix + PRIORITY, false);
+		getText(alarm.getStatus(), prefix + STATUS, true);
+		getText(alarm.getSummary(), prefix + SUMMARY, false);
 
 		getText(alarm.getProperty(Property.ACTION), prefix + "Action", true);
-		getText(alarm.getProperty(Property.REPEAT), prefix + "Repeat", true);
-		getDuration(alarm.getProperty(Property.DURATION), prefix + "Duration");
+		getText(alarm.getProperty(Property.REPEAT), prefix + REPEAT, true);
+		getDuration(alarm.getProperty(Property.DURATION), prefix + DURATION);
 
 		processTrigger(alarm, prefix);
 	}
 
 	private void processParticipant(Participant participant, String prefix) {
 		getText(participant.getCalendarAddress(), prefix + "Address", false);
-		getDateAndTime(participant.getCreated(), prefix + "Created", null, true);
-		getDateAndTime(participant.getDateStamp(), prefix + "DateStamp", null, true);
-		getText(participant.getDescription(), prefix + "Description", false);
-		getDateAndTime(participant.getLastModified(), prefix + "LastModified", null, true);
+		getDateAndTime(participant.getCreated(), prefix + CREATED, null, true);
+		getDateAndTime(participant.getDateStamp(), prefix + TIMESTAMP, null, true);
+		getText(participant.getDescription(), prefix + DESCRIPTION, false);
+		getDateAndTime(participant.getLastModified(), prefix + LAST_MODIFIED, null, true);
 		getText(participant.getParticipantType(), prefix + "Type", false);
-		getText(participant.getPriority(), prefix + "Priority", false);
-		getText(participant.getStatus(), prefix + "Status", false);
-		getText(participant.getSummary(), prefix + "Summary", false);
-		getText(participant.getUid(), prefix + "Uid", false);
-		getText(participant.getUrl(), prefix + "Url", false);
+		getText(participant.getPriority(), prefix + PRIORITY, false);
+		getText(participant.getStatus(), prefix + STATUS, false);
+		getText(participant.getSummary(), prefix + SUMMARY, false);
+		getText(participant.getUid(), prefix + UID, false);
+		getText(participant.getUrl(), prefix + URL, false);
 
-		getText(participant.getProperty(Property.GEO), prefix + "Geo", true);
+		getText(participant.getProperty(Property.GEO), prefix + GEO, true);
 	}
 
 	private void processTrigger(VAlarm alarm, String prefix) {
@@ -382,8 +420,8 @@ public class ICalendar extends GeneralDB implements IConvert {
 	private void calculateDuration(String durationField, TemporalAmount duration) {
 		boolean add = duration.get(duration instanceof Period ? ChronoUnit.DAYS : ChronoUnit.SECONDS) >= 0;
 
-		LocalDate date = (LocalDate) map.get(add ? "DateStart" : "DateEnd");
-		LocalTime time = (LocalTime) map.get(add ? "TimeStart" : "TimeEnd");
+		LocalDate date = (LocalDate) map.get(add ? DATE_START : DATE_END);
+		LocalTime time = (LocalTime) map.get(add ? TIME_START : TIME_END);
 		if (date != null && time != null) {
 			LocalDateTime ldt = time.atDate(date).plus(duration);
 			map.put(durationField, ldt);
@@ -391,7 +429,9 @@ public class ICalendar extends GeneralDB implements IConvert {
 		}
 	}
 
-	private void getFreeBusy(Optional<FreeBusy> freeBusyOpt, String fbStartField, String fbEndField) {
+	private void getFreeBusy(Optional<FreeBusy> freeBusyOpt, String fbStartField, String fbEndField,
+			String fbTypeField) {
+
 		if (freeBusyOpt.isEmpty()) {
 			return;
 		}
@@ -408,6 +448,12 @@ public class ICalendar extends GeneralDB implements IConvert {
 			resultStart.append(General.convertTimestamp(startDt)).append("\n");
 			resultEnd.append(General.convertTimestamp(endDt)).append("\n");
 		});
+
+		Optional<Parameter> typeOpt = freeBusy.getParameter(Parameter.FBTYPE);
+		if (typeOpt.isPresent()) {
+			map.put(fbTypeField, General.capitalizeFirstLetter(typeOpt.get().getValue()));
+			fields.putIfAbsent(fbTypeField, FieldTypes.TEXT);
+		}
 
 		map.put(fbStartField, resultStart.toString().trim());
 		map.put(fbEndField, resultEnd.toString().trim());
@@ -536,13 +582,13 @@ public class ICalendar extends GeneralDB implements IConvert {
 			return;
 		}
 
-		if (textField.endsWith("RequestStatus")) {
+		if (textField.endsWith(REQUEST_STATUS)) {
 			value = reqStatus.get(value);
-		} else if (textField.endsWith("Repeat")) {
+		} else if (textField.endsWith(REPEAT)) {
 			value += " times";
-		} else if (textField.endsWith("Status")) {
-			value = status.get(value);
-		} else if (textField.endsWith("Organizer") && value.contains(":")) {
+		} else if (textField.endsWith(STATUS)) {
+			value = eventStatus.get(value);
+		} else if (textField.endsWith(ORGANIZER) && value.contains(":")) {
 			value = value.substring(value.indexOf(":") + 1);
 		}
 
