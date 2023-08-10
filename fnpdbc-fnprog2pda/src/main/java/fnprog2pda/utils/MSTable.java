@@ -1,4 +1,4 @@
-package dbengine.utils;
+package fnprog2pda.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,8 +10,6 @@ import com.healthmarketscience.jackcess.Index;
 
 import application.interfaces.FieldTypes;
 import application.utils.FieldDefinition;
-import application.utils.ini.IniItem;
-import application.utils.ini.IniSection;
 
 public class MSTable {
 	private String alias = "";

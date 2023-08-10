@@ -34,9 +34,10 @@ Name            OS
 ----------------------------------
 Calc            All platforms
 CSV             All platforms
-DBase           Microsoft Windows
+dBase           Microsoft Windows
 Firebird        All Platforms
 Foxpro          Microsoft Windows 
+iCalendar       All Platforms
 JFile           Palm
 List            Palm 
 JSON            All Platforms
@@ -51,7 +52,6 @@ SQL Server      All platforms
 SQLite          All platforms
 TSV             All platforms
 VCard           All platforms 
-Visual Foxpro   Microsoft Windows
 XML             All platforms
 YAML            All platforms
 
@@ -149,6 +149,16 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 8.0
+-----------
+Added SQL database pagination.
+Filtering on NULL values is now supported for joined SQL tables.
+VCard export now supports hCards, jCards and xCards as well.
+Added iCalender import feature.
+Replaced ini file containing the Internet sites information by YAML.
+Updated external libraries and fixed minor bugs.
+
 
 Version 7.6
 -----------

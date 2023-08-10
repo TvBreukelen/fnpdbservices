@@ -83,8 +83,6 @@ import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.table.BooleanRenderer;
 import application.utils.gui.XGridBagConstraints;
-import application.utils.ini.IniFile;
-import application.utils.ini.IniFileReader;
 
 public final class General {
 	/**
@@ -400,13 +398,28 @@ public final class General {
 		}
 
 		StringBuilder buf = new StringBuilder();
-		dbValue.forEach(o -> buf.append(o.toString()).append(separator));
+		dbValue.forEach(o -> buf.append(removeBrackets(o.toString())).append(separator));
 		buf.delete(buf.lastIndexOf(separator), buf.length());
 		return buf.toString().trim();
 	}
 
 	public static String convertListToString(List<?> dbValue) {
 		return convertListToString(dbValue, "\n");
+	}
+
+	private static String removeBrackets(String text) {
+		if (StringUtils.isEmpty(text) || text.length() < 2) {
+			return text;
+		}
+
+		String begin = text.substring(0, 1);
+		String end = text.substring(text.length() - 1);
+
+		if ("([{".indexOf(begin) != -1 && ")]}".indexOf(end) != -1) {
+			return text.substring(1, text.length() - 2);
+		}
+
+		return text;
 	}
 
 	/**
@@ -666,19 +679,7 @@ public final class General {
 		return 0;
 	}
 
-	public static IniFile getIniFile(String file) {
-		IniFile result = new IniFile();
-
-		try (BufferedReader reader = new BufferedReader(getInputStreamReader(file))) {
-			IniFileReader iniReader = new IniFileReader(result, reader);
-			iniReader.read();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return result;
-	}
-
-	private static Reader getInputStreamReader(String file) {
+	public static Reader getInputStreamReader(String file) {
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 		InputStream is = classloader.getResourceAsStream(file);
 		return new InputStreamReader(is, StandardCharsets.UTF_8);

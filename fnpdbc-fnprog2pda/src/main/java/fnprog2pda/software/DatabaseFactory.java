@@ -1,5 +1,6 @@
 package fnprog2pda.software;
 
+import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,14 +28,15 @@ import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import application.utils.XComparator;
-import application.utils.ini.IniFile;
-import application.utils.ini.IniItem;
-import application.utils.ini.IniSection;
 import dbengine.IConvert;
 import dbengine.utils.DatabaseHelper;
-import dbengine.utils.MSTable;
 import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.preferences.PrefFNProg;
+import fnprog2pda.utils.IniFile;
+import fnprog2pda.utils.IniFileReader;
+import fnprog2pda.utils.IniItem;
+import fnprog2pda.utils.IniSection;
+import fnprog2pda.utils.MSTable;
 
 public final class DatabaseFactory implements IDatabaseFactory {
 	/**
@@ -152,7 +154,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		boolean isVersionNotFound = true;
 
 		// Load FNProg2PDA properties
-		IniFile properties = General.getIniFile("config/FNProg2PDA.ini");
+		IniFile properties = getIniFile("config/FNProg2PDA.ini");
 		IniSection section = properties.getSection("Software");
 
 		// Check with which software we are dealing with
@@ -192,7 +194,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	public void loadConfiguration(String view) throws Exception {
-		ini = General.getIniFile("config/" + databaseType.getName() + "_" + view + ".ini");
+		ini = getIniFile("config/" + databaseType.getName() + "_" + view + ".ini");
 		currentTable = view;
 
 		dbFieldDefinition.clear();
@@ -526,4 +528,17 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	public ExportFile getExportFile() {
 		return ExportFile.getExportFile(pdaSettings.getProjectID());
 	}
+
+	public IniFile getIniFile(String file) {
+		IniFile result = new IniFile();
+
+		try (BufferedReader reader = new BufferedReader(General.getInputStreamReader(file))) {
+			IniFileReader iniReader = new IniFileReader(result, reader);
+			iniReader.read();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return result;
+	}
+
 }

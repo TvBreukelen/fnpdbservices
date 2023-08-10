@@ -16,7 +16,7 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package application.utils.ini;
+package fnprog2pda.utils;
 
 /**
  * <p>

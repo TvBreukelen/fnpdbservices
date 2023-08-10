@@ -29,7 +29,7 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
-import dbengine.utils.MSTable;
+import fnprog2pda.utils.MSTable;
 
 public class MSAccess extends GeneralDB implements IConvert {
 	private Database database;

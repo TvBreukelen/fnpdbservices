@@ -54,6 +54,37 @@ You can use the Open button to select the file to be exported.<br>
  <br>
 </ul>
 
+<h2>Export From iCalendar</h2>
+<img src="../images/ExportToICalendar.png">
+<h3>Compatibility</h3>
+<ul>
+<li><b>Standard</b></li>
+This setting let you import iCalendar files created according to the iCalendar standard<br>
+<br>
+<li><b>Lotus Notes</b></li>
+This will improve the compatibility with Lotus Notes generated iCalendar files, especially 
+ regarding client- and domain mappings.
+<br><br>
+<li><b>Outlook</b></li>
+When activated it enforces a folding length of 75 characters (by default DBConvert will fold at
+ 73 characters). It allows for spaces when parsing a WEEKDAY list.<br>
+</ul>
+<h3>Parsing Validation</h3>
+<ul>
+<li><b>Relaxed Parsing</b></li>
+This option is intended as a general relaxation of parsing rules to allow for parsing otherwise
+ invalid calendar files. Initially enabling this property will allow for the creation of properties
+ and components with illegal names (e.g. Mozilla Calendar's "X" property).<br>
+ <br>
+<li><b>Relaxed Unfolding</b></li>
+You can relax DBConvert unfolding rules by activating this option. Some Mozilla-, Linux- and Unix
+ based calendar apps use the non-standard LF instead of CRLF characters to fold long lines of text.
+<br><br>
+<li><b>Relaxed Validation</b></li>
+When activated DBConvert becomes more lenient toward interpreting missing or faulty time zones in the
+ iCalender files.    
+</ul> 
+
 <h2>Export From Calc or Excel</h2>
 <img src="../images/SpreadsheetExport.png">
 <h3>Additional Field</h3>

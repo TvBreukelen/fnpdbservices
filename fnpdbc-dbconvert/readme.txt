@@ -2,11 +2,14 @@ Release Notes
 -------------
 
 
-Version 7.7
+Version 8.0
 -----------
 Added SQL database pagination.
 Filtering on NULL values is now supported for joined SQL tables.
-VCard export now supports hcards, jcards and xcards as well.
+VCard export now supports hCards, jCards and xCards as well.
+Added iCalender import feature.
+Replaced ini file containing the Internet sites information by YAML.
+Updated external libraries and fixed minor bugs.
 
 
 Version 7.6

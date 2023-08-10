@@ -43,10 +43,10 @@ import dbengine.GeneralDB;
 import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
-import dbengine.utils.MSTable;
 import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.dialog.ExportProcess;
 import fnprog2pda.preferences.PrefFNProg;
+import fnprog2pda.utils.MSTable;
 
 public abstract class FNProgramvare extends BasicSoft {
 	/**
