@@ -87,6 +87,13 @@ public abstract class Profiles extends Project {
 	private int maxFileSize;
 	private boolean useLinebreak;
 
+	// iCalendar
+	private boolean isNotesCompatible;
+	private boolean isOutlookCompatible;
+	private boolean relaxedParsing;
+	private boolean relaxedUnfolding;
+	private boolean relaxedValidation;
+
 	protected Preferences child;
 
 	protected Profiles(TvBSoftware software) {
@@ -185,6 +192,13 @@ public abstract class Profiles extends Project {
 		textFileFormat = child.get("textfile.format", "standardCsv");
 		maxFileSize = child.getInt("textfile.maxsize", 0);
 		useLinebreak = child.getBoolean("use.linebreak", true);
+
+		// iCalendar
+		isNotesCompatible = child.getBoolean("icalendar.notes.compatible", false);
+		isOutlookCompatible = child.getBoolean("icalendar.outlook.compatible", false);
+		relaxedUnfolding = child.getBoolean("icalendar.relaxed.unfolding", false);
+		relaxedParsing = child.getBoolean("icalendar.relaxed.parsing", true);
+		relaxedValidation = child.getBoolean("icalendar.relaxed.validation", false);
 
 		// Sql Databases
 		sqlSelectLimit = child.getInt("sql.select.limit", 0);
@@ -731,6 +745,57 @@ public abstract class Profiles extends Project {
 
 	public void setImportTextFileFormat(String textFormat) {
 		getDbSettings().setTextFileFormat(textFormat);
+	}
+
+	// iCalendar import
+	public boolean isNotesCompatible() {
+		return isNotesCompatible;
+	}
+
+	public void setNotesCompatible(boolean isNotesCompatible) {
+		PrefUtils.writePref(child, "icalendar.notes.compatible", isNotesCompatible, this.isNotesCompatible, false);
+		this.isNotesCompatible = isNotesCompatible;
+	}
+
+	public boolean isOutlookCompatible() {
+		return isOutlookCompatible;
+	}
+
+	public boolean isStandardCompatible() {
+		return !(isNotesCompatible || isOutlookCompatible);
+	}
+
+	public void setOutlookCompatible(boolean isOutlookCompatible) {
+		PrefUtils.writePref(child, "icalendar.outlook.compatible", isOutlookCompatible, this.isOutlookCompatible,
+				false);
+		this.isOutlookCompatible = isOutlookCompatible;
+	}
+
+	public boolean isRelaxedParsing() {
+		return relaxedParsing;
+	}
+
+	public void setRelaxedParsing(boolean relaxedParsing) {
+		PrefUtils.writePref(child, "icalendar.relaxed.parsing", relaxedParsing, this.relaxedParsing, true);
+		this.relaxedParsing = relaxedParsing;
+	}
+
+	public boolean isRelaxedUnfolding() {
+		return relaxedUnfolding;
+	}
+
+	public void setRelaxedUnfolding(boolean relaxedUnfolding) {
+		PrefUtils.writePref(child, "icalendar.relaxed.unfolding", relaxedUnfolding, this.relaxedUnfolding, false);
+		this.relaxedUnfolding = relaxedUnfolding;
+	}
+
+	public boolean isRelaxedValidation() {
+		return relaxedValidation;
+	}
+
+	public void setRelaxedValidation(boolean relaxedValidation) {
+		PrefUtils.writePref(child, "icalendar.relaxed.validation", relaxedValidation, this.relaxedValidation, false);
+		this.relaxedValidation = relaxedUnfolding;
 	}
 
 	// General Methods

@@ -91,6 +91,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	transient ScConfigDb configDb;
 
 	private ConfigTextFile textImport;
+	private ICalendarConfig calendarImport;
 	private boolean isNewProfile = false;
 	private String myView;
 
@@ -163,7 +164,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		buildDialog();
 		verifyDatabase();
-		pack();
 	}
 
 	@Override
@@ -208,6 +208,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		panel.add(Box.createVerticalStrut(15));
 
 		textImport = new ConfigTextFile(this, pdaSettings);
+		calendarImport = new ICalendarConfig(pdaSettings);
 
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(true));
 		bDatabase.setSelectedItem(myImportFile.getName());
@@ -241,6 +242,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		gPanel.add(createTableAndWorksheetPanel(), c.gridmultipleCell(1, 1, 2, 0, 3, 2));
 		gPanel.add(textImport, c.gridmultipleCell(1, 3, 2, 0, 3, 1));
+		gPanel.add(calendarImport, c.gridmultipleCell(1, 5, 2, 0, 3, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
 		reloadImportFiles();
@@ -535,6 +537,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		if (myImportFile == ExportFile.TEXTFILE) {
 			textImport.setProperties();
+		} else if (myImportFile == ExportFile.ICAL) {
+			calendarImport.setProperties();
 		}
 
 		pdaSettings.setTableName(myImportFile.isDatabase() || myImportFile.isSpreadSheet()
@@ -586,6 +590,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	@Override
 	public void activateComponents() {
 		boolean isTextFile = myImportFile == ExportFile.TEXTFILE;
+		boolean isICalFile = myImportFile == ExportFile.ICAL;
 		boolean isFileValid = dbFactory.isConnected();
 
 		boolean isValidProfile = true;
@@ -622,7 +627,9 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			tabPane.setEnabledAt(1, isFileValid);
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
+			calendarImport.setVisible(isICalFile);
 			btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase() && bTablesWorksheets.isEnabled());
+			pack();
 		}
 	}
 }
