@@ -53,6 +53,7 @@ import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.Duration;
 import net.fortuna.ical4j.model.property.ExDate;
 import net.fortuna.ical4j.model.property.FreeBusy;
+import net.fortuna.ical4j.model.property.RDate;
 import net.fortuna.ical4j.model.property.RRule;
 import net.fortuna.ical4j.model.property.RequestStatus;
 import net.fortuna.ical4j.model.property.Status;
@@ -305,7 +306,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 				getText(prop, prefix + "RecurrenceId", false);
 				break;
 			case Property.RDATE:
-				getDateAndTime(prop, "RDate", null, true);
+				getRDates(prop, prefix + "RDateStart", "RDateEnd");
 				break;
 			case Property.RELATED_TO:
 				getText(prop, prefix + "RelatedTo", false);
@@ -472,6 +473,52 @@ public class ICalendar extends GeneralDB implements IConvert {
 		map.put(dateField, General.convertListToString(result));
 	}
 
+	@SuppressWarnings("unchecked")
+	private void getRDates(Property rDateProp, String dateStart, String dateEnd) {
+		List<String> result1 = new ArrayList<>();
+		List<String> result2 = new ArrayList<>();
+
+		RDate<?> rDate = (RDate<?>) rDateProp;
+		String temporalType = "PERIOD";
+		Optional<Parameter> parmOpt = rDateProp.getParameter(Parameter.VALUE);
+		if (parmOpt.isPresent()) {
+			temporalType = parmOpt.get().getValue();
+		}
+
+		if (temporalType.equals("PERIOD")) {
+			Optional<?> periodsOpt = rDate.getPeriods();
+			if (periodsOpt.isEmpty()) {
+				return;
+			}
+
+			Set<net.fortuna.ical4j.model.Period<?>> periods = (Set<net.fortuna.ical4j.model.Period<?>>) periodsOpt
+					.get();
+			periods.forEach(period -> {
+				result1.add(General.convertTimestamp((LocalDateTime) period.getStart()));
+				result2.add(General.convertTimestamp((LocalDateTime) period.getEnd()));
+			});
+		} else {
+			boolean isStart = true;
+			boolean isDateTime = temporalType.equals("DATE-TIME");
+			for (Object date : rDate.getDates()) {
+				if (isStart) {
+					result1.add(isDateTime ? General.convertTimestamp((LocalDateTime) date)
+							: General.convertDate((LocalDate) date));
+				} else {
+					result2.add(isDateTime ? General.convertTimestamp((LocalDateTime) date)
+							: General.convertDate((LocalDate) date));
+				}
+				isStart = !isStart;
+			}
+		}
+
+		fields.putIfAbsent(dateStart, FieldTypes.MEMO);
+		fields.putIfAbsent(dateEnd, FieldTypes.MEMO);
+
+		map.put(dateStart, General.convertListToString(result1));
+		map.put(dateEnd, General.convertListToString(result2));
+	}
+
 	private void getRules(Property propRule, String prefix) {
 		RRule<?> rrule = (RRule<?>) propRule;
 		Recur<?> recur = rrule.getRecur();
@@ -576,7 +623,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 
 	@SuppressWarnings("unchecked")
 	private void getDateAndTime(Property dateProp, String dateField, String timeField, boolean isTimestamp) {
-		getLocalDateOrTime(dateField, timeField, ((DateProperty<Temporal>) dateProp).getDate(), isTimestamp);
+		getLocalDateOrTime(dateField, timeField, ((DateProperty<?>) dateProp).getDate(), isTimestamp);
 	}
 
 	private void getLocalDateOrTime(String dateField, String timeField, Object obj, boolean isTimestamp) {
