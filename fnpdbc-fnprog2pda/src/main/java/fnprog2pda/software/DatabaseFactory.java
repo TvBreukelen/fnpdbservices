@@ -31,12 +31,12 @@ import application.utils.XComparator;
 import dbengine.IConvert;
 import dbengine.utils.DatabaseHelper;
 import fnprog2pda.dbengine.MSAccess;
+import fnprog2pda.dbengine.utils.MSTable;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.utils.IniFile;
 import fnprog2pda.utils.IniFileReader;
 import fnprog2pda.utils.IniItem;
 import fnprog2pda.utils.IniSection;
-import fnprog2pda.utils.MSTable;
 
 public final class DatabaseFactory implements IDatabaseFactory {
 	/**

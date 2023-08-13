@@ -712,7 +712,7 @@ public class VCard extends GeneralDB implements IConvert {
 	}
 
 	private void setField(String field, Object value) {
-		if (value == null || value.equals("")) {
+		if (value == null || value.equals("") || value.toString().startsWith("item")) {
 			return;
 		}
 
