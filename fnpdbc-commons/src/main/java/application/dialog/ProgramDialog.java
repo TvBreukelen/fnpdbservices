@@ -412,7 +412,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 					result.indexOf("/" + software.getName()));
 
 			// Check if there is a later version
-			if (version.compareTo(software.getVersion()) > 0) {
+			if (General.compareVersions(version, software.getVersion()) > 0) {
 				if (General.showConfirmMessage(this, GUIFactory.getMessage("newVersion", version, software.getName()),
 						GUIFactory.getText(CHECK_VERSION))) {
 					General.gotoWebsite(software.getSupport());
@@ -635,17 +635,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 			HelpDialog help = new HelpDialog(GUIFactory.getText("menuAcknow"), "acknowledgements");
 			help.setVisible(true);
 		}));
-		menu.addSeparator();
 
-		menu.add(GUIFactory.getJMenuItem(CHECK_VERSION, e -> {
-			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			try {
-				checkVersion(false);
-			} catch (Exception ex) {
-				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
-			}
-			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		}));
 		menuBar.add(menu);
 		return menuBar;
 	}
@@ -711,6 +701,18 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 			ConfigGeneral view = new ConfigGeneral();
 			view.setVisible(true);
 			activateComponents();
+		}));
+
+		result.addSeparator();
+
+		result.add(GUIFactory.getJMenuItem(CHECK_VERSION, e -> {
+			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			try {
+				checkVersion(false);
+			} catch (Exception ex) {
+				General.errorMessage(ProgramDialog.this, ex, GUIFactory.getTitle(CONFIG_ERROR), null);
+			}
+			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}));
 
 		return result;
