@@ -1,7 +1,13 @@
 package fnprog2pda.utils;
 
+import java.util.List;
+import java.util.prefs.Preferences;
+
+import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.preferences.GeneralSettings;
+import application.preferences.PrefUtils;
+import fnprog2pda.preferences.PrefFNProg;
 
 public class ConvertOldVersion {
 	private ConvertOldVersion() {
@@ -16,10 +22,47 @@ public class ConvertOldVersion {
 			return;
 		}
 
+		// Move DBase and FoxPro output files to xBase
+		convertOutputFilesToXBase();
+
 		if (!myGeneralSettings.isNoVersionCheck()) {
 			myGeneralSettings.setCheckVersionDate();
 		}
 
 		myGeneralSettings.setFnpVersion(TvBSoftware.FNPROG2PDA.getVersion());
 	}
+
+	private static void convertOutputFilesToXBase() {
+		PrefFNProg pref = PrefFNProg.getInstance();
+		moveProfiles(pref, "DBase3");
+		moveProfiles(pref, "DBase4");
+		moveProfiles(pref, "DBase5");
+		moveProfiles(pref, "FoxPro");
+	}
+
+	private static void moveProfiles(PrefFNProg pref, String projectToMove) {
+		if (!pref.projectExists(projectToMove)) {
+			return;
+		}
+
+		final String toProject = ExportFile.DBASE.getName();
+		List<String> profiles = pref.getProfiles(projectToMove);
+		if (!profiles.isEmpty()) {
+			pref.setProject(projectToMove);
+			profiles.forEach(profile -> {
+				String prof = profile;
+				if (pref.profileExists(toProject, prof)) {
+					prof += " (" + projectToMove + ")";
+				}
+				try {
+					Preferences copyFrom = pref.getParent().node(profile);
+					pref.copyProfile(copyFrom, toProject, prof);
+					PrefUtils.deleteNode(pref.getParent(), profile);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+		}
+	}
+
 }

@@ -131,6 +131,11 @@ General Public License for more details.
 ===================================================================================================
 
 
+Version 10.0
+------------
+Moved DBase and FoxPro output files to xBase
+
+
 Version 9.9
 -----------
 Created a Settings option for the HanDBase Desktop program. 
