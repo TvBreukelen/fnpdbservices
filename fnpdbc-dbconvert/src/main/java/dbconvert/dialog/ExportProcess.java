@@ -171,10 +171,6 @@ public class ExportProcess implements Runnable, IExportProcess {
 		case VCARD:
 			return new VCard(profile);
 		case DBASE:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
 			return new DBaseFile(profile);
 		case XML:
 			return new XmlFile(profile);

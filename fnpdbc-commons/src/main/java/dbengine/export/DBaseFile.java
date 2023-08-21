@@ -13,11 +13,11 @@ import com.linuxense.javadbf.DBFField;
 import com.linuxense.javadbf.DBFReader;
 import com.linuxense.javadbf.DBFWriter;
 
-import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
+import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 
@@ -38,9 +38,11 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		String memoF = myDatabase.substring(0, myDatabase.length() - 3);
 
 		if (isInputFile) {
-			memoF += myImportFile == ExportFile.FOXPRO ? "fpt" : "dbt";
-		} else {
-			memoF += myExportFile == ExportFile.FOXPRO ? "fpt" : "dbt";
+			if (General.existFile(memoF + "fpt")) {
+				memoF += "fpt";
+			} else if (General.existFile(memoF + "dbt")) {
+				memoF += "dbt";
+			}
 		}
 
 		outFile = new File(myDatabase);

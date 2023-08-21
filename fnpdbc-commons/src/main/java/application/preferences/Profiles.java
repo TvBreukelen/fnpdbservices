@@ -837,7 +837,7 @@ public abstract class Profiles extends Project {
 	}
 
 	private void copyProfile(String newProfileID) throws Exception {
-		PrefUtils.copyNode(child, getParent(), newProfileID, true);
+		PrefUtils.copyNode(child, getParent(), newProfileID);
 	}
 
 	public boolean profileExists(String profile) {

@@ -153,10 +153,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			case TEXTFILE:
 				dbConfig = new ConfigTextFile(pdaSettings, true);
 				break;
-			case DBASE3:
-			case DBASE4:
-			case DBASE5:
-			case FOXPRO:
+			case DBASE:
 				dbConfig = new XBaseCharsets(pdaSettings);
 				break;
 			default:
@@ -352,10 +349,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		case EXCEL:
 			pTopContainer.add(pOtherOptions);
 			break;
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
+		case DBASE:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;

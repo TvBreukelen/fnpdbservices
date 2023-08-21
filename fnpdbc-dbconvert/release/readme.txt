@@ -156,7 +156,8 @@ Added SQL database pagination.
 Filtering on NULL values is now supported for joined SQL tables.
 VCard export now supports hCards, jCards and xCards as well.
 Added iCalender import feature.
-Replaced ini file containing the Internet sites information by YAML.
+Replaced ini file containing the Internet sites information by a YAML file.
+Merged DBase 3/4/5 and FoxPro output files into xBase. 
 Updated external libraries and fixed minor bugs.
 
 

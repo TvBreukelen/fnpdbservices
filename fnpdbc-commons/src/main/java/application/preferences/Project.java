@@ -2,6 +2,7 @@ package application.preferences;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import application.interfaces.TvBSoftware;
@@ -99,14 +100,21 @@ public class Project {
 		projectID = project;
 	}
 
+	public boolean projectExists(String project) {
+		try {
+			return gParent.nodeExists(project);
+		} catch (BackingStoreException e) {
+			return false;
+		}
+	}
+
 	public boolean profileExists(String project, String profile) {
 		try {
-			if (!gParent.nodeExists(project)) {
-				return false;
+			if (projectExists(project)) {
+				Preferences p = gParent.node(project);
+				return p.nodeExists(profile);
 			}
-
-			Preferences p = gParent.node(project);
-			return p.nodeExists(profile);
+			return false;
 		} catch (Exception e) {
 			return false;
 		}
@@ -118,9 +126,9 @@ public class Project {
 		}
 	}
 
-	protected void copyProfile(Preferences child, String project, String profile) throws Exception {
+	public void copyProfile(Preferences child, String project, String profile) throws Exception {
 		Preferences p = gParent.node(project);
-		PrefUtils.copyNode(child, p, profile, true);
+		PrefUtils.copyNode(child, p, profile);
 	}
 
 	public void removeDatabase(String database) {

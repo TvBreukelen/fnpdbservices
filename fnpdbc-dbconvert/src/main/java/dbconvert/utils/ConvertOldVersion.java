@@ -1,5 +1,6 @@
 package dbconvert.utils;
 
+import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -9,6 +10,8 @@ import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.preferences.Databases;
 import application.preferences.GeneralSettings;
+import application.preferences.PrefUtils;
+import dbconvert.preferences.PrefDBConvert;
 
 public class ConvertOldVersion {
 	static GeneralSettings settings = GeneralSettings.getInstance();
@@ -28,10 +31,13 @@ public class ConvertOldVersion {
 			double vs = Double.parseDouble(version.substring(0, 3));
 			if (vs <= 6.8) {
 				// Rename DBase and FoxPro input files to xBase
-				convertToXBase();
+				convertInputFilesToXBase();
 			} else if ("7.1".equals(version)) {
 				// Extract host, port and database fields from database
 				convertMariaDB();
+			} else if (vs < 8.0) {
+				// Move DBase and FoxPro output files to xBase
+				convertOutputFilesToXBase();
 			}
 		} else if (TvBSoftware.DBCONVERT.getVersion().equals("7.3")) {
 			copyOldSettings();
@@ -44,20 +50,53 @@ public class ConvertOldVersion {
 		settings.setDbcVersion(TvBSoftware.DBCONVERT.getVersion());
 	}
 
-	private static void convertToXBase() {
+	private static void convertInputFilesToXBase() {
 		Databases dbases = Databases.getInstance(TvBSoftware.DBCONVERT);
 		for (String db : dbases.getDatabases()) {
 			dbases.setNode(db);
-			switch (dbases.getDatabaseType()) {
-			case DBASE3:
-			case DBASE4:
-			case DBASE5:
-			case FOXPRO:
+			switch (dbases.getDatabaseTypeAsString()) {
+			case "DBase3":
+			case "DBase4":
+			case "DBase5":
+			case "FoxPro":
 				dbases.setDatabaseType(ExportFile.DBASE);
 				break;
 			default:
 				continue;
 			}
+		}
+	}
+
+	private static void convertOutputFilesToXBase() {
+		PrefDBConvert pref = PrefDBConvert.getInstance();
+		moveProfiles(pref, "DBase3");
+		moveProfiles(pref, "DBase4");
+		moveProfiles(pref, "DBase5");
+		moveProfiles(pref, "FoxPro");
+	}
+
+	private static void moveProfiles(PrefDBConvert pref, String projectToMove) {
+		if (!pref.projectExists(projectToMove)) {
+			return;
+		}
+
+		final String toProject = ExportFile.DBASE.getName();
+		List<String> profiles = pref.getProfiles(projectToMove);
+		if (!profiles.isEmpty()) {
+			pref.setProject(projectToMove);
+			profiles.forEach(profile -> {
+				String prof = profile;
+				if (pref.profileExists(toProject, prof)) {
+					prof += " (" + projectToMove + ")";
+				}
+				try {
+					Preferences copyFrom = pref.getParent().node(profile);
+					pref.copyProfile(copyFrom, toProject, prof);
+					PrefUtils.deleteNode(pref.getParent(), profile);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
 		}
 	}
 

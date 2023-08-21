@@ -27,10 +27,6 @@ public enum ExportFile {
 	ICAL("iCalendar", FileType.ICS, 256, 3000, 256), //
 	VCARD("VCard", FileType.VCF, 256, 3000, 256), //
 	DBASE("xBase", FileType.DBF, 254, 32737, 128), //
-	DBASE3("DBase3", FileType.DBF, 254, 32737, 128), //
-	DBASE4("DBase4", FileType.DBF, 254, 32767, 255), //
-	DBASE5("DBase5", FileType.DBF, 254, 32767, 1024), //
-	FOXPRO("FoxPro", FileType.DBF, 254, 32767, 255), //
 	PARADOX("Paradox", FileType.PARADOX, 254, 32737, 128), //
 	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), //
 	JFILE("JFile5", FileType.PDB, 256, 10000, 50), //
@@ -71,13 +67,7 @@ public enum ExportFile {
 			result.remove(HANDBASE.name);
 		}
 
-		if (isImport) {
-			result.remove(DBASE3.name);
-			result.remove(DBASE4.name);
-			result.remove(DBASE5.name);
-			result.remove(FOXPRO.name);
-		} else {
-			result.remove(DBASE.name);
+		if (!isImport) {
 			result.remove(ACCESS.name);
 			result.remove(FIREBIRD.name);
 			result.remove(MARIADB.name);
@@ -118,16 +108,7 @@ public enum ExportFile {
 	}
 
 	public boolean isxBase() {
-		switch (this) {
-		case DBASE:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
-			return true;
-		default:
-			return false;
-		}
+		return this.equals(DBASE);
 	}
 
 	public boolean isSqlDatabase() {
@@ -339,10 +320,6 @@ public enum ExportFile {
 	public String getTrueValue() {
 		switch (this) {
 		case DBASE:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
 		case PARADOX:
 			return "T";
 		case SQLITE:
@@ -358,10 +335,6 @@ public enum ExportFile {
 	public String getFalseValue() {
 		switch (this) {
 		case DBASE:
-		case DBASE3:
-		case DBASE4:
-		case DBASE5:
-		case FOXPRO:
 		case PARADOX:
 			return "F";
 		case SQLITE:
