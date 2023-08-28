@@ -150,7 +150,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		return isConnected;
 	}
 
-	public void verifyDatabase(String pDatabase) throws Exception {
+	public void verifyDatabase(String pDatabase) throws FNProgException {
 		boolean isVersionNotFound = true;
 
 		// Load FNProg2PDA properties
@@ -193,7 +193,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		renameSection = properties.getSection("FieldRename");
 	}
 
-	public void loadConfiguration(String view) throws Exception {
+	public void loadConfiguration(String view) throws FNProgException {
 		ini = getIniFile("config/" + databaseType.getName() + "_" + view + ".ini");
 		currentTable = view;
 
@@ -299,16 +299,13 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		Map<String, String> tableHash = getSectionHash("tables");
 
 		for (Entry<String, String> entry : tableHash.entrySet()) {
-			if (dbTables.containsKey(entry.getKey())) {
-				continue;
-			}
-
 			String[] init = entry.getValue().split(",");
 			String[] info = init[0].split(";");
 			String origTable = info[0];
 
 			MSTable table = msAccess.getMSTable(origTable);
-			if (table == null) {
+
+			if (table == null || dbTables.containsKey(entry.getKey())) {
 				continue;
 			}
 
@@ -407,32 +404,34 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private void setDBFieldDefinitions(List<String> filterFields) {
 		Set<String> hHidden = getSectionHash("hideColumns", "columns");
 		for (MSTable table : dbTables.values()) {
-			Set<String> hHiddenColumns = getSectionHash("hideColumns", table.getName());
+			boolean ishideIDs = !table.getName().equals(currentTable);
 			for (FieldDefinition field : table.getFields()) {
 				String alias = field.getFieldAlias();
-
-				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
-					continue;
-				}
-
-				dbFieldDefinition.put(alias, field);
-
-				if (!hShowFields.contains(alias)) {
-					if (!table.isVisible()
-							|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
-									|| alias.equals(field.getTable()))
-							|| hHidden.contains(field.getFieldName())
-							|| hHiddenColumns.contains(field.getFieldName())) {
-						continue;
+				if (addFilterField(table, field, hHidden, ishideIDs)) {
+					dbSelectFields.add(field);
+					if (field.getFieldType() != FieldTypes.IMAGE) {
+						filterFields.add(alias);
 					}
-				}
-
-				dbSelectFields.add(field);
-				if (field.getFieldType() != FieldTypes.IMAGE) {
-					filterFields.add(alias);
 				}
 			}
 		}
+	}
+
+	private boolean addFilterField(MSTable table, FieldDefinition field, Set<String> hHidden, boolean isHideIDs) {
+		String alias = field.getFieldAlias();
+
+		if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
+			return false;
+		}
+
+		if (hHidden.contains(field.getFieldName())
+				|| isHideIDs && (field.getFieldName().startsWith("Mark") || field.getFieldName().endsWith("ID"))) {
+			return false;
+		}
+
+		dbFieldDefinition.put(alias, field);
+
+		return table.isVisible() && table.isShowAll() && field.getFieldName().indexOf("Sort") == -1;
 	}
 
 	private Set<String> getSectionHash(String sectionName, String key) {

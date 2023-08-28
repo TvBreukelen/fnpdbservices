@@ -32,8 +32,7 @@ Name            OS
 --------------------------------------------
 Calc            All platforms
 CSV             All platforms
-DBase           Microsoft Windows
-Foxpro          Microsoft Windows 
+xBase           Microsoft Windows
 JFile           Palm
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
@@ -134,6 +133,8 @@ General Public License for more details.
 Version 10.0
 ------------
 Moved DBase and FoxPro output files to xBase
+Extended the number of fields to be exported
+Minor bug fixes
 
 
 Version 9.9
