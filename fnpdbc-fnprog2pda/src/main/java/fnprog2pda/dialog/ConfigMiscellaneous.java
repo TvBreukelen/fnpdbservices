@@ -71,14 +71,15 @@ public class ConfigMiscellaneous extends BasicDialog {
 						"inclContentsItemTitle", "inclReleaseNo" },
 				{ "inclTrackArtist", "inclArtistRoles", "inclTrackItemTitle", "inclTrackSide", "inclTrackIndex",
 						"inclTrackLength" },
-				{ "inclContentsItemTitle", "inclContentsSide", "inclContentsIndex", "inclContentsLength" } };
+				{ "inclContentsItemTitle", "inclContentsSide", "inclContentsIndex", "inclContentsLength",
+						"inclCastRoles", "inclEntireCast" } };
 		final boolean[][] miscValues = {
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsOrigTitle(),
 						data.isUseOriginalTitle(), data.isUseContentsItemTitle(), data.isUseReleaseNo() },
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsItemTitle(),
 						data.isUseContentsSide(), data.isUseContentsIndex(), data.isUseContentsLength() },
 				{ data.isUseContentsSide(), data.isUseContentsItemTitle(), data.isUseContentsIndex(),
-						data.isUseContentsLength() } };
+						data.isUseContentsLength(), data.isUseRoles(), data.isUseEntireCast() } };
 
 		int index = software.ordinal() - 1;
 		booleanFields = new JCheckBox[miscText[index].length];
@@ -89,14 +90,12 @@ public class ConfigMiscellaneous extends BasicDialog {
 		}
 
 		String table = data.getTableName();
+		int[] exclContents = new int[0];
+
 		switch (software) {
 		case BOOKCAT:
 			if (table.equals("Contents")) {
-				int[] exclContents = { 0, 2, 4 };
-				for (int i : exclContents) {
-					booleanFields[i].setEnabled(false);
-					booleanFields[i].setSelected(false);
-				}
+				exclContents = new int[] { 0, 2, 4 };
 			}
 			break;
 		case CATRAXX:
@@ -105,18 +104,25 @@ public class ConfigMiscellaneous extends BasicDialog {
 				break;
 			}
 
-			int[] exclContents = { 0, 2, 3, 4, 5 };
+			exclContents = new int[] { 0, 2, 3, 4, 5 };
 			if (table.equals("Playlist")) {
 				exclContents = new int[] { 2, 3 };
 			}
-
-			for (int i : exclContents) {
-				booleanFields[i].setEnabled(false);
-				booleanFields[i].setSelected(false);
+			break;
+		case CATVIDS:
+			if (table.equals("Contents")) {
+				exclContents = new int[] { 0, 1, 2, 3 };
+			} else {
+				exclContents = new int[] { 4, 5 };
 			}
 			break;
 		default:
 			break;
+		}
+
+		for (int i : exclContents) {
+			booleanFields[i].setEnabled(false);
+			booleanFields[i].setSelected(false);
 		}
 
 		return result;
@@ -157,7 +163,8 @@ public class ConfigMiscellaneous extends BasicDialog {
 			data.setUseContentsSide(booleanFields[1].isSelected());
 			data.setUseContentsIndex(booleanFields[2].isSelected());
 			data.setUseContentsLength(booleanFields[3].isSelected());
-			data.setUseRoles(false);
+			data.setUseRoles(booleanFields[4].isSelected());
+			data.setUseEntireCast(booleanFields[5].isSelected());
 			data.setUseContentsOrigTitle(false);
 			data.setUseOriginalTitle(false);
 			data.setUseContentsPerson(false);

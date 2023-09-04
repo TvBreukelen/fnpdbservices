@@ -13,6 +13,7 @@ public class PrefFNProg extends Profiles {
 	private boolean useContentsOrigTitle;
 	private boolean useContentsPerson;
 	private boolean useContentsSide;
+	private boolean useEntireCast;
 	private boolean useOriginalTitle;
 	private boolean useReleaseNo;
 
@@ -35,6 +36,7 @@ public class PrefFNProg extends Profiles {
 		useContentsOrigTitle = getChild().getBoolean("use.contents.origtitle", false);
 		useContentsPerson = getChild().getBoolean("use.contents.person", false);
 		useContentsSide = getChild().getBoolean("use.contents.side", false);
+		useEntireCast = getChild().getBoolean("use.entire.cast", false);
 		useOriginalTitle = getChild().getBoolean("use.original.title", false);
 		useReleaseNo = getChild().getBoolean("use.releaseno", false);
 		useRoles = getChild().getBoolean("use.roles", false);
@@ -103,6 +105,15 @@ public class PrefFNProg extends Profiles {
 	public void setUseContentsPerson(boolean useContentsPerson) {
 		PrefUtils.writePref(getChild(), "use.contents.person", useContentsPerson, this.useContentsPerson, false);
 		this.useContentsPerson = useContentsPerson;
+	}
+
+	public boolean isUseEntireCast() {
+		return useEntireCast;
+	}
+
+	public void setUseEntireCast(boolean useEntireCast) {
+		PrefUtils.writePref(getChild(), "use.entire.cast", useEntireCast, this.useEntireCast, false);
+		this.useEntireCast = useEntireCast;
 	}
 
 	public boolean isUseReleaseNo() {

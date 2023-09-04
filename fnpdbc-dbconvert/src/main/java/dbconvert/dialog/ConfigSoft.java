@@ -121,7 +121,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void init() {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
-				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"));
+				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"), 6);
 
 		dbFactory = new XConverter();
 

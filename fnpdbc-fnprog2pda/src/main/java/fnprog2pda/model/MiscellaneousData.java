@@ -9,6 +9,7 @@ public class MiscellaneousData {
 	private boolean useContentsOrigTitle = false;
 	private boolean useContentsPerson = false;
 	private boolean useContentsSide = false;
+	private boolean useEntireCast = false;
 	private boolean useOriginalTitle = false;
 	private boolean useReleaseNo = false;
 	private boolean useRoles = false;
@@ -22,6 +23,7 @@ public class MiscellaneousData {
 		useContentsLength = profile.isUseContentsLength();
 		useContentsOrigTitle = profile.isUseContentsOrigTitle();
 		useContentsPerson = profile.isUseContentsPerson();
+		useEntireCast = profile.isUseEntireCast();
 		useOriginalTitle = profile.isUseOriginalTitle();
 		useReleaseNo = profile.isUseReleaseNo();
 
@@ -37,6 +39,7 @@ public class MiscellaneousData {
 		profile.setUseContentsOrigTitle(useContentsOrigTitle);
 		profile.setUseContentsPerson(useContentsPerson);
 		profile.setUseOriginalTitle(useOriginalTitle);
+		profile.setUseEntireCast(useEntireCast);
 		profile.setUseReleaseNo(useReleaseNo);
 		profile.setUseRoles(useRoles);
 	}
@@ -107,6 +110,14 @@ public class MiscellaneousData {
 
 	public boolean isUseOriginalTitle() {
 		return useOriginalTitle;
+	}
+
+	public boolean isUseEntireCast() {
+		return useEntireCast;
+	}
+
+	public void setUseEntireCast(boolean useEntireCast) {
+		this.useEntireCast = useEntireCast;
 	}
 
 	public void setUseOriginalTitle(boolean useOriginalTitle) {

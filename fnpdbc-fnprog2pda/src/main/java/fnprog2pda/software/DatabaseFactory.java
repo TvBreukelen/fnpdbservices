@@ -405,33 +405,37 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		Set<String> hHidden = getSectionHash("hideColumns", "columns");
 		for (MSTable table : dbTables.values()) {
 			boolean ishideIDs = !table.getName().equals(currentTable);
+
+			Set<String> hHiddenColumns = getSectionHash("hideColumns", table.getName());
 			for (FieldDefinition field : table.getFields()) {
 				String alias = field.getFieldAlias();
-				if (addFilterField(table, field, hHidden, ishideIDs)) {
-					dbSelectFields.add(field);
-					if (field.getFieldType() != FieldTypes.IMAGE) {
-						filterFields.add(alias);
+
+				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
+					continue;
+				}
+
+				if (ishideIDs && alias.endsWith("ID")) {
+					continue;
+				}
+
+				dbFieldDefinition.put(alias, field);
+
+				if (!hShowFields.contains(alias)) {
+					if (!table.isVisible()
+							|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
+									|| alias.equals(field.getTable()))
+							|| hHidden.contains(field.getFieldName())
+							|| hHiddenColumns.contains(field.getFieldName())) {
+						continue;
 					}
+				}
+
+				dbSelectFields.add(field);
+				if (field.getFieldType() != FieldTypes.IMAGE) {
+					filterFields.add(alias);
 				}
 			}
 		}
-	}
-
-	private boolean addFilterField(MSTable table, FieldDefinition field, Set<String> hHidden, boolean isHideIDs) {
-		String alias = field.getFieldAlias();
-
-		if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
-			return false;
-		}
-
-		if (hHidden.contains(field.getFieldName())
-				|| isHideIDs && (field.getFieldName().startsWith("Mark") || field.getFieldName().endsWith("ID"))) {
-			return false;
-		}
-
-		dbFieldDefinition.put(alias, field);
-
-		return table.isVisible() && table.isShowAll() && field.getFieldName().indexOf("Sort") == -1;
 	}
 
 	private Set<String> getSectionHash(String sectionName, String key) {

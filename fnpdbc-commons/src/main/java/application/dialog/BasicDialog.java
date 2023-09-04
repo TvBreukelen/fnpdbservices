@@ -47,9 +47,13 @@ public abstract class BasicDialog extends JDialog {
 	}
 
 	protected void init(String title) {
+		init(title, 3);
+	}
+
+	protected void init(String title, int pos) {
 		setTitle(title);
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		setLocation((dim.width - getSize().width) / 3, (dim.height - getSize().height) / 3);
+		setLocation((dim.width - getSize().width) / pos, (dim.height - getSize().height) / pos);
 
 		funcDocumentChange = new DocumentListener() {
 			@Override

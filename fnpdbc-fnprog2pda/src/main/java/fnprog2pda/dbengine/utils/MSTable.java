@@ -248,6 +248,10 @@ public class MSTable {
 				field.setFieldType(FieldTypes.getField(type.charAt(0)));
 			}
 			dbFieldsHash.put(newAlias, field);
+		} else if (oldAlias.equals("Dummy")) {
+			field = new FieldDefinition(newAlias, FieldTypes.TEXT, true);
+			field.setTable(getFromTable());
+			dbFieldsHash.put(newAlias, field);
 		}
 	}
 
