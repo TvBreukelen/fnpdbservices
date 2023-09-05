@@ -7,14 +7,17 @@ public enum FieldTypes {
 	 * @author Tom van Breukelen
 	 */
 
-	BIG_DECIMAL('b'), BOOLEAN('B'), CURRENCY('C'), DATE('D'), DURATION('t'), FLOAT('F'), FUSSY_DATE('d'), IMAGE('I'),
-	LINKED('l'), LIST('L'), MEMO('M'), NUMBER('N'), TEXT(' '), THUMBNAIL('X'), TIME('T'), TIMESTAMP('S'), YEAR('Y'),
-	UNKNOWN('U');
+	BIG_DECIMAL('b', true), BOOLEAN('B', true), CURRENCY('C', true), DATE('D', true), DURATION('t', true),
+	FLOAT('F', true), FUSSY_DATE('d', true), IMAGE('I', false), LINKED('l', false), LIST('L', false), MEMO('M', false),
+	NUMBER('N', true), TEXT(' ', true), THUMBNAIL('X', false), TIME('T', true), TIMESTAMP('S', true), YEAR('Y', true),
+	UNKNOWN('U', false);
 
 	private char typeID;
+	private boolean isSort;
 
-	FieldTypes(char type) {
-		typeID = type;
+	FieldTypes(char typeID, boolean isSort) {
+		this.typeID = typeID;
+		this.isSort = isSort;
 	}
 
 	public static FieldTypes getField(char id) {
@@ -66,6 +69,10 @@ public enum FieldTypes {
 		default:
 			return false;
 		}
+	}
+
+	public boolean isSort() {
+		return this.isSort;
 	}
 
 	public static final int MIN_MEMO_FIELD_LEN = 120;

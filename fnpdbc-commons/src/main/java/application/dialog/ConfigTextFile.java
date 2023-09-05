@@ -30,6 +30,8 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	 */
 	private static final long serialVersionUID = 8006516257526651336L;
 	private JRadioButton standardCsv;
+	private JRadioButton buddyCsv;
+	private JRadioButton otherCsv;
 
 	private JCheckBox inclHeaders;
 	private JCheckBox inclLinebreaks;
@@ -42,13 +44,20 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 	private Profiles pdaSettings;
 	private IConfigSoft dialog;
+	private BuddyExport buddy;
 
 	private static final String STANDARD_CSV = "standardCsv";
+	private static final String BUDDY_CSV = "buddyCsv";
 	private static final String OTHER_CSV = "otherCsv";
 
-	public ConfigTextFile(Profiles pref, boolean isExport) {
+	public enum BuddyExport {
+		None, BookBuddy, MovieBuddy, MusicBuddy
+	}
+
+	public ConfigTextFile(Profiles pref, boolean isExport, BuddyExport buddy) {
 		pdaSettings = pref;
 		this.isExport = isExport;
+		this.buddy = buddy;
 
 		buildDialog();
 		activateComponents();
@@ -56,7 +65,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 	// For imports only
 	public ConfigTextFile(IConfigSoft configSoft, Profiles prefText) {
-		this(prefText, false);
+		this(prefText, false, BuddyExport.None);
 		dialog = configSoft;
 	}
 
@@ -68,15 +77,22 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		index = delimiter.getSelectedIndex();
 		String delimiterChar = "\"'/$%".substring(index, index + 1);
 
+		String csvType = STANDARD_CSV;
+		if(otherCsv.isSelected()) {
+			csvType= OTHER_CSV;
+		} else if (buddyCsv.isSelected()) {
+			csvType= BUDDY_CSV;
+		}
+
 		if (isExport) {
 			pdaSettings.setUseHeader(inclHeaders.isSelected());
 			pdaSettings.setUseLinebreak(inclLinebreaks.isSelected());
 			pdaSettings.setMaxFileSize(splitFile.getSelectedIndex());
-			pdaSettings.setTextFileFormat(standardCsv.isSelected() ? STANDARD_CSV : OTHER_CSV);
+			pdaSettings.setTextFileFormat(csvType);
 			pdaSettings.setFieldSeparator(separatorChar);
 			pdaSettings.setTextDelimiter(delimiterChar);
 		} else {
-			pdaSettings.setImportTextFileFormat(standardCsv.isSelected() ? STANDARD_CSV : OTHER_CSV);
+			pdaSettings.setImportTextFileFormat(csvType);
 			pdaSettings.setImportFieldSeparator(separatorChar);
 			pdaSettings.setImportTextDelimiter(delimiterChar);
 		}
@@ -108,16 +124,29 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 		standardCsv = GUIFactory.getJRadioButton(STANDARD_CSV, ExportFile.HANDBASE.getName(),
 				e -> activateComponents());
-		JRadioButton otherCsv = GUIFactory.getJRadioButton(OTHER_CSV, ExportFile.TEXTFILE.getName(),
-				e -> activateComponents());
-		panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
+
+		otherCsv = GUIFactory.getJRadioButton(OTHER_CSV, ExportFile.TEXTFILE.getName(), e -> activateComponents());
+
+		buddyCsv = GUIFactory.getJRadioButton(buddy.name(), buddy.name(), e -> activateComponents());
+
+		if (buddy == BuddyExport.None) {
+			panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
+		} else {
+			panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, buddyCsv, otherCsv));
+		}
 
 		String csvType = isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat();
 
-		if (csvType.equals(OTHER_CSV)) {
+		switch (csvType) {
+		case OTHER_CSV:
 			otherCsv.setSelected(true);
-		} else {
+			break;
+		case BUDDY_CSV:
+			buddyCsv.setSelected(true);
+			break;
+		default:
 			standardCsv.setSelected(true);
+			break;
 		}
 
 		if (isExport) {
@@ -168,9 +197,9 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 	@Override
 	public void activateComponents() {
-		General.setEnabled(otherPanel, !standardCsv.isSelected());
+		General.setEnabled(otherPanel, otherCsv.isSelected());
 
-		if (standardCsv.isSelected()) {
+		if (!otherCsv.isSelected()) {
 			separator.setSelectedIndex(0);
 			delimiter.setSelectedIndex(0);
 			if (isExport) {

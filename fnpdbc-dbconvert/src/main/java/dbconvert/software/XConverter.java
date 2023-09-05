@@ -52,7 +52,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
 
-	private String[] dbFilterFields = new String[0]; // All fields that can be filtered or sorted
+	private String[] dbFilterFields; // All fields that can be filtered
+	private String[] dbSortFields; // All fields that can be sorted
 	private List<FieldDefinition> dbSelectFields; // All fields that can be exported
 	private Map<String, Object> dbDataRecord = new HashMap<>(); // database record
 
@@ -138,11 +139,13 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// Load dbFieldDefinition, dbSelectFields and dbFilterFields with all available
 		// fields of dbIn
 		int maxFields = dbFields.size();
-		dbFieldDefinition = new HashMap<>(maxFields);
-		dbSelectFields = new ArrayList<>();
+		dbFieldDefinition.clear();
+		dbSelectFields.clear();
 
 		List<String> filterFields = new ArrayList<>();
+		List<String> sortFields = new ArrayList<>();
 		filterFields.add("");
+		sortFields.add("");
 
 		for (int i = 0; i < maxFields; i++) {
 			FieldDefinition fieldDef = dbFields.get(i);
@@ -169,10 +172,17 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 			dbFieldDefinition.put(fieldName, fieldDef);
 			dbSelectFields.add(fieldDef);
-			filterFields.add(fieldName);
+
+			if (fieldDef.getFieldType() != FieldTypes.IMAGE) {
+				filterFields.add(fieldName);
+				if (fieldDef.getFieldType().isSort()) {
+					sortFields.add(fieldName);
+				}
+			}
 		}
 
 		dbFilterFields = filterFields.stream().sorted().toArray(String[]::new);
+		dbSortFields = sortFields.stream().sorted().toArray(String[]::new);
 		refreshUserFields();
 	}
 
@@ -265,6 +275,11 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	@Override
 	public String[] getDbFilterFields() {
 		return dbFilterFields;
+	}
+
+	@Override
+	public String[] getDbSortFields() {
+		return dbSortFields;
 	}
 
 	@Override

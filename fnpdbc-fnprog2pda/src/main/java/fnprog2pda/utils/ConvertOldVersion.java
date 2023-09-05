@@ -7,6 +7,7 @@ import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.preferences.GeneralSettings;
 import application.preferences.PrefUtils;
+import application.utils.General;
 import fnprog2pda.preferences.PrefFNProg;
 
 public class ConvertOldVersion {
@@ -22,8 +23,10 @@ public class ConvertOldVersion {
 			return;
 		}
 
-		// Move DBase and FoxPro output files to xBase
-		convertOutputFilesToXBase();
+		if (!version.isEmpty() && General.compareVersions("10.0", version) > 0) {
+			// Move DBase and FoxPro output files to xBase
+			convertOutputFilesToXBase();
+		}
 
 		if (!myGeneralSettings.isNoVersionCheck()) {
 			myGeneralSettings.setCheckVersionDate();

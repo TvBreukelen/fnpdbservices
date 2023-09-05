@@ -1,5 +1,7 @@
 package application.interfaces;
 
+import application.dialog.ConfigTextFile.BuddyExport;
+
 public interface IConfigSoft {
 	void setVisible(boolean isVisable);
 
@@ -8,6 +10,8 @@ public interface IConfigSoft {
 	default void verifyDatabase() {
 		// used only by DBConvert
 	}
+
+	BuddyExport getBuddyExport();
 
 	void activateComponents();
 }

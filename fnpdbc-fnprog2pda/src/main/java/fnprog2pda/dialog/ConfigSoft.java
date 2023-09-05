@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
 import application.dialog.ConfigSort;
+import application.dialog.ConfigTextFile.BuddyExport;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
@@ -138,7 +139,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 					return;
 				}
 			}
-			myView = view;
 			activateComponents();
 		};
 
@@ -355,8 +355,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private void refreshViews() {
 		myImportFile = dbFactory.getDatabaseType();
 		fdView.removeActionListener(funcSelectView);
-		DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(myImportFile.getViews());
-		fdView.setModel(model);
+		fdView.setModel(new DefaultComboBoxModel<>(myImportFile.getViews()));
 	}
 
 	private void reloadFieldSelect(String view) throws Exception {
@@ -364,6 +363,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		FNProgramvare mySoft = FNProgramvare.getSoftware(myImportFile);
 		mySoft.setupDBTranslation(isNewProfile); // Load user fields
 		fieldSelect.loadFieldPanel(mySoft.getDbUserFields());
+		myView = view;
+		configDb.reload();
 	}
 
 	@Override
@@ -416,5 +417,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		if (tabPane != null) {
 			tabPane.setEnabledAt(1, isFileValid);
 		}
+	}
+
+	@Override
+	public BuddyExport getBuddyExport() {
+		if (myImportFile == FNPSoftware.CATVIDS && myView.equals("Contents")) {
+			return BuddyExport.MovieBuddy;
+		}
+		return BuddyExport.None;
+
 	}
 }

@@ -75,12 +75,15 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private ExportFile myExportFile;
 
 	private IConfigDb dbConfig;
+	private IConfigSoft dialog;
 	private Profiles pdaSettings;
 	private PropertyChangeSupport support;
 
 	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
 		myExportFile = db;
 		pdaSettings = profiles;
+		this.dialog = dialog;
+
 		support = new PropertyChangeSupport(this);
 		support.addPropertyChangeListener(sc);
 
@@ -151,7 +154,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				dbConfig = new ConfigExcel(pdaSettings);
 				break;
 			case TEXTFILE:
-				dbConfig = new ConfigTextFile(pdaSettings, true);
+				dbConfig = new ConfigTextFile(pdaSettings, true, dialog.getBuddyExport());
 				break;
 			case DBASE:
 				dbConfig = new XBaseCharsets(pdaSettings);
@@ -286,6 +289,16 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("exportTo")));
 		bDatabase.setSelectedItem(myExportFile.getName());
+	}
+
+	public void reload() {
+		if (myExportFile == ExportFile.TEXTFILE) {
+			dbConfig = new ConfigTextFile(pdaSettings, true, dialog.getBuddyExport());
+			pOtherOptions.removeAll();
+			pOtherOptions.add((JComponent) dbConfig);
+			activateComponents();
+			dialog.pack();
+		}
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
 import application.dialog.ConfigSort;
 import application.dialog.ConfigTextFile;
+import application.dialog.ConfigTextFile.BuddyExport;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
@@ -631,5 +632,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase() && bTablesWorksheets.isEnabled());
 			pack();
 		}
+	}
+
+	@Override
+	public BuddyExport getBuddyExport() {
+		return BuddyExport.None;
 	}
 }

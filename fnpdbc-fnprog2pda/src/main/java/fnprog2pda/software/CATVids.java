@@ -2,9 +2,11 @@ package fnprog2pda.software;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -20,13 +22,16 @@ public class CATVids extends FNProgramvare {
 	 * @author Tom van Breukelen
 	 * @version 8.0
 	 */
+	private boolean useCategory = false;
 	private boolean useContentsLength = true;
 	private boolean useContentsSide = true;
 	private boolean useContentsIndex = true;
 	private boolean useDirector = true;
 	private boolean useEntireCast = false;
 	private boolean usePerson = false;
+	private boolean useStatus = false;
 
+	private static final String CATEGORY = "Category";
 	private static final String CONTENTS = "Contents";
 	private static final String CONTENTS_ITEM = "Contents.Item";
 	private static final String DIRECTOR = "Director";
@@ -34,6 +39,7 @@ public class CATVids extends FNProgramvare {
 	private static final String PERSON = "Person";
 	private static final String PERSON_SORT = "Person.PersonSort";
 	private static final String SORT_BY = "SortBy";
+	private static final String STATUS = "WatchingStatus";
 
 	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
 	private XComparator comp = new XComparator(sortList);
@@ -63,6 +69,9 @@ public class CATVids extends FNProgramvare {
 		if (!useDirector) {
 			useDirector = userFields.contains(DIRECTOR_SORT);
 		}
+
+		useCategory = userFields.contains(CATEGORY);
+		useStatus = userFields.contains(STATUS);
 
 		if (useContents) {
 			result.add(CONTENTS_ITEM);
@@ -95,68 +104,119 @@ public class CATVids extends FNProgramvare {
 		dbDataRecord.put(PERSON, "");
 		dbDataRecord.put(PERSON_SORT, "");
 
+		// Category
+		if (useCategory) {
+			getCategory(dbDataRecord, hashTable);
+		}
+
+		if (useStatus) {
+			List<Map<String, Object>> listContent = hashTable.getOrDefault(CONTENTS, new ArrayList<>());
+			if (!listContent.isEmpty()) {
+				Map<String, Object> contentMap = listContent.get(0);
+				Object viewed = contentMap.get("LastViewed");
+				dbDataRecord.put(STATUS, viewed == null ? "Not Watched" : "Watched");
+			}
+		}
+
 		if (usePerson || useDirector) {
 			getPersonWithRoles(dbDataRecord, hashTable);
 		}
 	}
 
+	private void getCategory(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
+		List<Map<String, Object>> listType = hashTable.getOrDefault("Type", new ArrayList<>());
+		if (!listType.isEmpty()) {
+			Map<String, Object> typeMap = listType.get(0);
+			Object type = typeMap.get("ContentsType");
+			if (type == null) {
+				dbDataRecord.put(CATEGORY, "Movies & TV Shows");
+			} else {
+				switch (type.toString()) {
+				case "Movie":
+				case "TV Shows":
+					dbDataRecord.put(CATEGORY, "Movies & TV Shows");
+					break;
+				default:
+					dbDataRecord.put(CATEGORY, type);
+				}
+			}
+		}
+	}
+
 	private void getPersonWithRoles(Map<String, Object> dbDataRecord,
 			Map<String, List<Map<String, Object>>> hashTable) {
-		StringBuilder result = new StringBuilder();
-		StringBuilder resultSort = new StringBuilder();
+
+		StringBuilder bCast = new StringBuilder();
+		StringBuilder bCastSort = new StringBuilder();
+		StringBuilder bSupportCast = new StringBuilder();
+		StringBuilder bSupportCastSort = new StringBuilder();
+		StringBuilder bDirector = new StringBuilder();
+		StringBuilder bDirectorSort = new StringBuilder();
 
 		List<Map<String, Object>> creditsList = hashTable.get("CreditsLink");
 		List<Map<String, Object>> personList = hashTable.get(PERSON);
+		Set<Integer> rowSet = new HashSet<>();
 
 		personList.forEach(map -> {
+			Integer personID = (Integer) map.get("PersonID");
 			List<Map<String, Object>> personCredit = creditsList.stream()
-					.filter(credit -> credit.get("PersonID").equals(map.get("PersonID"))).collect(Collectors.toList());
+					.filter(credit -> personID.equals(credit.get("PersonID")) && !rowSet.contains(personID))
+					.collect(Collectors.toList());
+			rowSet.add(personID);
 
-			if (!personCredit.isEmpty()) {
-				personCredit.forEach(pMap -> {
-					byte roleType = (Byte) pMap.get("RoleType");
-					boolean isActor = false;
-					switch (roleType) {
-					case 1: // Leading character
-						if (usePerson) {
-							isActor = true;
-						}
-						break;
-					case 2: // Supporting character
-						if (usePerson && useEntireCast) {
-							isActor = true;
-						}
-						break;
-					case 3: // Crew
-						if (useDirector) {
-							int roleID = (Integer) pMap.get("RoleID");
-							if (roleID == 1) {
-								dbDataRecord.put(DIRECTOR, map.get("Name"));
-								dbDataRecord.put(DIRECTOR_SORT, map.get(SORT_BY));
-							}
-						}
-						break;
-					default:
-						// Nothing to do
-						break;
-					}
+			personCredit.forEach(pMap -> {
+				byte roleType = (Byte) pMap.get("RoleType");
 
-					if (isActor) {
-						result.append(map.get("Name"));
-						resultSort.append(map.get(SORT_BY));
-						if (useRoles) {
-							result.append(" (" + pMap.get("Character") + ")");
-							resultSort.append(" (" + pMap.get("Character") + ")");
-						}
-						result.append("\n");
-						resultSort.append("\n");
+				switch (roleType) {
+				case 1: // Leading role
+					if (usePerson) {
+						addActorRole(bCast, bCastSort, map, pMap);
 					}
-				});
-			}
+					break;
+				case 2: // Supporting character
+					if (usePerson && useEntireCast) {
+						addActorRole(bSupportCast, bSupportCastSort, map, pMap);
+					}
+					break;
+				case 3: // Crew
+					if (useDirector) {
+						int roleID = (Integer) pMap.get("RoleID");
+						if (roleID == 1) {
+							bDirector.append(map.get("Name")).append("; ");
+							bDirectorSort.append(map.get(SORT_BY)).append("; ");
+						}
+					}
+					break;
+				default:
+					// Nothing to do
+					break;
+				}
+			});
 		});
 
-		dbDataRecord.put(PERSON, result.toString());
-		dbDataRecord.put(PERSON_SORT, resultSort.toString());
+		bCast.append(bSupportCast.toString());
+		bCastSort.append(bSupportCastSort.toString());
+		dbDataRecord.put(PERSON, bCast.toString());
+		dbDataRecord.put(PERSON_SORT, bCastSort.toString());
+
+		if (bDirector.length() > 2) {
+			bDirector.delete(bDirector.length() - 2, bDirector.length());
+			bDirectorSort.delete(bDirectorSort.length() - 2, bDirectorSort.length());
+			dbDataRecord.put(DIRECTOR, bDirector.toString());
+			dbDataRecord.put(DIRECTOR_SORT, bDirectorSort.toString());
+		}
+	}
+
+	private void addActorRole(StringBuilder bCast, StringBuilder bCastSort, Map<String, Object> map,
+			Map<String, Object> pMap) {
+		bCast.append(map.get("Name"));
+		bCastSort.append(map.get(SORT_BY));
+		if (useRoles) {
+			bCast.append(" (" + pMap.get("Character") + ")");
+			bCastSort.append(" (" + pMap.get("Character") + ")");
+		}
+		bCast.append("\n");
+		bCastSort.append("\n");
 	}
 
 	// method that returns the Video Contents as String

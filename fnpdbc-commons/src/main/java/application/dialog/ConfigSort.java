@@ -44,7 +44,7 @@ public class ConfigSort extends BasicDialog {
 
 	private final int numSort;
 
-	private String[] dbFilterFields;
+	private String[] dbSortFields;
 	private ExportFile myExportFile;
 
 	private boolean isGroupBy;
@@ -56,7 +56,7 @@ public class ConfigSort extends BasicDialog {
 	public ConfigSort(IDatabaseFactory dbFactory, SortData data) {
 		myExportFile = dbFactory.getExportFile();
 		pdaSettings = data;
-		dbFilterFields = dbFactory.getDbFilterFields();
+		dbSortFields = dbFactory.getDbSortFields();
 		numSort = myExportFile.getMaxSortFields();
 		jcSortField = new JComboBox[numSort];
 		cbGroupField = new JCheckBox[numSort];
@@ -146,7 +146,7 @@ public class ConfigSort extends BasicDialog {
 		}
 
 		if (hasCategories) {
-			jcCategoryField = new JComboBox<>(dbFilterFields);
+			jcCategoryField = new JComboBox<>(dbSortFields);
 			jcCategoryField.setSelectedItem(findFilterField(pdaSettings.getCategoryField()));
 			result.add(GUIFactory.getJLabel("category"), c.gridCell(1, index, 0, 0));
 			result.add(jcCategoryField, c.gridCell(2, index++, 2, 0));
@@ -160,7 +160,7 @@ public class ConfigSort extends BasicDialog {
 
 		for (int i = 0; i < numSort; i++) {
 			String sortField = findFilterField(pdaSettings.getSortField(i));
-			jcSortField[i] = new JComboBox<>(dbFilterFields);
+			jcSortField[i] = new JComboBox<>(dbSortFields);
 			jcSortField[i].setSelectedItem(sortField);
 			jcSortField[i].addActionListener(e -> {
 				btApply.setEnabled(true);
@@ -216,7 +216,7 @@ public class ConfigSort extends BasicDialog {
 	}
 
 	private String findFilterField(String field) {
-		for (String filter : dbFilterFields) {
+		for (String filter : dbSortFields) {
 			if (filter.equals(field)) {
 				return filter;
 			}

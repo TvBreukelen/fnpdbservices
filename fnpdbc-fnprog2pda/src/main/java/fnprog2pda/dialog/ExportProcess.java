@@ -22,6 +22,7 @@ import dbengine.export.PilotDB;
 import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
 import fnprog2pda.dbengine.MSAccess;
+import fnprog2pda.dbengine.export.MovieBuddy;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.FNProgramvare;
 
@@ -151,6 +152,10 @@ public class ExportProcess implements Runnable, IExportProcess {
 		case EXCEL:
 			return new Excel(profile);
 		case TEXTFILE:
+			String csvFormat = profile.getTextFileFormat();
+			if (csvFormat.equals("buddyCsv")) {
+				return new MovieBuddy(profile);
+			}
 			return new CsvFile(profile);
 		case DBASE:
 			return new DBaseFile(profile);

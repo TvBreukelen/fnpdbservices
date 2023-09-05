@@ -64,6 +64,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 	private Map<String, FieldDefinition> dbFieldDefinition = new HashMap<>();
 	private String[] dbFilterFields;
+	private String[] dbSortFields;
 	private List<FieldDefinition> dbSelectFields = new ArrayList<>();
 
 	private IniFile ini;
@@ -141,6 +142,11 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	@Override
+	public String[] getDbSortFields() {
+		return dbSortFields;
+	}
+
+	@Override
 	public List<FieldDefinition> getDbSelectFields() {
 		return dbSelectFields;
 	}
@@ -202,7 +208,10 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		dbTables.clear();
 
 		List<String> filterFields = new ArrayList<>();
+		List<String> sortFields = new ArrayList<>();
+
 		filterFields.add("");
+		sortFields.add("");
 		hShowFields.clear();
 
 		MSTable table = msAccess.getMSTable(currentTable);
@@ -230,11 +239,12 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 
 		setUserFieldDefinitions();
-		setDBFieldDefinitions(filterFields);
+		setDBFieldDefinitions(filterFields, sortFields);
 
 		dbSelectFields = dbSelectFields.stream().sorted(Comparator.comparing(FieldDefinition::getFieldAlias))
 				.collect(Collectors.toList());
 		dbFilterFields = filterFields.stream().sorted().toArray(String[]::new);
+		dbSortFields = sortFields.stream().sorted().toArray(String[]::new);
 	}
 
 	private List<IniSection> getSections(String key) {
@@ -401,7 +411,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 	}
 
-	private void setDBFieldDefinitions(List<String> filterFields) {
+	private void setDBFieldDefinitions(List<String> filterFields, List<String> sortFields) {
 		Set<String> hHidden = getSectionHash("hideColumns", "columns");
 		for (MSTable table : dbTables.values()) {
 			boolean ishideIDs = !table.getName().equals(currentTable);
@@ -433,6 +443,9 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				dbSelectFields.add(field);
 				if (field.getFieldType() != FieldTypes.IMAGE) {
 					filterFields.add(alias);
+					if (field.getFieldType().isSort()) {
+						sortFields.add(alias);
+					}
 				}
 			}
 		}
@@ -543,5 +556,4 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 		return result;
 	}
-
 }

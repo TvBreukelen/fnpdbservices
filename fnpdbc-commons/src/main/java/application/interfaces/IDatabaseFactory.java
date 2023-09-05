@@ -16,6 +16,8 @@ public interface IDatabaseFactory {
 
 	String[] getDbFilterFields();
 
+	String[] getDbSortFields();
+
 	List<Object> getFilterFieldValues(String pField) throws Exception;
 
 	boolean isConnected();

@@ -221,6 +221,10 @@ public final class General {
 	 * @param pDate the date in the database table to be converted
 	 */
 	public static String convertFussyDate(String pDate) {
+		return convertFussyDate(pDate, mySettings.getDateFormat());
+	}
+
+	public static String convertFussyDate(String pDate, String dateFormat) {
 		boolean isNoDay = true;
 		boolean isNoMonth = true;
 
@@ -251,7 +255,6 @@ public final class General {
 			return pDate;
 		}
 
-		String dateFormat = mySettings.getDateFormat();
 		if (isNoDay) {
 			dateFormat = dateFormat.replace("d", "");
 		}
@@ -271,6 +274,7 @@ public final class General {
 
 		DateTimeFormatter sd = DateTimeFormatter.ofPattern(dateFormat);
 		return sd.format(date);
+
 	}
 
 	/**

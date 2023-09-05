@@ -1,5 +1,12 @@
 Release Notes
 
+
+Version 10.1
+------------
+Added cast, roles and director fields from CATVids
+Bug Fix: some Person fields were disappeared from the selection list
+
+
 Version 10.0
 ------------
 Moved DBase and FoxPro output files to xBase
