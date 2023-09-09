@@ -420,11 +420,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			for (FieldDefinition field : table.getFields()) {
 				String alias = field.getFieldAlias();
 
-				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
-					continue;
-				}
-
-				if (ishideIDs && alias.endsWith("ID")) {
+				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN
+						|| ishideIDs && alias.endsWith("ID")) {
 					continue;
 				}
 

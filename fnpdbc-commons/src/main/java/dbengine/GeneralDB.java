@@ -20,6 +20,7 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
+import dbengine.export.CsvFile;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class GeneralDB {
@@ -223,6 +224,11 @@ public abstract class GeneralDB {
 		result = result.replace("\r", "");
 		if (result.endsWith("\n")) {
 			result = result.substring(0, result.length() - 1);
+		}
+
+		if (this instanceof CsvFile) {
+			// Replace " with '
+			return result.replace("\"", "'");
 		}
 		return result;
 	}

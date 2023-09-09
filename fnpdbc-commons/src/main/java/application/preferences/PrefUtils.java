@@ -59,6 +59,15 @@ public class PrefUtils {
 			p1.put(key, copyFrom.get(key, ""));
 		}
 
+		if (copyFrom.nodeExists("userlist")) {
+			Preferences p2 = copyFrom.node("userlist");
+			Preferences p3 = p1.node("userlist");
+			keys = p2.keys();
+			for (String key : keys) {
+				p3.put(key, p2.get(key, ""));
+			}
+		}
+
 		copyTo.flush();
 	}
 

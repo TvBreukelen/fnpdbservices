@@ -13,6 +13,7 @@ public class MiscellaneousData {
 	private boolean useOriginalTitle = false;
 	private boolean useReleaseNo = false;
 	private boolean useRoles = false;
+	private boolean useSeason = false;
 
 	private String tableName;
 	private String profileID;
@@ -26,6 +27,7 @@ public class MiscellaneousData {
 		useEntireCast = profile.isUseEntireCast();
 		useOriginalTitle = profile.isUseOriginalTitle();
 		useReleaseNo = profile.isUseReleaseNo();
+		useSeason = profile.isUseSeason();
 
 		useRoles = profile.isUseRoles();
 		tableName = profile.getTableName();
@@ -42,6 +44,7 @@ public class MiscellaneousData {
 		profile.setUseEntireCast(useEntireCast);
 		profile.setUseReleaseNo(useReleaseNo);
 		profile.setUseRoles(useRoles);
+		profile.setUseSeason(useSeason);
 	}
 
 	public String getTableName() {
@@ -138,5 +141,13 @@ public class MiscellaneousData {
 
 	public void setUseRoles(boolean useRoles) {
 		this.useRoles = useRoles;
+	}
+
+	public boolean isUseSeason() {
+		return useSeason;
+	}
+
+	public void setUseSeason(boolean useSeason) {
+		this.useSeason = useSeason;
 	}
 }

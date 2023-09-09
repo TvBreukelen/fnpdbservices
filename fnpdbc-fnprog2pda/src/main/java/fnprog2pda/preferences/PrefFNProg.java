@@ -16,6 +16,7 @@ public class PrefFNProg extends Profiles {
 	private boolean useEntireCast;
 	private boolean useOriginalTitle;
 	private boolean useReleaseNo;
+	private boolean useSeason;
 
 	private boolean useRoles;
 
@@ -40,6 +41,7 @@ public class PrefFNProg extends Profiles {
 		useOriginalTitle = getChild().getBoolean("use.original.title", false);
 		useReleaseNo = getChild().getBoolean("use.releaseno", false);
 		useRoles = getChild().getBoolean("use.roles", false);
+		useSeason = getChild().getBoolean("use.season", false);
 	}
 
 	public boolean isUseContentsIndex() {
@@ -133,4 +135,14 @@ public class PrefFNProg extends Profiles {
 		PrefUtils.writePref(getChild(), "use.roles", useRoles, this.useRoles, false);
 		this.useRoles = useRoles;
 	}
+
+	public boolean isUseSeason() {
+		return useSeason;
+	}
+
+	public void setUseSeason(boolean useSeason) {
+		PrefUtils.writePref(getChild(), "use.season", useSeason, this.useSeason, false);
+		this.useSeason = useSeason;
+	}
+
 }

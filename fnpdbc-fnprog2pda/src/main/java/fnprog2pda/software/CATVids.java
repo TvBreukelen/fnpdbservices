@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import application.interfaces.FieldTypes;
 import application.utils.General;
@@ -22,56 +25,63 @@ public class CATVids extends FNProgramvare {
 	 * @author Tom van Breukelen
 	 * @version 8.0
 	 */
-	private boolean useCategory = false;
-	private boolean useContentsLength = true;
-	private boolean useContentsSide = true;
-	private boolean useContentsIndex = true;
-	private boolean useDirector = true;
-	private boolean useEntireCast = false;
-	private boolean usePerson = false;
-	private boolean useStatus = false;
+	private boolean useAudio;
+	private boolean useCategory;
+	private boolean useContentsLength;
+	private boolean useContentsSide;
+	private boolean useEpisodeNo;
+	private boolean useDirector;
+	private boolean useEntireCast;
+	private boolean usePerson;
+	private boolean useStatus;
+	private boolean useSeason;
+	private boolean useType;
+	private boolean useMovieBuddy;
 
+	private static final String AUDIO = "Audio";
+	private static final String AUDIO_LANGUAGE = "AudioLanguageSort";
 	private static final String CATEGORY = "Category";
 	private static final String CONTENTS = "Contents";
 	private static final String CONTENTS_ITEM = "Contents.Item";
 	private static final String DIRECTOR = "Director";
 	private static final String DIRECTOR_SORT = "DirectorSort";
+	private static final String EPISODE_NO = "EpisodeNo";
+	private static final String EPISODES = "Episodes";
+	private static final String LAST_VIEWED = "LastViewed";
+	private static final String LENGTH = "Length";
 	private static final String PERSON = "Person";
 	private static final String PERSON_SORT = "Person.PersonSort";
+	private static final String SEASON = "Season";
 	private static final String SORT_BY = "SortBy";
 	private static final String STATUS = "WatchingStatus";
+	private static final String SUPPORT_CAST = "SupportCast";
+	private static final String SUPPORT_CAST_SORT = "SupportCastSort";
+	private static final String TYPE = "Type";
+	private static final String VIDEO_TITLE = "Video.TitleSort";
 
-	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
-	private XComparator comp = new XComparator(sortList);
+	private Map<String, FieldTypes> sortContents = new LinkedHashMap<>();
+	private Map<String, FieldTypes> sortMedia = new LinkedHashMap<>();
+	private XComparator compContents = new XComparator(sortContents);
+	private XComparator compMedia = new XComparator(sortMedia);
 
 	public CATVids() {
 		super();
 		useContentsLength = pdaSettings.isUseContentsLength();
 		useContentsSide = pdaSettings.isUseContentsSide();
-		useContentsIndex = pdaSettings.isUseContentsIndex();
+		useEpisodeNo = pdaSettings.isUseContentsIndex();
+		useSeason = pdaSettings.isUseSeason();
 		useEntireCast = pdaSettings.isUseEntireCast();
+		useMovieBuddy = pdaSettings.getTextFileFormat().equals("buddyCsv");
 
-		sortList.put(CONTENTS_ITEM, FieldTypes.NUMBER);
-		sortList.put("Index", FieldTypes.NUMBER);
+		sortContents.put(CONTENTS_ITEM, FieldTypes.NUMBER);
+		sortContents.put(EPISODE_NO, FieldTypes.NUMBER);
+		sortMedia.put("DiscNo", FieldTypes.NUMBER);
 	}
 
 	@Override
 	protected List<String> getContentsFields(List<String> userFields) {
 		List<String> result = new ArrayList<>();
-
 		useContents = userFields.contains(CONTENTS);
-		usePerson = userFields.contains(PERSON);
-		if (!usePerson) {
-			usePerson = userFields.contains(PERSON_SORT);
-		}
-
-		useDirector = userFields.contains(DIRECTOR);
-		if (!useDirector) {
-			useDirector = userFields.contains(DIRECTOR_SORT);
-		}
-
-		useCategory = userFields.contains(CATEGORY);
-		useStatus = userFields.contains(STATUS);
 
 		if (useContents) {
 			result.add(CONTENTS_ITEM);
@@ -79,10 +89,89 @@ public class CATVids extends FNProgramvare {
 			result.add("NumberOfSegments");
 		}
 
+		return result;
+	}
+
+	@Override
+	protected List<String> getSystemFields(List<String> userFields) {
+		List<String> result = new ArrayList<>();
+		if (!myTable.equals(CONTENTS)) {
+			return result;
+		}
+
+		useAudio = userFields.contains(AUDIO);
+		usePerson = userFields.contains(PERSON);
+		useDirector = userFields.contains(DIRECTOR);
+		useCategory = userFields.contains(CATEGORY);
+		useStatus = userFields.contains(STATUS);
+		useType = userFields.contains(TYPE);
+
+		if (useAudio && !userFields.contains(AUDIO_LANGUAGE)) {
+			result.add(AUDIO_LANGUAGE);
+		}
+
+		if (useCategory && !useType) {
+			result.add("Type");
+			useType = true;
+		}
+
+		if (!usePerson) {
+			usePerson = userFields.contains(PERSON_SORT);
+		}
+
+		if (!useDirector) {
+			useDirector = userFields.contains(DIRECTOR_SORT);
+		}
+
+		if (useStatus && !userFields.contains(LAST_VIEWED)) {
+			result.add(LAST_VIEWED);
+		}
+
 		if (useDirector && !usePerson) {
 			result.add(PERSON);
 		}
 
+		if (!userFields.contains(VIDEO_TITLE)) {
+			result.add(VIDEO_TITLE);
+		}
+
+		if (useSeason && !userFields.contains(SEASON)) {
+			result.add(SEASON);
+		}
+
+		if (!userFields.contains("Series")) {
+			result.add("Series");
+		}
+
+		if (useEpisodeNo && !userFields.contains(EPISODE_NO)) {
+			result.add(EPISODE_NO);
+		}
+
+		if (useEpisodeNo && !userFields.contains(EPISODES)) {
+			result.add(EPISODES);
+		}
+
+		if (useContentsLength && !userFields.contains(LENGTH)) {
+			result.add(LENGTH);
+		}
+
+		if (useContentsLength && !userFields.contains("OrigAirDate")) {
+			result.add("OrigAirDate");
+		}
+		return result;
+	}
+
+	@Override
+	protected List<String> getMandatorySortFields(List<String> sortList) {
+		if (!useMovieBuddy) {
+			return sortList;
+		}
+
+		List<String> result = new ArrayList<>();
+		result.add(VIDEO_TITLE);
+		result.add("DiscNo");
+		result.add(EPISODE_NO);
+		result.addAll(sortList);
 		return result;
 	}
 
@@ -99,23 +188,44 @@ public class CATVids extends FNProgramvare {
 			}
 		}
 
+		if (!myTable.equals(CONTENTS)) {
+			return;
+		}
+
 		dbDataRecord.put(DIRECTOR, "");
 		dbDataRecord.put(DIRECTOR_SORT, "");
 		dbDataRecord.put(PERSON, "");
 		dbDataRecord.put(PERSON_SORT, "");
 
-		// Category
-		if (useCategory) {
-			getCategory(dbDataRecord, hashTable);
+		if (useAudio) {
+			getAudioTracks(dbDataRecord, hashTable);
+		}
+
+		if (useCategory || useType) {
+			getCategoryAndType(dbDataRecord, hashTable);
+		}
+
+		if (useSeason) {
+			Number season = (Number) dbDataRecord.getOrDefault(SEASON, 0);
+			if (season.intValue() == 0) {
+				dbDataRecord.put(SEASON, "");
+			}
+		}
+
+		if (useEpisodeNo) {
+			Number episodeNo = (Number) dbDataRecord.getOrDefault(EPISODE_NO, 0);
+			if (episodeNo.intValue() == 0) {
+				dbDataRecord.put(EPISODE_NO, "");
+				dbDataRecord.put(EPISODES, "");
+			} else {
+				dbDataRecord.put(EPISODES, dbDataRecord.get("Title"));
+				dbDataRecord.put("Title", dbDataRecord.get(VIDEO_TITLE));
+			}
 		}
 
 		if (useStatus) {
-			List<Map<String, Object>> listContent = hashTable.getOrDefault(CONTENTS, new ArrayList<>());
-			if (!listContent.isEmpty()) {
-				Map<String, Object> contentMap = listContent.get(0);
-				Object viewed = contentMap.get("LastViewed");
-				dbDataRecord.put(STATUS, viewed == null ? "Not Watched" : "Watched");
-			}
+			String viewed = dbDataRecord.getOrDefault(LAST_VIEWED, "").toString();
+			dbDataRecord.put(STATUS, StringUtils.isEmpty(viewed) ? "Not Watched" : "Watched");
 		}
 
 		if (usePerson || useDirector) {
@@ -123,21 +233,41 @@ public class CATVids extends FNProgramvare {
 		}
 	}
 
-	private void getCategory(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
-		List<Map<String, Object>> listType = hashTable.getOrDefault("Type", new ArrayList<>());
+	private void getAudioTracks(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
+		List<Map<String, Object>> listAudio = hashTable.getOrDefault(AUDIO, new ArrayList<>());
+		if (!listAudio.isEmpty()) {
+			List<Map<String, Object>> listLanguage = hashTable.getOrDefault("AudioLanguage", new ArrayList<>());
+			if (listLanguage.size() == listAudio.size()) {
+				StringBuilder result = new StringBuilder();
+				for (int i = 0; i < listLanguage.size(); i++) {
+					result.append(listLanguage.get(i).get("Language")).append(" (");
+					result.append(listAudio.get(i).get(AUDIO)).append("); ");
+				}
+				result.delete(result.length() - 1, result.length());
+				dbDataRecord.put(AUDIO, result.toString());
+			}
+		}
+	}
+
+	private void getCategoryAndType(Map<String, Object> dbDataRecord,
+			Map<String, List<Map<String, Object>>> hashTable) {
+		List<Map<String, Object>> listType = hashTable.getOrDefault(TYPE, new ArrayList<>());
+
 		if (!listType.isEmpty()) {
 			Map<String, Object> typeMap = listType.get(0);
-			Object type = typeMap.get("ContentsType");
-			if (type == null) {
-				dbDataRecord.put(CATEGORY, "Movies & TV Shows");
-			} else {
+			Object type = typeMap.get("ContentsTypeID");
+			if (type != null) {
+				dbDataRecord.put(TYPE, typeMap.get("ContentsType"));
 				switch (type.toString()) {
-				case "Movie":
-				case "TV Shows":
+				case "1":
 					dbDataRecord.put(CATEGORY, "Movies & TV Shows");
 					break;
+				case "2":
+					dbDataRecord.put(CATEGORY, "Movies & TV Shows");
+					dbDataRecord.put(TYPE, "Single Season");
+					break;
 				default:
-					dbDataRecord.put(CATEGORY, type);
+					dbDataRecord.put(CATEGORY, typeMap.get("ContentsType"));
 				}
 			}
 		}
@@ -146,12 +276,17 @@ public class CATVids extends FNProgramvare {
 	private void getPersonWithRoles(Map<String, Object> dbDataRecord,
 			Map<String, List<Map<String, Object>>> hashTable) {
 
-		StringBuilder bCast = new StringBuilder();
-		StringBuilder bCastSort = new StringBuilder();
-		StringBuilder bSupportCast = new StringBuilder();
-		StringBuilder bSupportCastSort = new StringBuilder();
-		StringBuilder bDirector = new StringBuilder();
-		StringBuilder bDirectorSort = new StringBuilder();
+		// Maps by leading role and their character role
+		Map<String, String> castMap = new LinkedHashMap<>();
+		Map<String, String> castSortMap = new LinkedHashMap<>();
+
+		// Maps by supporting role and their character role
+		Map<String, String> castSupportMap = new LinkedHashMap<>();
+		Map<String, String> castSupportSortMap = new LinkedHashMap<>();
+
+		// Maps by director
+		Set<String> directorSet = new LinkedHashSet<>();
+		Set<String> directorSortSet = new LinkedHashSet<>();
 
 		List<Map<String, Object>> creditsList = hashTable.get("CreditsLink");
 		List<Map<String, Object>> personList = hashTable.get(PERSON);
@@ -170,21 +305,17 @@ public class CATVids extends FNProgramvare {
 				switch (roleType) {
 				case 1: // Leading role
 					if (usePerson) {
-						addActorRole(bCast, bCastSort, map, pMap);
+						addActorRole(castMap, castSortMap, map, pMap);
 					}
 					break;
 				case 2: // Supporting character
 					if (usePerson && useEntireCast) {
-						addActorRole(bSupportCast, bSupportCastSort, map, pMap);
+						addActorRole(castSupportMap, castSupportSortMap, map, pMap);
 					}
 					break;
 				case 3: // Crew
 					if (useDirector) {
-						int roleID = (Integer) pMap.get("RoleID");
-						if (roleID == 1) {
-							bDirector.append(map.get("Name")).append("; ");
-							bDirectorSort.append(map.get(SORT_BY)).append("; ");
-						}
+						addDirector(directorSet, directorSortSet, map, pMap);
 					}
 					break;
 				default:
@@ -194,29 +325,79 @@ public class CATVids extends FNProgramvare {
 			});
 		});
 
-		bCast.append(bSupportCast.toString());
-		bCastSort.append(bSupportCastSort.toString());
+		StringBuilder bCast = getCastFromCastMap(castMap);
+		StringBuilder bCastSort = getCastFromCastMap(castSortMap);
+		StringBuilder bSupportCast = getCastFromCastMap(castSupportMap);
+		StringBuilder bSupportCastSort = getCastFromCastMap(castSupportSortMap);
+
+		dbDataRecord.put(SUPPORT_CAST, bSupportCast.toString());
+		dbDataRecord.put(SUPPORT_CAST_SORT, bSupportCastSort.toString());
 		dbDataRecord.put(PERSON, bCast.toString());
 		dbDataRecord.put(PERSON_SORT, bCastSort.toString());
+		dbDataRecord.put(DIRECTOR, getDirector(directorSet));
+		dbDataRecord.put(DIRECTOR_SORT, getDirector(directorSortSet));
+	}
 
-		if (bDirector.length() > 2) {
-			bDirector.delete(bDirector.length() - 2, bDirector.length());
-			bDirectorSort.delete(bDirectorSort.length() - 2, bDirectorSort.length());
-			dbDataRecord.put(DIRECTOR, bDirector.toString());
-			dbDataRecord.put(DIRECTOR_SORT, bDirectorSort.toString());
+	private Object getDirector(Set<String> directorSet) {
+		if (directorSet.isEmpty()) {
+			return "";
+		}
+
+		StringBuilder result = new StringBuilder();
+		directorSet.forEach(d -> result.append(d).append("; "));
+		result.delete(result.length() - 2, result.length());
+		return result.toString();
+	}
+
+	private StringBuilder getCastFromCastMap(Map<String, String> castMap) {
+		StringBuilder result = new StringBuilder();
+		if (!castMap.isEmpty()) {
+			for (Entry<String, String> cast : castMap.entrySet()) {
+				result.append(cast.getKey());
+				if (!cast.getValue().isEmpty()) {
+					result.append(" (").append(cast.getValue()).append(")");
+				}
+				result.append("\n");
+			}
+		}
+		return result;
+	}
+
+	private void addDirector(Set<String> directorSet, Set<String> directorSortSet, Map<String, Object> map,
+			Map<String, Object> pMap) {
+		int roleID = (Integer) pMap.get("RoleID");
+		if (roleID == 1) {
+			String directorName = map.getOrDefault("Name", "").toString();
+			String directorSortName = map.getOrDefault(SORT_BY, "").toString();
+
+			if (!directorName.isEmpty()) {
+				directorSet.add(directorName);
+			}
+
+			if (!directorSortName.isEmpty()) {
+				directorSortSet.add(directorSortName);
+			}
 		}
 	}
 
-	private void addActorRole(StringBuilder bCast, StringBuilder bCastSort, Map<String, Object> map,
+	private void addActorRole(Map<String, String> castMap, Map<String, String> castSortMap, Map<String, Object> map,
 			Map<String, Object> pMap) {
-		bCast.append(map.get("Name"));
-		bCastSort.append(map.get(SORT_BY));
+
+		String castName = map.getOrDefault("Name", "").toString();
+		String castSortName = map.getOrDefault(SORT_BY, "").toString();
+
+		String character = "";
 		if (useRoles) {
-			bCast.append(" (" + pMap.get("Character") + ")");
-			bCastSort.append(" (" + pMap.get("Character") + ")");
+			character = pMap.getOrDefault("Character", "").toString();
 		}
-		bCast.append("\n");
-		bCastSort.append("\n");
+
+		if (!castName.isEmpty()) {
+			castMap.putIfAbsent(castName, character);
+		}
+
+		if (!castSortName.isEmpty()) {
+			castSortMap.putIfAbsent(castSortName, character);
+		}
 	}
 
 	// method that returns the Video Contents as String
@@ -224,13 +405,11 @@ public class CATVids extends FNProgramvare {
 		StringBuilder result = new StringBuilder();
 		StringBuilder newLine = new StringBuilder();
 
-		String side = null;
-		String sideTitle = null;
-		Integer sidePlaytime = null;
-		Integer sideAPlaytime = null;
-		Integer sideBPlaytime = null;
-		String sideATitle = null;
-		String sideBTitle = null;
+		String sideATitle = "";
+		String sideBTitle = "";
+
+		Number sideAPlaytime = 0;
+		Number sideBPlaytime = 0;
 		String oldSide = "";
 
 		int item = 0;
@@ -250,12 +429,13 @@ public class CATVids extends FNProgramvare {
 
 		// Sort Media by Contents.Item
 		if (mediaList != null && mediaList.size() > 1) {
-			Collections.sort(contentsList, comp);
+			Collections.sort(contentsList, compContents);
+			Collections.sort(mediaList, compMedia);
 		}
 
 		for (Map<String, Object> map : contentsList) {
 			String title = (String) map.get("Title");
-			side = (String) map.get("Side");
+			String side = (String) map.get("Side");
 
 			if (mediaList != null) {
 				item = ((Number) map.get(CONTENTS_ITEM)).intValue();
@@ -266,12 +446,12 @@ public class CATVids extends FNProgramvare {
 						newLine.append("\n");
 					}
 
-					sideTitle = (String) mapItem.get("Title");
+					String sideTitle = (String) mapItem.get("Title");
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
 
-					sideAPlaytime = (Integer) mapItem.get("SideALength");
-					sideBPlaytime = (Integer) mapItem.get("SideBLength");
+					sideAPlaytime = (Number) mapItem.get("SideALength");
+					sideBPlaytime = (Number) mapItem.get("SideBLength");
 
 					if (sideTitle == null) {
 						sideTitle = "";
@@ -285,7 +465,7 @@ public class CATVids extends FNProgramvare {
 					if (useContentsItemTitle) {
 						newLine.append(item + " - ");
 						if (useContentsLength) {
-							newLine.append("(" + General.convertDuration((Integer) mapItem.get("Length")) + ") ");
+							newLine.append("(" + General.convertDuration((Integer) mapItem.get(LENGTH)) + ") ");
 						}
 
 						newLine.append(sideTitle);
@@ -294,8 +474,8 @@ public class CATVids extends FNProgramvare {
 				}
 
 				if (isDoubleSided && useContentsSide && !side.equals(oldSide)) {
-					sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
-					sideTitle = side.equals("A") ? sideATitle : sideBTitle;
+					int sidePlaytime = side.equals("A") ? sideAPlaytime.intValue() : sideBPlaytime.intValue();
+					String sideTitle = side.equals("A") ? sideATitle : sideBTitle;
 					if (sideTitle == null) {
 						sideTitle = "";
 					}
@@ -313,12 +493,25 @@ public class CATVids extends FNProgramvare {
 				}
 			}
 
-			if (useContentsIndex) {
-				newLine.append(General.convertTrack((Number) map.get("Index"), itemLength) + " ");
+			if (useSeason) {
+				Number season = (Number) map.getOrDefault(SEASON, 0);
+				if (season.intValue() > 0) {
+					newLine.append("S" + General.convertTrack(season, 2));
+					if (useEpisodeNo) {
+						newLine.append("E");
+					}
+				}
+			}
+
+			if (useEpisodeNo) {
+				Number episode = (Number) map.getOrDefault(EPISODE_NO, 0);
+				if (episode.intValue() > 0) {
+					newLine.append(General.convertTrack((Number) map.get(EPISODE_NO), itemLength) + " ");
+				}
 			}
 
 			if (useContentsLength) {
-				newLine.append("(" + General.convertDuration((Integer) map.get("Length")) + ") ");
+				newLine.append("(" + General.convertDuration((Integer) map.get(LENGTH)) + ") ");
 			}
 
 			newLine.append(title);

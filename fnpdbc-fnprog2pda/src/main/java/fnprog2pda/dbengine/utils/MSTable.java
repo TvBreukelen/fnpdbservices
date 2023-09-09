@@ -251,6 +251,9 @@ public class MSTable {
 		} else if (oldAlias.equals("Dummy")) {
 			field = new FieldDefinition(newAlias, FieldTypes.TEXT, true);
 			field.setTable(getFromTable());
+			if (type != null) {
+				field.setFieldType(FieldTypes.getField(type.charAt(0)));
+			}
 			dbFieldsHash.put(newAlias, field);
 		}
 	}

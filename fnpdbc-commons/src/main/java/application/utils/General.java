@@ -101,7 +101,6 @@ public final class General {
 	public static final boolean IS_MAC_OSX = System.getProperty("os.name").equals("Mac OS X");
 	public static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Win");
 	public static final boolean IS_X64 = System.getProperty("sun.arch.data.model", "32").equals("64");
-	public static final boolean IS_GTK = UIManager.getLookAndFeel().getClass().getName().contains("GTK");
 
 	private static final Map<String, ImageIcon> ICON_MAP = new HashMap<>();
 

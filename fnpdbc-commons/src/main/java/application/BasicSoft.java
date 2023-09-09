@@ -44,9 +44,12 @@ public abstract class BasicSoft {
 	protected List<String> myCategories = new ArrayList<>(); // Stores the List categories
 	protected List<FieldDefinition> dbTableModelFields = new ArrayList<>(); // All fields loaded in the TableModel
 	protected List<FieldDefinition> dbInfoToWrite = new ArrayList<>(); // Export fields for the export file
-	protected Map<String, FieldDefinition> dbFieldDefinition; // Definition of all fields in the database
-	protected List<BasisField> dbUserFields = new ArrayList<>(); // User defined fields (note: userFields +
-																	// dbSpecialFields = dbInfoToWrite)
+
+	// Definition of all fields in the database
+	protected Map<String, FieldDefinition> dbFieldDefinition = new HashMap<>();
+
+	// User defined fields (note: userFields + dbSpecialFields = dbInfoToWrite)
+	protected List<BasisField> dbUserFields = new ArrayList<>();
 
 	protected boolean isFilterDefined;
 	protected ExportFile myExportFile = ExportFile.EXCEL;
@@ -54,7 +57,7 @@ public abstract class BasicSoft {
 	protected Profiles pdaSettings;
 
 	protected int numFilter;
-	private Timer timer;
+	protected Timer timer;
 
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 

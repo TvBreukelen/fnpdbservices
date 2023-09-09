@@ -23,6 +23,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
+import application.dialog.ConfigTextFile.BuddyExport;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigDb;
 import application.interfaces.IConfigSoft;
@@ -299,6 +300,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			activateComponents();
 			dialog.pack();
 		}
+	}
+
+	public boolean isBuddySupported() {
+		return myExportFile == ExportFile.TEXTFILE && dialog.getBuddyExport() != BuddyExport.None;
 	}
 
 	@Override

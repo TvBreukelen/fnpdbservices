@@ -114,7 +114,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		btMisc = GUIFactory.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
-			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
+			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView),
+					configDb.isBuddySupported());
 			miscDialog.setVisible(true);
 		});
 
@@ -421,10 +422,15 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	@Override
 	public BuddyExport getBuddyExport() {
-		if (myImportFile == FNPSoftware.CATVIDS && myView.equals("Contents")) {
-			return BuddyExport.MovieBuddy;
+		switch (myImportFile) {
+		case BOOKCAT:
+			return myView.equals("Book") ? BuddyExport.BookBuddy : BuddyExport.None;
+		case CATRAXX:
+			return myView.equals("Track") ? BuddyExport.MusicBuddy : BuddyExport.None;
+		case CATVIDS:
+			return myView.equals("Contents") ? BuddyExport.MovieBuddy : BuddyExport.None;
+		default:
+			return BuddyExport.None;
 		}
-		return BuddyExport.None;
-
 	}
 }

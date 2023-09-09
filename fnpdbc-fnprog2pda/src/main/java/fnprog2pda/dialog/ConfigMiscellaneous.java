@@ -8,11 +8,14 @@ import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 import application.dialog.BasicDialog;
 import application.utils.GUIFactory;
+import application.utils.General;
 import fnprog2pda.model.MiscellaneousData;
 import fnprog2pda.software.FNPSoftware;
 
@@ -30,11 +33,13 @@ public class ConfigMiscellaneous extends BasicDialog {
 
 	transient MiscellaneousData data;
 	boolean isSaved = false;
+	boolean isBuddySupported;
 
-	public ConfigMiscellaneous(FNPSoftware softwareID, MiscellaneousData data) {
+	public ConfigMiscellaneous(FNPSoftware softwareID, MiscellaneousData data, boolean isBuddySupported) {
 		super();
 		software = softwareID;
 		this.data = data;
+		this.isBuddySupported = isBuddySupported;
 		init();
 	}
 
@@ -63,30 +68,39 @@ public class ConfigMiscellaneous extends BasicDialog {
 
 	@Override
 	protected Component createCenterPanel() {
-		JPanel result = new JPanel(new GridLayout(3, 2));
-		result.setBorder(BorderFactory.createEtchedBorder());
+		JPanel result = new JPanel();
+		result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
+		result.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		boolean isTrack = false;
+		boolean isContents = false;
+
+		JPanel panel = new JPanel(new GridLayout(3, 2));
+		panel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("Include")));
 
 		final String[][] miscText = {
 				{ "inclContentsAuthor", "inclAuthorRoles", "inclContentsOrigTitle", "useOrigTitle",
 						"inclContentsItemTitle", "inclReleaseNo" },
 				{ "inclTrackArtist", "inclArtistRoles", "inclTrackItemTitle", "inclTrackSide", "inclTrackIndex",
 						"inclTrackLength" },
-				{ "inclContentsItemTitle", "inclContentsSide", "inclContentsIndex", "inclContentsLength",
-						"inclCastRoles", "inclEntireCast" } };
+				{ "inclContentsItemTitle", "inclContentsSide", "inclContentsSeason", "inclContentsIndex",
+						"inclContentsLength", "inclCastRoles", "inclEntireCast" } };
+
 		final boolean[][] miscValues = {
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsOrigTitle(),
 						data.isUseOriginalTitle(), data.isUseContentsItemTitle(), data.isUseReleaseNo() },
 				{ data.isUseContentsPerson(), data.isUseRoles(), data.isUseContentsItemTitle(),
 						data.isUseContentsSide(), data.isUseContentsIndex(), data.isUseContentsLength() },
-				{ data.isUseContentsSide(), data.isUseContentsItemTitle(), data.isUseContentsIndex(),
-						data.isUseContentsLength(), data.isUseRoles(), data.isUseEntireCast() } };
+				{ data.isUseContentsSide(), data.isUseContentsItemTitle(), data.isUseSeason(),
+						data.isUseContentsIndex(), data.isUseContentsLength(), data.isUseRoles(),
+						data.isUseEntireCast() } };
 
 		int index = software.ordinal() - 1;
 		booleanFields = new JCheckBox[miscText[index].length];
 
 		for (int i = 0; i < booleanFields.length; i++) {
 			booleanFields[i] = GUIFactory.getJCheckBox(miscText[index][i], miscValues[index][i]);
-			result.add(booleanFields[i]);
+			panel.add(booleanFields[i]);
 		}
 
 		String table = data.getTableName();
@@ -97,24 +111,25 @@ public class ConfigMiscellaneous extends BasicDialog {
 			if (table.equals("Contents")) {
 				exclContents = new int[] { 0, 2, 4 };
 			}
+			isBuddySupported = false;
 			break;
 		case CATRAXX:
-			boolean exclude = table.equals("Track") || table.equals("Playlist");
-			if (!exclude) {
+			isTrack = table.equals("Track");
+			if (isTrack) {
 				break;
 			}
 
-			exclContents = new int[] { 0, 2, 3, 4, 5 };
 			if (table.equals("Playlist")) {
 				exclContents = new int[] { 2, 3 };
 			}
 			break;
 		case CATVIDS:
-			if (table.equals("Contents")) {
-				exclContents = new int[] { 0, 1, 2, 3 };
-			} else {
-				exclContents = new int[] { 4, 5 };
+			isContents = table.equals("Contents");
+			if (isContents) {
+				exclContents = new int[] { 0, 1 };
+				break;
 			}
+			exclContents = new int[] { 5, 6 };
 			break;
 		default:
 			break;
@@ -125,13 +140,27 @@ public class ConfigMiscellaneous extends BasicDialog {
 			booleanFields[i].setSelected(false);
 		}
 
+		result.add(panel);
+
+		if (isBuddySupported) {
+			result.add(Box.createVerticalStrut(10));
+
+			String title = isTrack ? "MusicBuddy track grouping" : "MovieBuddy TV-Show grouping";
+			String noGroup = isTrack ? "by track (= default)" : "by episode (= default)";
+			String subGroup = isTrack ? "by item (CD, vinyl, etc.)" : "by single season";
+			String totalGroup = isTrack ? "by complete album(set)" : "by complete video(set)";
+
+			result.add(General.addVerticalButtons(title, new JRadioButton(noGroup), new JRadioButton(subGroup),
+					new JRadioButton(totalGroup)));
+		}
 		return result;
 	}
 
 	protected Component createBottomPanel() {
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panel.add(GUIFactory.getJButton("apply", funcSave));
-		return panel;
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		result.add(GUIFactory.getJButton("apply", funcSave));
+		result.add(Box.createHorizontalStrut(4));
+		return result;
 	}
 
 	@Override
@@ -147,6 +176,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 			data.setUseContentsSide(false);
 			data.setUseContentsIndex(false);
 			data.setUseContentsLength(false);
+			data.setUseSeason(false);
 			break;
 		case CATRAXX:
 			data.setUseContentsPerson(booleanFields[0].isSelected());
@@ -157,14 +187,16 @@ public class ConfigMiscellaneous extends BasicDialog {
 			data.setUseContentsLength(booleanFields[5].isSelected());
 			data.setUseContentsOrigTitle(false);
 			data.setUseOriginalTitle(false);
+			data.setUseSeason(false);
 			break;
 		case CATVIDS:
 			data.setUseContentsItemTitle(booleanFields[0].isSelected());
 			data.setUseContentsSide(booleanFields[1].isSelected());
-			data.setUseContentsIndex(booleanFields[2].isSelected());
-			data.setUseContentsLength(booleanFields[3].isSelected());
-			data.setUseRoles(booleanFields[4].isSelected());
-			data.setUseEntireCast(booleanFields[5].isSelected());
+			data.setUseSeason(booleanFields[2].isSelected());
+			data.setUseContentsIndex(booleanFields[3].isSelected());
+			data.setUseContentsLength(booleanFields[4].isSelected());
+			data.setUseRoles(booleanFields[5].isSelected());
+			data.setUseEntireCast(booleanFields[6].isSelected());
 			data.setUseContentsOrigTitle(false);
 			data.setUseOriginalTitle(false);
 			data.setUseContentsPerson(false);

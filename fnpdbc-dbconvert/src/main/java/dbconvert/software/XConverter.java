@@ -54,7 +54,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	private String[] dbFilterFields; // All fields that can be filtered
 	private String[] dbSortFields; // All fields that can be sorted
-	private List<FieldDefinition> dbSelectFields; // All fields that can be exported
+	private List<FieldDefinition> dbSelectFields = new ArrayList<>(); // All fields that can be exported
 	private Map<String, Object> dbDataRecord = new HashMap<>(); // database record
 
 	private static final String FILTER_FIELD = "{filterfield}";

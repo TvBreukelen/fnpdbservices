@@ -146,6 +146,10 @@ public class CsvFile extends GeneralDB implements IConvert {
 				.map(field -> convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString())
 				.collect(Collectors.toList());
 
+		writeOutputFile(list);
+	}
+
+	protected void writeOutputFile(List<String> list) throws IOException {
 		if (useNoLineBreaks) {
 			list = list.stream().map(e -> e.replace("\n", " ").replace("\r", "")).collect(Collectors.toList());
 		}

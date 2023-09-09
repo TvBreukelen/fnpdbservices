@@ -43,16 +43,19 @@ public class BookCAT extends FNProgramvare {
 	private static final String SERIES_SORT = "SeriesSort";
 	private static final String TITLE = "Title";
 
-	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
-	private XComparator comp = new XComparator(sortList);
+	private Map<String, FieldTypes> sortContents = new LinkedHashMap<>();
+	private Map<String, FieldTypes> sortMedia = new LinkedHashMap<>();
+	private XComparator compContents = new XComparator(sortContents);
+	private XComparator compMedia = new XComparator(sortMedia);
 
 	public BookCAT() {
 		super();
 		useOriginalTitle = pdaSettings.isUseOriginalTitle();
 		inclReleaseNo = pdaSettings.isUseReleaseNo();
 		personField = new String[] { AUTHOR, "AuthorSort" };
-		sortList.put(CONTENTS_ITEM, FieldTypes.NUMBER);
-		sortList.put("Index", FieldTypes.NUMBER);
+		sortContents.put(CONTENTS_ITEM, FieldTypes.NUMBER);
+		sortContents.put("Index", FieldTypes.NUMBER);
+		sortMedia.put("Index", FieldTypes.NUMBER);
 	}
 
 	@Override
@@ -281,7 +284,8 @@ public class BookCAT extends FNProgramvare {
 
 		// Sort Media by Contents.Item
 		if (useContentsItemTitle && mediaList != null && mediaList.size() > 1) {
-			Collections.sort(contentsList, comp);
+			Collections.sort(contentsList, compContents);
+			Collections.sort(mediaList, compMedia);
 		}
 
 		for (Map<String, Object> map : contentsList) {

@@ -73,8 +73,8 @@ public abstract class FNProgramvare extends BasicSoft {
 	protected boolean useRoles;
 	protected boolean useContents;
 	protected boolean useContentsPerson;
-	protected boolean useContentsOrigTitle = true;
-	protected boolean useContentsItemTitle = true;
+	protected boolean useContentsOrigTitle;
+	protected boolean useContentsItemTitle;
 	protected boolean usePersonSort;
 
 	private MSTable msTable;
@@ -190,20 +190,26 @@ public abstract class FNProgramvare extends BasicSoft {
 			addField(dbField, usrList, true, true);
 		}
 
+		// Add (optional) sort fields to extend and enforce sorting
+		getMandatorySortFields(pdaSettings.getSortFields()).forEach(dbField -> addSortField(usrList, dbField));
+
 		// Add the System specific fields to the fields to export, but hide them in
 		// xViewer and don't export them
 		for (String dbField : getSystemFields(usrList)) {
 			addField(dbField, usrList, true, false);
 		}
+	}
 
-		// Add the sort fields to the fields to export
-		pdaSettings.getSortFields().forEach(dbField -> {
-			FieldDefinition field = dbFieldDefinition.get(dbField);
-			if (field != null) {
-				addField(dbField, usrList, true, false);
-				dbSortList.put(field.getFieldAlias(), field.getFieldType());
-			}
-		});
+	protected List<String> getMandatorySortFields(List<String> sortList) {
+		return sortList;
+	}
+
+	private void addSortField(List<String> usrList, String dbField) {
+		FieldDefinition field = dbFieldDefinition.get(dbField);
+		if (field != null) {
+			addField(dbField, usrList, true, false);
+			dbSortList.putIfAbsent(field.getFieldAlias(), field.getFieldType());
+		}
 	}
 
 	private FieldDefinition addField(String dbField, List<String> usrList, boolean isSystemField,

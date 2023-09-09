@@ -36,8 +36,10 @@ public class CATraxx extends FNProgramvare {
 	private static final String ALBUM = "Album";
 	private static final String TITLE = "Title";
 
-	private Map<String, FieldTypes> sortList = new LinkedHashMap<>();
-	private XComparator comp = new XComparator(sortList);
+	private Map<String, FieldTypes> sortTracks = new LinkedHashMap<>();
+	private Map<String, FieldTypes> sortMedia = new LinkedHashMap<>();
+	private XComparator compTracks = new XComparator(sortTracks);
+	private XComparator compMedia = new XComparator(sortMedia);
 
 	public CATraxx() {
 		super();
@@ -50,7 +52,7 @@ public class CATraxx extends FNProgramvare {
 
 	@Override
 	protected List<String> getContentsFields(List<String> userFields) {
-		List<String> result = new ArrayList<>(15);
+		List<String> result = new ArrayList<>();
 
 		boolean useArtist = userFields.contains(personField[0]);
 		isBoxSet = myTable.equals("BoxSet");
@@ -72,7 +74,7 @@ public class CATraxx extends FNProgramvare {
 				result.add("Album.BoxSetID");
 				result.add("Format.FormatID");
 				result.add("ContentsLink.AlbumID");
-				sortList.put(BOX_ITEM, FieldTypes.NUMBER);
+				sortTracks.put(BOX_ITEM, FieldTypes.NUMBER);
 				useRoles = true;
 				return result;
 			}
@@ -87,8 +89,9 @@ public class CATraxx extends FNProgramvare {
 				result.add("Media.Item");
 			}
 
-			sortList.put(TRACKS_ITEM, FieldTypes.NUMBER);
-			sortList.put("Index", FieldTypes.NUMBER);
+			sortTracks.put(TRACKS_ITEM, FieldTypes.NUMBER);
+			sortTracks.put("Index", FieldTypes.NUMBER);
+			sortMedia.put("DiscNo", FieldTypes.NUMBER);
 
 		}
 		return result;
@@ -230,7 +233,7 @@ public class CATraxx extends FNProgramvare {
 			contentsList.get(i).put(FORMAT, format.get(FORMAT));
 		}
 
-		Collections.sort(contentsList, comp);
+		Collections.sort(contentsList, compTracks);
 		StringBuilder newLine = new StringBuilder();
 
 		for (Map<String, Object> map : contentsList) {
@@ -283,7 +286,8 @@ public class CATraxx extends FNProgramvare {
 
 		// Sort Media by Tracks.Item
 		if (mediaList != null && mediaList.size() > 1) {
-			Collections.sort(contentsList, comp);
+			Collections.sort(contentsList, compTracks);
+			Collections.sort(mediaList, compMedia);
 		}
 
 		for (Map<String, Object> map : contentsList) {
