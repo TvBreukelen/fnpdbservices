@@ -15,6 +15,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import application.interfaces.FieldTypes;
+import application.utils.BasisField;
 import application.utils.General;
 import application.utils.XComparator;
 
@@ -41,22 +42,26 @@ public class CATVids extends FNProgramvare {
 	private static final String AUDIO = "Audio";
 	private static final String AUDIO_LANGUAGE = "AudioLanguageSort";
 	private static final String CATEGORY = "Category";
+	private static final String COLLECTION_TYPE = "CollectionType";
 	private static final String CONTENTS = "Contents";
 	private static final String CONTENTS_ITEM = "Contents.Item";
+	private static final String CONTENTS_TYPE = "Type";
 	private static final String DIRECTOR = "Director";
-	private static final String DIRECTOR_SORT = "DirectorSort";
 	private static final String EPISODE_NO = "EpisodeNo";
 	private static final String EPISODES = "Episodes";
+	private static final String GENRES = "GenreSort";
+	private static final String IMDB_ID = "IMDbID";
 	private static final String LAST_VIEWED = "LastViewed";
-	private static final String LENGTH = "Length";
 	private static final String PERSON = "Person";
-	private static final String PERSON_SORT = "Person.PersonSort";
+	private static final String PRODUCTION_YEAR = "ProductionYear";
+	private static final String RUN_TIME = "Length";
 	private static final String SEASON = "Season";
-	private static final String SORT_BY = "SortBy";
+	private static final String SERIES = "Series";
 	private static final String STATUS = "WatchingStatus";
 	private static final String SUPPORT_CAST = "SupportCast";
-	private static final String SUPPORT_CAST_SORT = "SupportCastSort";
-	private static final String TYPE = "Type";
+	private static final String SYNOPSIS = "Synopsis";
+	private static final String TITLE = "Title";
+	private static final String TV_CREATOR = "TVCreator";
 	private static final String VIDEO_TITLE = "Video.TitleSort";
 
 	private Map<String, FieldTypes> sortContents = new LinkedHashMap<>();
@@ -76,6 +81,34 @@ public class CATVids extends FNProgramvare {
 		sortContents.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortContents.put(EPISODE_NO, FieldTypes.NUMBER);
 		sortMedia.put("DiscNo", FieldTypes.NUMBER);
+	}
+
+	@Override
+	protected List<BasisField> getRequiredFields() {
+		List<BasisField> result = new ArrayList<>();
+		if (useMovieBuddy) {
+			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
+			result.add(new BasisField(CONTENTS_TYPE, CONTENTS_TYPE, "Content Type", FieldTypes.TEXT));
+			result.add(new BasisField(COLLECTION_TYPE, COLLECTION_TYPE, "Collection Type", FieldTypes.TEXT));
+			result.add(new BasisField(SERIES, SERIES, SERIES, FieldTypes.TEXT));
+			result.add(new BasisField(RUN_TIME, RUN_TIME, "Runtime", FieldTypes.DURATION));
+			result.add(new BasisField(PRODUCTION_YEAR, PRODUCTION_YEAR, "Release Year", FieldTypes.DURATION));
+			result.add(new BasisField(GENRES, GENRES, "Genres", FieldTypes.TEXT));
+			result.add(new BasisField(DIRECTOR, DIRECTOR, "Directors", FieldTypes.TEXT));
+			result.add(new BasisField(TV_CREATOR, TV_CREATOR, "TV Creators", FieldTypes.TEXT));
+			result.add(new BasisField(PERSON, PERSON, "Cast", FieldTypes.MEMO));
+			result.add(new BasisField(IMDB_ID, IMDB_ID, "IMDB ID", FieldTypes.TEXT));
+			result.add(new BasisField(EPISODES, EPISODES, "TV Episodes", FieldTypes.MEMO));
+			result.add(new BasisField(SYNOPSIS, SYNOPSIS, "Summary", FieldTypes.MEMO));
+			result.add(new BasisField(STATUS, STATUS, "Status", FieldTypes.TEXT));
+			result.add(new BasisField(SEASON, SEASON, "TV Season", FieldTypes.NUMBER));
+			result.add(new BasisField(CATEGORY, CATEGORY, CATEGORY, FieldTypes.TEXT));
+
+			useContentsLength = true;
+			useSeason = true;
+		}
+
+		return result;
 	}
 
 	@Override
@@ -104,23 +137,19 @@ public class CATVids extends FNProgramvare {
 		useDirector = userFields.contains(DIRECTOR);
 		useCategory = userFields.contains(CATEGORY);
 		useStatus = userFields.contains(STATUS);
-		useType = userFields.contains(TYPE);
+		useType = userFields.contains(CONTENTS_TYPE);
+
+		if (!useDirector) {
+			useDirector = userFields.contains(TV_CREATOR);
+		}
 
 		if (useAudio && !userFields.contains(AUDIO_LANGUAGE)) {
 			result.add(AUDIO_LANGUAGE);
 		}
 
 		if (useCategory && !useType) {
-			result.add("Type");
+			result.add(CONTENTS_TYPE);
 			useType = true;
-		}
-
-		if (!usePerson) {
-			usePerson = userFields.contains(PERSON_SORT);
-		}
-
-		if (!useDirector) {
-			useDirector = userFields.contains(DIRECTOR_SORT);
 		}
 
 		if (useStatus && !userFields.contains(LAST_VIEWED)) {
@@ -129,6 +158,7 @@ public class CATVids extends FNProgramvare {
 
 		if (useDirector && !usePerson) {
 			result.add(PERSON);
+			result.add(TV_CREATOR);
 		}
 
 		if (!userFields.contains(VIDEO_TITLE)) {
@@ -139,8 +169,8 @@ public class CATVids extends FNProgramvare {
 			result.add(SEASON);
 		}
 
-		if (!userFields.contains("Series")) {
-			result.add("Series");
+		if (!userFields.contains(SERIES)) {
+			result.add(SERIES);
 		}
 
 		if (useEpisodeNo && !userFields.contains(EPISODE_NO)) {
@@ -151,8 +181,8 @@ public class CATVids extends FNProgramvare {
 			result.add(EPISODES);
 		}
 
-		if (useContentsLength && !userFields.contains(LENGTH)) {
-			result.add(LENGTH);
+		if (useContentsLength && !userFields.contains(RUN_TIME)) {
+			result.add(RUN_TIME);
 		}
 
 		if (useContentsLength && !userFields.contains("OrigAirDate")) {
@@ -176,6 +206,14 @@ public class CATVids extends FNProgramvare {
 	}
 
 	@Override
+	public void setupDbInfoToWrite() {
+		super.setupDbInfoToWrite();
+		if (useMovieBuddy) {
+			validateBuddyHeaders("config/MovieBuddy.yaml");
+		}
+	}
+
+	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
 		int myVideoID = (Integer) dbDataRecord.get(myTableID);
@@ -193,9 +231,8 @@ public class CATVids extends FNProgramvare {
 		}
 
 		dbDataRecord.put(DIRECTOR, "");
-		dbDataRecord.put(DIRECTOR_SORT, "");
+		dbDataRecord.put(TV_CREATOR, "");
 		dbDataRecord.put(PERSON, "");
-		dbDataRecord.put(PERSON_SORT, "");
 
 		if (useAudio) {
 			getAudioTracks(dbDataRecord, hashTable);
@@ -218,8 +255,8 @@ public class CATVids extends FNProgramvare {
 				dbDataRecord.put(EPISODE_NO, "");
 				dbDataRecord.put(EPISODES, "");
 			} else {
-				dbDataRecord.put(EPISODES, dbDataRecord.get("Title"));
-				dbDataRecord.put("Title", dbDataRecord.get(VIDEO_TITLE));
+				dbDataRecord.put(EPISODES, dbDataRecord.get(TITLE));
+				dbDataRecord.put(TITLE, dbDataRecord.get(VIDEO_TITLE));
 			}
 		}
 
@@ -251,20 +288,21 @@ public class CATVids extends FNProgramvare {
 
 	private void getCategoryAndType(Map<String, Object> dbDataRecord,
 			Map<String, List<Map<String, Object>>> hashTable) {
-		List<Map<String, Object>> listType = hashTable.getOrDefault(TYPE, new ArrayList<>());
+		List<Map<String, Object>> listType = hashTable.getOrDefault(CONTENTS_TYPE, new ArrayList<>());
 
 		if (!listType.isEmpty()) {
 			Map<String, Object> typeMap = listType.get(0);
 			Object type = typeMap.get("ContentsTypeID");
 			if (type != null) {
-				dbDataRecord.put(TYPE, typeMap.get("ContentsType"));
+				dbDataRecord.put(CONTENTS_TYPE, typeMap.get("ContentsType"));
 				switch (type.toString()) {
 				case "1":
 					dbDataRecord.put(CATEGORY, "Movies & TV Shows");
 					break;
 				case "2":
 					dbDataRecord.put(CATEGORY, "Movies & TV Shows");
-					dbDataRecord.put(TYPE, "Single Season");
+					dbDataRecord.put(CONTENTS_TYPE, "TV Show");
+					dbDataRecord.put(COLLECTION_TYPE, "Single Season");
 					break;
 				default:
 					dbDataRecord.put(CATEGORY, typeMap.get("ContentsType"));
@@ -278,15 +316,12 @@ public class CATVids extends FNProgramvare {
 
 		// Maps by leading role and their character role
 		Map<String, String> castMap = new LinkedHashMap<>();
-		Map<String, String> castSortMap = new LinkedHashMap<>();
 
 		// Maps by supporting role and their character role
 		Map<String, String> castSupportMap = new LinkedHashMap<>();
-		Map<String, String> castSupportSortMap = new LinkedHashMap<>();
 
 		// Maps by director
 		Set<String> directorSet = new LinkedHashSet<>();
-		Set<String> directorSortSet = new LinkedHashSet<>();
 
 		List<Map<String, Object>> creditsList = hashTable.get("CreditsLink");
 		List<Map<String, Object>> personList = hashTable.get(PERSON);
@@ -305,17 +340,17 @@ public class CATVids extends FNProgramvare {
 				switch (roleType) {
 				case 1: // Leading role
 					if (usePerson) {
-						addActorRole(castMap, castSortMap, map, pMap);
+						addActorRole(castMap, map, pMap);
 					}
 					break;
 				case 2: // Supporting character
 					if (usePerson && useEntireCast) {
-						addActorRole(castSupportMap, castSupportSortMap, map, pMap);
+						addActorRole(castSupportMap, map, pMap);
 					}
 					break;
 				case 3: // Crew
 					if (useDirector) {
-						addDirector(directorSet, directorSortSet, map, pMap);
+						addDirector(directorSet, map, pMap);
 					}
 					break;
 				default:
@@ -326,16 +361,13 @@ public class CATVids extends FNProgramvare {
 		});
 
 		StringBuilder bCast = getCastFromCastMap(castMap);
-		StringBuilder bCastSort = getCastFromCastMap(castSortMap);
 		StringBuilder bSupportCast = getCastFromCastMap(castSupportMap);
-		StringBuilder bSupportCastSort = getCastFromCastMap(castSupportSortMap);
 
 		dbDataRecord.put(SUPPORT_CAST, bSupportCast.toString());
-		dbDataRecord.put(SUPPORT_CAST_SORT, bSupportCastSort.toString());
 		dbDataRecord.put(PERSON, bCast.toString());
-		dbDataRecord.put(PERSON_SORT, bCastSort.toString());
-		dbDataRecord.put(DIRECTOR, getDirector(directorSet));
-		dbDataRecord.put(DIRECTOR_SORT, getDirector(directorSortSet));
+
+		dbDataRecord.put(dbDataRecord.get(SEASON).toString().isEmpty() ? DIRECTOR : TV_CREATOR,
+				getDirector(directorSet));
 	}
 
 	private Object getDirector(Set<String> directorSet) {
@@ -355,7 +387,7 @@ public class CATVids extends FNProgramvare {
 			for (Entry<String, String> cast : castMap.entrySet()) {
 				result.append(cast.getKey());
 				if (!cast.getValue().isEmpty()) {
-					result.append(" (").append(cast.getValue()).append(")");
+					result.append(" [").append(cast.getValue()).append("]");
 				}
 				result.append("\n");
 			}
@@ -363,28 +395,20 @@ public class CATVids extends FNProgramvare {
 		return result;
 	}
 
-	private void addDirector(Set<String> directorSet, Set<String> directorSortSet, Map<String, Object> map,
-			Map<String, Object> pMap) {
+	private void addDirector(Set<String> directorSet, Map<String, Object> map, Map<String, Object> pMap) {
 		int roleID = (Integer) pMap.get("RoleID");
 		if (roleID == 1) {
 			String directorName = map.getOrDefault("Name", "").toString();
-			String directorSortName = map.getOrDefault(SORT_BY, "").toString();
 
 			if (!directorName.isEmpty()) {
 				directorSet.add(directorName);
 			}
-
-			if (!directorSortName.isEmpty()) {
-				directorSortSet.add(directorSortName);
-			}
 		}
 	}
 
-	private void addActorRole(Map<String, String> castMap, Map<String, String> castSortMap, Map<String, Object> map,
-			Map<String, Object> pMap) {
+	private void addActorRole(Map<String, String> castMap, Map<String, Object> map, Map<String, Object> pMap) {
 
 		String castName = map.getOrDefault("Name", "").toString();
-		String castSortName = map.getOrDefault(SORT_BY, "").toString();
 
 		String character = "";
 		if (useRoles) {
@@ -393,10 +417,6 @@ public class CATVids extends FNProgramvare {
 
 		if (!castName.isEmpty()) {
 			castMap.putIfAbsent(castName, character);
-		}
-
-		if (!castSortName.isEmpty()) {
-			castSortMap.putIfAbsent(castSortName, character);
 		}
 	}
 
@@ -434,7 +454,7 @@ public class CATVids extends FNProgramvare {
 		}
 
 		for (Map<String, Object> map : contentsList) {
-			String title = (String) map.get("Title");
+			String title = (String) map.get(TITLE);
 			String side = (String) map.get("Side");
 
 			if (mediaList != null) {
@@ -446,7 +466,7 @@ public class CATVids extends FNProgramvare {
 						newLine.append("\n");
 					}
 
-					String sideTitle = (String) mapItem.get("Title");
+					String sideTitle = (String) mapItem.get(TITLE);
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
 
@@ -465,7 +485,7 @@ public class CATVids extends FNProgramvare {
 					if (useContentsItemTitle) {
 						newLine.append(item + " - ");
 						if (useContentsLength) {
-							newLine.append("(" + General.convertDuration((Integer) mapItem.get(LENGTH)) + ") ");
+							newLine.append("(" + General.convertDuration((Integer) mapItem.get(RUN_TIME)) + ") ");
 						}
 
 						newLine.append(sideTitle);
@@ -511,7 +531,7 @@ public class CATVids extends FNProgramvare {
 			}
 
 			if (useContentsLength) {
-				newLine.append("(" + General.convertDuration((Integer) map.get(LENGTH)) + ") ");
+				newLine.append("(" + General.convertDuration((Integer) map.get(RUN_TIME)) + ") ");
 			}
 
 			newLine.append(title);

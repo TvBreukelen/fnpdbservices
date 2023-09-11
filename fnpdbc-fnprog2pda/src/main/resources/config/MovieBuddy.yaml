@@ -1,0 +1,84 @@
+# MovieBuddy
+---
+Buddy fields:
+- Title: Title
+- Original Title: OriginalTitle
+- TV Show Volume Title: Video.Title
+- Content Type: Type
+- Collection Type: CollectionType
+- Series: Series
+- Volume: EpisodeNo
+- Runtime: Length
+- Original Release Year: Unknown
+- Release Year: ProductionYear
+- Release Date: Unknown
+- First Air Year: Unknown
+- First Air Date: Unknown
+- Last Air Year: Unknown
+- Last Air Date: Unknown
+- Number Of Seasons: Unknown
+- Genres: GenreSort
+- TV Creators: TVCreator
+- TV Networks: Unknown
+- Directors: Director
+- Composers: Unknown
+- Orchestras: Unknown
+- Conductors: Unknown
+- Writers: Unknown
+- Cast: Person
+- TV Episodes: Episodes
+- Production Companies: Unknown
+- Production Countries: Country
+- Producers: Unknown
+- Cinematographers: Unknown
+- Editors: Unknown
+- Languages: DialogLanguage
+- Audio Tracks: Audio
+- Subtitles: SubtitleLanguage
+- Summary: Synopsis
+- Format: Format
+- Edition: Unknown
+- Film Rating: Certification
+- List Price: Video.Value
+- Color: Color
+- Packaging: Unknown
+- Budget: Unknown
+- Sound: Audio
+- Aspect Ratio: AspectRatio
+- Number Of Discs: Unknown
+- Home Page: Unknown
+- IMDB ID: IMDbID
+- UPC-EAN13: Video.BarCode
+- Trailer YouTube ID: Video.Trailer
+- Favorites: Unknown
+- Rating: PersonalRating
+- Physical Location: Location 
+- Status: WatchStatus
+- Status Hidden: Unknown
+- Date Finished: LastViewed
+- Loaned To: Unknown
+- Date Loaned: Unknown
+- Borrowed From: Unknown
+- Date Borrowed: Unknown
+- Returned from Borrow: Unknown
+- Not Owned Reason: Unknown
+- Quantity: Unknown
+- Condition: Unknown
+- Recommended By: Unknown
+- Date Added: Unknown
+- User Supplied ID: Unknown
+- User Supplied Descriptor: Unknown
+- Tags: Unknown
+- Purchase Date: Video.DateAcquired
+- Purchase Place: AcquiredFrom
+- Purchase Price: Video.Price
+- Notes: Video.Notes
+- TMDB ID: Unknown
+- TV Season: Season
+- Category: Category
+- Wish List: Unknown
+- Previously Owned: Unknown
+- Up Next: Unknown
+- Position: Unknown
+- Uploaded Image URL: Unknown
+- Activities: Unknown

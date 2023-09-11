@@ -54,14 +54,15 @@ public class PrefUtils {
 	public static void copyNode(Preferences copyFrom, Preferences copyTo, String profile) throws Exception {
 		String[] keys = copyFrom.keys();
 		Preferences p1 = copyTo.node(profile);
+		final String userList = "userList";
 
 		for (String key : keys) {
 			p1.put(key, copyFrom.get(key, ""));
 		}
 
-		if (copyFrom.nodeExists("userlist")) {
-			Preferences p2 = copyFrom.node("userlist");
-			Preferences p3 = p1.node("userlist");
+		if (copyFrom.nodeExists(userList)) {
+			Preferences p2 = copyFrom.node(userList);
+			Preferences p3 = p1.node(userList);
 			keys = p2.keys();
 			for (String key : keys) {
 				p3.put(key, p2.get(key, ""));

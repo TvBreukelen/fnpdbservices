@@ -1060,6 +1060,8 @@ public final class General {
 			return "";
 		}
 
+		String lineFeed = text.startsWith("<html>") ? "<br>" : "\n";
+
 		StringBuilder mesg = new StringBuilder(text);
 		String s = null;
 		if (text.length() > maxLen) {
@@ -1070,9 +1072,9 @@ public final class General {
 
 			while (end != -1) {
 				s = text.substring(start, ++end);
-				index = s.indexOf('\n');
+				index = s.indexOf(lineFeed);
 				if (index == -1) {
-					mesg.append(s + '\n');
+					mesg.append(s).append(lineFeed);
 				} else {
 					mesg.append(s.substring(0, ++index));
 					end -= s.length() - index;

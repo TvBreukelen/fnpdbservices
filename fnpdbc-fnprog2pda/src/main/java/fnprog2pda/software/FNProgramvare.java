@@ -16,12 +16,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.healthmarketscience.jackcess.Cursor;
 import com.healthmarketscience.jackcess.Row;
 
@@ -184,20 +187,23 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 		}
 
+		for (BasisField dbField : getRequiredFields()) {
+			FieldDefinition field = addField(dbField.getFieldAlias(), usrList, false, false);
+			if (field != null) {
+				field.setFieldHeader(dbField.getFieldHeader());
+			}
+		}
+
 		// Add the Contents specific fields to the fields to export. They will be merged
 		// in the "Contents Field", not individually exported
-		for (String dbField : getContentsFields(usrList)) {
-			addField(dbField, usrList, true, true);
-		}
+		getContentsFields(usrList).forEach(dbField -> addField(dbField, usrList, true, true));
 
 		// Add (optional) sort fields to extend and enforce sorting
 		getMandatorySortFields(pdaSettings.getSortFields()).forEach(dbField -> addSortField(usrList, dbField));
 
 		// Add the System specific fields to the fields to export, but hide them in
 		// xViewer and don't export them
-		for (String dbField : getSystemFields(usrList)) {
-			addField(dbField, usrList, true, false);
-		}
+		getSystemFields(usrList).forEach(dbField -> addField(dbField, usrList, true, false));
 	}
 
 	protected List<String> getMandatorySortFields(List<String> sortList) {
@@ -222,6 +228,10 @@ public abstract class FNProgramvare extends BasicSoft {
 			field.setContentsField(isContentsField);
 			dbInfoToExport.put(field.getFieldAlias(), field);
 			dbTableModelFields.add(field);
+
+			if (!(isSystemField || isContentsField)) {
+				dbUserFields.add(field);
+			}
 		}
 		return field;
 	}
@@ -1034,19 +1044,84 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	protected void validateBuddyHeaders(String path) {
+		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		Map<String, Object> map;
+		try {
+			map = mapper.readValue(General.getInputStreamReader(path), Map.class);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		ArrayList<LinkedHashMap<String, String>> fields = (ArrayList<LinkedHashMap<String, String>>) map
+				.get("Buddy fields");
+
+		Set<String> buddySet = new HashSet<>();
+		Map<String, String> buddyMap = new HashMap<>();
+		fields.forEach(link -> {
+			link.entrySet().forEach(entry -> {
+				buddySet.add(entry.getKey());
+				buddyMap.put(entry.getValue(), entry.getKey());
+			});
+		});
+
+		List<FieldDefinition> invalidHeaders = dbInfoToWrite.stream()
+				.filter(field -> !buddySet.contains(field.getFieldHeader())).collect(Collectors.toList());
+
+		if (!invalidHeaders.isEmpty()) {
+			StringBuilder error = new StringBuilder(GUIFactory.getText("buddyInvalid1"));
+			dbInfoToWrite.forEach(field -> buddySet.remove(field.getFieldHeader()));
+
+			Iterator<FieldDefinition> iter = invalidHeaders.iterator();
+			while (iter.hasNext()) {
+				FieldDefinition field = iter.next();
+				String validHeader = buddyMap.getOrDefault(field.getFieldAlias(), "Unknown");
+				if (!validHeader.equals("Unknown")) {
+					error.append(GUIFactory.getText("buddyInvalid2")).append(field.getFieldHeader())
+							.append(GUIFactory.getText("buddyInvalid3")).append(validHeader).append("\"<br>");
+					field.setFieldHeader(validHeader);
+					buddySet.remove(field.getFieldHeader());
+					iter.remove();
+				}
+			}
+
+			if (!buddySet.isEmpty()) {
+				invalidHeaders.forEach(field -> error.append(GUIFactory.getText("buddyInvalid4"))
+						.append(field.getFieldHeader()).append(GUIFactory.getText("buddyInvalid5")));
+
+				error.append("<br><br>");
+				List<String> validFields = new ArrayList<>(buddySet);
+				Collections.sort(validFields);
+				error.append(GUIFactory.getText("buddyInvalid6"));
+				validFields.forEach(field -> error.append(field).append("; "));
+				error.delete(error.length() - 2, error.length());
+			}
+
+			error.append("</html>");
+			General.showMessage(null, error.toString(), GUIFactory.getText("buddyInvalidTitle"), true);
+			dbInfoToWrite.removeAll(invalidHeaders);
+		}
+	}
+
 	protected void addToList(StringBuilder newLine, StringBuilder result) {
 		result.append(newLine).append("\n");
 		newLine.setLength(0);
 	}
 
+	protected List<BasisField> getRequiredFields() {
+		// Nothing to do on this level
+		return new ArrayList<>();
+	}
+
 	protected List<String> getSystemFields(List<String> userFields) {
 		// Nothing to do on this level
-		return new ArrayList<>(userFields);
+		return new ArrayList<>();
 	}
 
 	protected List<String> getContentsFields(List<String> userFields) {
 		// Nothing to do on this level
-		return new ArrayList<>(userFields);
+		return new ArrayList<>();
 	}
 
 	protected abstract void setDatabaseData(Map<String, Object> dbDataRecord,

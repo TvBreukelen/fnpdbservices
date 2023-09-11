@@ -18,16 +18,15 @@ import application.utils.General;
 import dbengine.export.CsvFile;
 
 public class MovieBuddy extends CsvFile {
-	private static final String DIRECTOR = "Director";
-	private static final String DIRECTOR_SORT = "DirectorSort";
 	private static final String EPISODES = "Episodes";
 	private static final String LAST_VIEWED = "LastViewed";
 	private static final String PERSON = "Person";
-	private static final String PERSON_SORT = "Person.PersonSort";
+	private static final String RUN_TIME = "Length";
 	private static final String SEASON = "Season";
 	private static final String SUPPORT_CAST = "SupportCast";
-	private static final String SUPPORT_CAST_SORT = "SupportCastSort";
+	private static final String SYNOPSIS = "Synopsis";
 	private static final String TITLE = "Title";
+	private static final String TV_CREATOR = "TVCreator";
 	private static final String VIDEO_TITLE = "Video.TitleSort";
 
 	private Map<String, Object> recordMap = new LinkedHashMap<>();
@@ -70,14 +69,12 @@ public class MovieBuddy extends CsvFile {
 
 	private void updateActions(Map<String, Object> dbRecord, boolean isTV) {
 		mergeCast(PERSON, dbRecord);
-		mergeCast(PERSON_SORT, dbRecord);
 		mergeCast(SUPPORT_CAST, dbRecord);
-		mergeCast(SUPPORT_CAST_SORT, dbRecord);
 		mergeEpisodes(dbRecord);
 
 		if (isTV) {
 			updateTitle(dbRecord);
-			mergeDirector(dbRecord);
+			mergeTVCreators(dbRecord);
 		}
 	}
 
@@ -86,26 +83,16 @@ public class MovieBuddy extends CsvFile {
 		writeOutputFile(recordMap);
 	}
 
-	private void mergeDirector(Map<String, Object> dbRecord) {
-		String director = dbRecord.getOrDefault(DIRECTOR, "").toString();
-		String directorSort = dbRecord.getOrDefault(DIRECTOR_SORT, "").toString();
-		String oldDirector = recordMap.getOrDefault(DIRECTOR, "").toString();
-		String oldDirectorSort = recordMap.getOrDefault(DIRECTOR_SORT, "").toString();
+	private void mergeTVCreators(Map<String, Object> dbRecord) {
+		String newCreator = dbRecord.getOrDefault(TV_CREATOR, "").toString();
+		String oldCreator = recordMap.getOrDefault(TV_CREATOR, "").toString();
 
-		if (director.isEmpty()) {
-			director = oldDirector;
+		if (newCreator.isEmpty()) {
+			newCreator = oldCreator;
 		}
 
-		if (directorSort.isEmpty()) {
-			directorSort = oldDirectorSort;
-		}
-
-		if (!director.equals(oldDirector)) {
-			mergeDirectors(DIRECTOR, director, oldDirector);
-		}
-
-		if (!directorSort.equals(oldDirectorSort)) {
-			mergeDirectors(DIRECTOR_SORT, directorSort, oldDirectorSort);
+		if (!newCreator.equals(oldCreator)) {
+			mergeTVCreators(TV_CREATOR, newCreator, oldCreator);
 		}
 	}
 
@@ -118,12 +105,18 @@ public class MovieBuddy extends CsvFile {
 			episodes.append(oldEpisodes);
 		}
 
-		Duration length = (Duration) dbRecord.get("Length");
+		Duration length = (Duration) dbRecord.get(RUN_TIME);
 		long runtime = length.toMinutes();
+		dbRecord.put(RUN_TIME, runtime);
 
-		if (episodes.length() == 0) {
-			dbRecord.put("Length", runtime);
+		if (newEpisodes.length() == 0) {
 			return;
+		}
+
+		String newSynopsis = dbRecord.getOrDefault(SYNOPSIS, "").toString();
+		String oldSynopsis = recordMap.getOrDefault(SYNOPSIS, "").toString();
+		if (!newSynopsis.equals(oldSynopsis)) {
+			recordMap.put(SYNOPSIS, oldSynopsis + " " + newSynopsis);
 		}
 
 		String airdate = dbRecord.getOrDefault("OrigAirDate", "").toString();
@@ -133,6 +126,8 @@ public class MovieBuddy extends CsvFile {
 
 		episodes.append("{\"title\":\"").append(dbRecord.get("EpisodeNo")).append(". ").append(newEpisodes)
 				.append("\",\"airdate\":\"").append(airdate).append("\",\"runtime\":").append(runtime).append("},");
+
+		recordMap.put(RUN_TIME, runtime);
 		recordMap.put(EPISODES, episodes.toString());
 	}
 
@@ -149,6 +144,7 @@ public class MovieBuddy extends CsvFile {
 			title = title + ": Season " + season;
 		}
 
+		recordMap.put("IMDbID", "");
 		recordMap.put(TITLE, title);
 	}
 
@@ -165,7 +161,7 @@ public class MovieBuddy extends CsvFile {
 		Map<String, String> result = new LinkedHashMap<>();
 		String[] actors = cast.split("\n");
 		for (String actor : actors) {
-			int pos = actor.indexOf(" (");
+			int pos = actor.indexOf(" [");
 			String character = "";
 			if (pos != -1) {
 				character = actor.substring(pos + 2, actor.length() - 1);
@@ -176,7 +172,7 @@ public class MovieBuddy extends CsvFile {
 		return result;
 	}
 
-	private void mergeDirectors(String person, String director, String oldDirector) {
+	private void mergeTVCreators(String person, String director, String oldDirector) {
 		String[] oldDir = oldDirector.split("; ");
 		String[] newDir = director.split("; ");
 
@@ -201,12 +197,11 @@ public class MovieBuddy extends CsvFile {
 
 		// Convert persons
 		dbRecord.put(PERSON, convertPersons(PERSON, SUPPORT_CAST));
-		dbRecord.put(PERSON_SORT, convertPersons(PERSON_SORT, SUPPORT_CAST_SORT));
 
 		// Convert episodes
 		String episodes = dbRecord.getOrDefault(EPISODES, "").toString();
 		if (!episodes.isEmpty()) {
-			episodes = episodes.substring(0, episodes.length() - 1) + "]";
+			episodes = "[" + episodes.substring(0, episodes.length() - 1) + "]";
 			dbRecord.put(EPISODES, episodes);
 		}
 
@@ -240,7 +235,8 @@ public class MovieBuddy extends CsvFile {
 		case "DateBorrowed":
 		case LAST_VIEWED:
 			return General.convertFussyDate(dbValue.toString(), "yyyy/MM/dd");
-		case "Length":
+		case RUN_TIME:
+		case SYNOPSIS:
 			return dbValue;
 		default:
 			String text = dbValue.toString();
