@@ -41,7 +41,6 @@ public class BookCAT extends FNProgramvare {
 	private static final String CONTENTS_ITEM = "Contents.Item";
 	private static final String CONTENTS_PERSON = "ContentsPerson";
 	private static final String EDITOR = "Editor";
-	private static final String GENRES = "GenreSort";
 	private static final String ILLUSTRATOR = "Illustrator";
 	private static final String ISBN = "ISBN";
 	private static final String LANGUAGE = "Language";
@@ -85,7 +84,7 @@ public class BookCAT extends FNProgramvare {
 			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
 			result.add(new BasisField(SERIES, SERIES, SERIES, FieldTypes.TEXT));
 			result.add(new BasisField(RELEASE_NO, RELEASE_NO, "Volume", FieldTypes.TEXT));
-			result.add(new BasisField(GENRES, GENRES, "Genres", FieldTypes.TEXT));
+			result.add(new BasisField("PrimaryGenre", "PrimaryGenre", "Genre", FieldTypes.TEXT));
 			result.add(new BasisField(ISBN, ISBN, ISBN, FieldTypes.TEXT));
 			result.add(new BasisField(LANGUAGE, LANGUAGE, LANGUAGE, FieldTypes.TEXT));
 			result.add(new BasisField(SYNOPSIS, SYNOPSIS, "Summary", FieldTypes.MEMO));
@@ -126,11 +125,9 @@ public class BookCAT extends FNProgramvare {
 		inclReleaseNo = inclReleaseNo && (useOriginalSeries || useSeries);
 		useStatus = userFields.contains(STATUS);
 
-		if (inclReleaseNo) {
-			if (useOriginalSeries && !useOriginalReleaseNo) {
-				result.add(ORIGINAL_RELEASE_NO);
-				useOriginalReleaseNo = true;
-			}
+		if (inclReleaseNo && useOriginalSeries && !useOriginalReleaseNo) {
+			result.add(ORIGINAL_RELEASE_NO);
+			useOriginalReleaseNo = true;
 		}
 
 		if (useSeries && !useReleaseNo) {
@@ -347,26 +344,6 @@ public class BookCAT extends FNProgramvare {
 				}
 			}
 		});
-
-		if (useBookBuddy) {
-			// Remove all roles from Author fields
-			List<String> authorFields = new ArrayList<>();
-			authorFields.add(AUTHOR);
-			authorFields.add(AUTHOR_SORT);
-
-			for (String personField : authorFields) {
-				String author = dbDataRecord.get(personField).toString();
-				while (true) {
-					int pos = author.indexOf(" [");
-					if (pos == -1) {
-						dbDataRecord.put(personField, author);
-						break;
-					}
-
-					author = author.substring(0, pos) + author.substring(author.indexOf("]") + 1);
-				}
-			}
-		}
 
 		List<String> list2 = Arrays.asList(credits);
 		list2.forEach(person -> {

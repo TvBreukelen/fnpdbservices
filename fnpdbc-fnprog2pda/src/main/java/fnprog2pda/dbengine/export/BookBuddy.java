@@ -18,6 +18,18 @@ public class BookBuddy extends CsvFile {
 		}
 
 		switch (field.getFieldAlias()) {
+		case "Author":
+		case "AuthorSort":
+			// Remove roles
+			String author = dbValue.toString();
+			while (true) {
+				int pos = author.indexOf(" [");
+				if (pos == -1) {
+					return author.replace(",", "").replace(" & ", ",");
+				}
+
+				author = author.substring(0, pos) + author.substring(author.indexOf("]") + 1);
+			}
 		case "DateAcquired":
 		case "DateBorrowed":
 			return General.convertFussyDate(dbValue.toString(), "yyyy/MM/dd");
