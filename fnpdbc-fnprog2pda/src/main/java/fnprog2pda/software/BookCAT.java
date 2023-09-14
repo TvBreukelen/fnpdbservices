@@ -1,6 +1,7 @@
 package fnprog2pda.software;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,6 +12,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import application.interfaces.FieldTypes;
+import application.utils.BasisField;
 import application.utils.XComparator;
 
 public class BookCAT extends FNProgramvare {
@@ -25,23 +27,37 @@ public class BookCAT extends FNProgramvare {
 	private boolean useOriginalReleaseNo;
 	private boolean useReleaseNo;
 	private boolean inclReleaseNo;
+	private boolean useBookBuddy;
+	private boolean useSpecialRoles;
+	private boolean useStatus;
 
 	private int myItemCount = 0;
 	private String myPerson = "[None]";
 	private String myTitle = "";
 
 	private static final String AUTHOR = "Author";
+	private static final String AUTHOR_SORT = "AuthorSort";
 	private static final String CONTENTS = "Contents";
 	private static final String CONTENTS_ITEM = "Contents.Item";
 	private static final String CONTENTS_PERSON = "ContentsPerson";
+	private static final String EDITOR = "Editor";
+	private static final String GENRES = "GenreSort";
+	private static final String ILLUSTRATOR = "Illustrator";
+	private static final String ISBN = "ISBN";
+	private static final String LANGUAGE = "Language";
+	private static final String LAST_READ = "LastRead";
 	private static final String ORIGINAL_RELEASE_NO = "OriginalReleaseNo";
 	private static final String ORIGINAL_SERIES = "OriginalSeries";
 	private static final String ORIGINAL_SERIES_SORT = "OriginalSeriesSort";
 	private static final String ORIGINAL_TITLE = "OriginalTitle";
+	private static final String PHOTOGRAPHER = "Photographer";
 	private static final String RELEASE_NO = "ReleaseNo";
 	private static final String SERIES = "Series";
 	private static final String SERIES_SORT = "SeriesSort";
+	private static final String STATUS = "ReadStatus";
+	private static final String SYNOPSIS = "Synopsis";
 	private static final String TITLE = "Title";
+	private static final String TRANSLATOR = "Translator";
 
 	private Map<String, FieldTypes> sortContents = new LinkedHashMap<>();
 	private Map<String, FieldTypes> sortMedia = new LinkedHashMap<>();
@@ -52,10 +68,51 @@ public class BookCAT extends FNProgramvare {
 		super();
 		useOriginalTitle = pdaSettings.isUseOriginalTitle();
 		inclReleaseNo = pdaSettings.isUseReleaseNo();
-		personField = new String[] { AUTHOR, "AuthorSort" };
+		useBookBuddy = pdaSettings.getTextFileFormat().equals("buddyCsv");
+
+		personField = new String[] { AUTHOR, AUTHOR_SORT };
 		sortContents.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortContents.put("Index", FieldTypes.NUMBER);
 		sortMedia.put("Index", FieldTypes.NUMBER);
+	}
+
+	@Override
+	protected List<BasisField> getRequiredFields() {
+		List<BasisField> result = new ArrayList<>();
+		if (useBookBuddy) {
+			result.add(new BasisField(AUTHOR, AUTHOR, AUTHOR, FieldTypes.TEXT));
+			result.add(new BasisField(AUTHOR_SORT, AUTHOR_SORT, "Author (Last, First)", FieldTypes.TEXT));
+			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
+			result.add(new BasisField(SERIES, SERIES, SERIES, FieldTypes.TEXT));
+			result.add(new BasisField(RELEASE_NO, RELEASE_NO, "Volume", FieldTypes.TEXT));
+			result.add(new BasisField(GENRES, GENRES, "Genres", FieldTypes.TEXT));
+			result.add(new BasisField(ISBN, ISBN, ISBN, FieldTypes.TEXT));
+			result.add(new BasisField(LANGUAGE, LANGUAGE, LANGUAGE, FieldTypes.TEXT));
+			result.add(new BasisField(SYNOPSIS, SYNOPSIS, "Summary", FieldTypes.MEMO));
+			result.add(new BasisField(STATUS, STATUS, "Status", FieldTypes.TEXT));
+
+			inclReleaseNo = false;
+			useOriginalTitle = false;
+			useRoles = false;
+		}
+
+		return result;
+	}
+
+	@Override
+	protected List<String> getMandatorySortFields(List<String> sortList) {
+		if (!useBookBuddy) {
+			return sortList;
+		}
+
+		List<String> result = new ArrayList<>();
+		result.add(AUTHOR);
+		result.add(SERIES);
+		result.add(RELEASE_NO);
+		result.add(TITLE);
+
+		result.addAll(sortList);
+		return result;
 	}
 
 	@Override
@@ -63,24 +120,37 @@ public class BookCAT extends FNProgramvare {
 		List<String> result = new ArrayList<>();
 		boolean useOriginalSeries = userFields.contains(ORIGINAL_SERIES) || userFields.contains(ORIGINAL_SERIES_SORT);
 		boolean useSeries = userFields.contains(SERIES) || userFields.contains(SERIES_SORT);
+
 		useOriginalReleaseNo = userFields.contains(ORIGINAL_RELEASE_NO);
 		useReleaseNo = userFields.contains(RELEASE_NO);
 		inclReleaseNo = inclReleaseNo && (useOriginalSeries || useSeries);
+		useStatus = userFields.contains(STATUS);
 
 		if (inclReleaseNo) {
 			if (useOriginalSeries && !useOriginalReleaseNo) {
 				result.add(ORIGINAL_RELEASE_NO);
 				useOriginalReleaseNo = true;
 			}
+		}
 
-			if (useSeries && !useReleaseNo) {
-				result.add(RELEASE_NO);
-				useReleaseNo = true;
-			}
+		if (useSeries && !useReleaseNo) {
+			result.add(RELEASE_NO);
+			useReleaseNo = true;
+		}
+
+		if (useStatus && !userFields.contains(LAST_READ)) {
+			result.add(LAST_READ);
 		}
 
 		useAuthor = userFields.contains(personField[0]);
 		usePersonSort = userFields.contains(personField[1]);
+		useSpecialRoles = userFields.contains(EDITOR) || userFields.contains(ILLUSTRATOR)
+				|| userFields.contains(PHOTOGRAPHER) || userFields.contains(TRANSLATOR);
+
+		if (useSpecialRoles) {
+			result.add("Credits");
+			useRoles = true;
+		}
 
 		if (useOriginalTitle && !userFields.contains(ORIGINAL_TITLE)) {
 			result.add(ORIGINAL_TITLE);
@@ -120,7 +190,7 @@ public class BookCAT extends FNProgramvare {
 	@Override
 	public void setCategories() throws Exception {
 		super.setCategories();
-		if (useRoles && myTable.equals("Book") || myTable.equals(CONTENTS)) {
+		if (myTable.equals("Book") || myTable.equals(CONTENTS)) {
 			switch ((int) Math.floor(Double.parseDouble(mySoftwareVersion))) {
 			case 6:
 				getVersion6Roles();
@@ -141,7 +211,7 @@ public class BookCAT extends FNProgramvare {
 		roles.add("CoAuthor");
 		roles.add("Ghostwriter");
 		roles.add("Contributor");
-		roles.add("Editor");
+		roles.add(EDITOR);
 		roles.add("AuthorCustom1");
 		roles.add("AuthorCustom2");
 		roles.add("AuthorCustom3");
@@ -206,6 +276,14 @@ public class BookCAT extends FNProgramvare {
 	}
 
 	@Override
+	public void setupDbInfoToWrite() {
+		super.setupDbInfoToWrite();
+		if (useBookBuddy) {
+			validateBuddyHeaders("config/BookBuddy.yaml");
+		}
+	}
+
+	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
 		int myBookID = (Integer) dbDataRecord.get(myTableID);
@@ -234,6 +312,95 @@ public class BookCAT extends FNProgramvare {
 				dbDataRecord.put(TITLE, s);
 			}
 		}
+
+		if (useStatus) {
+			String viewed = dbDataRecord.getOrDefault(LAST_READ, "").toString();
+			dbDataRecord.put(STATUS, StringUtils.isEmpty(viewed) ? "Unread" : "Read");
+		}
+
+		if (useSpecialRoles) {
+			convertCreditRoles(dbDataRecord);
+		}
+	}
+
+	private void convertCreditRoles(Map<String, Object> dbDataRecord) {
+
+		StringBuilder bEditor = new StringBuilder();
+		StringBuilder bIllustrator = new StringBuilder();
+		StringBuilder bPhotographer = new StringBuilder();
+		StringBuilder bTransator = new StringBuilder();
+
+		String[] authorCredits = dbDataRecord.getOrDefault("AuthorCredits", "").toString().split("; ");
+		String[] credits = dbDataRecord.getOrDefault("CreditCredits", "").toString().split("; ");
+
+		List<String> list1 = Arrays.asList(authorCredits);
+		list1.forEach(person -> {
+			if (!person.isEmpty()) {
+				int pos = person.indexOf("[");
+				String role = person.substring(pos + 1, person.lastIndexOf("]"));
+				person = person.substring(0, pos);
+
+				if (role.equals("4")) {
+					bEditor.append(person).append("; ");
+				} else if (role.equals("6")) {
+					bIllustrator.append(person).append("; ");
+				}
+			}
+		});
+
+		if (useBookBuddy) {
+			// Remove all roles from Author fields
+			List<String> authorFields = new ArrayList<>();
+			authorFields.add(AUTHOR);
+			authorFields.add(AUTHOR_SORT);
+
+			for (String personField : authorFields) {
+				String author = dbDataRecord.get(personField).toString();
+				while (true) {
+					int pos = author.indexOf(" [");
+					if (pos == -1) {
+						dbDataRecord.put(personField, author);
+						break;
+					}
+
+					author = author.substring(0, pos) + author.substring(author.indexOf("]") + 1);
+				}
+			}
+		}
+
+		List<String> list2 = Arrays.asList(credits);
+		list2.forEach(person -> {
+			if (!person.isEmpty()) {
+				int pos = person.indexOf("[");
+				String role = person.substring(pos + 1, person.lastIndexOf("]"));
+				person = person.substring(0, pos);
+				switch (role) {
+				case "3":
+					bIllustrator.append(person).append("; ");
+					break;
+				case "4":
+					bPhotographer.append(person).append("; ");
+					break;
+				case "5":
+					bTransator.append(person).append("; ");
+					break;
+				default:
+					break;
+				}
+			}
+		});
+
+		setSpecialRoles(EDITOR, dbDataRecord, bEditor);
+		setSpecialRoles(ILLUSTRATOR, dbDataRecord, bIllustrator);
+		setSpecialRoles(PHOTOGRAPHER, dbDataRecord, bPhotographer);
+		setSpecialRoles(TRANSLATOR, dbDataRecord, bTransator);
+	}
+
+	private void setSpecialRoles(String field, Map<String, Object> dbDataRecord, StringBuilder bRole) {
+		if (bRole.length() > 2) {
+			bRole.delete(bRole.length() - 2, bRole.length());
+		}
+		dbDataRecord.put(field, bRole.toString());
 	}
 
 	private void convertSeries(Map<String, Object> dbDataRecord, String seriesId, String seriesSortId,

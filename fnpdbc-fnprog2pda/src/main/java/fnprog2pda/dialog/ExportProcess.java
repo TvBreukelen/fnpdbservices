@@ -22,7 +22,9 @@ import dbengine.export.PilotDB;
 import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
 import fnprog2pda.dbengine.MSAccess;
+import fnprog2pda.dbengine.export.BookBuddy;
 import fnprog2pda.dbengine.export.MovieBuddy;
+import fnprog2pda.dbengine.export.MusicBuddy;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.FNProgramvare;
 
@@ -32,7 +34,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 	private ExportStatus status;
 	private boolean isAborted;
 	private ConfigFNProg myProgram;
-	private FNProgramvare mySoftware;
+	private static FNProgramvare mySoftware;
 
 	private Viewer xView = null;
 	private boolean isRefresh;
@@ -154,7 +156,17 @@ public class ExportProcess implements Runnable, IExportProcess {
 		case TEXTFILE:
 			String csvFormat = profile.getTextFileFormat();
 			if (csvFormat.equals("buddyCsv")) {
-				return new MovieBuddy(profile);
+				switch (FNProgramvare.whoAmI()) {
+				case BOOKCAT:
+					return new BookBuddy(profile);
+				case CATRAXX:
+					return new MusicBuddy(profile);
+				case CATVIDS:
+					return new MovieBuddy(profile);
+				default:
+					// Should not occur
+					return new CsvFile(profile);
+				}
 			}
 			return new CsvFile(profile);
 		case DBASE:

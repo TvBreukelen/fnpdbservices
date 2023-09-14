@@ -31,6 +31,7 @@ public class MovieBuddy extends CsvFile {
 
 	private Map<String, Object> recordMap = new LinkedHashMap<>();
 	private String oldRecord = "";
+	private long totalTime = 0;
 
 	private Map<String, LinkedHashMap<String, String>> personMap = new HashMap<>();
 
@@ -58,6 +59,7 @@ public class MovieBuddy extends CsvFile {
 			} else {
 				writeOutputFile(recordMap);
 				recordMap.putAll(dbRecord);
+				totalTime = 0;
 				mergeEpisodes(dbRecord);
 				oldRecord = iD;
 			}
@@ -127,7 +129,8 @@ public class MovieBuddy extends CsvFile {
 		episodes.append("{\"title\":\"").append(dbRecord.get("EpisodeNo")).append(". ").append(newEpisodes)
 				.append("\",\"airdate\":\"").append(airdate).append("\",\"runtime\":").append(runtime).append("},");
 
-		recordMap.put(RUN_TIME, runtime);
+		totalTime += runtime;
+		recordMap.put(RUN_TIME, totalTime);
 		recordMap.put(EPISODES, episodes.toString());
 	}
 

@@ -113,6 +113,7 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	private boolean isCatraxx;
 	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
+	public static FNPSoftware whoAmI;
 
 	protected FNProgramvare() {
 		super(pdaSettings);
@@ -456,15 +457,20 @@ public abstract class FNProgramvare extends BasicSoft {
 					String separator = field.isRoleField() ? " & "
 							: field.getFieldType() == FieldTypes.MEMO ? "\n" : "; ";
 					StringBuilder buf = new StringBuilder(100);
+					StringBuilder bufPerson = new StringBuilder(100); // For Book & MusicBuddy
 
 					for (Map<String, Object> lObj : list) {
 						String s = msAccess.convertObject(lObj, field).toString();
 						if (isPersonRoles) {
-							String role = getPersonRole(field.getTable(), (Number) lObj.get(ROLE_ID));
+							Number roleID = (Number) lObj.getOrDefault(ROLE_ID, -1);
+							String role = getPersonRole(field.getTable(), roleID);
 							if (role.isEmpty()) {
 								buf.append(s).append(separator);
 							} else {
-								buf.append(s).append(" ").append(role).append(" ");
+								buf.append(s).append(" ").append(role).append(separator);
+							}
+							if (roleID.intValue() != -1) {
+								bufPerson.append(s).append("[").append(roleID.intValue()).append("]; ");
 							}
 						} else {
 							buf.append(s).append(separator);
@@ -474,6 +480,11 @@ public abstract class FNProgramvare extends BasicSoft {
 					int lastChar = buf.lastIndexOf(separator);
 					if (lastChar != -1) {
 						buf.delete(lastChar, buf.length());
+					}
+
+					if (bufPerson.length() > 2) {
+						bufPerson.delete(bufPerson.length() - 2, bufPerson.length());
+						dbRecord.put(field.getFieldAlias() + "Credits", bufPerson.toString().trim());
 					}
 
 					dbRecord.put(field.getFieldAlias(), buf.toString().trim());
@@ -958,12 +969,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		List<Map<String, Object>> list = msAccess.getMultipleRecords(roleTable, roleID);
 		Map<Integer, String> personMap = new HashMap<>();
 		myRoles.put(table, personMap);
-
-		if (!list.isEmpty()) {
-			for (Map<String, Object> map : list) {
-				personMap.put((Integer) map.get(roleID), map.get(roleTable).toString());
-			}
-		}
+		list.forEach(map -> personMap.put((Integer) map.get(roleID), map.get(roleTable).toString()));
 	}
 
 	public String getPersonRole(String table, Number pRoleID) {
@@ -1026,6 +1032,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	public static FNProgramvare getSoftware(FNPSoftware soft) {
+		whoAmI = soft;
 		switch (soft) {
 		case ASSETCAT:
 			return new AssetCAT();
@@ -1042,6 +1049,10 @@ public abstract class FNProgramvare extends BasicSoft {
 		default:
 			return null;
 		}
+	}
+
+	public static FNPSoftware whoAmI() {
+		return whoAmI;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1086,7 +1097,7 @@ public abstract class FNProgramvare extends BasicSoft {
 				}
 			}
 
-			if (!buddySet.isEmpty()) {
+			if (!invalidHeaders.isEmpty()) {
 				invalidHeaders.forEach(field -> error.append(GUIFactory.getText("buddyInvalid4"))
 						.append(field.getFieldHeader()).append(GUIFactory.getText("buddyInvalid5")));
 

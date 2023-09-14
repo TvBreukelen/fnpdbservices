@@ -78,10 +78,10 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		String delimiterChar = "\"'/$%".substring(index, index + 1);
 
 		String csvType = STANDARD_CSV;
-		if(otherCsv.isSelected()) {
-			csvType= OTHER_CSV;
+		if (otherCsv.isSelected()) {
+			csvType = OTHER_CSV;
 		} else if (buddyCsv.isSelected()) {
-			csvType= BUDDY_CSV;
+			csvType = BUDDY_CSV;
 		}
 
 		if (isExport) {
@@ -136,6 +136,9 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		}
 
 		String csvType = isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat();
+		if (buddy == BuddyExport.None && csvType.equals(BUDDY_CSV)) {
+			csvType = STANDARD_CSV;
+		}
 
 		switch (csvType) {
 		case OTHER_CSV:

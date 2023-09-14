@@ -1,0 +1,83 @@
+# BookBuddy
+---
+Buddy fields:
+- Title: Title
+- Original Title: OriginalTitle
+- Subtitle: SubTitle
+- Series: Series
+- Volume: ReleaseNo
+- Author: Author
+- Author (Last, First): AuthorSort
+- Illustrator: Illustrator
+- Narrator: Unknown
+- Translator: Translator
+- Photographer: Unknown
+- Editor: Editor
+- Publisher: Publisher
+- Place of Publication: PublicationPlace
+- Date Published: PublishDate
+- Year Published: Unknown
+- Original Date Published: Unknown
+- Original Year Published: Unknown
+- Edition: Edition
+- Genre: GenreSort
+- Summary: Synopsis
+- Guided Reading Level: Unknown
+- Lexile Measure: Unknown
+- Lexile Code: Unknown
+- Grade Level Equivalent: Unknown
+- Developmental Reading Assessment: Unknown
+- Interest Level: Unknown
+- AR Level: Unknown
+- AR Points: Unknown
+- AR Quiz Number: Unknown
+- Word Count: Unknown
+- Number of Pages: Pages
+- Format: Unknown
+- Audio Runtime: UnNknown
+- Dimensions: Unknown 
+- Weight: Unknown
+- List Price: Value
+- CoverPrice: CoverPrice
+- Language: Language
+- Original Language: OriginalLanguage
+- DDC: Dewey
+- LCC: Unknown
+- LCCN: LCCN
+- OCLC: Unknown
+- ISBN: ISBN 
+- ISSN: Unknown
+- Favorites: Unknown
+- Rating: PersonalRating
+- Physical Location: Location
+- Status: ReadStatus
+- Status Incompleted Reason: Unknown
+- Status Hidden: Unknown
+- Date Started: Unknown
+- Date Finished: Unknown
+- Current Page: Unknown
+- Loaned To: Borrower
+- Date Loaned: DateBorrowed
+- Borrowed From: Unknown
+- Date Borrowed: Unknown
+- Returned from Borrow: Unknown
+- Not Owned Reason: Unknown
+- Quantity: Unknown
+- Condition: Condition
+- Recommended By: Unknown
+- Date Added: DateAquired
+- User Supplied ID: Unknown
+- User Supplied Descriptor: Unknown
+- Tags: Unknown
+- Purchase Date: DateAcquired
+- Purchase Place: AcquiredFrom  
+- Purchase Price: Price
+- Notes: Notes
+- Google VolumeID: Unknown
+- Category: Category
+- Wish List: Unknown
+- Previously Owned: Unknown
+- Up Next: Unknown
+- Position: Unknown
+- Uploaded Image URL: Unknown
+- Activities: Unknown

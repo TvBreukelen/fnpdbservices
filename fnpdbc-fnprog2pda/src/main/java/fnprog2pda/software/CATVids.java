@@ -188,6 +188,7 @@ public class CATVids extends FNProgramvare {
 		if (useContentsLength && !userFields.contains("OrigAirDate")) {
 			result.add("OrigAirDate");
 		}
+
 		return result;
 	}
 

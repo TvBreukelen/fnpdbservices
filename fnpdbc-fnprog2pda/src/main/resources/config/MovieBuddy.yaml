@@ -56,8 +56,8 @@ Buddy fields:
 - Status: WatchStatus
 - Status Hidden: Unknown
 - Date Finished: LastViewed
-- Loaned To: Unknown
-- Date Loaned: Unknown
+- Loaned To: Borrower
+- Date Loaned: Video.DateBorrowed
 - Borrowed From: Unknown
 - Date Borrowed: Unknown
 - Returned from Borrow: Unknown

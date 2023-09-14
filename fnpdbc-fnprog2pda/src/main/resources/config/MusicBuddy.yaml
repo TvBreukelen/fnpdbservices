@@ -1,0 +1,65 @@
+# MusicBuddy
+---
+Buddy fields:
+- Title: Title
+- Artist
+- Artist (Last, First)
+- Series
+- Volume
+- Online Videos
+- Labels
+- Catalog Number
+- Country
+- Release Year
+- Original Release Year
+- Tracks
+- Versions
+- Genres
+- Styles
+- Composers
+- Orchestras
+- Conductors
+- Performers
+- Writers
+- Production Companies
+- Producers
+- Description
+- Edition
+- Media
+- Format
+- Content Type
+- Length
+- Vinyl Size
+- Vinyl Speed
+- List Price
+- Language
+- Packaging
+- Number Of Volumes
+- UPC-EAN13
+- Favorites
+- Rating
+- Physical Location
+- Loaned To
+- Date Loaned
+- Borrowed From
+- Date Borrowed
+- Returned from Borrow
+- Not Owned Reason
+- Quantity
+- Cover Condition
+- Condition
+- Recommended By
+- Date Added
+- User Supplied ID
+- User Supplied Descriptor
+- Tags
+- Purchase Date
+- Purchase Place
+- Purchase Price
+- Notes
+- discogs Release ID
+- Category
+- Wish List
+- Previously Owned
+- Uploaded Image URL
+- Activities
