@@ -144,5 +144,4 @@ public class PrefFNProg extends Profiles {
 		PrefUtils.writePref(getChild(), "use.season", useSeason, this.useSeason, false);
 		this.useSeason = useSeason;
 	}
-
 }

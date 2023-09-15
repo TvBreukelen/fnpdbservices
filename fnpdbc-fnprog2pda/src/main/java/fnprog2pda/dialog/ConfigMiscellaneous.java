@@ -11,11 +11,9 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 import application.dialog.BasicDialog;
 import application.utils.GUIFactory;
-import application.utils.General;
 import fnprog2pda.model.MiscellaneousData;
 import fnprog2pda.software.FNPSoftware;
 
@@ -32,14 +30,11 @@ public class ConfigMiscellaneous extends BasicDialog {
 	private FNPSoftware software;
 
 	transient MiscellaneousData data;
-	boolean isSaved = false;
-	boolean isBuddySupported;
 
-	public ConfigMiscellaneous(FNPSoftware softwareID, MiscellaneousData data, boolean isBuddySupported) {
+	public ConfigMiscellaneous(FNPSoftware softwareID, MiscellaneousData data) {
 		super();
 		software = softwareID;
 		this.data = data;
-		this.isBuddySupported = isBuddySupported;
 		init();
 	}
 
@@ -111,7 +106,6 @@ public class ConfigMiscellaneous extends BasicDialog {
 			if (table.equals("Contents")) {
 				exclContents = new int[] { 0, 2, 4 };
 			}
-			isBuddySupported = false;
 			break;
 		case CATRAXX:
 			isTrack = table.equals("Track");
@@ -141,18 +135,6 @@ public class ConfigMiscellaneous extends BasicDialog {
 		}
 
 		result.add(panel);
-
-		if (isBuddySupported) {
-			result.add(Box.createVerticalStrut(10));
-
-			String title = isTrack ? "MusicBuddy track grouping" : "MovieBuddy TV-Show grouping";
-			String noGroup = isTrack ? "by track (= default)" : "by episode (= default)";
-			String subGroup = isTrack ? "by item (CD, vinyl, etc.)" : "by single season";
-			String totalGroup = isTrack ? "by complete album(set)" : "by complete video(set)";
-
-			result.add(General.addVerticalButtons(title, new JRadioButton(noGroup), new JRadioButton(subGroup),
-					new JRadioButton(totalGroup)));
-		}
 		return result;
 	}
 

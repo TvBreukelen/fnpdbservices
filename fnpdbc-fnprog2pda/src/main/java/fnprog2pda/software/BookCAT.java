@@ -30,6 +30,7 @@ public class BookCAT extends FNProgramvare {
 	private boolean useBookBuddy;
 	private boolean useSpecialRoles;
 	private boolean useStatus;
+	private boolean useRating;
 
 	private int myItemCount = 0;
 	private String myPerson = "[None]";
@@ -50,6 +51,7 @@ public class BookCAT extends FNProgramvare {
 	private static final String ORIGINAL_SERIES_SORT = "OriginalSeriesSort";
 	private static final String ORIGINAL_TITLE = "OriginalTitle";
 	private static final String PHOTOGRAPHER = "Photographer";
+	private static final String RATING = "PersonalRating";
 	private static final String RELEASE_NO = "ReleaseNo";
 	private static final String SERIES = "Series";
 	private static final String SERIES_SORT = "SeriesSort";
@@ -91,8 +93,6 @@ public class BookCAT extends FNProgramvare {
 			result.add(new BasisField(STATUS, STATUS, "Status", FieldTypes.TEXT));
 
 			inclReleaseNo = false;
-			useOriginalTitle = false;
-			useRoles = false;
 		}
 
 		return result;
@@ -105,7 +105,7 @@ public class BookCAT extends FNProgramvare {
 		}
 
 		List<String> result = new ArrayList<>();
-		result.add(AUTHOR);
+		result.add(AUTHOR_SORT);
 		result.add(SERIES);
 		result.add(RELEASE_NO);
 		result.add(TITLE);
@@ -124,10 +124,15 @@ public class BookCAT extends FNProgramvare {
 		useReleaseNo = userFields.contains(RELEASE_NO);
 		inclReleaseNo = inclReleaseNo && (useOriginalSeries || useSeries);
 		useStatus = userFields.contains(STATUS);
+		useRating = userFields.contains(RATING);
 
 		if (inclReleaseNo && useOriginalSeries && !useOriginalReleaseNo) {
 			result.add(ORIGINAL_RELEASE_NO);
 			useOriginalReleaseNo = true;
+		}
+
+		if (useRating) {
+			result.add("PersonalRatingID");
 		}
 
 		if (useSeries && !useReleaseNo) {
@@ -151,8 +156,6 @@ public class BookCAT extends FNProgramvare {
 
 		if (useOriginalTitle && !userFields.contains(ORIGINAL_TITLE)) {
 			result.add(ORIGINAL_TITLE);
-		} else {
-			useOriginalTitle = false;
 		}
 		return result;
 	}
@@ -307,6 +310,16 @@ public class BookCAT extends FNProgramvare {
 			String s = (String) dbDataRecord.get(ORIGINAL_TITLE);
 			if (StringUtils.isNotEmpty(s)) {
 				dbDataRecord.put(TITLE, s);
+				dbDataRecord.put(ORIGINAL_TITLE, "");
+			}
+		}
+
+		if (useRating && useBookBuddy) {
+			Integer rating = (Integer) dbDataRecord.getOrDefault("PersonalRatingID", -1);
+			if (rating == -1) {
+				dbDataRecord.put(RATING, "");
+			} else {
+				dbDataRecord.put(RATING, 6 - rating);
 			}
 		}
 

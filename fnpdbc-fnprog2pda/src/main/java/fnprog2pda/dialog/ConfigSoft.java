@@ -114,8 +114,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		});
 
 		btMisc = GUIFactory.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
-			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView),
-					configDb.isBuddySupported());
+			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
 			miscDialog.setVisible(true);
 		});
 
