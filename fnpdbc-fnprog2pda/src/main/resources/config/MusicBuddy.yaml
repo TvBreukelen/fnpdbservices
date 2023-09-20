@@ -2,64 +2,64 @@
 ---
 Buddy fields:
 - Title: Title
-- Artist
-- Artist (Last, First)
-- Series
-- Volume
-- Online Videos
-- Labels
-- Catalog Number
-- Country
-- Release Year
-- Original Release Year
-- Tracks
-- Versions
-- Genres
-- Styles
-- Composers
-- Orchestras
-- Conductors
-- Performers
-- Writers
-- Production Companies
-- Producers
-- Description
-- Edition
-- Media
-- Format
-- Content Type
-- Length
-- Vinyl Size
-- Vinyl Speed
-- List Price
-- Language
-- Packaging
-- Number Of Volumes
-- UPC-EAN13
-- Favorites
-- Rating
-- Physical Location
-- Loaned To
-- Date Loaned
-- Borrowed From
-- Date Borrowed
-- Returned from Borrow
-- Not Owned Reason
-- Quantity
-- Cover Condition
-- Condition
-- Recommended By
-- Date Added
-- User Supplied ID
-- User Supplied Descriptor
-- Tags
-- Purchase Date
-- Purchase Place
-- Purchase Price
-- Notes
-- discogs Release ID
-- Category
-- Wish List
-- Previously Owned
-- Uploaded Image URL
-- Activities
+- Artist: Artist
+- Artist (Last, First): ArtistSort
+- Series: Unknown
+- Volume: Unknown
+- Online Videos: Unknown
+- Labels: Labels
+- Catalog Number: CatalogNumber
+- Country: Country
+- Release Year: Unknown
+- Original Release Year: Unknown
+- Tracks: TrackList
+- Versions: Unknown
+- Genres: PrimaryGenre.MainGenre
+- Styles: Genre
+- Composers: Unknown
+- Orchestras: Unknown
+- Conductors: Unknown
+- Performers: Unknown
+- Writers: Unknown
+- Production Companies: Company
+- Producers: Unknown
+- Description: Unknown
+- Edition: Unknown
+- Media: Format
+- Format: Unknown
+- Content Type: FormatGroup
+- Length: PlayingTime
+- Vinyl Size: Unknown
+- Vinyl Speed: Unknown
+- List Price: Value
+- Language: Unknown
+- Packaging: Packaging
+- Number Of Volumes: DiscCount
+- UPC-EAN13: BarCode
+- Favorites: Unknown
+- Rating: PersonalRating
+- Physical Location: Location
+- Loaned To: Borrower
+- Date Loaned: DateBorrowed
+- Borrowed From: Unknown
+- Date Borrowed: Unknown
+- Returned from Borrow: Unknown
+- Not Owned Reason: Unknown
+- Quantity: Unknown
+- Cover Condition: ConditionSleeveSort
+- Condition: ConditionRecordSort
+- Recommended By: Unknown
+- Date Added: Registered
+- User Supplied ID: Unknown
+- User Supplied Descriptor: Unknown
+- Tags: Unknown
+- Purchase Date: DateAcquired
+- Purchase Place: AcquiredFrom  
+- Purchase Price: Price
+- Notes: Notes
+- discogs Release ID: Unknown
+- Category: Unknown
+- Wish List: Unknown
+- Previously Owned: Unknown
+- Uploaded Image URL: Unknown
+- Activities: Unknown

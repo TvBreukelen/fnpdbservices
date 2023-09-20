@@ -110,6 +110,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 		case CATRAXX:
 			isTrack = table.equals("Track");
 			if (isTrack) {
+				exclContents = new int[] { 0, 2, 3, 4, 5 };
 				break;
 			}
 

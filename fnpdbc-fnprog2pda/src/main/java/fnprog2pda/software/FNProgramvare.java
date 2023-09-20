@@ -78,7 +78,6 @@ public abstract class FNProgramvare extends BasicSoft {
 	protected boolean useContentsPerson;
 	protected boolean useContentsOrigTitle;
 	protected boolean useContentsItemTitle;
-	protected boolean usePersonSort;
 
 	private MSTable msTable;
 	private Cursor cursor;
@@ -111,7 +110,6 @@ public abstract class FNProgramvare extends BasicSoft {
 	private static final String ROLE_ID = "RoleID";
 	private static final String THUMB = "Thumb";
 
-	private boolean isCatraxx;
 	protected DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 	public static FNPSoftware whoAmI;
 
@@ -255,7 +253,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		dbFactory.loadConfiguration(pdaSettings.getTableName());
 
 		isInputFileOpen = true;
-		isCatraxx = dbFactory.getDatabaseType() == FNPSoftware.CATRAXX;
 
 		// Get the total number of records to process
 		dbFactory.getInputFile().readTableContents();
@@ -454,8 +451,10 @@ public abstract class FNProgramvare extends BasicSoft {
 						}
 					}
 				} else if (field.isRoleField() || list.size() > 1) {
-					String separator = field.isRoleField() ? " & "
-							: field.getFieldType() == FieldTypes.MEMO ? "\n" : "; ";
+					String separator = field.isRoleField() ? " & " : "; ";
+					if (field.getFieldType() == FieldTypes.MEMO) {
+						separator = "\n";
+					}
 					StringBuilder buf = new StringBuilder(100);
 					StringBuilder bufPerson = new StringBuilder(100); // For Book & MusicBuddy
 
@@ -469,7 +468,7 @@ public abstract class FNProgramvare extends BasicSoft {
 							} else {
 								buf.append(s).append(" ").append(role).append(separator);
 							}
-							if (roleID.intValue() != -1) {
+							if (roleID != null && roleID.intValue() != -1) {
 								bufPerson.append(s).append("[").append(roleID.intValue()).append("]; ");
 							}
 						} else {
@@ -978,7 +977,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			if (map != null) {
 				String role = map.get(pRoleID.intValue());
 				if (role != null) {
-					return isCatraxx ? role : "[" + role + "]";
+					return table.equals("Artist") ? role : "[" + role + "]";
 				}
 			}
 		}
@@ -1002,20 +1001,24 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	protected String getContentsPerson(List<Map<String, Object>> personList) {
+		return getContentsPerson(personList, false);
+	}
+
+	protected String getContentsPerson(List<Map<String, Object>> personList, boolean useSort) {
 		if (CollectionUtils.isEmpty(personList) || !useContentsPerson) {
 			return "";
 		}
 
 		StringBuilder sb = new StringBuilder();
 		for (Map<String, Object> mapPerson : personList) {
-			String persons = (String) mapPerson.get(usePersonSort ? "SortBy" : "Name");
+			String persons = (String) mapPerson.get(useSort ? "SortBy" : "Name");
 			if (StringUtils.isNotEmpty(persons)) {
 				if (useRoles) {
 					String role = getPersonRole(personField[0], (Number) mapPerson.get(ROLE_ID));
 					if (role.isEmpty()) {
 						sb.append(persons).append(" & ");
 					} else {
-						sb.append(persons).append(" ").append(role).append(" ");
+						sb.append(role).append(" ").append(persons).append(" ");
 					}
 				} else {
 					sb.append(persons);
@@ -1024,9 +1027,9 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 		}
 
-		int lastChar = sb.lastIndexOf("&");
+		int lastChar = sb.lastIndexOf(" & ");
 		if (lastChar != -1) {
-			sb.deleteCharAt(lastChar);
+			sb.delete(lastChar, lastChar + 2);
 		}
 		return sb.toString().trim();
 	}
@@ -1070,12 +1073,10 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		Set<String> buddySet = new HashSet<>();
 		Map<String, String> buddyMap = new HashMap<>();
-		fields.forEach(link -> {
-			link.entrySet().forEach(entry -> {
-				buddySet.add(entry.getKey());
-				buddyMap.put(entry.getValue(), entry.getKey());
-			});
-		});
+		fields.forEach(link -> link.entrySet().forEach(entry -> {
+			buddySet.add(entry.getKey());
+			buddyMap.put(entry.getValue(), entry.getKey());
+		}));
 
 		List<FieldDefinition> invalidHeaders = dbInfoToWrite.stream()
 				.filter(field -> !buddySet.contains(field.getFieldHeader())).collect(Collectors.toList());

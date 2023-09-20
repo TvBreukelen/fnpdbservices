@@ -36,7 +36,7 @@ public class BookBuddy extends CsvFile {
 	}
 
 	private String formatAuthor(String author, boolean isAuthorSort) {
-		// Remove roles because BookBoddy doesn't "like" then
+		// Remove roles because BookBuddy doesn't "like" then
 		while (true) {
 			int pos = author.indexOf(" [");
 			if (pos == -1) {

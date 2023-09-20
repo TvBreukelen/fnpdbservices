@@ -1,7 +1,6 @@
 package fnprog2pda.software;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -13,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import application.interfaces.FieldTypes;
 import application.utils.BasisField;
+import application.utils.General;
 import application.utils.XComparator;
 
 public class BookCAT extends FNProgramvare {
@@ -22,7 +22,6 @@ public class BookCAT extends FNProgramvare {
 	 * @author Tom van Breukelen
 	 * @version 10
 	 */
-	private boolean useAuthor;
 	private boolean useOriginalTitle;
 	private boolean useOriginalReleaseNo;
 	private boolean useReleaseNo;
@@ -58,6 +57,7 @@ public class BookCAT extends FNProgramvare {
 	private static final String STATUS = "ReadStatus";
 	private static final String SYNOPSIS = "Synopsis";
 	private static final String TITLE = "Title";
+	private static final String TITLE_SORT = "TitleSort";
 	private static final String TRANSLATOR = "Translator";
 
 	private Map<String, FieldTypes> sortContents = new LinkedHashMap<>();
@@ -108,7 +108,7 @@ public class BookCAT extends FNProgramvare {
 		result.add(AUTHOR_SORT);
 		result.add(SERIES);
 		result.add(RELEASE_NO);
-		result.add(TITLE);
+		result.add(TITLE_SORT);
 
 		result.addAll(sortList);
 		return result;
@@ -144,8 +144,6 @@ public class BookCAT extends FNProgramvare {
 			result.add(LAST_READ);
 		}
 
-		useAuthor = userFields.contains(personField[0]);
-		usePersonSort = userFields.contains(personField[1]);
 		useSpecialRoles = userFields.contains(EDITOR) || userFields.contains(ILLUSTRATOR)
 				|| userFields.contains(PHOTOGRAPHER) || userFields.contains(TRANSLATOR);
 
@@ -176,11 +174,8 @@ public class BookCAT extends FNProgramvare {
 			result.add(CONTENTS_ITEM);
 
 			if (useContentsPerson) {
-				if (useAuthor || usePersonSort) {
-					result.add(useAuthor ? CONTENTS_PERSON : "ContentsPersonSort");
-				} else {
-					result.add(CONTENTS_PERSON);
-				}
+				result.add("ContentsPersonSort");
+				result.add(CONTENTS_PERSON);
 			}
 		}
 
@@ -292,7 +287,7 @@ public class BookCAT extends FNProgramvare {
 		if (useContents) {
 			myItemCount = ((Number) dbDataRecord.get("MediaCount")).intValue();
 			if (((Number) dbDataRecord.get("NumberOfSections")).intValue() > 0) {
-				myPerson = (String) dbDataRecord.get(personField[usePersonSort ? 1 : 0]);
+				myPerson = (String) dbDataRecord.get(personField[0]);
 				myTitle = (String) dbDataRecord.get(TITLE);
 				dbDataRecord.put(CONTENTS, getBookContents(hashTable));
 			}
@@ -316,7 +311,7 @@ public class BookCAT extends FNProgramvare {
 
 		if (useRating && useBookBuddy) {
 			Integer rating = (Integer) dbDataRecord.getOrDefault("PersonalRatingID", -1);
-			if (rating == -1) {
+			if (rating == -1 || rating > 5) {
 				dbDataRecord.put(RATING, "");
 			} else {
 				dbDataRecord.put(RATING, 6 - rating);
@@ -340,11 +335,12 @@ public class BookCAT extends FNProgramvare {
 		StringBuilder bPhotographer = new StringBuilder();
 		StringBuilder bTransator = new StringBuilder();
 
-		String[] authorCredits = dbDataRecord.getOrDefault("AuthorCredits", "").toString().split("; ");
-		String[] credits = dbDataRecord.getOrDefault("CreditCredits", "").toString().split("; ");
+		List<String> authorCredits = General
+				.convertStringToList((String) dbDataRecord.getOrDefault("AuthorCredits", ""), "; ");
+		List<String> credits = General.convertStringToList((String) dbDataRecord.getOrDefault("CreditCredits", ""),
+				"; ");
 
-		List<String> list1 = Arrays.asList(authorCredits);
-		list1.forEach(person -> {
+		authorCredits.forEach(person -> {
 			if (!person.isEmpty()) {
 				int pos = person.indexOf("[");
 				String role = person.substring(pos + 1, person.lastIndexOf("]"));
@@ -358,8 +354,7 @@ public class BookCAT extends FNProgramvare {
 			}
 		});
 
-		List<String> list2 = Arrays.asList(credits);
-		list2.forEach(person -> {
+		credits.forEach(person -> {
 			if (!person.isEmpty()) {
 				int pos = person.indexOf("[");
 				String role = person.substring(pos + 1, person.lastIndexOf("]"));

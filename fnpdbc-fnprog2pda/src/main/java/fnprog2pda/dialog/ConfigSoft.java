@@ -91,6 +91,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private ProgramDialog dialog;
 	private ProjectModel model;
 
+	private static final String FUNC_NEW = "funcNew";
+
 	public ConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNew) {
 		this.dialog = dialog;
 		this.model = model;
@@ -100,7 +102,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	}
 
 	private void init() {
-		init(isNewProfile ? GUIFactory.getTitle("funcNew")
+		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"), 6);
 
 		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
@@ -144,7 +146,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		fdView = new JComboBox<>(myImportFile.getViews());
 
-		profile = GUIFactory.getJTextField("funcNew", isNewProfile ? "" : pdaSettings.getProfileID());
+		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 
 		fieldSelect = new ScFieldSelect(dbFactory);
@@ -216,7 +218,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			p1.setBorder(BorderFactory.createEtchedBorder());
 			p1.add(Box.createVerticalStrut(40));
-			p1.add(GUIFactory.getJLabel("funcNew"));
+			p1.add(GUIFactory.getJLabel(FUNC_NEW));
 			p1.add(Box.createHorizontalStrut(10));
 			p1.add(profile);
 			panel.add(p1);
@@ -425,7 +427,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		case BOOKCAT:
 			return myView.equals("Book") ? BuddyExport.BookBuddy : BuddyExport.None;
 		case CATRAXX:
-			return myView.equals("Track") ? BuddyExport.MusicBuddy : BuddyExport.None;
+			return myView.equals("Album") ? BuddyExport.MusicBuddy : BuddyExport.None;
 		case CATVIDS:
 			return myView.equals("Contents") ? BuddyExport.MovieBuddy : BuddyExport.None;
 		default:

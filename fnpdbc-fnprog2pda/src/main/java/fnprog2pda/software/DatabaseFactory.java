@@ -420,8 +420,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			for (FieldDefinition field : table.getFields()) {
 				String alias = field.getFieldAlias();
 
-				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN
-						|| ishideIDs && alias.endsWith("ID")) {
+				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
 					continue;
 				}
 
@@ -431,8 +430,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 					if (!table.isVisible()
 							|| !(table.isShowAll() || field.getFieldName().indexOf("Sort") != -1
 									|| alias.equals(field.getTable()))
-							|| hHidden.contains(field.getFieldName())
-							|| hHiddenColumns.contains(field.getFieldName())) {
+							|| hHidden.contains(field.getFieldName()) || hHiddenColumns.contains(field.getFieldName())
+							|| ishideIDs && alias.endsWith("ID")) {
 						continue;
 					}
 				}
