@@ -408,7 +408,6 @@ public class CATVids extends FNProgramvare {
 	}
 
 	private void addActorRole(Map<String, String> castMap, Map<String, Object> map, Map<String, Object> pMap) {
-
 		String castName = map.getOrDefault("Name", "").toString();
 
 		String character = "";
@@ -515,9 +514,9 @@ public class CATVids extends FNProgramvare {
 			}
 
 			if (useSeason) {
-				Number season = (Number) map.getOrDefault(SEASON, 0);
-				if (season.intValue() > 0) {
-					newLine.append("S" + General.convertTrack(season, 2));
+				Number season = (Number) map.getOrDefault(SEASON, -1);
+				if (season.intValue() != -1) {
+					newLine.append("S" + General.addLeadingZeroes(season, 2));
 					if (useEpisodeNo) {
 						newLine.append("E");
 					}
@@ -525,8 +524,8 @@ public class CATVids extends FNProgramvare {
 			}
 
 			if (useEpisodeNo) {
-				Number episode = (Number) map.getOrDefault(EPISODE_NO, 0);
-				if (episode.intValue() > 0) {
+				Number episode = (Number) map.getOrDefault(EPISODE_NO, -1);
+				if (episode.intValue() != -1) {
 					newLine.append(General.convertTrack((Number) map.get(EPISODE_NO), itemLength) + " ");
 				}
 			}

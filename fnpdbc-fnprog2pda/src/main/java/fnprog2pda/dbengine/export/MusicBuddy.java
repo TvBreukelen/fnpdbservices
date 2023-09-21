@@ -67,12 +67,12 @@ public class MusicBuddy extends CsvFile {
 				String trackTitle = entry.substring(entry.indexOf(") ") + 2);
 
 				if (!entry.contains("- (")) {
-					item = entry.substring(0, entry.indexOf(". (")).replace(".", "-");
+					item = entry.substring(0, entry.indexOf(". (")).replace(".", "-") + ". ";
 					String runtime = entry.substring(entry.indexOf("(") + 1, entry.indexOf(") "));
 					seconds = General.convertDuration2DB(runtime).toSeconds();
 				}
 
-				result.append("{\"title\":\"").append(item).append(". ").append(trackTitle.replace("\"", "\"\""))
+				result.append("{\"title\":\"").append(item).append(trackTitle.replace("\"", "'"))
 						.append("\",\"duration\":").append(seconds).append("},");
 			}
 		}

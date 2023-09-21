@@ -1,5 +1,9 @@
 Release Notes
 
+Version 10.2
+------------
+Added support for BookBuddy, MovieBuddy and MusicBuddy
+
 
 Version 10.1
 ------------

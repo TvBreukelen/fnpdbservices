@@ -487,14 +487,13 @@ public final class General {
 		}
 	}
 
+	public static String addLeadingZeroes(Number pIndex, int pLength) {
+		final String format = "%0" + pLength + "d";
+		return String.format(format, pIndex.intValue());
+	}
+
 	public static String convertTrack(Number pIndex, int pLength) {
-		StringBuilder result = new StringBuilder(String.valueOf(pIndex));
-		int i = result.length();
-		while (i++ < pLength) {
-			result.insert(0, "0");
-		}
-		result.append(".");
-		return result.toString();
+		return addLeadingZeroes(pIndex, pLength) + ".";
 	}
 
 	public static String convertObject(Object obj, FieldTypes dbField) {

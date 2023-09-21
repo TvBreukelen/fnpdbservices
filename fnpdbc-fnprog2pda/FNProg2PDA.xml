@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>10.1.0.0</fileVersion>
-    <txtFileVersion>Version 10.1</txtFileVersion>
+    <fileVersion>10.2.0.0</fileVersion>
+    <txtFileVersion>Version 10.2</txtFileVersion>
     <fileDescription>FNProg2PDA</fileDescription>
     <copyright>Tom van Breukelen 2003-2023</copyright>
-    <productVersion>10.1.0.0</productVersion>
-    <txtProductVersion>Version 10.1</txtProductVersion>
+    <productVersion>10.2.0.0</productVersion>
+    <txtProductVersion>Version 10.2</txtProductVersion>
     <productName>FNProg2PDA</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>FNProg2PDA</internalName>

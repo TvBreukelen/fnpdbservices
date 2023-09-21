@@ -1,0 +1,61 @@
+<html>
+<body>
+<h1>Export To MusicBuddy</h1>
+<p>
+If you have selected the Album table in the CATraxx database, you'll have an additional CSV format option
+ in the Texfile export to create a valid MusicBuddy import file. MusicBuddy is a powerful Musci collecting
+ app that runs on the Apple iPhone and iPad. It is developed by Kimico,Ltd. 
+</p>
+<br><br>
+<img src="../images/ExportToMusicBuddy.png">
+<h2>Export Format</h2>
+Here you can select the text format to export to.<br>
+<ul>
+<li><b>Standard CSV File</b></li>Creates a standard CSV File that can be imported directly in HanDBase,
+ JFile, SmartList to Go, MS-Excel or other program.<br><br>
+<li><b>MusicBuddy</b></li>Creates a MusicBuddy compatible CSV file.<br><br>
+<li><b>Other</b></li>Creates a delimited text file according to your own requirements.<br>
+</ul>
+<h2>Large File Split</h2>
+Many import programs place a limit on the size of a texfile. Here you can define the maximum allowed
+ file size limit, so that FNProg2PDA splits the textfile into smaller pieces in case the export file
+ exceeds the file size limitation.
+<h2>Other</h2>
+The right part of the screen contains the options for setting up an export file to your own requirements
+ It contains of the following parts
+<ul>
+<li><b>Field Separator</b></li>
+By selecting the field separator you can either create a Comma-, Tab- or Semicolon- or Pipe delimited file
+<br><br>
+<li><b>Text Delimiter</b></li>
+This specifies the text delimiter (to enclose all database fields).
+<br><br>
+<li><b>Include</b></li>
+Here you specify whether the first line of your file should contain the database field 'Headers' and
+ whether it is allowed that the export file contains line breaks (carriage return) characters. 
+<br>
+</ul>
+<h2>Notes:</h2>
+If MusicBuddy is selected then FNProg2PDA will preload the minimal required fields to be exported and 
+sort order (by Artist and Title).
+<br><br><br>
+<img src="../images/ExportToMusicBuddyFields.png">
+<br><br>
+<h3>Valid MusicBuddy fields:</h3>
+Activities, Artist (Last, First), Artist, Borrowed From, Catalog Number, Category, Composers, Condition, 
+Conductors, Content Type, Country, Cover Condition, Date Added, Date Borrowed, Date Loaned, Description, 
+discogs Release ID, Edition, Favorites, Format, Genres, Labels, Language, Length, List Price, Loaned To, 
+Media, Not Owned Reason, Notes, Number Of Volumes, Online Videos, Orchestras, Original Release Year, 
+Packaging, Performers, Physical Location, Previously Owned, Producers, Production Companies, Purchase Date, 
+Purchase Place, Purchase Price, Quantity, Rating, Recommended By, Release Year, Returned from Borrow, 
+Series, Styles, Tags, Title, Tracks, UPC-EAN13, Uploaded Image URL, User Supplied Descriptor, 
+User Supplied ID, Versions, Vinyl Size, Vinyl Speed, Volume, Wish List and Writers.
+<br><br>
+If you would enter an invalid CATraxx field then FNProg2PDA will try to match it with the corresponding
+MusicBuddy field. If a match is found the field with be renamed. If no match is found the field will not be
+exported. In both cases a similar screen like the one below will be shown. 
+<br><br><br>
+<img src="../images/ExportToMusicBuddyInvalid.png">
+<br><br>
+</body>
+</html>

@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=FNProg2PDA
-AppVerName=FNProg2PDA 10.1
+AppVerName=FNProg2PDA 10.2
 AppPublisher=TvBSoftware
 AppPublisherURL=http://sourceforge.net/projects/fnprog2pda
 AppSupportURL=http://sourceforge.net/projects/fnprog2pda

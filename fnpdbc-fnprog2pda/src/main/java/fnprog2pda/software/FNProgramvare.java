@@ -544,10 +544,6 @@ public abstract class FNProgramvare extends BasicSoft {
 								link.getColumnValues());
 						if (!lList.isEmpty()) {
 							linkList.addAll(lList);
-						} else if (field.isRoleField()) {
-							Map<String, Object> lObj = new LinkedHashMap<>();
-							lObj.put("AtEnd", true);
-							linkList.add(lObj);
 						}
 					}
 				}
@@ -557,11 +553,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		hashTable.put(linkKey, linkList);
 
 		for (Map<String, Object> linkMap : linkList) {
-			if (linkMap.get("AtEnd") != null) {
-				result.add(linkMap);
-				continue;
-			}
-
 			if (table.setColumnValues(linkMap)) {
 				List<Map<String, Object>> list = msAccess.getMultipleRecords(table.getName(), table.getIndex(),
 						table.getColumnValues());

@@ -43,6 +43,10 @@ Pilot-DB        Palm
 TSV             All platforms
 XML             All platforms
 YAML            All Platforms
+BookBuddy       iPhone/iPad 
+MovieBuddy      iPhone/iPad   
+MusicBuddy      iPhone/iPad 
+
 
 To be able to use the FNProg2PDA programs you'll need to have the following on your PC:
 
@@ -128,6 +132,11 @@ General Public License for more details.
 ===================================================================================================
 5. What is New?
 ===================================================================================================
+
+Version 10.2
+------------
+Added support for BookBuddy, MovieBuddy and MusicBuddy
+
 
 Version 10.1
 ------------
