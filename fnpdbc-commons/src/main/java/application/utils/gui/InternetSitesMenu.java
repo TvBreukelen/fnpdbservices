@@ -38,7 +38,10 @@ public class InternetSitesMenu {
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		Map<String, Object> map;
 		try {
-			map = mapper.readValue(General.getInputStreamReader("config/InternetSites.yaml"), Map.class);
+			map = mapper.readValue(
+					General.getInputStreamReader(software == TvBSoftware.DBCONVERT ? "config/InternetSitesDBC.yaml"
+							: "config/InternetSitesFNP.yaml"),
+					Map.class);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -48,21 +51,19 @@ public class InternetSitesMenu {
 
 		internetSites.forEach(entry -> {
 			String name = entry.get("name").toString();
-			if (!(name.startsWith("Fans") && software == TvBSoftware.DBCONVERT)) {
-				JMenu result = new JMenu(name);
-				menu.add(result);
+			JMenu result = new JMenu(name);
+			menu.add(result);
 
-				List<Map<String, Object>> webSites = (List<Map<String, Object>>) entry.get("website");
-				webSites.forEach(site -> {
-					site.entrySet().forEach(e -> {
-						JMenuItem it = new JMenuItem(e.getKey());
-						it.setActionCommand(e.getValue().toString());
-						it.setToolTipText(it.getActionCommand());
-						it.addActionListener(listener);
-						result.add(it);
-					});
+			List<Map<String, Object>> webSites = (List<Map<String, Object>>) entry.get("website");
+			webSites.forEach(site -> {
+				site.entrySet().forEach(e -> {
+					JMenuItem it = new JMenuItem(e.getKey());
+					it.setActionCommand(e.getValue().toString());
+					it.setToolTipText(it.getActionCommand());
+					it.addActionListener(listener);
+					result.add(it);
 				});
-			}
+			});
 		});
 		return menu;
 	}

@@ -30,6 +30,7 @@ public class CATraxx extends FNProgramvare {
 	private boolean useContentsSide = true;
 	private boolean useContentsIndex = true;
 
+	private boolean useCategory = false;
 	private boolean useComposers = false;
 	private boolean useConductors = false;
 	private boolean useGenresAndStyles = false;
@@ -46,16 +47,19 @@ public class CATraxx extends FNProgramvare {
 
 	private static final String ALBUM = "Album";
 	private static final String ARTIST = "Artist";
+	private static final String ARTIST_PERFORMER = "ArtistPerformer";
 	private static final String ARTIST_PERSON_ID = "ArtistPersonID";
 	private static final String ARTIST_SORT = "ArtistSort";
 	private static final String BAR_CODE = "BarCode";
 	private static final String BOX_ITEM = "BoxSetIndex";
+	private static final String CATEGORY = "Category";
 	private static final String COMPOSERS = "Composers";
 	private static final String CONDUCTORS = "Conductors";
 	private static final String CONTENTS_PERSON = "ContentsPerson";
 	private static final String FORMAT = "Format";
 	private static final String GENRES = "PrimaryGenre.MainGenre";
 	private static final String INSTRUMENT = "Instrument";
+	private static final String INSTRUMENT_ID = "InstrumentID";
 	private static final String ORCHESTRAS = "Orchestras";
 	private static final String PERFORMERS = "Performers";
 	private static final String RATING = "PersonalRating";
@@ -89,13 +93,15 @@ public class CATraxx extends FNProgramvare {
 		if (useMusicBuddy) {
 			result.add(new BasisField(ARTIST, ARTIST, ARTIST, FieldTypes.TEXT));
 			result.add(new BasisField(ARTIST_SORT, ARTIST_SORT, "Artist (Last, First)", FieldTypes.TEXT));
+			result.add(new BasisField(BAR_CODE, BAR_CODE, "UPC-EAN13", FieldTypes.TEXT));
+			result.add(new BasisField(FORMAT, FORMAT, "Media", FieldTypes.TEXT));
+			result.add(new BasisField(CATEGORY, CATEGORY, CATEGORY, FieldTypes.TEXT));
+			result.add(new BasisField("FormatGroup", "FormatGroup", "Content Type", FieldTypes.TEXT));
+			result.add(new BasisField(GENRES, GENRES, "Genres", FieldTypes.TEXT));
+			result.add(new BasisField(PERFORMERS, PERFORMERS, PERFORMERS, FieldTypes.MEMO));
+			result.add(new BasisField(STYLES, STYLES, "Styles", FieldTypes.TEXT));
 			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
 			result.add(new BasisField(TRACKS, TRACKS, TRACKS, FieldTypes.MEMO));
-			result.add(new BasisField(BAR_CODE, BAR_CODE, BAR_CODE, FieldTypes.TEXT));
-			result.add(new BasisField(GENRES, GENRES, "Genres", FieldTypes.TEXT));
-			result.add(new BasisField(STYLES, STYLES, "Styles", FieldTypes.TEXT));
-			result.add(new BasisField("FormatGroup", "FormatGroup", "Content Type", FieldTypes.TEXT));
-			result.add(new BasisField(FORMAT, FORMAT, "Media", FieldTypes.TEXT));
 		}
 
 		return result;
@@ -161,6 +167,7 @@ public class CATraxx extends FNProgramvare {
 		List<String> result = new ArrayList<>();
 		result.add(TITLE);
 
+		useCategory = userFields.contains(CATEGORY);
 		useComposers = userFields.contains(COMPOSERS);
 		useConductors = userFields.contains(CONDUCTORS);
 		useOrchestras = userFields.contains(ORCHESTRAS);
@@ -170,6 +177,10 @@ public class CATraxx extends FNProgramvare {
 		usePerformers = userFields.contains(PERFORMERS);
 		useWriters = userFields.contains(WRITERS);
 		useGenresAndStyles = useMusicBuddy;
+
+		if (useCategory) {
+			result.add(GENRES);
+		}
 
 		if (useConductors) {
 			result.add("ArrangerTrackLink.RoleID");
@@ -190,7 +201,7 @@ public class CATraxx extends FNProgramvare {
 
 		if (usePerformers || useOrchestras) {
 			result.add("MusicianTrackLink.RoleType");
-			result.add("ArtistPerformer");
+			result.add(ARTIST_PERFORMER);
 			result.add(INSTRUMENT);
 			useRoles = true;
 		}
@@ -329,6 +340,11 @@ public class CATraxx extends FNProgramvare {
 				String albumTitle = dbDataRecord.get(TITLE).toString();
 				dbDataRecord.put(TRACKS, getAlbumTracks(s.length(), discCount, albumTitle, hashTable));
 			}
+		}
+
+		if (useCategory) {
+			String genre = dbDataRecord.getOrDefault(GENRES, "").toString();
+			dbDataRecord.put(CATEGORY, genre.equals("Classical") ? "Classical" : "Modern");
 		}
 
 		if (useConductors) {
@@ -470,7 +486,7 @@ public class CATraxx extends FNProgramvare {
 			return;
 		}
 
-		List<Map<String, Object>> performer = hashTable.getOrDefault("ArtistPerformer", new ArrayList<>());
+		List<Map<String, Object>> performer = hashTable.getOrDefault(ARTIST_PERFORMER, new ArrayList<>());
 		if (performer.isEmpty()) {
 			return;
 		}
@@ -480,7 +496,7 @@ public class CATraxx extends FNProgramvare {
 		// Remove duplicate instruments
 		Map<Integer, String> mapInstrument = new HashMap<>();
 		instrumentList.forEach(map -> {
-			Integer instrumentID = (Integer) map.get("InstrumentID");
+			Integer instrumentID = (Integer) map.get(INSTRUMENT_ID);
 			String instrument = map.get(INSTRUMENT).toString();
 			mapInstrument.putIfAbsent(instrumentID, instrument);
 		});
@@ -489,9 +505,9 @@ public class CATraxx extends FNProgramvare {
 		Map<Integer, String> mapPerformer = mapPersons(performer);
 
 		mapPerformer.entrySet().forEach(entry -> {
-			Set<Integer> list = musicianTrackList.stream()
-					.filter(map -> map.get(ARTIST_PERSON_ID).equals(entry.getKey()))
-					.map(x -> (Integer) x.get("InstrumentID")).collect(Collectors.toCollection(LinkedHashSet::new));
+			Set<Integer> list = musicianTrackList.stream().filter(
+					map -> map.get(ARTIST_PERSON_ID).equals(entry.getKey()) && (Integer) map.get(INSTRUMENT_ID) != -1)
+					.map(x -> (Integer) x.get(INSTRUMENT_ID)).collect(Collectors.toCollection(LinkedHashSet::new));
 
 			if (!list.isEmpty()) {
 				result.append(entry.getValue()).append(" - ");
@@ -513,13 +529,13 @@ public class CATraxx extends FNProgramvare {
 
 		// Get the orchestra(s)
 		List<Integer> orchestras = musicianTrackList.stream()
-				.filter(map -> (Integer) map.getOrDefault("InstrumentID", -1) == 64)
+				.filter(map -> (Integer) map.getOrDefault(INSTRUMENT_ID, -1) == 64)
 				.map(x -> (Integer) x.getOrDefault(ARTIST_PERSON_ID, -1)).collect(Collectors.toList());
 		if (orchestras.isEmpty()) {
 			return;
 		}
 
-		List<Map<String, Object>> performer = hashTable.getOrDefault("ArtistPerformer", new ArrayList<>());
+		List<Map<String, Object>> performer = hashTable.getOrDefault(ARTIST_PERFORMER, new ArrayList<>());
 		if (performer.isEmpty()) {
 			return;
 		}
