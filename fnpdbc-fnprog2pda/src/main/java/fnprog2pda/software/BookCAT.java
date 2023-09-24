@@ -30,6 +30,7 @@ public class BookCAT extends FNProgramvare {
 	private boolean useSpecialRoles;
 	private boolean useStatus;
 	private boolean useRating;
+	private boolean useYearPublished;
 
 	private int myItemCount = 0;
 	private String myPerson = "[None]";
@@ -59,6 +60,7 @@ public class BookCAT extends FNProgramvare {
 	private static final String TITLE = "Title";
 	private static final String TITLE_SORT = "TitleSort";
 	private static final String TRANSLATOR = "Translator";
+	private static final String YEAR_PUBLISHED = "YearPublished";
 
 	private Map<String, FieldTypes> sortContents = new LinkedHashMap<>();
 	private Map<String, FieldTypes> sortMedia = new LinkedHashMap<>();
@@ -83,14 +85,17 @@ public class BookCAT extends FNProgramvare {
 		if (useBookBuddy) {
 			result.add(new BasisField(AUTHOR, AUTHOR, AUTHOR, FieldTypes.TEXT));
 			result.add(new BasisField(AUTHOR_SORT, AUTHOR_SORT, "Author (Last, First)", FieldTypes.TEXT));
-			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
-			result.add(new BasisField(SERIES, SERIES, SERIES, FieldTypes.TEXT));
-			result.add(new BasisField(RELEASE_NO, RELEASE_NO, "Volume", FieldTypes.TEXT));
-			result.add(new BasisField("PrimaryGenre", "PrimaryGenre", "Genre", FieldTypes.TEXT));
 			result.add(new BasisField(ISBN, ISBN, ISBN, FieldTypes.TEXT));
 			result.add(new BasisField(LANGUAGE, LANGUAGE, LANGUAGE, FieldTypes.TEXT));
-			result.add(new BasisField(SYNOPSIS, SYNOPSIS, "Summary", FieldTypes.MEMO));
+			result.add(new BasisField("Pages", "Pages", "Number of Pages", FieldTypes.NUMBER));
+			result.add(new BasisField("PrimaryGenre", "PrimaryGenre", "Genre", FieldTypes.TEXT));
+			result.add(new BasisField("Publisher", "Publisher", "Publisher", FieldTypes.TEXT));
+			result.add(new BasisField(RELEASE_NO, RELEASE_NO, "Volume", FieldTypes.TEXT));
+			result.add(new BasisField(SERIES, SERIES, SERIES, FieldTypes.TEXT));
 			result.add(new BasisField(STATUS, STATUS, "Status", FieldTypes.TEXT));
+			result.add(new BasisField(SYNOPSIS, SYNOPSIS, "Summary", FieldTypes.MEMO));
+			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
+			result.add(new BasisField(YEAR_PUBLISHED, YEAR_PUBLISHED, "Year Published", FieldTypes.TEXT));
 
 			inclReleaseNo = false;
 		}
@@ -125,6 +130,7 @@ public class BookCAT extends FNProgramvare {
 		inclReleaseNo = inclReleaseNo && (useOriginalSeries || useSeries);
 		useStatus = userFields.contains(STATUS);
 		useRating = userFields.contains(RATING);
+		useYearPublished = userFields.contains(YEAR_PUBLISHED);
 
 		if (inclReleaseNo && useOriginalSeries && !useOriginalReleaseNo) {
 			result.add(ORIGINAL_RELEASE_NO);
@@ -144,6 +150,10 @@ public class BookCAT extends FNProgramvare {
 			result.add(LAST_READ);
 		}
 
+		if (useYearPublished) {
+			result.add("PublishDate");
+		}
+
 		useSpecialRoles = userFields.contains(EDITOR) || userFields.contains(ILLUSTRATOR)
 				|| userFields.contains(PHOTOGRAPHER) || userFields.contains(TRANSLATOR);
 
@@ -152,9 +162,10 @@ public class BookCAT extends FNProgramvare {
 			useRoles = true;
 		}
 
-		if (useOriginalTitle && !userFields.contains(ORIGINAL_TITLE)) {
+		if (useOriginalTitle) {
 			result.add(ORIGINAL_TITLE);
 		}
+
 		return result;
 	}
 
@@ -325,6 +336,13 @@ public class BookCAT extends FNProgramvare {
 
 		if (useSpecialRoles) {
 			convertCreditRoles(dbDataRecord);
+		}
+
+		if (useYearPublished) {
+			String published = dbDataRecord.getOrDefault("PublishDate", "").toString();
+			if (published.length() > 3) {
+				dbDataRecord.put(YEAR_PUBLISHED, published.substring(0, 4));
+			}
 		}
 	}
 

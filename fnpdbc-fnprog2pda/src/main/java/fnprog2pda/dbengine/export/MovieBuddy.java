@@ -266,7 +266,8 @@ public class MovieBuddy extends CsvFile {
 		map.entrySet().forEach(entry -> {
 			buf.append("{\"actor\":\"").append(entry.getKey());
 			if (!entry.getValue().isEmpty()) {
-				buf.append("\",\"character\":").append("\"").append(entry.getValue().replace("\"", "'")).append("\"},");
+				buf.append("\",\"character\":").append("\"").append(General.convertDoubleQuotes(entry.getValue()))
+						.append("\"},");
 			}
 		});
 

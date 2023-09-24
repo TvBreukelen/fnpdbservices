@@ -425,6 +425,23 @@ public final class General {
 		return text;
 	}
 
+	public static String convertDoubleQuotes(String text) {
+		if (!text.contains("\"")) {
+			return text;
+		}
+
+		StringBuilder result = new StringBuilder();
+		char[] chars = text.toCharArray();
+		for (char c : chars) {
+			if (c == '"') {
+				result.append("\\");
+			}
+			result.append(c);
+		}
+
+		return result.toString();
+	}
+
 	/**
 	 * Converts a database date to a 'readable' format
 	 *

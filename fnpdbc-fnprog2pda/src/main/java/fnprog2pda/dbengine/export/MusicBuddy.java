@@ -72,7 +72,7 @@ public class MusicBuddy extends CsvFile {
 					seconds = General.convertDuration2DB(runtime).toSeconds();
 				}
 
-				result.append("{\"title\":\"").append(item).append(trackTitle.replace("\"", "'"))
+				result.append("{\"title\":\"").append(item).append(General.convertDoubleQuotes(trackTitle))
 						.append("\",\"duration\":").append(seconds).append("},");
 			}
 		}
@@ -80,5 +80,4 @@ public class MusicBuddy extends CsvFile {
 		result.append("]");
 		return result.toString();
 	}
-
 }

@@ -99,6 +99,7 @@ public class CATraxx extends FNProgramvare {
 			result.add(new BasisField("FormatGroup", "FormatGroup", "Content Type", FieldTypes.TEXT));
 			result.add(new BasisField(GENRES, GENRES, "Genres", FieldTypes.TEXT));
 			result.add(new BasisField(PERFORMERS, PERFORMERS, PERFORMERS, FieldTypes.MEMO));
+			result.add(new BasisField(RELEASE_YEAR, RELEASE_YEAR, "Release Year", FieldTypes.TEXT));
 			result.add(new BasisField(STYLES, STYLES, "Styles", FieldTypes.TEXT));
 			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));
 			result.add(new BasisField(TRACKS, TRACKS, TRACKS, FieldTypes.MEMO));
@@ -375,7 +376,7 @@ public class CATraxx extends FNProgramvare {
 		if (useReleaseYear) {
 			String released = dbDataRecord.getOrDefault(RELEASED, "").toString();
 			if (released.length() > 3) {
-				dbDataRecord.put(RELEASE_YEAR, released.substring(released.length() - 4));
+				dbDataRecord.put(RELEASE_YEAR, released.substring(0, 4));
 			}
 		}
 
