@@ -186,10 +186,16 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 		}
 
-		for (BasisField dbField : getRequiredFields()) {
-			FieldDefinition field = addField(dbField.getFieldAlias(), usrList, false, false);
-			if (field != null) {
-				field.setFieldHeader(dbField.getFieldHeader());
+		for (BasisField dbField : getBuddyFields()) {
+			// Check if the "Buddy" field isn't assigned yet
+			if (dbInfoToExport.values().stream()
+					.noneMatch(field -> field.getFieldHeader().equals(dbField.getFieldHeader()))) {
+
+				// We can safely add the new field
+				FieldDefinition field = addField(dbField.getFieldAlias(), usrList, false, false);
+				if (field != null) {
+					field.setFieldHeader(dbField.getFieldHeader());
+				}
 			}
 		}
 
@@ -219,6 +225,7 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	private FieldDefinition addField(String dbField, List<String> usrList, boolean isSystemField,
 			boolean isContentsField) {
+
 		FieldDefinition field = dbFieldDefinition.get(dbField);
 		if (field != null && !dbInfoToExport.containsKey(field.getFieldAlias())) {
 			usrList.add(dbField);
@@ -1112,7 +1119,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		newLine.setLength(0);
 	}
 
-	protected List<BasisField> getRequiredFields() {
+	protected List<BasisField> getBuddyFields() {
 		// Nothing to do on this level
 		return new ArrayList<>();
 	}

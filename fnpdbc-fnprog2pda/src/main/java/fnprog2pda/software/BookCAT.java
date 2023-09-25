@@ -80,7 +80,7 @@ public class BookCAT extends FNProgramvare {
 	}
 
 	@Override
-	protected List<BasisField> getRequiredFields() {
+	protected List<BasisField> getBuddyFields() {
 		List<BasisField> result = new ArrayList<>();
 		if (useBookBuddy) {
 			result.add(new BasisField(AUTHOR, AUTHOR, AUTHOR, FieldTypes.TEXT));

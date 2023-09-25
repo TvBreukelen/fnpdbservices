@@ -84,7 +84,7 @@ public class CATVids extends FNProgramvare {
 	}
 
 	@Override
-	protected List<BasisField> getRequiredFields() {
+	protected List<BasisField> getBuddyFields() {
 		List<BasisField> result = new ArrayList<>();
 		if (useMovieBuddy) {
 			result.add(new BasisField(TITLE, TITLE, TITLE, FieldTypes.TEXT));

@@ -88,7 +88,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	@Override
-	protected List<BasisField> getRequiredFields() {
+	protected List<BasisField> getBuddyFields() {
 		List<BasisField> result = new ArrayList<>();
 		if (useMusicBuddy) {
 			result.add(new BasisField(ARTIST, ARTIST, ARTIST, FieldTypes.TEXT));
