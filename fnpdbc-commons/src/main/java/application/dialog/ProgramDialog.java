@@ -549,8 +549,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		exportFile.setCellEditor(new ExportToTableCellEditor());
 		exportFile.setCellRenderer(new FilenameRenderer());
 
-		General.packColumns(table);
-
 		DateTimeTableEditor edit = new DateTimeTableEditor();
 		edit.getDatePickerSettings().setFormatForDatesCommonEra(General.getDateFormat());
 		edit.getTimePickerSettings().setFormatForDisplayTime(General.sdInternalTime);
@@ -571,7 +569,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		TableColumn lastExport = table.getColumnModel().getColumn(ProjectModel.HEADER_LASTEXPORT);
 		lastExport.setCellEditor(edit);
 		lastExport.setCellRenderer(new DateTimeRenderer());
-		lastExport.setPreferredWidth(130);
+		lastExport.setPreferredWidth(200);
 
 		TableColumn notes = table.getColumnModel().getColumn(ProjectModel.HEADER_NOTES);
 		notes.setCellEditor(new StringActionTableCellEditor());
