@@ -273,7 +273,6 @@ public final class General {
 
 		DateTimeFormatter sd = DateTimeFormatter.ofPattern(dateFormat);
 		return sd.format(date);
-
 	}
 
 	/**

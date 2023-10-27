@@ -673,7 +673,7 @@ public class CATraxx extends FNProgramvare {
 						isDoubleSided = (Boolean) mapItem.get("DoubleSided");
 					}
 
-					if (useContentsItemTitle && !sideTitle.startsWith(albumTitle)) {
+					if (useContentsItemTitle && !sideTitle.equalsIgnoreCase(albumTitle)) {
 						newLine.append(item + " - ");
 						if (useContentsLength) {
 							newLine.append("(" + General.convertDuration((Integer) mapItem.get("PlayingTime")) + ") ");

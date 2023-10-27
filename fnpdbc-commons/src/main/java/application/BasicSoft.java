@@ -244,6 +244,12 @@ public abstract class BasicSoft {
 			case FLOAT:
 				idx = ((Double) obj).compareTo(Double.valueOf(filterValue));
 				break;
+			case FUSSY_DATE:
+				if (!obj.toString().isEmpty()) {
+					String date = General.convertFussyDate2DB(filterValue);
+					idx = obj.toString().compareTo(date);
+				}
+				break;
 			case NUMBER:
 				idx = ((Integer) obj).compareTo(Integer.valueOf(filterValue));
 				break;
