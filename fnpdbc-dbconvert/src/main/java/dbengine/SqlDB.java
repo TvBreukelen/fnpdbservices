@@ -775,6 +775,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.BIT:
 		case Types.BOOLEAN:
 			return rs.getBoolean(colNo);
+		case Types.BLOB:
+			return rs.getBlob(colNo);
 		case Types.DOUBLE:
 			return rs.getDouble(colNo);
 		case Types.DATE:

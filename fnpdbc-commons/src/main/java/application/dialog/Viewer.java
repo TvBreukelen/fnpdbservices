@@ -38,7 +38,6 @@ public class Viewer extends BasicDialog {
 	}
 
 	public void buildViewer() {
-
 		init(GUIFactory.getTitle("xViewer"));
 		setHelpFile("xviewer");
 		buildDialog();

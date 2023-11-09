@@ -1,5 +1,11 @@
 Release Notes
 
+Version 10.3
+------------
+Added filter on "fuzzy dates"
+Bug fix: Last import date couldn't be set manually  
+
+
 Version 10.2
 ------------
 Added support for BookBuddy, MovieBuddy and MusicBuddy

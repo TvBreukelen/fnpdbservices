@@ -238,7 +238,6 @@ public abstract class BasicSoft {
 			case DATE:
 				if (obj instanceof LocalDate) {
 					idx = General.convertDate((LocalDate) obj, General.sdInternalDate).compareTo(filterValue);
-					break;
 				}
 				break;
 			case FLOAT:
@@ -257,7 +256,6 @@ public abstract class BasicSoft {
 				if (obj instanceof LocalDateTime) {
 					idx = General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp)
 							.compareTo(filterValue);
-					break;
 				}
 				break;
 			default:

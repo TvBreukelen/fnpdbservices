@@ -250,24 +250,4 @@ public class Calc extends GeneralDB implements IConvert {
 			cell.setValue(convertDataFields(dbRecord.get(field.getFieldAlias()), field));
 		}
 	}
-
-	@Override
-	protected Object convertDate(Object dbValue, FieldDefinition field) {
-		return field.isOutputAsText() ? super.convertDate(dbValue, field) : dbValue;
-	}
-
-	@Override
-	protected Object convertDuration(Object dbValue, FieldDefinition field) {
-		return field.isOutputAsText() ? super.convertDuration(dbValue, field) : dbValue;
-	}
-
-	@Override
-	protected Object convertTime(Object dbValue, FieldDefinition field) {
-		return field.isOutputAsText() ? super.convertTime(dbValue, field) : dbValue;
-	}
-
-	@Override
-	protected Object convertTimestamp(Object dbValue, FieldDefinition field) {
-		return field.isOutputAsText() ? super.convertTimestamp(dbValue, field) : dbValue;
-	}
 }

@@ -157,7 +157,7 @@ public abstract class GeneralDB {
 			return "";
 		}
 
-		if (field.getFieldType() == FieldTypes.IMAGE || field.getFieldType() == FieldTypes.TEXT || dbValue.equals("")) {
+		if (field.getFieldType() == FieldTypes.IMAGE || field.getFieldType() == FieldTypes.TEXT) {
 			return dbValue;
 		}
 
