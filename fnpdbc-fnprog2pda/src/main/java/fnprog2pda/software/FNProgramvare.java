@@ -60,7 +60,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	 * @version 8
 	 */
 	protected String mySoftwareVersion = "";
-	protected int myLastIndex = 0;
+	protected int lastIndex = 0;
 
 	protected String myTable;
 	protected String myTableID;
@@ -89,7 +89,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	private Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
 			|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
-	private String myLastModified = "";
+	private String lastExported = "";
 	private String imageKey;
 
 	protected String[] personField = new String[] { "", "" };
@@ -131,8 +131,8 @@ public abstract class FNProgramvare extends BasicSoft {
 		imageOption = pdaSettings.getImageOption();
 		fileCounter = 0;
 
-		myLastIndex = pdaSettings.getLastIndex();
-		myLastModified = pdaSettings.getLastModified();
+		lastIndex = pdaSettings.getLastIndex();
+		lastExported = pdaSettings.getLastExported();
 		myImportFile = ExportFile.ACCESS;
 	}
 
@@ -388,28 +388,20 @@ public abstract class FNProgramvare extends BasicSoft {
 				map = iter1.next();
 			}
 
-			if (isNewRecords) {
-				if (pdaSettings.getLastIndex() > ((Number) map.get(myTableID)).intValue()) {
+			int index = ((Number) map.get(myTableID)).intValue();
+			if (pdaSettings.getLastIndex() >= index) {
+				boolean isOK = true;
+				if (isNewModified && !lastExported.isEmpty()) {
+					Object obj = map.getOrDefault("LastModified", "");
+					isOK = obj instanceof LocalDateTime;
+					if (isOK) {
+						String compDate = General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp);
+						isOK = compDate.compareTo(lastExported) > 0;
+					}
+				}
+
+				if (!isOK || isNewRecords) {
 					continue;
-				}
-			} else if (isNewModified) {
-				boolean isOK = false;
-				if (pdaSettings.getLastIndex() > 0) {
-					isOK = pdaSettings.getLastIndex() < ((Number) map.get(myTableID)).intValue();
-				}
-
-				if (!isOK && !myLastModified.isEmpty() && map.containsKey("LastModified")) {
-					Object obj = map.get("LastModified");
-					if (obj == null || obj.equals("")) {
-						continue;
-					}
-
-					String compDate = obj instanceof LocalDateTime
-							? General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp)
-							: obj.toString();
-					if (compDate.compareTo(myLastModified) < 0) {
-						continue;
-					}
 				}
 			}
 
@@ -708,12 +700,14 @@ public abstract class FNProgramvare extends BasicSoft {
 	private void prepareFilters(Map<Integer, FieldDefinition> hFilterTable, Set<Object> idSet) throws Exception {
 		isSkipFirstFilter = false;
 		isSkipLastFilter = numFilter == 1;
-		isNewRecords = generalSettings.isNewExport() && myLastIndex > 0;
-		isNewModified = generalSettings.isIncrementalExport() && (myLastIndex > 0 || !myLastModified.isEmpty());
+		int index = pdaSettings.getLastIndex();
+
+		isNewRecords = generalSettings.isNewExport() && index > 0;
+		isNewModified = generalSettings.isIncrementalExport() && (index > 0 || !lastExported.isEmpty());
 
 		if (generalSettings.isNoFilterExport()) {
 			if (isNewRecords) {
-				Object obj = myLastIndex;
+				Object obj = index;
 				try {
 					cursor = msAccess.getCursor(myTable, myTableID, Collections.singletonMap(myTableID, obj),
 							FilterOperator.IS_GREATER_THAN);
@@ -952,9 +946,9 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		// Save last export date and record
-		if (myLastIndex > 0) {
-			pdaSettings.setLastIndex(myLastIndex);
-			pdaSettings.setLastModified(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
+		if (lastIndex > 0) {
+			pdaSettings.setLastIndex(lastIndex);
+			pdaSettings.setLastExported(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
 		}
 	}
 

@@ -19,6 +19,7 @@ import dbengine.export.CsvFile;
 
 public class MovieBuddy extends CsvFile {
 	private static final String EPISODES = "Episodes";
+	private static final String EPISODE_NO = "EpisodeNo";
 	private static final String LAST_VIEWED = "LastViewed";
 	private static final String PERSON = "Person";
 	private static final String RUN_TIME = "Length";
@@ -45,9 +46,10 @@ public class MovieBuddy extends CsvFile {
 			return;
 		}
 
-		boolean hasSeason = !dbRecord.get(SEASON).toString().isEmpty();
+		boolean hasEpisodes = !dbRecord.get(EPISODE_NO).toString().isEmpty();
 
-		if (hasSeason) {
+		if (hasEpisodes) {
+			// We assume it is a TV Show
 			if (recordMap.isEmpty()) {
 				recordMap.putAll(dbRecord);
 				oldRecord = getRecordID(dbRecord);
@@ -238,6 +240,7 @@ public class MovieBuddy extends CsvFile {
 		case "DateBorrowed":
 		case LAST_VIEWED:
 			return General.convertFussyDate(dbValue.toString(), "yyyy/MM/dd");
+		case "Notes":
 		case RUN_TIME:
 		case SYNOPSIS:
 			return dbValue;

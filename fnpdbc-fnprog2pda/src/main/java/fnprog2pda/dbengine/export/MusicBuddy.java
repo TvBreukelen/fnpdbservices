@@ -22,6 +22,7 @@ public class MusicBuddy extends CsvFile {
 		switch (field.getFieldAlias()) {
 		case "Artist":
 		case "ArtistSort":
+		case "Notes":
 		case "PersonalRating":
 		case "Synopsis":
 			return dbValue;

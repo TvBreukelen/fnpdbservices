@@ -7,7 +7,7 @@ public class AssetCAT extends FNProgramvare {
 	@Override
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
-		myLastIndex = Math.max(myLastIndex, (Integer) dbDataRecord.get(myTableID));
+		lastIndex = Math.max(lastIndex, (Integer) dbDataRecord.get(myTableID));
 	}
 
 }

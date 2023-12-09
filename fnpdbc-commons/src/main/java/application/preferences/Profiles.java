@@ -32,7 +32,7 @@ public abstract class Profiles extends Project {
 	private String exportPassword;
 	private String filterCondition;
 	private String keywordFilter;
-	private String lastModified;
+	private String lastExported;
 	private String lastSaved;
 	private String notes;
 	private String pdaDatabaseName = "";
@@ -55,7 +55,6 @@ public abstract class Profiles extends Project {
 	private int imageOption;
 	private int imageHeight;
 	private int imageWidth;
-	private int lastIndex;
 
 	private String profileID = "";
 
@@ -138,10 +137,9 @@ public abstract class Profiles extends Project {
 		imageOption = child.getInt("export.image.option", 0);
 		imageHeight = child.getInt("export.image.height", 0);
 		imageWidth = child.getInt("export.image.width", 0);
-		lastIndex = child.getInt("last.index", 0);
 		skipEmptyRecords = child.getBoolean("skip.empty.records", false);
 
-		lastModified = child.get("last.modified", "");
+		lastExported = child.get("last.modified", "");
 		lastSaved = child.get("last.saved", "");
 
 		this.profileID = profileID;
@@ -416,22 +414,13 @@ public abstract class Profiles extends Project {
 		this.imageWidth = imageWidth;
 	}
 
-	public int getLastIndex() {
-		return lastIndex;
+	public String getLastExported() {
+		return lastExported;
 	}
 
-	public void setLastIndex(int lastIndex) {
-		PrefUtils.writePref(child, "last.index", lastIndex, this.lastIndex, 0);
-		this.lastIndex = lastIndex;
-	}
-
-	public String getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(String lastModified) {
-		PrefUtils.writePref(child, "last.modified", lastModified, this.lastModified, "");
-		this.lastModified = lastModified;
+	public void setLastExported(String lastExported) {
+		PrefUtils.writePref(child, "last.modified", lastExported, this.lastExported, "");
+		this.lastExported = lastExported;
 	}
 
 	public String getLastSaved() {
@@ -812,8 +801,7 @@ public abstract class Profiles extends Project {
 
 		setProject(newProject);
 		setProfile(newProfile);
-		setLastIndex(0);
-		setLastModified("");
+		setLastExported("");
 		setLastSaved();
 	}
 

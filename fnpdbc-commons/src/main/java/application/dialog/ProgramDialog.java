@@ -93,9 +93,9 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	private JProgressBar progressBar;
 	private JLabel progressText;
 
-	private JCheckBox bIncremental;
-	private JCheckBox bNewRecords;
-	private JCheckBox bNoFilter;
+	protected JCheckBox bIncremental;
+	protected JCheckBox bNewRecords;
+	protected JCheckBox bNoFilter;
 
 	transient ActionListener funcNew;
 	transient ActionListener funcEdit;
@@ -803,9 +803,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		btClone.setEnabled(isProfileSet);
 		btRemove.setEnabled(isProfileSet);
 		btView.setEnabled(isProfileSet);
-		bNewRecords.setEnabled(isProfileSet && pdaSettings.getLastIndex() > 0);
-		bIncremental.setEnabled(
-				isProfileSet && (!pdaSettings.getLastModified().isEmpty() || pdaSettings.getLastIndex() > 0));
 		bNoFilter.setEnabled(isProfileSet && !pdaSettings.isNoFilters());
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 	}

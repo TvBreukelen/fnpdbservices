@@ -548,8 +548,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		pdaSettings.setSqlSelectLimit(myImportFile.isSqlDatabase() ? sModel.getNumber().intValue() : 0);
 		pdaSettings.setPagination(ckPagination.isEnabled() && ckPagination.isSelected());
 
-		pdaSettings.setLastIndex(0);
-		pdaSettings.setLastModified("");
+		pdaSettings.setLastExported("");
 		configDb.setProperties();
 
 		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);

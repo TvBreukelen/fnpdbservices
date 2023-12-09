@@ -10,7 +10,7 @@ public class ProfileObject {
 	private String importFileProgram = "";
 	private String notes = "";
 	private String tableName = "";
-	private String lastModified = "";
+	private String lastExported = "";
 	private Profiles profiles;
 
 	public ProfileObject(String projectID, String profileID, Profiles profiles) {
@@ -47,8 +47,8 @@ public class ProfileObject {
 		return importFile;
 	}
 
-	public String getLastModified() {
-		return lastModified;
+	public String getLastExported() {
+		return lastExported;
 	}
 
 	public String getNotes() {
@@ -78,6 +78,6 @@ public class ProfileObject {
 		importFileProgram = profiles.getImportFileProgram();
 		notes = profiles.getNotes();
 		tableName = profiles.getTableName();
-		lastModified = profiles.getLastModified();
+		lastExported = profiles.getLastExported();
 	}
 }

@@ -298,7 +298,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		pdaSettings.setUserList(fieldSelect.getFieldList());
 		pdaSettings.setDatabaseFromFile(node);
 		pdaSettings.setLastIndex(0);
-		pdaSettings.setLastModified("");
+		pdaSettings.setLastExported("");
 		configDb.setProperties();
 
 		if (btMisc.isEnabled()) {

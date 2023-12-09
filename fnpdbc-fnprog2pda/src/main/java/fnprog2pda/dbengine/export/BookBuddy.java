@@ -26,6 +26,8 @@ public class BookBuddy extends CsvFile {
 			return General.convertFussyDate(dbValue.toString(), "yyyy/MM/dd");
 		case "ISBN":
 			return dbValue.toString().replace("-", "");
+		case "Contents":
+		case "Notes":
 		case "PersonalRating":
 		case "Synopsis":
 			return dbValue;
@@ -36,7 +38,7 @@ public class BookBuddy extends CsvFile {
 	}
 
 	private String formatAuthor(String author, boolean isAuthorSort) {
-		// Remove roles because BookBuddy doesn't "like" then
+		// Remove roles because BookBuddy doesn't "like" them
 		while (true) {
 			int pos = author.indexOf(" [");
 			if (pos == -1) {

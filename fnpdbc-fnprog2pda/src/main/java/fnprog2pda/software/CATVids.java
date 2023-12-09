@@ -201,6 +201,7 @@ public class CATVids extends FNProgramvare {
 		List<String> result = new ArrayList<>();
 		result.add(VIDEO_TITLE);
 		result.add("DiscNo");
+		result.add("Index");
 		result.add(EPISODE_NO);
 		result.addAll(sortList);
 		return result;
@@ -218,7 +219,7 @@ public class CATVids extends FNProgramvare {
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
 		int myVideoID = (Integer) dbDataRecord.get(myTableID);
-		myLastIndex = Math.max(myLastIndex, myVideoID);
+		lastIndex = Math.max(lastIndex, myVideoID);
 
 		if (useContents) {
 			String s = dbDataRecord.get("NumberOfSegments").toString();

@@ -293,7 +293,7 @@ public class BookCAT extends FNProgramvare {
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
 		int myBookID = (Integer) dbDataRecord.get(myTableID);
-		myLastIndex = Math.max(myLastIndex, myBookID);
+		lastIndex = Math.max(lastIndex, myBookID);
 
 		if (useContents) {
 			myItemCount = ((Number) dbDataRecord.get("MediaCount")).intValue();

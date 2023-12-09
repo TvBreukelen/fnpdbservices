@@ -107,7 +107,7 @@ public class ProjectModel extends AbstractTableModel {
 		case HEADER_TABLENAME:
 			return profile.getTableName();
 		case HEADER_LASTEXPORT:
-			return General.convertTimestamp2DB(profile.getLastModified(), General.sdInternalTimestamp);
+			return General.convertTimestamp2DB(profile.getLastExported(), General.sdInternalTimestamp);
 		case HEADER_NOTES:
 			return profile.getNotes();
 		default:
@@ -154,7 +154,7 @@ public class ProjectModel extends AbstractTableModel {
 			}
 			break;
 		case HEADER_LASTEXPORT:
-			objectData.setLastModified(
+			objectData.setLastExported(
 					s.isEmpty() ? "" : General.convertTimestamp((LocalDateTime) object, General.sdInternalTimestamp));
 			break;
 		case HEADER_NOTES:

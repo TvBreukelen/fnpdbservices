@@ -86,7 +86,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 		if (isExport) {
 			pdaSettings.setUseHeader(inclHeaders.isSelected());
-			pdaSettings.setUseLinebreak(inclLinebreaks.isSelected());
+			pdaSettings.setUseLinebreak(buddyCsv.isSelected() || inclLinebreaks.isSelected());
 			pdaSettings.setMaxFileSize(splitFile.getSelectedIndex());
 			pdaSettings.setTextFileFormat(csvType);
 			pdaSettings.setFieldSeparator(separatorChar);

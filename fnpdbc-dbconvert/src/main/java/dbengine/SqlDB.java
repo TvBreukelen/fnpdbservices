@@ -178,28 +178,37 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			while (rs.next()) {
 				String tableCat = rs.getString(TABLE_CAT);
 				String table = rs.getString(TABLE_NAME);
+				String schema = rs.getString(TABLE_SCHEM);
+				SqlTable sqlTable = null;
+
+				boolean isOK = true;
 
 				if (myImportFile == ExportFile.PARADOX) {
 					if (!db.equals(table)) {
-						continue;
+						isOK = false;
 					}
 				} else if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
 						|| "trace_xe_event_map".equals(table)) {
 					// SQL Server internal tables
-					continue;
+					isOK = false;
 				}
 
-				SqlTable sqlTable = new SqlTable();
-				sqlTable.setName(table);
+				if (isOK) {
+					sqlTable = new SqlTable();
+					sqlTable.setName(table);
 
-				String schema = rs.getString(TABLE_SCHEM);
-				try (ResultSet primaryKeys = metaData.getPrimaryKeys(tableCat, schema, table)) {
-					while (primaryKeys.next()) {
-						sqlTable.getPkList().add(primaryKeys.getString(COLUMN_NAME));
+					try (ResultSet primaryKeys = metaData.getPrimaryKeys(tableCat, schema, table)) {
+						while (primaryKeys.next()) {
+							sqlTable.getPkList().add(primaryKeys.getString(COLUMN_NAME));
+						}
+					} catch (Exception ex) {
+						// Cannot read primary keys from table, due data corruption or missing query
+						// (SQLite)
+						isOK = false;
 					}
-				} catch (Exception ex) {
-					// Cannot read primary keys from table, due data corruption or missing query
-					// (SQLite)
+				}
+
+				if (!isOK) {
 					continue;
 				}
 

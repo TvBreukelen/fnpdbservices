@@ -36,6 +36,6 @@ public class StampCAT extends FNProgramvare {
 			buf.append(dbDataRecord.get("CatalogNo3").toString().trim());
 			dbDataRecord.put("CatalogNo", buf.toString());
 		}
-		myLastIndex = Math.max(myLastIndex, (Integer) dbDataRecord.get(myTableID));
+		lastIndex = Math.max(lastIndex, (Integer) dbDataRecord.get(myTableID));
 	}
 }

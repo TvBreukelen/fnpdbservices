@@ -503,7 +503,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		// Save last export date
-		pdaSettings.setLastModified(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
+		pdaSettings.setLastExported(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
 	}
 
 	public void setRecordsRead(String value) {

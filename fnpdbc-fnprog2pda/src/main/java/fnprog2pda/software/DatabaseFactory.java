@@ -519,6 +519,9 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				}
 			}
 
+			if (dbField.getFieldType() == FieldTypes.TEXT) {
+				result.add("");
+			}
 			// Sort objects
 			XComparator compare = new XComparator(dbField.getFieldType());
 			Collections.sort(result, compare);

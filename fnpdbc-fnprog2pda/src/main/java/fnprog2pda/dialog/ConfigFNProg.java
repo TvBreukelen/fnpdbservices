@@ -41,6 +41,10 @@ public class ConfigFNProg extends ProgramDialog {
 	@Override
 	public void activateComponents() {
 		super.activateComponents();
+		int lastIndex = ((PrefFNProg) pdaSettings).getLastIndex();
+
+		bNewRecords.setEnabled(isProfileSet && lastIndex > 0);
+		bIncremental.setEnabled(isProfileSet && (!pdaSettings.getLastExported().isEmpty() || lastIndex > 0));
 
 		if (isProfileSet) {
 			if (pdaSettings.getTableName().isEmpty()) {

@@ -3,6 +3,7 @@ package fnprog2pda.preferences;
 import application.interfaces.TvBSoftware;
 import application.preferences.PrefUtils;
 import application.preferences.Profiles;
+import application.utils.FNProgException;
 
 public class PrefFNProg extends Profiles {
 	private static final PrefFNProg gInstance = new PrefFNProg();
@@ -17,8 +18,9 @@ public class PrefFNProg extends Profiles {
 	private boolean useOriginalTitle;
 	private boolean useReleaseNo;
 	private boolean useSeason;
-
 	private boolean useRoles;
+
+	private int lastIndex;
 
 	private PrefFNProg() {
 		super(TvBSoftware.FNPROG2PDA);
@@ -42,6 +44,7 @@ public class PrefFNProg extends Profiles {
 		useReleaseNo = getChild().getBoolean("use.releaseno", false);
 		useRoles = getChild().getBoolean("use.roles", false);
 		useSeason = getChild().getBoolean("use.season", false);
+		lastIndex = getChild().getInt("last.index", 0);
 	}
 
 	public boolean isUseContentsIndex() {
@@ -143,5 +146,20 @@ public class PrefFNProg extends Profiles {
 	public void setUseSeason(boolean useSeason) {
 		PrefUtils.writePref(getChild(), "use.season", useSeason, this.useSeason, false);
 		this.useSeason = useSeason;
+	}
+
+	public int getLastIndex() {
+		return lastIndex;
+	}
+
+	public void setLastIndex(int lastIndex) {
+		PrefUtils.writePref(getChild(), "last.index", lastIndex, this.lastIndex, 0);
+		this.lastIndex = lastIndex;
+	}
+
+	@Override
+	public void cloneCurrentProfile(String newProject, String newProfile) throws FNProgException {
+		super.cloneCurrentProfile(newProject, newProfile);
+		setLastIndex(0);
 	}
 }

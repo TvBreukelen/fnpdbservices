@@ -316,7 +316,7 @@ public class CATraxx extends FNProgramvare {
 			throws Exception {
 
 		int myAlbumID = (Integer) dbDataRecord.get(myTableID);
-		myLastIndex = Math.max(myLastIndex, myAlbumID);
+		lastIndex = Math.max(lastIndex, myAlbumID);
 
 		if (isPlaylist) {
 			Integer typeID = (Integer) dbDataRecord.get("PlaylistType");
