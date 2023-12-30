@@ -1,5 +1,11 @@
 Release Notes
 
+Version 10.3.1
+--------------
+CATVids: VideoCustom can now be exported from Contents.
+Small improvements for MovieBuddy export
+
+
 Version 10.3
 ------------
 Added filter on "fuzzy dates"

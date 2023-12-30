@@ -150,6 +150,11 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 8.0.1
+-------------
+Fixed: "Last Export" field couldn't be set manually
+
+
 Version 8.0
 -----------
 Added SQL database pagination.

@@ -29,7 +29,6 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	 * @version 4.5
 	 */
 	private static final long serialVersionUID = 8006516257526651336L;
-	private JRadioButton standardCsv;
 	private JRadioButton buddyCsv;
 	private JRadioButton otherCsv;
 
@@ -122,7 +121,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		standardCsv = GUIFactory.getJRadioButton(STANDARD_CSV, ExportFile.HANDBASE.getName(),
+		JRadioButton standardCsv = GUIFactory.getJRadioButton(STANDARD_CSV, ExportFile.HANDBASE.getName(),
 				e -> activateComponents());
 
 		otherCsv = GUIFactory.getJRadioButton(OTHER_CSV, ExportFile.TEXTFILE.getName(), e -> activateComponents());
