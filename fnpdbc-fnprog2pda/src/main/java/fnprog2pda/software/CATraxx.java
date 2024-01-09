@@ -283,7 +283,7 @@ public class CATraxx extends FNProgramvare {
 			index2 = s.charAt(index1) + index1;
 
 			String stdName = s.substring(++index1, ++index2);
-			String altName = "";
+			String altName = General.EMPTY_STRING;
 
 			index1 = index2 + 2;
 			index2 = s.charAt(index1) + index1;
@@ -344,7 +344,7 @@ public class CATraxx extends FNProgramvare {
 		}
 
 		if (useCategory) {
-			String genre = dbDataRecord.getOrDefault(GENRES, "").toString();
+			String genre = dbDataRecord.getOrDefault(GENRES, General.EMPTY_STRING).toString();
 			dbDataRecord.put(CATEGORY, genre.equals("Classical") ? "Classical" : "Modern");
 		}
 
@@ -367,31 +367,31 @@ public class CATraxx extends FNProgramvare {
 		if (useRating && useMusicBuddy) {
 			Integer rating = (Integer) dbDataRecord.getOrDefault("PersonalRatingID", -1);
 			if (rating == -1 || rating > 5) {
-				dbDataRecord.put(RATING, "");
+				dbDataRecord.put(RATING, General.EMPTY_STRING);
 			} else {
 				dbDataRecord.put(RATING, 6 - rating);
 			}
 		}
 
 		if (useReleaseYear) {
-			String released = dbDataRecord.getOrDefault(RELEASED, "").toString();
+			String released = dbDataRecord.getOrDefault(RELEASED, General.EMPTY_STRING).toString();
 			if (released.length() > 3) {
 				dbDataRecord.put(RELEASE_YEAR, released.substring(0, 4));
 			}
 		}
 
 		if (useGenresAndStyles) {
-			String genres = dbDataRecord.getOrDefault(GENRES, "").toString();
-			String styles = dbDataRecord.getOrDefault(STYLES, "").toString();
+			String genres = dbDataRecord.getOrDefault(GENRES, General.EMPTY_STRING).toString();
+			String styles = dbDataRecord.getOrDefault(STYLES, General.EMPTY_STRING).toString();
 
 			if (genres.equals(styles)) {
-				dbDataRecord.put(STYLES, "");
+				dbDataRecord.put(STYLES, General.EMPTY_STRING);
 			}
 		}
 	}
 
 	private void getConductors(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
-		dbDataRecord.put(CONDUCTORS, "");
+		dbDataRecord.put(CONDUCTORS, General.EMPTY_STRING);
 
 		List<Map<String, Object>> arrangerTrackList = hashTable.getOrDefault("ArrangerTrackLink", new ArrayList<>());
 		if (arrangerTrackList.isEmpty()) {
@@ -427,8 +427,8 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	private void getAuthors(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
-		dbDataRecord.put(COMPOSERS, "");
-		dbDataRecord.put(WRITERS, "");
+		dbDataRecord.put(COMPOSERS, General.EMPTY_STRING);
+		dbDataRecord.put(WRITERS, General.EMPTY_STRING);
 
 		List<Map<String, Object>> authorTrackList = hashTable.getOrDefault("AuthorTrackLink", new ArrayList<>());
 		if (authorTrackList.isEmpty()) {
@@ -476,7 +476,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	private void getPerformers(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
-		dbDataRecord.put(PERFORMERS, "");
+		dbDataRecord.put(PERFORMERS, General.EMPTY_STRING);
 		List<Map<String, Object>> instrumentList = hashTable.getOrDefault(INSTRUMENT, new ArrayList<>());
 		if (instrumentList.isEmpty()) {
 			return;
@@ -512,7 +512,8 @@ public class CATraxx extends FNProgramvare {
 
 			if (!list.isEmpty()) {
 				result.append(entry.getValue()).append(" - ");
-				list.forEach(instrument -> result.append(mapInstrument.getOrDefault(instrument, "")).append(", "));
+				list.forEach(instrument -> result.append(mapInstrument.getOrDefault(instrument, General.EMPTY_STRING))
+						.append(", "));
 				result.delete(result.lastIndexOf(", "), result.length());
 				result.append("\n");
 			}
@@ -522,7 +523,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	private void getOrchestras(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
-		dbDataRecord.put(ORCHESTRAS, "");
+		dbDataRecord.put(ORCHESTRAS, General.EMPTY_STRING);
 		List<Map<String, Object>> musicianTrackList = hashTable.getOrDefault("MusicianTrackLink", new ArrayList<>());
 		if (musicianTrackList.isEmpty()) {
 			return;
@@ -575,7 +576,7 @@ public class CATraxx extends FNProgramvare {
 		StringBuilder result = new StringBuilder();
 
 		if (contentsList.isEmpty()) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		// Get ContentsPerson and Linkage
@@ -613,7 +614,7 @@ public class CATraxx extends FNProgramvare {
 		List<Map<String, Object>> contentsList = hashTable.get(TRACKS);
 
 		if (CollectionUtils.isEmpty(contentsList)) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder result = new StringBuilder();
@@ -626,7 +627,7 @@ public class CATraxx extends FNProgramvare {
 		Integer sideBPlaytime = null;
 		String sideATitle = null;
 		String sideBTitle = null;
-		String oldSide = "";
+		String oldSide = General.EMPTY_STRING;
 
 		int item = 0;
 		int oldItem = 0;
@@ -662,7 +663,7 @@ public class CATraxx extends FNProgramvare {
 					}
 
 					Map<String, Object> mapItem = mediaList.get(item - 1);
-					sideTitle = (String) mapItem.getOrDefault(TITLE, "");
+					sideTitle = (String) mapItem.getOrDefault(TITLE, General.EMPTY_STRING);
 					sideATitle = (String) mapItem.get("SideATitle");
 					sideBTitle = (String) mapItem.get("SideBTitle");
 					sideAPlaytime = (Integer) mapItem.get("SideAPlayingTime");
@@ -688,7 +689,7 @@ public class CATraxx extends FNProgramvare {
 					sidePlaytime = side.equals("A") ? sideAPlaytime : sideBPlaytime;
 					sideTitle = side.equals("A") ? sideATitle : sideBTitle;
 					if (sideTitle == null) {
-						sideTitle = "";
+						sideTitle = General.EMPTY_STRING;
 					}
 
 					if (useContentsLength) {
@@ -710,9 +711,9 @@ public class CATraxx extends FNProgramvare {
 				}
 
 				if (isPlaylist) {
-					newLine.append(General.convertTrack(index + 1, itemLength) + " ");
+					newLine.append(General.convertTrack(index + 1, itemLength) + General.SPACE);
 				} else {
-					newLine.append(General.convertTrack((Number) map.get("Index"), itemLength) + " ");
+					newLine.append(General.convertTrack((Number) map.get("Index"), itemLength) + General.SPACE);
 				}
 			}
 

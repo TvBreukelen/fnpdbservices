@@ -4,6 +4,7 @@ import java.nio.file.FileSystems;
 import java.sql.DriverManager;
 
 import application.preferences.Profiles;
+import application.utils.General;
 import dbengine.SqlDB;
 
 public class Paradox extends SqlDB {
@@ -35,7 +36,7 @@ public class Paradox extends SqlDB {
 			return value;
 		}
 
-		return "\"" + value + "\"";
+		return General.TEXT_DELIMITER + value + General.TEXT_DELIMITER;
 	}
 
 	@Override

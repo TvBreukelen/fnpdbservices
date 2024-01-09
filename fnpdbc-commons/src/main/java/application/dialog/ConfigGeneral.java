@@ -59,7 +59,7 @@ public class ConfigGeneral extends BasicDialog {
 	private Font bold = new Font("serif", Font.BOLD, 14);
 	private XGridBagConstraints c = new XGridBagConstraints();
 
-	private static final String[] DATE_DELIMITERS = { "", " ", "/", "-", ".", "," };
+	private static final String[] DATE_DELIMITERS = { General.EMPTY_STRING, General.SPACE, "/", "-", ".", "," };
 
 	public ConfigGeneral() {
 		init(GUIFactory.getTitle("configGeneral"));
@@ -123,7 +123,7 @@ public class ConfigGeneral extends BasicDialog {
 		dateDelimiter.setSelectedIndex(General.getID(generalSettings.getDateDelimiter(), DATE_DELIMITERS));
 		dateDelimiter.addActionListener(e -> showDateExample());
 
-		dateExample = GUIFactory.getJTextField(EXAMPLE, "");
+		dateExample = GUIFactory.getJTextField(EXAMPLE, General.EMPTY_STRING);
 		dateExample.setEditable(false);
 
 		timeFormat = new JComboBox<>(new String[] { "h:mm", "hh:mm", "HH:mm", "h:mm:ss", "hh:mm:ss", "HH:mm:ss",
@@ -132,7 +132,7 @@ public class ConfigGeneral extends BasicDialog {
 		timeFormat.setToolTipText(GUIFactory.getToolTip("timeFormat"));
 		timeFormat.addActionListener(e -> showTimeExample());
 
-		timeExample = GUIFactory.getJTextField(EXAMPLE, "");
+		timeExample = GUIFactory.getJTextField(EXAMPLE, General.EMPTY_STRING);
 		timeExample.setEditable(false);
 
 		durationFormat = new JComboBox<>(new String[] { "H:mm:ss", "mmm:ss", "mm:ss" });
@@ -140,7 +140,7 @@ public class ConfigGeneral extends BasicDialog {
 		durationFormat.setToolTipText(GUIFactory.getToolTip("durationFormat"));
 		durationFormat.addActionListener(e -> showDurationExample());
 
-		durationExample = GUIFactory.getJTextField(EXAMPLE, "");
+		durationExample = GUIFactory.getJTextField(EXAMPLE, General.EMPTY_STRING);
 		durationExample.setEditable(false);
 
 		fdChecked = new JTextField(generalSettings.getCheckBoxChecked());
@@ -250,8 +250,12 @@ public class ConfigGeneral extends BasicDialog {
 		result.add(new JLabel("HanDBase Desktop"), c.gridCell(0, 0, 0, 0));
 		result.add(handbaseDesktopFile, c.gridCell(0, 1, 2, 0));
 
-		result.add(GUIFactory.getJButton("browse", e -> General.getSelectedFile(ConfigGeneral.this, handbaseDesktopFile,
-				"", "Windows program (*.exe)", true, ext)), c.gridCell(1, 1, 0, 0));
+		result.add(
+				GUIFactory
+						.getJButton("browse",
+								e -> General.getSelectedFile(ConfigGeneral.this, handbaseDesktopFile,
+										General.EMPTY_STRING, "Windows program (*.exe)", true, ext)),
+				c.gridCell(1, 1, 0, 0));
 		result.add(Box.createVerticalStrut(130), c.gridCell(0, 2, 0, 0));
 		result.setBorder(BorderFactory.createTitledBorder("HanDBase"));
 		return result;
@@ -260,7 +264,7 @@ public class ConfigGeneral extends BasicDialog {
 	private void showDateExample() {
 		String format = dateFormat.getSelectedItem().toString();
 		String delimiter = DATE_DELIMITERS[dateDelimiter.getSelectedIndex()];
-		DateTimeFormatter sd = DateTimeFormatter.ofPattern(format.replace(" ", delimiter), Locale.ENGLISH);
+		DateTimeFormatter sd = DateTimeFormatter.ofPattern(format.replace(General.SPACE, delimiter), Locale.ENGLISH);
 		dateExample.setText(LocalDate.now().format(sd));
 	}
 

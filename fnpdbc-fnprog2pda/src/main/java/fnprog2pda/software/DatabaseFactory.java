@@ -210,8 +210,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		List<String> filterFields = new ArrayList<>();
 		List<String> sortFields = new ArrayList<>();
 
-		filterFields.add("");
-		sortFields.add("");
+		filterFields.add(General.EMPTY_STRING);
+		sortFields.add(General.EMPTY_STRING);
 		hShowFields.clear();
 
 		MSTable table = msAccess.getMSTable(currentTable);
@@ -500,7 +500,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			if (CollectionUtils.isNotEmpty(list)) {
 				for (Map<String, Object> map : list) {
 					Object obj = msAccess.convertObject(map, dbField);
-					if (!obj.equals("") && !result.contains(obj)) {
+					if (!obj.equals(General.EMPTY_STRING) && !result.contains(obj)) {
 						if (isUseLink) {
 							try {
 								linkMap.put(table.getFromIndex(), map.get(table.getIndex()));
@@ -520,7 +520,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			}
 
 			if (dbField.getFieldType() == FieldTypes.TEXT) {
-				result.add("");
+				result.add(General.EMPTY_STRING);
 			}
 			// Sort objects
 			XComparator compare = new XComparator(dbField.getFieldType());

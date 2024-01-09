@@ -14,7 +14,7 @@ public class FieldDefinition extends BasisField {
 	 */
 	private static final long serialVersionUID = 1031194870833449030L;
 
-	private String table = "";
+	private String table = General.EMPTY_STRING;
 	private int size = 1;
 	private int decimalPoint = 0;
 	private int sqlType = 0;
@@ -25,7 +25,7 @@ public class FieldDefinition extends BasisField {
 	private boolean isNullable = false;
 	private boolean isAutoIncrement = false;
 	private int indexValue = 0;
-	private String indexField = "";
+	private String indexField = General.EMPTY_STRING;
 
 	private FieldDefinition() {
 		// Visible for cloning only

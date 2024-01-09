@@ -61,7 +61,7 @@ public class ConfigClone extends BasicDialog {
 		JButton btOpen = GUIFactory.getJButton("browseFile", e -> {
 			String projectCopyTo = cbExportFile.getSelectedItem().toString();
 			ExportFile exp = ExportFile.getExportFile(projectCopyTo);
-			General.getSelectedFile(ConfigClone.this, exportToFile, exp, "", false);
+			General.getSelectedFile(ConfigClone.this, exportToFile, exp, General.EMPTY_STRING, false);
 			activateComponents();
 		});
 
@@ -94,6 +94,10 @@ public class ConfigClone extends BasicDialog {
 
 		project.cloneCurrentProfile(projectCopyTo, profileID);
 		project.setExportFile(copyToFile);
+
+		if (exp != ExportFile.TEXTFILE) {
+			project.setTextFileFormat(ConfigTextFile.STANDARD_CSV);
+		}
 
 		dialog.updateProfile(Action.CLONE);
 	}

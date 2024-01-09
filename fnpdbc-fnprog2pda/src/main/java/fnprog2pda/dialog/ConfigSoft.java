@@ -72,7 +72,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	transient ActionListener funcSelectView;
 
 	private FNPSoftware myImportFile;
-	private String dbVerified = "";
+	private String dbVerified = General.EMPTY_STRING;
 	private String myView;
 
 	transient ScFieldSelect fieldSelect;
@@ -103,7 +103,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void init() {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
-				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"), 6);
+				: pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
 
 		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
 			ConfigSort sortOrder = new ConfigSort(dbFactory, sortDataMap.get(myView));
@@ -123,10 +123,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		myImportFile = isNewProfile ? FNPSoftware.UNDEFINED
 				: FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
-		myView = isNewProfile ? "" : pdaSettings.getTableName();
+		myView = isNewProfile ? General.EMPTY_STRING : pdaSettings.getTableName();
 
 		funcSelectDbFile = e -> {
-			General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, "", true);
+			General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, General.EMPTY_STRING, true);
 			activateComponents();
 		};
 
@@ -146,7 +146,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		fdView = new JComboBox<>(myImportFile.getViews());
 
-		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
+		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 
 		fieldSelect = new ScFieldSelect(dbFactory);
@@ -205,7 +205,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		}
 
 		fdView.addActionListener(funcSelectView);
-		fdDatabase = GUIFactory.getJTextField("fnpDatabase", isNewProfile ? "" : dbSettings.getDatabase());
+		fdDatabase = GUIFactory.getJTextField("fnpDatabase",
+				isNewProfile ? General.EMPTY_STRING : dbSettings.getDatabase());
 		fdDatabase.setEditable(false);
 		JButton bt1 = GUIFactory.getJButton("browseDatabase", funcSelectDbFile);
 
@@ -298,7 +299,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		pdaSettings.setUserList(fieldSelect.getFieldList());
 		pdaSettings.setDatabaseFromFile(node);
 		pdaSettings.setLastIndex(0);
-		pdaSettings.setLastExported("");
+		pdaSettings.setLastExported(General.EMPTY_STRING);
 		configDb.setProperties();
 
 		if (btMisc.isEnabled()) {
@@ -313,7 +314,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	}
 
 	private void verifyDatabase(boolean isFirstRun) {
-		String db = isNewProfile ? "" : dbSettings.getDatabase();
+		String db = isNewProfile ? General.EMPTY_STRING : dbSettings.getDatabase();
 		dbVerified = isFirstRun ? db : fdDatabase.getText().trim();
 		if (dbVerified.isEmpty()) {
 			return;
@@ -327,7 +328,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 				MSAccess msAccess = (MSAccess) dbFactory.getInputFile();
 				if (!msAccess.getFileOpenWarning().isEmpty()) {
 					General.showMessage(this, msAccess.getFileOpenWarning(), GUIFactory.getTitle("warning"), false);
-					msAccess.setFileOpenWarning("");
+					msAccess.setFileOpenWarning(General.EMPTY_STRING);
 				}
 			}
 

@@ -99,7 +99,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	public DatabaseHelper getNewDbInHelper(ExportFile importFile) {
 		myImportFile = importFile;
-		dbInHelper = new DatabaseHelper("", importFile);
+		dbInHelper = new DatabaseHelper(General.EMPTY_STRING, importFile);
 		return dbInHelper;
 	}
 
@@ -144,8 +144,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		List<String> filterFields = new ArrayList<>();
 		List<String> sortFields = new ArrayList<>();
-		filterFields.add("");
-		sortFields.add("");
+		filterFields.add(General.EMPTY_STRING);
+		sortFields.add(General.EMPTY_STRING);
 
 		for (int i = 0; i < maxFields; i++) {
 			FieldDefinition fieldDef = dbFields.get(i);
@@ -189,7 +189,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void sortTableModel() {
 		// If we have less than one record or we importing from a SQL database then we
 		// don't need to sort
-		if (myModel.getRowCount() <= 1 || myImportFile.isSqlDatabase()) {
+		if (myModel.getRowCount() <= 1 || myImportFile.isDatabase()) {
 			return;
 		}
 
@@ -314,8 +314,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			Map<String, Object> pRead = dbIn.readRecord();
 
 			// Verify if the record to write contains any values
-			if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream()
-					.noneMatch(field -> !pRead.getOrDefault(field.getFieldAlias(), "").equals(""))) {
+			if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream().noneMatch(field -> !pRead
+					.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING).equals(General.EMPTY_STRING))) {
 				emptyRecord++;
 				continue;
 			}
@@ -328,7 +328,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 			result.add(pRead);
 			dbInfoToWrite.stream().filter(filter)
-					.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
+					.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
 
 			// Check if we have to load the List categories
 			if (!categoryField.isEmpty() && catCount < LISTDB_MAX_CATEGORIES) {
@@ -350,7 +350,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	private boolean isIncludeRecord(Map<String, Object> dbRecord) {
-		if (!isFilterDefined || myImportFile.isSqlDatabase()) {
+		if (!isFilterDefined || myImportFile.isDatabase()) {
 			return true;
 		}
 
@@ -377,7 +377,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			// Read values from the table model
 			Set<Object> set = new HashSet<>();
 			List<Map<String, Object>> table = myModel.getDataListMap();
-			table.forEach(m -> set.add(m.getOrDefault(pField, "")));
+			table.forEach(m -> set.add(m.getOrDefault(pField, General.EMPTY_STRING)));
 			result = new ArrayList<>(set);
 		}
 
@@ -418,7 +418,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public SqlDB getSqlDB() {
-		return myImportFile.isSqlDatabase() ? (SqlDB) dbIn : null;
+		return myImportFile.isDatabase() ? (SqlDB) dbIn : null;
 	}
 
 	public void checkNumberOfFields() throws FNProgException {

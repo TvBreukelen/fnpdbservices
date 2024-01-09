@@ -6,11 +6,12 @@ import javax.swing.JTable;
 import application.dialog.ChangeExportToDialog;
 import application.model.ProfileObject;
 import application.model.ProjectModel;
+import application.utils.General;
 
 public class ExportToTableCellEditor extends ActionTableCellEditor {
 	private static final long serialVersionUID = 2182716753237787855L;
-	private String exportFilename = "";
-	private String exportUser = "";
+	private String exportFilename = General.EMPTY_STRING;
+	private String exportUser = General.EMPTY_STRING;
 	private char[] filePassword;
 	private boolean isSaved = false;
 
@@ -34,7 +35,6 @@ public class ExportToTableCellEditor extends ActionTableCellEditor {
 	}
 
 	public void setSavedValues(String filename, char[] cs) {
-		// TODO For the export to relational databases add user
 		exportFilename = filename;
 		filePassword = cs;
 		isSaved = true;

@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 
 import application.dialog.BasicDialog;
 import application.utils.GUIFactory;
+import application.utils.General;
 import fnprog2pda.model.MiscellaneousData;
 import fnprog2pda.software.FNPSoftware;
 
@@ -39,7 +40,7 @@ public class ConfigMiscellaneous extends BasicDialog {
 	}
 
 	private void init() {
-		init(data.getProfileID() + " " + GUIFactory.getTitle("miscSettings"));
+		init(data.getProfileID() + General.SPACE + GUIFactory.getTitle("miscSettings"));
 		setHelpFile("miscellaneous_settings");
 		buildDialog();
 		pack();

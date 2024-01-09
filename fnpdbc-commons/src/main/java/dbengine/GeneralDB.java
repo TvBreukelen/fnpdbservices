@@ -56,7 +56,7 @@ public abstract class GeneralDB {
 	private boolean isBooleanExport;
 	private boolean isDateExport;
 	private boolean isTimeExport;
-	private String fileOpenWarning = "";
+	private String fileOpenWarning = General.EMPTY_STRING;
 
 	protected boolean isInputFile;
 
@@ -84,7 +84,7 @@ public abstract class GeneralDB {
 
 		isBooleanExport = myExportFile.isBooleanExport();
 		isDateExport = myExportFile.isDateExport();
-		isTimeExport = myExportFile.isSqlDatabase();
+		isTimeExport = myExportFile.isDatabase();
 
 		GeneralSettings generalProps = GeneralSettings.getInstance();
 		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
@@ -153,8 +153,8 @@ public abstract class GeneralDB {
 	}
 
 	public Object convertDataFields(Object dbValue, FieldDefinition field) {
-		if (dbValue == null || dbValue.equals("")) {
-			return "";
+		if (dbValue == null || dbValue.equals(General.EMPTY_STRING)) {
+			return General.EMPTY_STRING;
 		}
 
 		if (field.getFieldType() == FieldTypes.IMAGE || field.getFieldType() == FieldTypes.TEXT) {
@@ -192,7 +192,7 @@ public abstract class GeneralDB {
 		case YEAR:
 			return ((LocalDate) dbValue).getYear();
 		case UNKNOWN:
-			return "";
+			return General.EMPTY_STRING;
 		default:
 			return convertString(dbValue);
 		}
@@ -221,14 +221,14 @@ public abstract class GeneralDB {
 		// Change Tabs to spaces, remove carriage returns and the trailing line feed
 		// char
 		String result = dbValue.toString().replace("\t", "  ");
-		result = result.replace("\r", "");
+		result = result.replace("\r", General.EMPTY_STRING);
 		if (result.endsWith("\n")) {
 			result = result.substring(0, result.length() - 1);
 		}
 
 		if (this instanceof CsvFile) {
 			// Replace " with '
-			return result.replace("\"", "'");
+			return result.replace(General.TEXT_DELIMITER, "'");
 		}
 		return result;
 	}

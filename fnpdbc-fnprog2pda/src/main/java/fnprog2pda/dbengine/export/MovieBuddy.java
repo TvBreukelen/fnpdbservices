@@ -31,7 +31,7 @@ public class MovieBuddy extends CsvFile {
 	private static final String VIDEO_TITLE = "Video.TitleSort";
 
 	private Map<String, Object> recordMap = new LinkedHashMap<>();
-	private String oldRecord = "";
+	private String oldRecord = General.EMPTY_STRING;
 	private long totalTime = 0;
 
 	private Map<String, LinkedHashMap<String, String>> personMap = new HashMap<>();
@@ -88,8 +88,8 @@ public class MovieBuddy extends CsvFile {
 	}
 
 	private void mergeTVCreators(Map<String, Object> dbRecord) {
-		String newCreator = dbRecord.getOrDefault(TV_CREATOR, "").toString();
-		String oldCreator = recordMap.getOrDefault(TV_CREATOR, "").toString();
+		String newCreator = dbRecord.getOrDefault(TV_CREATOR, General.EMPTY_STRING).toString();
+		String oldCreator = recordMap.getOrDefault(TV_CREATOR, General.EMPTY_STRING).toString();
 
 		if (newCreator.isEmpty()) {
 			newCreator = oldCreator;
@@ -102,8 +102,8 @@ public class MovieBuddy extends CsvFile {
 
 	private void mergeEpisodes(Map<String, Object> dbRecord) {
 		StringBuilder episodes = new StringBuilder();
-		String newEpisodes = dbRecord.getOrDefault(EPISODES, "").toString();
-		String oldEpisodes = recordMap.getOrDefault(EPISODES, "").toString();
+		String newEpisodes = dbRecord.getOrDefault(EPISODES, General.EMPTY_STRING).toString();
+		String oldEpisodes = recordMap.getOrDefault(EPISODES, General.EMPTY_STRING).toString();
 
 		if (!newEpisodes.equals(oldEpisodes)) {
 			episodes.append(oldEpisodes);
@@ -117,13 +117,13 @@ public class MovieBuddy extends CsvFile {
 			return;
 		}
 
-		String newSynopsis = dbRecord.getOrDefault(SYNOPSIS, "").toString();
-		String oldSynopsis = recordMap.getOrDefault(SYNOPSIS, "").toString();
+		String newSynopsis = dbRecord.getOrDefault(SYNOPSIS, General.EMPTY_STRING).toString();
+		String oldSynopsis = recordMap.getOrDefault(SYNOPSIS, General.EMPTY_STRING).toString();
 		if (!newSynopsis.equals(oldSynopsis)) {
-			recordMap.put(SYNOPSIS, oldSynopsis + " " + newSynopsis);
+			recordMap.put(SYNOPSIS, oldSynopsis + General.SPACE + newSynopsis);
 		}
 
-		String airdate = dbRecord.getOrDefault("OrigAirDate", "").toString();
+		String airdate = dbRecord.getOrDefault("OrigAirDate", General.EMPTY_STRING).toString();
 		if (!airdate.isEmpty()) {
 			airdate = airdate.substring(0, 4) + "\\/" + airdate.substring(4, 6) + "\\/" + airdate.substring(6);
 		}
@@ -149,12 +149,12 @@ public class MovieBuddy extends CsvFile {
 			title = title + ": Season " + season;
 		}
 
-		recordMap.put("IMDbID", "");
+		recordMap.put("IMDbID", General.EMPTY_STRING);
 		recordMap.put(TITLE, title);
 	}
 
 	private void mergeCast(String person, Map<String, Object> dbRecord) {
-		String cast = dbRecord.getOrDefault(person, "").toString();
+		String cast = dbRecord.getOrDefault(person, General.EMPTY_STRING).toString();
 		if (!cast.isEmpty()) {
 			Map<String, String> mapNewCast = getCastMembers(cast);
 			Map<String, String> mapOldCast = personMap.computeIfAbsent(person, k -> new LinkedHashMap<>());
@@ -167,7 +167,7 @@ public class MovieBuddy extends CsvFile {
 		String[] actors = cast.split("\n");
 		for (String actor : actors) {
 			int pos = actor.indexOf(" [");
-			String character = "";
+			String character = General.EMPTY_STRING;
 			if (pos != -1) {
 				character = actor.substring(pos + 2, actor.length() - 1);
 				actor = actor.substring(0, pos);
@@ -204,7 +204,7 @@ public class MovieBuddy extends CsvFile {
 		dbRecord.put(PERSON, convertPersons(PERSON, SUPPORT_CAST));
 
 		// Convert episodes
-		String episodes = dbRecord.getOrDefault(EPISODES, "").toString();
+		String episodes = dbRecord.getOrDefault(EPISODES, General.EMPTY_STRING).toString();
 		if (!episodes.isEmpty()) {
 			episodes = "[" + episodes.substring(0, episodes.length() - 1) + "]";
 			dbRecord.put(EPISODES, episodes);
@@ -229,8 +229,8 @@ public class MovieBuddy extends CsvFile {
 
 	@Override
 	public Object convertDataFields(Object dbValue, FieldDefinition field) {
-		if (dbValue == null || dbValue.equals("")) {
-			return "";
+		if (dbValue == null || dbValue.equals(General.EMPTY_STRING)) {
+			return General.EMPTY_STRING;
 		}
 
 		switch (field.getFieldAlias()) {
@@ -253,7 +253,7 @@ public class MovieBuddy extends CsvFile {
 	private String convertPersons(String cast, String support) {
 		Optional<Map<String, String>> mapOpt = Optional.ofNullable(personMap.get(cast));
 		if (mapOpt.isEmpty()) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		Map<String, String> map = mapOpt.get();
@@ -269,8 +269,8 @@ public class MovieBuddy extends CsvFile {
 		map.entrySet().forEach(entry -> {
 			buf.append("{\"actor\":\"").append(entry.getKey());
 			if (!entry.getValue().isEmpty()) {
-				buf.append("\",\"character\":").append("\"").append(General.convertDoubleQuotes(entry.getValue()))
-						.append("\"},");
+				buf.append("\",\"character\":").append(General.TEXT_DELIMITER)
+						.append(General.convertDoubleQuotes(entry.getValue())).append("\"},");
 			}
 		});
 

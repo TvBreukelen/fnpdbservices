@@ -11,7 +11,7 @@ import application.utils.General;
  *
  */
 public final class GeneralSettings {
-	private final String userHome = System.getProperty("user.home", "");
+	private final String userHome = System.getProperty("user.home", General.EMPTY_STRING);
 
 	private String checkBoxChecked;
 	private String checkBoxUnchecked;
@@ -49,17 +49,17 @@ public final class GeneralSettings {
 		myPref = myPref.node("general_settings");
 
 		checkBoxChecked = myPref.get("checkbox.checked", "Yes");
-		checkBoxUnchecked = myPref.get("checkbox.unchecked", "");
+		checkBoxUnchecked = myPref.get("checkbox.unchecked", General.EMPTY_STRING);
 		dateDelimiter = myPref.get("date.delimiter", "/");
 		dateFormat = myPref.get("date.format", "dd MM yyyy");
-		dbcVersion = myPref.get("dbconvert.version", "");
+		dbcVersion = myPref.get("dbconvert.version", General.EMPTY_STRING);
 		defaultBackupFolder = myPref.get("default.backup.folder", userHome);
 		defaultFileFolder = myPref.get("default.file.folder", userHome);
 		defaultImageFolder = myPref.get("default.image.folder", userHome);
 		defaultPdaFolder = myPref.get("default.pda.folder", userHome);
 		durationFormat = myPref.get("duration.format", "H:mm:ss");
-		fnpVersion = myPref.get("fnprog2pda.version", "");
-		handbaseConversionProgram = myPref.get("handbase.conversion.program", "");
+		fnpVersion = myPref.get("fnprog2pda.version", General.EMPTY_STRING);
+		handbaseConversionProgram = myPref.get("handbase.conversion.program", General.EMPTY_STRING);
 		language = myPref.get("language", "English");
 		lookAndFeel = myPref.get("gui.lookandfeel", "Nimbus");
 		timeFormat = myPref.get("time.format", "hh:mm");
@@ -75,7 +75,7 @@ public final class GeneralSettings {
 		isNoImagePath = myPref.getBoolean("noImagePath.check", false);
 
 		versionDaysCheck = myPref.getInt("version.days.check", 30);
-		checkVersionDate = myPref.get("check.version.date", "");
+		checkVersionDate = myPref.get("check.version.date", General.EMPTY_STRING);
 	}
 
 	public static GeneralSettings getInstance() {
@@ -83,7 +83,7 @@ public final class GeneralSettings {
 	}
 
 	public String getKeyValue(String key) {
-		return myPref.get(key, "");
+		return myPref.get(key, General.EMPTY_STRING);
 	}
 
 	public void removeKey(String key) {
@@ -104,7 +104,8 @@ public final class GeneralSettings {
 	}
 
 	public void setCheckBoxUnchecked(String checkBoxUnchecked) {
-		PrefUtils.writePref(myPref, "checkbox.unchecked", checkBoxUnchecked, this.checkBoxUnchecked, "");
+		PrefUtils.writePref(myPref, "checkbox.unchecked", checkBoxUnchecked, this.checkBoxUnchecked,
+				General.EMPTY_STRING);
 		this.checkBoxUnchecked = checkBoxUnchecked;
 	}
 
@@ -158,7 +159,8 @@ public final class GeneralSettings {
 	}
 
 	public void setDefaultPdaFolder(String defaultPdaFolder) {
-		PrefUtils.writePref(myPref, "default.pda.folder", defaultPdaFolder, this.defaultPdaFolder, "");
+		PrefUtils.writePref(myPref, "default.pda.folder", defaultPdaFolder, this.defaultPdaFolder,
+				General.EMPTY_STRING);
 		this.defaultPdaFolder = defaultPdaFolder;
 	}
 
@@ -177,7 +179,7 @@ public final class GeneralSettings {
 
 	public void setHandbaseConversionProgram(String handbaseConversionProgram) {
 		PrefUtils.writePref(myPref, "handbase.conversion.program", handbaseConversionProgram,
-				this.handbaseConversionProgram, "");
+				this.handbaseConversionProgram, General.EMPTY_STRING);
 		this.handbaseConversionProgram = handbaseConversionProgram;
 	}
 
@@ -312,7 +314,8 @@ public final class GeneralSettings {
 	}
 
 	public void setCheckVersionDate(String checkVersionDate) {
-		PrefUtils.writePref(myPref, "check.version.date", checkVersionDate, this.checkVersionDate, "");
+		PrefUtils.writePref(myPref, "check.version.date", checkVersionDate, this.checkVersionDate,
+				General.EMPTY_STRING);
 		this.checkVersionDate = checkVersionDate;
 	}
 
@@ -340,7 +343,7 @@ public final class GeneralSettings {
 	}
 
 	public void setDbcVersion(String version) {
-		PrefUtils.writePref(myPref, "dbconvert.version", version, dbcVersion, "");
+		PrefUtils.writePref(myPref, "dbconvert.version", version, dbcVersion, General.EMPTY_STRING);
 		fnpVersion = version;
 	}
 
@@ -349,7 +352,7 @@ public final class GeneralSettings {
 	}
 
 	public void setFnpVersion(String version) {
-		PrefUtils.writePref(myPref, "fnprog2pda.version", version, fnpVersion, "");
+		PrefUtils.writePref(myPref, "fnprog2pda.version", version, fnpVersion, General.EMPTY_STRING);
 		fnpVersion = version;
 	}
 

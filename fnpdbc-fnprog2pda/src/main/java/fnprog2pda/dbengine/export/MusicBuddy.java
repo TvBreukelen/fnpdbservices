@@ -15,8 +15,8 @@ public class MusicBuddy extends CsvFile {
 
 	@Override
 	public Object convertDataFields(Object dbValue, FieldDefinition field) {
-		if (dbValue == null || dbValue.equals("")) {
-			return "";
+		if (dbValue == null || dbValue.equals(General.EMPTY_STRING)) {
+			return General.EMPTY_STRING;
 		}
 
 		switch (field.getFieldAlias()) {
@@ -27,7 +27,7 @@ public class MusicBuddy extends CsvFile {
 		case "Synopsis":
 			return dbValue;
 		case "BarCode":
-			return dbValue.toString().replace("-", "");
+			return dbValue.toString().replace("-", General.EMPTY_STRING);
 		case "Composers":
 		case "Writers":
 			return dbValue.toString().replace("\n", ",");
@@ -64,7 +64,7 @@ public class MusicBuddy extends CsvFile {
 		for (String entry : data) {
 			if (!entry.isBlank()) {
 				long seconds = 0;
-				String item = "";
+				String item = General.EMPTY_STRING;
 				String trackTitle = entry.substring(entry.indexOf(") ") + 2);
 
 				if (!entry.contains("- (")) {

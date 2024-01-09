@@ -1,14 +1,18 @@
 package application.model;
 
 import application.preferences.Profiles;
+import application.utils.General;
 
 public class SortData {
 
-	private String categoryField = "";
-	private String remainingField = "";
-	private String[] sortField = new String[] { "", "", "", "" };
-	private String[] groupField = new String[] { "", "", "", "" };
-	private String[] groupingField = new String[] { "", "", "", "" };
+	private String categoryField = General.EMPTY_STRING;
+	private String remainingField = General.EMPTY_STRING;
+	private String[] sortField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
+			General.EMPTY_STRING };
+	private String[] groupField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
+			General.EMPTY_STRING };
+	private String[] groupingField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
+			General.EMPTY_STRING };
 
 	public void loadProfile(Profiles profile) {
 		categoryField = profile.getCategoryField();
@@ -38,9 +42,9 @@ public class SortData {
 
 	public void clearSortFields() {
 		for (int i = 0; i < 4; i++) {
-			setSortField(i, "");
-			setGroupField(i, "");
-			setGroupingField(i, "");
+			setSortField(i, General.EMPTY_STRING);
+			setGroupField(i, General.EMPTY_STRING);
+			setGroupingField(i, General.EMPTY_STRING);
 		}
 	}
 

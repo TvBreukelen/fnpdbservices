@@ -97,7 +97,7 @@ public class HostConfig extends BasicDialog {
 
 	private void init() {
 		isSaved = false;
-		init(helper.getDatabaseType().getName() + " " + GUIFactory.getText("configuration"));
+		init(helper.getDatabaseType().getName() + General.SPACE + GUIFactory.getText("configuration"));
 	}
 
 	@Override
@@ -162,11 +162,11 @@ public class HostConfig extends BasicDialog {
 		}
 
 		JPanel panel = new JPanel(new GridBagLayout());
-		txHost = GUIFactory.getJTextField("", host);
-		txUser = GUIFactory.getJTextField("", user);
-		txDatabase = GUIFactory.getJTextField("", helper.getDatabase());
-		txPort = getPortSpinner("", port);
-		txPassword = GUIFactory.getJPasswordField("", General.decryptPassword(helper.getPassword()));
+		txHost = GUIFactory.getJTextField(General.EMPTY_STRING, host);
+		txUser = GUIFactory.getJTextField(General.EMPTY_STRING, user);
+		txDatabase = GUIFactory.getJTextField(General.EMPTY_STRING, helper.getDatabase());
+		txPort = getPortSpinner(General.EMPTY_STRING, port);
+		txPassword = GUIFactory.getJPasswordField(General.EMPTY_STRING, General.decryptPassword(helper.getPassword()));
 		txHost.getDocument().addDocumentListener(funcDocumentChange);
 		txUser.getDocument().addDocumentListener(funcDocumentChange);
 		txDatabase.getDocument().addDocumentListener(funcDocumentChange);
@@ -198,7 +198,7 @@ public class HostConfig extends BasicDialog {
 
 		ckUseSsh = GUIFactory.getJCheckBox("useSsh", helper.isUseSsh(), e -> activateComponents());
 		txSshHost = GUIFactory.getJTextField("sshHost", helper.getSshHost().isEmpty() ? host : helper.getSshHost());
-		txSshPort = getPortSpinner("", helper.getSshPort() == 0 ? 22 : helper.getSshPort());
+		txSshPort = getPortSpinner(General.EMPTY_STRING, helper.getSshPort() == 0 ? 22 : helper.getSshPort());
 		txSshUser = GUIFactory.getJTextField("sshUser", helper.getSshUser());
 		txSshPassword = GUIFactory.getJPasswordField("sshPassword", General.decryptPassword(helper.getSshPassword()));
 		txKeyfile = GUIFactory.getJTextField("sshPrivateKey", helper.getPrivateKeyFile());
@@ -253,7 +253,8 @@ public class HostConfig extends BasicDialog {
 
 		txHostNameInCertificate = GUIFactory.getJTextField("hostNameInCertificate", helper.getHostNameInCertificate());
 		txKeyStore = GUIFactory.getJTextField("sslKeyStore", helper.getKeyStore());
-		txKeyStorePassword = GUIFactory.getJPasswordField("", General.decryptPassword(helper.getKeyStorePassword()));
+		txKeyStorePassword = GUIFactory.getJPasswordField(General.EMPTY_STRING,
+				General.decryptPassword(helper.getKeyStorePassword()));
 		txServerSslCert = GUIFactory.getJTextField("sslCertificate", helper.getServerSslCert());
 		txServerSslCaCert = GUIFactory.getJTextField("sslCaCertificate", helper.getServerSslCaCert());
 
@@ -342,7 +343,7 @@ public class HostConfig extends BasicDialog {
 		verify.setKeyStorePassword(General.encryptPassword(txKeyStorePassword.getPassword()));
 		verify.setServerSslCert(txServerSslCert.getText().trim());
 		verify.setServerSslCaCert(txServerSslCaCert.getText().trim());
-		verify.setSslMode(cbMode.getSelectedIndex() == -1 ? "" : cbMode.getSelectedItem().toString());
+		verify.setSslMode(cbMode.getSelectedIndex() == -1 ? General.EMPTY_STRING : cbMode.getSelectedItem().toString());
 		verify.setHostNameInCertificate(txHostNameInCertificate.getText().trim());
 		verify.setTrustServerCertificate(ckTrustServerCertificate.isSelected());
 

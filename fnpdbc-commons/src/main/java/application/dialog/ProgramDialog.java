@@ -109,7 +109,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	protected IDatabaseFactory dbFactory;
 
 	private long oldGeneralCRC;
-	private String oldLastModified = "";
+	private String oldLastModified = General.EMPTY_STRING;
 	private String myHelpFile;
 	transient GeneralSettings generalSettings = GeneralSettings.getInstance();
 
@@ -753,7 +753,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		}
 
 		progressBar.setValue(newValue);
-		progressText.setText(" " + Integer.toString(newValue) + " Records");
+		progressText.setText(General.SPACE + Integer.toString(newValue) + " Records");
 	}
 
 	public void enableForm(boolean enable) {
@@ -762,7 +762,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		if (enable) {
 			progressBar.setValue(0);
 			progressBar.setStringPainted(false);
-			progressText.setText("");
+			progressText.setText(General.EMPTY_STRING);
 			requestFocus(true);
 		} else {
 			ProgramDialog.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));

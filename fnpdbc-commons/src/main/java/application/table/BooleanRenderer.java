@@ -12,9 +12,11 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
+import application.utils.General;
+
 public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 	private static final long serialVersionUID = 1L;
-	private JLabel label = new JLabel("");
+	private JLabel label = new JLabel(General.EMPTY_STRING);
 	private static final Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
 
 	public BooleanRenderer() {

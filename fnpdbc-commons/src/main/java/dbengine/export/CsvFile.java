@@ -19,6 +19,7 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
+import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 
@@ -127,7 +128,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 		boolean isMultipleFile = exportFiles.size() > 1;
 
 		result.append(isMultipleFile ? files : file);
-		result.append(" ");
+		result.append(General.SPACE);
 
 		for (String s : exportFiles) {
 			result.append("'");
@@ -151,7 +152,8 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	protected void writeOutputFile(List<String> list) throws IOException {
 		if (useNoLineBreaks) {
-			list = list.stream().map(e -> e.replace("\n", " ").replace("\r", "")).collect(Collectors.toList());
+			list = list.stream().map(e -> e.replace("\n", General.SPACE).replace("\r", General.EMPTY_STRING))
+					.collect(Collectors.toList());
 		}
 
 		writer.write(list);
@@ -194,7 +196,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		Set<Object> result = new HashSet<>();
-		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, General.EMPTY_STRING)));
 		return new ArrayList<>(result);
 	}
 }

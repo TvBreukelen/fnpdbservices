@@ -3,17 +3,18 @@ package application.model;
 import application.interfaces.FilterOperator;
 import application.interfaces.TvBSoftware;
 import application.preferences.Profiles;
+import application.utils.General;
 
 public class FilterData {
-	private String categoryField = "";
-	private String contentsFilter = "";
-	private String keywordFilter = "";
+	private String categoryField = General.EMPTY_STRING;
+	private String contentsFilter = General.EMPTY_STRING;
+	private String keywordFilter = General.EMPTY_STRING;
 	private String filterCondition = "AND";
 
-	private String[] filterField = new String[] { "", "" };
+	private String[] filterField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING };
 	private FilterOperator[] filterOperator = new FilterOperator[] { FilterOperator.IS_EQUAL_TO,
 			FilterOperator.IS_EQUAL_TO };
-	private String[] filterValue = new String[] { "", "" };
+	private String[] filterValue = new String[] { General.EMPTY_STRING, General.EMPTY_STRING };
 
 	private String profileID;
 	private TvBSoftware tvbSoftware;
@@ -120,13 +121,13 @@ public class FilterData {
 
 	public void clearFilterFields() {
 		for (int i = 0; i < 2; i++) {
-			setFilterField(i, "");
+			setFilterField(i, General.EMPTY_STRING);
 			setFilterOperator(i, FilterOperator.IS_EQUAL_TO);
-			setFilterValue(i, "");
+			setFilterValue(i, General.EMPTY_STRING);
 		}
 
 		setFilterCondition("AND");
-		setContentsFilter("");
-		setKeywordFilter("");
+		setContentsFilter(General.EMPTY_STRING);
+		setKeywordFilter(General.EMPTY_STRING);
 	}
 }

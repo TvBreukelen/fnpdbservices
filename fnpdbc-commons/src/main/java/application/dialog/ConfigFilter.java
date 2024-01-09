@@ -107,14 +107,14 @@ public class ConfigFilter extends BasicDialog {
 	}
 
 	private void init() {
-		init(pdaSettings.getProfileID() + " " + GUIFactory.getText("menuFilter"));
+		init(pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("menuFilter"));
 		setHelpFile("exportfilter");
 
 		funcFieldSelect = e -> {
 			int index = Integer.parseInt(e.getActionCommand());
 			cbFilterField[index].removeActionListener(funcFieldSelect);
 			String dbField = cbFilterField[index].getSelectedItem().toString();
-			filterValue[index] = "";
+			filterValue[index] = General.EMPTY_STRING;
 			setFilterPanel(filterPanel[index], dbField, index);
 			cbFilterField[index].addActionListener(funcFieldSelect);
 			activateComponents();
@@ -123,16 +123,16 @@ public class ConfigFilter extends BasicDialog {
 		funcRemoveFilter = e -> {
 			if (!e.getActionCommand().isEmpty()) {
 				int i = Integer.parseInt(e.getActionCommand());
-				filterValue[i] = "";
-				cbFilterField[i].setSelectedItem("");
+				filterValue[i] = General.EMPTY_STRING;
+				cbFilterField[i].setSelectedItem(General.EMPTY_STRING);
 				return;
 			}
-			filterValue[0] = "";
-			filterValue[1] = "";
-			cbFilterField[0].setSelectedItem("");
-			cbFilterField[1].setSelectedItem("");
-			cbContentsBook.setSelectedItem("");
-			cbKeywordFilter.setSelectedItem("");
+			filterValue[0] = General.EMPTY_STRING;
+			filterValue[1] = General.EMPTY_STRING;
+			cbFilterField[0].setSelectedItem(General.EMPTY_STRING);
+			cbFilterField[1].setSelectedItem(General.EMPTY_STRING);
+			cbContentsBook.setSelectedItem(General.EMPTY_STRING);
+			cbKeywordFilter.setSelectedItem(General.EMPTY_STRING);
 		};
 
 		funcBoolFilter = e -> {
@@ -399,7 +399,7 @@ public class ConfigFilter extends BasicDialog {
 		if (isKeywordFilter) {
 			try {
 				a = dbFactory.getFilterFieldValues("Keyword");
-				cbKeywordFilter.addItem("");
+				cbKeywordFilter.addItem(General.EMPTY_STRING);
 				for (Object obj : a) {
 					cbKeywordFilter.addItem(obj.toString());
 				}
@@ -418,7 +418,7 @@ public class ConfigFilter extends BasicDialog {
 					// Should never occur
 				}
 
-				cbContentsBook.addItem("");
+				cbContentsBook.addItem(General.EMPTY_STRING);
 				for (Object obj : a) {
 					cbContentsBook.addItem(obj.toString());
 				}
@@ -556,13 +556,13 @@ public class ConfigFilter extends BasicDialog {
 		}
 
 		if (cbContentsBook.isEnabled()) {
-			pdaSettings.setContentsFilter(
-					cbContentsBook.getSelectedIndex() < 1 ? "" : cbContentsBook.getSelectedItem().toString());
+			pdaSettings.setContentsFilter(cbContentsBook.getSelectedIndex() < 1 ? General.EMPTY_STRING
+					: cbContentsBook.getSelectedItem().toString());
 		}
 
 		if (cbKeywordFilter.isEnabled()) {
-			pdaSettings.setKeywordFilter(
-					cbKeywordFilter.getSelectedIndex() < 1 ? "" : cbKeywordFilter.getSelectedItem().toString());
+			pdaSettings.setKeywordFilter(cbKeywordFilter.getSelectedIndex() < 1 ? General.EMPTY_STRING
+					: cbKeywordFilter.getSelectedItem().toString());
 		}
 	}
 

@@ -7,6 +7,8 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import application.utils.General;
+
 public class FilenameRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = 314536074776986014L;
 
@@ -14,7 +16,7 @@ public class FilenameRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 
-		String fileName = value != null ? value.toString() : "";
+		String fileName = value != null ? value.toString() : General.EMPTY_STRING;
 		String shortName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
 		Component result = super.getTableCellRendererComponent(table, shortName, isSelected, hasFocus, row, column);
 

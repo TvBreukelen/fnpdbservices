@@ -230,7 +230,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		if (aTables.isEmpty()) {
-			throw FNProgException.getException("noTablesFound", "");
+			throw FNProgException.getException("noTablesFound", General.EMPTY_STRING);
 		}
 
 		setReversedForeignKeys();
@@ -611,7 +611,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			key.setTableFrom(tableFrom.substring(key.getTableTo().length()));
 		}
 
-		buf.append("\n").append(key.getJoin().toUpperCase()).append(" ").append(key.getTableTo());
+		buf.append("\n").append(key.getJoin().toUpperCase()).append(General.SPACE).append(key.getTableTo());
 		for (int row = 0; row < key.getColumnFrom().size(); row++) {
 			buf.append(row == 0 ? "\nON " : "\nAND ")
 					.append(getSqlFieldName(key.getTableTo() + "." + key.getColumnTo().get(row))).append(" = ")
@@ -622,7 +622,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private String getWhereStatement() {
 		if (GeneralSettings.getInstance().isNoFilterExport() || myPref.isNoFilters()) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder sql = new StringBuilder("\nWHERE ");
@@ -630,11 +630,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			FieldDefinition field = hFieldMap.get(myPref.getFilterField(i));
 			if (field == null) {
 				// Should not happen
-				return "";
+				return General.EMPTY_STRING;
 			}
 
 			if (i > 0) {
-				sql.append(" ").append(myPref.getFilterCondition()).append(" ");
+				sql.append(General.SPACE).append(myPref.getFilterCondition()).append(General.SPACE);
 			}
 
 			String fieldName = field.getFieldName();
@@ -648,7 +648,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private String getOrderBy() {
 		List<String> list = myPref.getSortFields();
 		if (list.isEmpty()) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder sql = new StringBuilder("\nORDER BY ");
@@ -791,23 +791,23 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.DATE:
 			try {
 				LocalDate date = rs.getObject(colNo, LocalDate.class);
-				return date == null ? "" : date;
+				return date == null ? General.EMPTY_STRING : date;
 			} catch (IllegalArgumentException e) {
 				// We are dealing with a Year "0000" (MariaDB)
-				return "";
+				return General.EMPTY_STRING;
 			}
 		case microsoft.sql.Types.DATETIMEOFFSET:
 			try {
 				DateTimeOffset date = rs.getObject(colNo, DateTimeOffset.class);
-				return date == null ? "" : date.getOffsetDateTime().toLocalDateTime();
+				return date == null ? General.EMPTY_STRING : date.getOffsetDateTime().toLocalDateTime();
 			} catch (IllegalArgumentException e) {
-				return "";
+				return General.EMPTY_STRING;
 			}
 		case Types.FLOAT:
 			return rs.getFloat(colNo);
 		case Types.NUMERIC:
 			BigDecimal bd = rs.getBigDecimal(colNo);
-			return bd == null ? "" : bd;
+			return bd == null ? General.EMPTY_STRING : bd;
 		case Types.DECIMAL:
 		case Types.INTEGER:
 			return rs.getInt(colNo);
@@ -818,13 +818,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return rs.getLong(colNo);
 		case Types.TIMESTAMP:
 			Timestamp ts = rs.getTimestamp(colNo);
-			return ts == null ? "" : ts.toLocalDateTime();
+			return ts == null ? General.EMPTY_STRING : ts.toLocalDateTime();
 		case Types.TIME:
 			LocalTime time = rs.getObject(colNo, LocalTime.class);
-			return time == null ? "" : time;
+			return time == null ? General.EMPTY_STRING : time;
 		default:
 			String s = rs.getString(colNo);
-			return s == null ? "" : s;
+			return s == null ? General.EMPTY_STRING : s;
 		}
 	}
 
@@ -834,10 +834,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		try {
 			reader = rs.getCharacterStream(colNo);
 			if (reader == null) {
-				return "";
+				return General.EMPTY_STRING;
 			}
 		} catch (NullPointerException ex) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder buf = new StringBuilder();

@@ -59,7 +59,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	 * @author Tom van Breukelen
 	 * @version 8
 	 */
-	protected String mySoftwareVersion = "";
+	protected String mySoftwareVersion = General.EMPTY_STRING;
 	protected int lastIndex = 0;
 
 	protected String myTable;
@@ -89,10 +89,10 @@ public abstract class FNProgramvare extends BasicSoft {
 	private Predicate<FieldDefinition> filter = field -> field.getFieldType() == FieldTypes.TEXT
 			|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
-	private String lastExported = "";
+	private String lastExported = General.EMPTY_STRING;
 	private String imageKey;
 
-	protected String[] personField = new String[] { "", "" };
+	protected String[] personField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING };
 	private int fileCounter;
 	private int imageOption;
 
@@ -392,7 +392,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			if (pdaSettings.getLastIndex() >= index) {
 				boolean isOK = true;
 				if (isNewModified && !lastExported.isEmpty()) {
-					Object obj = map.getOrDefault("LastModified", "");
+					Object obj = map.getOrDefault("LastModified", General.EMPTY_STRING);
 					isOK = obj instanceof LocalDateTime;
 					if (isOK) {
 						String compDate = General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp);
@@ -433,7 +433,7 @@ public abstract class FNProgramvare extends BasicSoft {
 					continue;
 				}
 
-				dbRecord.put(field.getFieldAlias(), "");
+				dbRecord.put(field.getFieldAlias(), General.EMPTY_STRING);
 				boolean isPersonRoles = useRoles && field.isRoleField();
 
 				List<Map<String, Object>> list = getLinkedRecords(map, hashTable, field);
@@ -465,7 +465,7 @@ public abstract class FNProgramvare extends BasicSoft {
 							if (role.isEmpty()) {
 								buf.append(s).append(separator);
 							} else {
-								buf.append(s).append(" ").append(role).append(separator);
+								buf.append(s).append(General.SPACE).append(role).append(separator);
 							}
 							if (roleID != null && roleID.intValue() != -1) {
 								bufPerson.append(s).append("[").append(roleID.intValue()).append("]; ");
@@ -608,7 +608,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	private void convertImage(String field, Map<String, Object> dbRecord, List<Map<String, Object>> list)
 			throws Exception {
 		if (list.isEmpty()) {
-			dbRecord.put(field, "");
+			dbRecord.put(field, General.EMPTY_STRING);
 		}
 
 		Map<String, Object> map = list.get(0);
@@ -621,7 +621,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		if (!result) {
-			dbRecord.put(field, "");
+			dbRecord.put(field, General.EMPTY_STRING);
 		}
 	}
 
@@ -768,7 +768,7 @@ public abstract class FNProgramvare extends BasicSoft {
 					Collections.singletonMap(KEYWORD, kwFilter));
 			if (!map.isEmpty() && !setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), KEYWORD_ID,
 					Collections.singletonMap(KEYWORD_ID, map.get(KEYWORD_ID))))) {
-				pdaSettings.setKeywordFilter("");
+				pdaSettings.setKeywordFilter(General.EMPTY_STRING);
 				return false;
 			}
 
@@ -897,14 +897,14 @@ public abstract class FNProgramvare extends BasicSoft {
 		setDatabaseData(pRead, hashTable);
 
 		// Verify if the record to write contains any values
-		if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream()
-				.noneMatch(field -> !pRead.getOrDefault(field.getFieldAlias(), "").equals(""))) {
+		if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream().noneMatch(field -> !pRead
+				.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING).equals(General.EMPTY_STRING))) {
 			return;
 		}
 
 		pWrite.add(pRead);
 		dbInfoToWrite.stream().filter(filter)
-				.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), "")));
+				.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
 	}
 
 	public void checkNumberOfFields(boolean isExport, ViewerModel model) throws Exception {
@@ -973,7 +973,7 @@ public abstract class FNProgramvare extends BasicSoft {
 				}
 			}
 		}
-		return "";
+		return General.EMPTY_STRING;
 	}
 
 	protected Map<Integer, List<Map<String, Object>>> getContentsPersonIndex(List<Map<String, Object>> linkList,
@@ -998,7 +998,7 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	protected String getContentsPerson(List<Map<String, Object>> personList, boolean useSort) {
 		if (CollectionUtils.isEmpty(personList) || !useContentsPerson) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -1010,7 +1010,7 @@ public abstract class FNProgramvare extends BasicSoft {
 					if (role.isEmpty()) {
 						sb.append(persons).append(" & ");
 					} else {
-						sb.append(role).append(" ").append(persons).append(" ");
+						sb.append(role).append(General.SPACE).append(persons).append(General.SPACE);
 					}
 				} else {
 					sb.append(persons);

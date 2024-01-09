@@ -34,7 +34,7 @@ public class BookCAT extends FNProgramvare {
 
 	private int myItemCount = 0;
 	private String myPerson = "[None]";
-	private String myTitle = "";
+	private String myTitle = General.EMPTY_STRING;
 
 	private static final String AUTHOR = "Author";
 	private static final String AUTHOR_SORT = "AuthorSort";
@@ -262,7 +262,7 @@ public class BookCAT extends FNProgramvare {
 			index2 = s.charAt(index1) + index1;
 
 			String stdName = s.substring(++index1, ++index2);
-			String altName = "";
+			String altName = General.EMPTY_STRING;
 
 			index1 = index2 + 2;
 			index2 = s.charAt(index1) + index1;
@@ -316,21 +316,21 @@ public class BookCAT extends FNProgramvare {
 			String s = (String) dbDataRecord.get(ORIGINAL_TITLE);
 			if (StringUtils.isNotEmpty(s)) {
 				dbDataRecord.put(TITLE, s);
-				dbDataRecord.put(ORIGINAL_TITLE, "");
+				dbDataRecord.put(ORIGINAL_TITLE, General.EMPTY_STRING);
 			}
 		}
 
 		if (useRating && useBookBuddy) {
 			Integer rating = (Integer) dbDataRecord.getOrDefault("PersonalRatingID", -1);
 			if (rating == -1 || rating > 5) {
-				dbDataRecord.put(RATING, "");
+				dbDataRecord.put(RATING, General.EMPTY_STRING);
 			} else {
 				dbDataRecord.put(RATING, 6 - rating);
 			}
 		}
 
 		if (useStatus) {
-			String viewed = dbDataRecord.getOrDefault(LAST_READ, "").toString();
+			String viewed = dbDataRecord.getOrDefault(LAST_READ, General.EMPTY_STRING).toString();
 			dbDataRecord.put(STATUS, StringUtils.isEmpty(viewed) ? "Unread" : "Read");
 		}
 
@@ -339,7 +339,7 @@ public class BookCAT extends FNProgramvare {
 		}
 
 		if (useYearPublished) {
-			String published = dbDataRecord.getOrDefault("PublishDate", "").toString();
+			String published = dbDataRecord.getOrDefault("PublishDate", General.EMPTY_STRING).toString();
 			if (published.length() > 3) {
 				dbDataRecord.put(YEAR_PUBLISHED, published.substring(0, 4));
 			}
@@ -354,9 +354,9 @@ public class BookCAT extends FNProgramvare {
 		StringBuilder bTransator = new StringBuilder();
 
 		List<String> authorCredits = General
-				.convertStringToList((String) dbDataRecord.getOrDefault("AuthorCredits", ""), "; ");
-		List<String> credits = General.convertStringToList((String) dbDataRecord.getOrDefault("CreditCredits", ""),
-				"; ");
+				.convertStringToList((String) dbDataRecord.getOrDefault("AuthorCredits", General.EMPTY_STRING), "; ");
+		List<String> credits = General
+				.convertStringToList((String) dbDataRecord.getOrDefault("CreditCredits", General.EMPTY_STRING), "; ");
 
 		authorCredits.forEach(person -> {
 			if (!person.isEmpty()) {
@@ -410,7 +410,7 @@ public class BookCAT extends FNProgramvare {
 			String releaseId) {
 
 		int releaseNo = ((Number) dbDataRecord.get(releaseId)).intValue();
-		dbDataRecord.put(releaseId, releaseNo == 0 ? "" : releaseNo);
+		dbDataRecord.put(releaseId, releaseNo == 0 ? General.EMPTY_STRING : releaseNo);
 
 		if (!inclReleaseNo || releaseNo == 0) {
 			// Nothing more to do
@@ -431,7 +431,7 @@ public class BookCAT extends FNProgramvare {
 		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
 
 		if (CollectionUtils.isEmpty(contentsList)) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder result = new StringBuilder();
@@ -439,7 +439,7 @@ public class BookCAT extends FNProgramvare {
 
 		int item = 0;
 		int oldItem = 0;
-		String title = myTitle == null ? "" : myTitle.toUpperCase();
+		String title = myTitle == null ? General.EMPTY_STRING : myTitle.toUpperCase();
 
 		// Get Media
 		List<Map<String, Object>> mediaList = hashTable.get("Media");

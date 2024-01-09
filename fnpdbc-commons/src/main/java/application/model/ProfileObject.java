@@ -1,16 +1,17 @@
 package application.model;
 
 import application.preferences.Profiles;
+import application.utils.General;
 
 public class ProfileObject {
-	private String projectID = "";
-	private String profileID = "";
-	private String exportFile = "";
-	private String importFile = "";
-	private String importFileProgram = "";
-	private String notes = "";
-	private String tableName = "";
-	private String lastExported = "";
+	private String projectID = General.EMPTY_STRING;
+	private String profileID = General.EMPTY_STRING;
+	private String exportFile = General.EMPTY_STRING;
+	private String importFile = General.EMPTY_STRING;
+	private String importFileProgram = General.EMPTY_STRING;
+	private String notes = General.EMPTY_STRING;
+	private String tableName = General.EMPTY_STRING;
+	private String lastExported = General.EMPTY_STRING;
 	private Profiles profiles;
 
 	public ProfileObject(String projectID, String profileID, Profiles profiles) {

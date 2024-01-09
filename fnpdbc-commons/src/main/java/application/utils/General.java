@@ -96,7 +96,12 @@ public final class General {
 	public static final DateTimeFormatter sdInternalDate = DateTimeFormatter.BASIC_ISO_DATE;
 	public static final DateTimeFormatter sdInternalTime = DateTimeFormatter.ofPattern("HH:mm:ss");
 	public static final DateTimeFormatter sdInternalTimestamp = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir", "");
+
+	public static final String EMPTY_STRING = "";
+	public static final String SPACE = " ";
+	public static final String TEXT_DELIMITER = "\"";
+
+	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir", EMPTY_STRING);
 
 	public static final boolean IS_MAC_OSX = System.getProperty("os.name").equals("Mac OS X");
 	public static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Win");
@@ -137,7 +142,7 @@ public final class General {
 
 	public static String convertDate(LocalDate pDate, DateTimeFormatter format) {
 		if (pDate == null) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		return format.format(pDate);
@@ -166,7 +171,7 @@ public final class General {
 	 */
 	public static String convertDuration(Duration duration) {
 		if (duration == null) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		return DurationFormatUtils.formatDuration(duration.toMillis(), mySettings.getDurationFormat());
@@ -177,7 +182,7 @@ public final class General {
 	 */
 	public static String convertDuration(Integer duration) {
 		if (duration == null) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		return DurationFormatUtils.formatDuration(Duration.ofSeconds(duration).toMillis(),
@@ -255,15 +260,15 @@ public final class General {
 		}
 
 		if (isNoDay) {
-			dateFormat = dateFormat.replace("d", "");
+			dateFormat = dateFormat.replace("d", EMPTY_STRING);
 		}
 
 		if (isNoMonth) {
-			dateFormat = dateFormat.replace("M", "");
+			dateFormat = dateFormat.replace("M", EMPTY_STRING);
 		}
 
-		dateFormat = dateFormat.replace("  ", " ").trim();
-		dateFormat = dateFormat.replace(" ", mySettings.getDateDelimiter());
+		dateFormat = dateFormat.replace("  ", SPACE).trim();
+		dateFormat = dateFormat.replace(SPACE, mySettings.getDateDelimiter());
 		String fDate = pDate + "0101".substring(0, 8 - pDate.length());
 
 		LocalDate date = convertDate2DB(fDate, General.sdInternalDate);
@@ -280,7 +285,7 @@ public final class General {
 	 */
 	public static String convertFussyDate2DB(String pDate) {
 		if (pDate == null || pDate.trim().length() == 0) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		pDate = pDate.trim();
@@ -288,7 +293,7 @@ public final class General {
 		String[] dBDate = new String[3];
 
 		int[] dateOrder = new int[3];
-		String dateFormat = mySettings.getDateFormat().replace(" ", "");
+		String dateFormat = mySettings.getDateFormat().replace(" ", EMPTY_STRING);
 		dateFormat = dateFormat.replace("MM", "M");
 		dateFormat = dateFormat.replace("yyyy", "y");
 		dateFormat = dateFormat.replace("yy", "y");
@@ -305,7 +310,7 @@ public final class General {
 		}
 
 		for (int i = index; i < 3; i++) {
-			dBDate[dateOrder[i]] = "";
+			dBDate[dateOrder[i]] = EMPTY_STRING;
 		}
 
 		result.append(dBDate[2] + dBDate[1] + dBDate[0]);
@@ -396,7 +401,7 @@ public final class General {
 
 	public static String convertListToString(List<?> dbValue, final String separator) {
 		if (CollectionUtils.isEmpty(dbValue)) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		StringBuilder buf = new StringBuilder();
@@ -425,7 +430,7 @@ public final class General {
 	}
 
 	public static String convertDoubleQuotes(String text) {
-		if (!text.contains("\"")) {
+		if (!text.contains(TEXT_DELIMITER)) {
 			return text;
 		}
 
@@ -448,7 +453,7 @@ public final class General {
 	 */
 	public static String convertTime(LocalTime pTime, DateTimeFormatter format) {
 		if (pTime == null) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		return format.format(pTime);
@@ -481,7 +486,7 @@ public final class General {
 	 */
 	public static String convertTimestamp(LocalDateTime pDate, DateTimeFormatter format) {
 		if (pDate == null) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		return format.format(pDate);
@@ -513,8 +518,8 @@ public final class General {
 	}
 
 	public static String convertObject(Object obj, FieldTypes dbField) {
-		if (obj == null || obj.equals("")) {
-			return "";
+		if (obj == null || obj.equals(EMPTY_STRING)) {
+			return EMPTY_STRING;
 		}
 		switch (dbField) {
 		case DATE:
@@ -529,7 +534,7 @@ public final class General {
 			return convertTimestamp((LocalDateTime) obj, General.getSimpleTimestampFormat());
 		case YEAR:
 			int year = ((LocalDate) obj).getYear();
-			return year == 0 ? "" : Integer.toString(year);
+			return year == 0 ? EMPTY_STRING : Integer.toString(year);
 		default:
 			return obj.toString();
 		}
@@ -595,7 +600,7 @@ public final class General {
 
 	public static String decryptPassword(String password) {
 		if (StringUtils.isEmpty(password)) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		String encrypted = new String(Base64.getMimeDecoder().decode(password));
@@ -604,7 +609,7 @@ public final class General {
 
 	public static String encryptPassword(char[] password) {
 		if (password == null || password.length == 0) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		String encryped = xor(password);
@@ -687,7 +692,7 @@ public final class General {
 	public static String[] getCharacterSets() {
 		SortedMap<String, Charset> charSets = Charset.availableCharsets();
 		List<String> charList = new ArrayList<>(100);
-		charList.add(" ");
+		charList.add(SPACE);
 		charSets.keySet().forEach(charList::add);
 		String[] result = new String[charList.size()];
 		charList.toArray(result);
@@ -811,7 +816,7 @@ public final class General {
 	}
 
 	public static void getSelectedFile(JDialog dialog, JTextField component, FileType type, boolean isMustExist) {
-		getSelectedFile(dialog, component, "", type.getType(), isMustExist, type.getExtention());
+		getSelectedFile(dialog, component, EMPTY_STRING, type.getType(), isMustExist, type.getExtention());
 	}
 
 	public static void getSelectedFile(JDialog dialog, JTextField component, String dir, String fileType,
@@ -923,7 +928,7 @@ public final class General {
 	 * Returns the Date Format used to convert a date in a 'readable' format
 	 */
 	public static String getDateFormat() {
-		return mySettings.getDateFormat().replace(" ", mySettings.getDateDelimiter());
+		return mySettings.getDateFormat().replace(SPACE, mySettings.getDateDelimiter());
 	}
 
 	/**
@@ -938,7 +943,7 @@ public final class General {
 	 * format
 	 */
 	public static String getTimestampFormat() {
-		return getDateFormat() + " " + getTimeFormat();
+		return getDateFormat() + SPACE + getTimeFormat();
 	}
 
 	public static void gotoWebsite(String webpage) throws FNProgException {
@@ -1072,7 +1077,7 @@ public final class General {
 
 	public static String setDialogText(String text, int maxLen) {
 		if (text == null) {
-			return "";
+			return EMPTY_STRING;
 		}
 
 		String lineFeed = text.startsWith("<html>") ? "<br>" : "\n";

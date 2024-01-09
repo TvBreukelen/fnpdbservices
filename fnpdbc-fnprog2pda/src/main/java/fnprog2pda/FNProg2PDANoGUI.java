@@ -27,7 +27,8 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 
 	public FNProg2PDANoGUI(String... args) {
 		TvBSoftware software = TvBSoftware.FNPROG2PDA;
-		System.out.println(software.getName() + " " + software.getVersion() + " - " + software.getCopyright() + "\n");
+		System.out.println(
+				software.getName() + General.SPACE + software.getVersion() + " - " + software.getCopyright() + "\n");
 		General.setQuietMode();
 
 		try {
@@ -99,7 +100,7 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 
 			int addSpaces = maxLen - guiText[i].length();
 			for (int j = 0; j < addSpaces; j++) {
-				buf.append(" ");
+				buf.append(General.SPACE);
 			}
 			buf.append(guiText[i]);
 			buf.append(" : ");

@@ -4,6 +4,7 @@ import application.dialog.ProgramDialog;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
+import application.utils.General;
 import dbconvert.DBConvert;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
@@ -17,7 +18,7 @@ public class ConfigDBConvert extends ProgramDialog {
 	}
 
 	private void init() {
-		init(TvBSoftware.DBCONVERT.getName() + " " + TvBSoftware.DBCONVERT.getVersion());
+		init(TvBSoftware.DBCONVERT.getName() + General.SPACE + TvBSoftware.DBCONVERT.getVersion());
 
 		dbFactory = new XConverter();
 		setHelpFile("dbconvert");

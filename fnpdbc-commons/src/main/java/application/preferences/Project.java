@@ -6,6 +6,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import application.interfaces.TvBSoftware;
+import application.utils.General;
 
 public class Project {
 	private static Preferences root;
@@ -17,7 +18,7 @@ public class Project {
 
 	private String lastProject;
 	private String lastProfile;
-	private String projectID = "";
+	private String projectID = General.EMPTY_STRING;
 
 	private static final String FROM_DATABASE = "database.from.file";
 
@@ -28,8 +29,8 @@ public class Project {
 		root = Preferences.userRoot().node(software.getName().toLowerCase());
 		gParent = root.node("projects");
 
-		lastProject = root.get("last.project", "");
-		lastProfile = root.get("last.profile", "");
+		lastProject = root.get("last.project", General.EMPTY_STRING);
+		lastProfile = root.get("last.profile", General.EMPTY_STRING);
 		projectID = lastProject;
 	}
 
@@ -82,12 +83,12 @@ public class Project {
 	}
 
 	public void setLastProject() {
-		PrefUtils.writePref(root, "last.project", projectID, lastProject, "");
+		PrefUtils.writePref(root, "last.project", projectID, lastProject, General.EMPTY_STRING);
 		lastProject = projectID;
 	}
 
 	public void setLastProfile(String profile) {
-		PrefUtils.writePref(root, "last.profile", profile, lastProfile, "");
+		PrefUtils.writePref(root, "last.profile", profile, lastProfile, General.EMPTY_STRING);
 		lastProfile = profile;
 	}
 
@@ -137,7 +138,7 @@ public class Project {
 				Preferences p1 = gParent.node(project);
 				for (String profile : p1.childrenNames()) {
 					Preferences p2 = p1.node(profile);
-					String db = p2.get(FROM_DATABASE, "");
+					String db = p2.get(FROM_DATABASE, General.EMPTY_STRING);
 					if (db.isEmpty() || db.equals(database)) {
 						p2.removeNode();
 					}
@@ -159,7 +160,7 @@ public class Project {
 				Preferences p1 = gParent.node(project);
 				for (String profile : p1.childrenNames()) {
 					Preferences p2 = p1.node(profile);
-					if (p2.get(FROM_DATABASE, "").equals(database)) {
+					if (p2.get(FROM_DATABASE, General.EMPTY_STRING).equals(database)) {
 						// Database is still in use
 						return;
 					}
@@ -185,10 +186,10 @@ public class Project {
 		}
 
 		if (project.equals(projectID)) {
-			projectID = "";
+			projectID = General.EMPTY_STRING;
 			if (project.equals(lastProject)) {
-				lastProject = "";
-				lastProfile = "";
+				lastProject = General.EMPTY_STRING;
+				lastProfile = General.EMPTY_STRING;
 			}
 		}
 	}
@@ -200,10 +201,10 @@ public class Project {
 			String[] profiles = p1.childrenNames();
 			for (String profile : profiles) {
 				Preferences p2 = p1.node(profile);
-				if (p2.get(FROM_DATABASE, "").isEmpty()) {
+				if (p2.get(FROM_DATABASE, General.EMPTY_STRING).isEmpty()) {
 					PrefUtils.deleteNode(p1, profile);
 					if (profile.equals(lastProfile)) {
-						lastProfile = "";
+						lastProfile = General.EMPTY_STRING;
 					}
 
 					continue;

@@ -12,6 +12,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import application.interfaces.FieldTypes;
+import application.utils.General;
 
 public class XmlReader extends DefaultHandler {
 	private List<String> fieldNames = new ArrayList<>();
@@ -21,7 +22,7 @@ public class XmlReader extends DefaultHandler {
 	private Map<String, Object> workRecord = new HashMap<>();
 	private Set<String> processList = new HashSet<>();
 	private StringBuilder buf = new StringBuilder();
-	private String rootElement = "";
+	private String rootElement = General.EMPTY_STRING;
 
 	@Override
 	public void characters(char[] text, int start, int length) throws SAXException {
@@ -50,7 +51,7 @@ public class XmlReader extends DefaultHandler {
 
 	@Override
 	public void startElement(String uri, String name, String qName, Attributes atts) {
-		if (rootElement.equals("")) {
+		if (rootElement.equals(General.EMPTY_STRING)) {
 			rootElement = qName;
 			return;
 		}
@@ -71,7 +72,7 @@ public class XmlReader extends DefaultHandler {
 
 			for (int i = index; i < fieldNames.size(); i++) {
 				String element = fieldNames.get(i);
-				workRecord.put(element, "");
+				workRecord.put(element, General.EMPTY_STRING);
 				processList.remove(element);
 			}
 		}

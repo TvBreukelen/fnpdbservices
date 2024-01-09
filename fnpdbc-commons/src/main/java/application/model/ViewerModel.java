@@ -123,8 +123,8 @@ public class ViewerModel extends AbstractTableModel {
 		FieldDefinition field = fieldList.get(getNumber(col));
 		Object obj = tableData.get(row).get(field.getFieldAlias());
 
-		if (obj == null || obj.equals("")) {
-			return "";
+		if (obj == null || obj.equals(General.EMPTY_STRING)) {
+			return General.EMPTY_STRING;
 		}
 
 		switch (field.getFieldType()) {

@@ -21,13 +21,13 @@ public abstract class Profiles extends Project {
 	private static final String ARIAL = "Arial";
 	private static final String FROM_DATABASE = "database.from.file";
 	private static final String FILTER = "filter";
-	private static final String USER_LIST = "userlist";
+	public static final String USER_LIST = "userlist";
 
 	// General Settings
-	private String categoryField = "";
-	private String contentsFilter = "";
+	private String categoryField = General.EMPTY_STRING;
+	private String contentsFilter = General.EMPTY_STRING;
 	private String databaseFromFile;
-	private String exportFile = "";
+	private String exportFile = General.EMPTY_STRING;
 	private String exportUser;
 	private String exportPassword;
 	private String filterCondition;
@@ -35,17 +35,20 @@ public abstract class Profiles extends Project {
 	private String lastExported;
 	private String lastSaved;
 	private String notes;
-	private String pdaDatabaseName = "";
-	private String remainingField = "";
-	private String tableName = "";
+	private String pdaDatabaseName = General.EMPTY_STRING;
+	private String remainingField = General.EMPTY_STRING;
+	private String tableName = General.EMPTY_STRING;
 	private int languageDriver = 3; // xBase
 
-	private String[] filterField = new String[] { "", "" };
+	private String[] filterField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING };
 	private FilterOperator[] filterOperator = new FilterOperator[2];
-	private String[] filterValue = new String[] { "", "" };
-	private String[] sortField = new String[] { "", "", "", "" };
-	private String[] groupField = new String[] { "", "", "", "" };
-	private String[] groupingField = new String[] { "", "", "", "" };
+	private String[] filterValue = new String[] { General.EMPTY_STRING, General.EMPTY_STRING };
+	private String[] sortField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
+			General.EMPTY_STRING };
+	private String[] groupField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
+			General.EMPTY_STRING };
+	private String[] groupingField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
+			General.EMPTY_STRING };
 	private List<String> relations = new ArrayList<>();
 
 	private boolean appendRecords;
@@ -56,7 +59,7 @@ public abstract class Profiles extends Project {
 	private int imageHeight;
 	private int imageWidth;
 
-	private String profileID = "";
+	private String profileID = General.EMPTY_STRING;
 
 	private List<BasisField> userList = new ArrayList<>();
 
@@ -81,8 +84,8 @@ public abstract class Profiles extends Project {
 
 	// Text file Settings
 	private String fieldSeparator = ",";
-	private String textDelimiter = "\"";
-	private String textFileFormat = "";
+	private String textDelimiter = General.TEXT_DELIMITER;
+	private String textFileFormat = General.EMPTY_STRING;
 	private int maxFileSize;
 	private boolean useLinebreak;
 
@@ -106,32 +109,32 @@ public abstract class Profiles extends Project {
 		}
 
 		child = getParent().node(profileID);
-		databaseFromFile = child.get(FROM_DATABASE, "");
-		pdaDatabaseName = child.get("pda.database.name", "");
+		databaseFromFile = child.get(FROM_DATABASE, General.EMPTY_STRING);
+		pdaDatabaseName = child.get("pda.database.name", General.EMPTY_STRING);
 
-		contentsFilter = child.get("contents.filter", "");
-		exportFile = child.get("export.file", "");
-		exportUser = child.get("export.user", "");
-		exportPassword = child.get("export.password", "");
+		contentsFilter = child.get("contents.filter", General.EMPTY_STRING);
+		exportFile = child.get("export.file", General.EMPTY_STRING);
+		exportUser = child.get("export.user", General.EMPTY_STRING);
+		exportPassword = child.get("export.password", General.EMPTY_STRING);
 
 		filterCondition = child.get("filter.condition", "AND");
-		filterField[0] = child.get("filter0.field", "");
-		filterField[1] = child.get("filter1.field", "");
+		filterField[0] = child.get("filter0.field", General.EMPTY_STRING);
+		filterField[1] = child.get("filter1.field", General.EMPTY_STRING);
 		filterOperator[0] = FilterOperator
 				.getFilterOperator(child.get("filter0.operator", FilterOperator.IS_EQUAL_TO.getValue()));
 		filterOperator[1] = FilterOperator
 				.getFilterOperator(child.get("filter1.operator", FilterOperator.IS_EQUAL_TO.getValue()));
-		filterValue[0] = child.get("filter0.value", "");
-		filterValue[1] = child.get("filter1.value", "");
+		filterValue[0] = child.get("filter0.value", General.EMPTY_STRING);
+		filterValue[1] = child.get("filter1.value", General.EMPTY_STRING);
 
-		keywordFilter = child.get("keyword.filter", "");
-		notes = child.get("export.notes", "");
+		keywordFilter = child.get("keyword.filter", General.EMPTY_STRING);
+		notes = child.get("export.notes", General.EMPTY_STRING);
 
-		tableName = child.get("table.name", "");
+		tableName = child.get("table.name", General.EMPTY_STRING);
 		languageDriver = child.getInt("dbf.language.driver", 3);
 
 		appendRecords = child.getBoolean("append.records", false);
-		categoryField = child.get("category.field", "");
+		categoryField = child.get("category.field", General.EMPTY_STRING);
 		createBackup = child.getBoolean("create.backup", false);
 		exportImages = child.getBoolean("export.images", false);
 		imageOption = child.getInt("export.image.option", 0);
@@ -139,32 +142,32 @@ public abstract class Profiles extends Project {
 		imageWidth = child.getInt("export.image.width", 0);
 		skipEmptyRecords = child.getBoolean("skip.empty.records", false);
 
-		lastExported = child.get("last.modified", "");
-		lastSaved = child.get("last.saved", "");
+		lastExported = child.get("last.modified", General.EMPTY_STRING);
+		lastSaved = child.get("last.saved", General.EMPTY_STRING);
 
 		this.profileID = profileID;
-		remainingField = child.get("remaining.field", "");
-		sortField[0] = child.get("sort.field0", "");
-		sortField[1] = child.get("sort.field1", "");
-		sortField[2] = child.get("sort.field2", "");
-		sortField[3] = child.get("sort.field3", "");
+		remainingField = child.get("remaining.field", General.EMPTY_STRING);
+		sortField[0] = child.get("sort.field0", General.EMPTY_STRING);
+		sortField[1] = child.get("sort.field1", General.EMPTY_STRING);
+		sortField[2] = child.get("sort.field2", General.EMPTY_STRING);
+		sortField[3] = child.get("sort.field3", General.EMPTY_STRING);
 
-		groupField[0] = child.get("group.field0", "");
-		groupField[1] = child.get("group.field1", "");
-		groupField[2] = child.get("group.field2", "");
-		groupField[3] = child.get("group.field3", "");
+		groupField[0] = child.get("group.field0", General.EMPTY_STRING);
+		groupField[1] = child.get("group.field1", General.EMPTY_STRING);
+		groupField[2] = child.get("group.field2", General.EMPTY_STRING);
+		groupField[3] = child.get("group.field3", General.EMPTY_STRING);
 
-		groupingField[0] = child.get("grouping.field0", "");
-		groupingField[1] = child.get("grouping.field1", "");
-		groupingField[2] = child.get("grouping.field2", "");
-		groupingField[3] = child.get("grouping.field3", "");
+		groupingField[0] = child.get("grouping.field0", General.EMPTY_STRING);
+		groupingField[1] = child.get("grouping.field1", General.EMPTY_STRING);
+		groupingField[2] = child.get("grouping.field2", General.EMPTY_STRING);
+		groupingField[3] = child.get("grouping.field3", General.EMPTY_STRING);
 
 		userList.clear();
 		relations.clear();
 
 		int i = 0;
 		while (true) {
-			String element = child.get(RELATION + i++, "");
+			String element = child.get(RELATION + i++, General.EMPTY_STRING);
 			if (element.isEmpty()) {
 				break;
 			}
@@ -172,7 +175,7 @@ public abstract class Profiles extends Project {
 		}
 
 		// HanDBase
-		autoInstUser = child.get("autoinst.user", "");
+		autoInstUser = child.get("autoinst.user", General.EMPTY_STRING);
 		exportOption = child.getInt("export.option", 0);
 		importOption = child.getInt("import.option", 0);
 
@@ -186,7 +189,7 @@ public abstract class Profiles extends Project {
 
 		// Text files
 		fieldSeparator = child.get("field.separator", ",");
-		textDelimiter = child.get("text.delimiter", "\"");
+		textDelimiter = child.get("text.delimiter", General.TEXT_DELIMITER);
 		textFileFormat = child.get("textfile.format", "standardCsv");
 		maxFileSize = child.getInt("textfile.maxsize", 0);
 		useLinebreak = child.getBoolean("use.linebreak", true);
@@ -218,19 +221,19 @@ public abstract class Profiles extends Project {
 
 	public void reset() {
 		filterCondition = "AND";
-		filterField[0] = "";
-		filterField[1] = "";
+		filterField[0] = General.EMPTY_STRING;
+		filterField[1] = General.EMPTY_STRING;
 		filterOperator[0] = FilterOperator.IS_EQUAL_TO;
 		filterOperator[1] = FilterOperator.IS_EQUAL_TO;
-		filterValue[0] = "";
-		filterValue[1] = "";
-		keywordFilter = "";
-		remainingField = "";
+		filterValue[0] = General.EMPTY_STRING;
+		filterValue[1] = General.EMPTY_STRING;
+		keywordFilter = General.EMPTY_STRING;
+		remainingField = General.EMPTY_STRING;
 
 		for (int i = 0; i < 4; i++) {
-			sortField[i] = "";
-			groupField[i] = "";
-			groupingField[i] = "";
+			sortField[i] = General.EMPTY_STRING;
+			groupField[i] = General.EMPTY_STRING;
+			groupingField[i] = General.EMPTY_STRING;
 		}
 
 		relations.clear();
@@ -242,7 +245,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setContentsFilter(String contentsFilter) {
-		PrefUtils.writePref(child, "contents.filter", contentsFilter, this.contentsFilter, "");
+		PrefUtils.writePref(child, "contents.filter", contentsFilter, this.contentsFilter, General.EMPTY_STRING);
 		this.contentsFilter = contentsFilter;
 	}
 
@@ -263,12 +266,13 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setExportFile(String exportFile) {
-		PrefUtils.writePref(child, "export.file", exportFile, this.exportFile, "");
+		PrefUtils.writePref(child, "export.file", exportFile, this.exportFile, General.EMPTY_STRING);
 		this.exportFile = exportFile;
 	}
 
 	public void setRelation(int index, String relation) {
-		PrefUtils.writePref(child, RELATION + index + ".field", relation, this.filterField[index], "");
+		PrefUtils.writePref(child, RELATION + index + ".field", relation, this.filterField[index],
+				General.EMPTY_STRING);
 		this.filterField[index] = relation;
 	}
 
@@ -301,7 +305,8 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setFilterField(int index, String filterField) {
-		PrefUtils.writePref(child, FILTER + index + ".field", filterField, this.filterField[index], "");
+		PrefUtils.writePref(child, FILTER + index + ".field", filterField, this.filterField[index],
+				General.EMPTY_STRING);
 		this.filterField[index] = filterField;
 	}
 
@@ -320,7 +325,8 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setFilterValue(int index, String filterValue) {
-		PrefUtils.writePref(child, FILTER + index + ".value", filterValue, this.filterValue[index], "");
+		PrefUtils.writePref(child, FILTER + index + ".value", filterValue, this.filterValue[index],
+				General.EMPTY_STRING);
 		this.filterValue[index] = filterValue;
 	}
 
@@ -329,7 +335,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setKeywordFilter(String keywordFilter) {
-		PrefUtils.writePref(child, "keyword.filter", keywordFilter, this.keywordFilter, "");
+		PrefUtils.writePref(child, "keyword.filter", keywordFilter, this.keywordFilter, General.EMPTY_STRING);
 		this.keywordFilter = keywordFilter;
 	}
 
@@ -419,7 +425,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setLastExported(String lastExported) {
-		PrefUtils.writePref(child, "last.modified", lastExported, this.lastExported, "");
+		PrefUtils.writePref(child, "last.modified", lastExported, this.lastExported, General.EMPTY_STRING);
 		this.lastExported = lastExported;
 	}
 
@@ -429,7 +435,7 @@ public abstract class Profiles extends Project {
 
 	public void setLastSaved() {
 		lastSaved = General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp);
-		PrefUtils.writePref(child, "last.saved", lastSaved, "", "");
+		PrefUtils.writePref(child, "last.saved", lastSaved, General.EMPTY_STRING, General.EMPTY_STRING);
 	}
 
 	public String getNotes() {
@@ -437,7 +443,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setNotes(String notes) {
-		PrefUtils.writePref(child, "export.notes", notes, this.notes, "");
+		PrefUtils.writePref(child, "export.notes", notes, this.notes, General.EMPTY_STRING);
 		this.notes = notes;
 	}
 
@@ -446,7 +452,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setRemainingField(String remainingField) {
-		PrefUtils.writePref(child, "remaining.field", remainingField, this.remainingField, "");
+		PrefUtils.writePref(child, "remaining.field", remainingField, this.remainingField, General.EMPTY_STRING);
 		this.remainingField = remainingField;
 	}
 
@@ -463,7 +469,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setSortField(int index, String sortField) {
-		PrefUtils.writePref(child, "sort.field" + index, sortField, this.sortField[index], "");
+		PrefUtils.writePref(child, "sort.field" + index, sortField, this.sortField[index], General.EMPTY_STRING);
 		this.sortField[index] = sortField;
 	}
 
@@ -473,7 +479,7 @@ public abstract class Profiles extends Project {
 			if (!this.sortField[i].equals(sortField)) {
 				aSortfield.add(this.sortField[i]);
 			}
-			setSortField(i, "");
+			setSortField(i, General.EMPTY_STRING);
 		}
 
 		for (int i = 0; i < aSortfield.size(); i++) {
@@ -494,7 +500,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setGroupField(int index, String groupField) {
-		PrefUtils.writePref(child, "group.field" + index, groupField, this.groupField[index], "");
+		PrefUtils.writePref(child, "group.field" + index, groupField, this.groupField[index], General.EMPTY_STRING);
 		this.groupField[index] = groupField;
 	}
 
@@ -528,8 +534,8 @@ public abstract class Profiles extends Project {
 				aGroupfield.add(this.groupField[i]);
 				aGroupingfield.add(groupingField[i]);
 			}
-			setGroupField(i, "");
-			setGroupingField(i, "");
+			setGroupField(i, General.EMPTY_STRING);
+			setGroupingField(i, General.EMPTY_STRING);
 		}
 
 		for (int i = 0; i < aGroupfield.size(); i++) {
@@ -543,7 +549,8 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setGroupingField(int index, String groupingField) {
-		PrefUtils.writePref(child, "grouping.field" + index, groupingField, this.groupingField[index], "");
+		PrefUtils.writePref(child, "grouping.field" + index, groupingField, this.groupingField[index],
+				General.EMPTY_STRING);
 		this.groupingField[index] = groupingField;
 	}
 
@@ -577,7 +584,7 @@ public abstract class Profiles extends Project {
 
 	public void setTableName(String table, boolean isSave) {
 		if (isSave) {
-			PrefUtils.writePref(child, "table.name", table, tableName, "");
+			PrefUtils.writePref(child, "table.name", table, tableName, General.EMPTY_STRING);
 		}
 		tableName = table;
 	}
@@ -587,7 +594,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setAutoInstUser(String autoInstUser) {
-		PrefUtils.writePref(child, "autoinst.user", autoInstUser, this.autoInstUser, "");
+		PrefUtils.writePref(child, "autoinst.user", autoInstUser, this.autoInstUser, General.EMPTY_STRING);
 		this.autoInstUser = autoInstUser;
 	}
 
@@ -679,7 +686,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setTextDelimiter(String textDelimiter) {
-		PrefUtils.writePref(child, "text.delimiter", textDelimiter, this.textDelimiter, "\"");
+		PrefUtils.writePref(child, "text.delimiter", textDelimiter, this.textDelimiter, General.TEXT_DELIMITER);
 		this.textDelimiter = textDelimiter;
 	}
 
@@ -801,7 +808,7 @@ public abstract class Profiles extends Project {
 
 		setProject(newProject);
 		setProfile(newProfile);
-		setLastExported("");
+		setLastExported(General.EMPTY_STRING);
 		setLastSaved();
 	}
 
@@ -849,7 +856,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setExportUser(String exportUser) {
-		PrefUtils.writePref(child, "export.user", exportUser, this.exportUser, "");
+		PrefUtils.writePref(child, "export.user", exportUser, this.exportUser, General.EMPTY_STRING);
 		this.exportUser = exportUser;
 	}
 
@@ -858,19 +865,19 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setExportPassword(char[] password) {
-		String expPassword = "";
+		String expPassword = General.EMPTY_STRING;
 		if (getExportFileEnum().isPasswordSupported()) {
 			expPassword = General.encryptPassword(password);
 		}
 
-		PrefUtils.writePref(child, "export.password", expPassword, exportPassword, "");
+		PrefUtils.writePref(child, "export.password", expPassword, exportPassword, General.EMPTY_STRING);
 		exportPassword = expPassword;
 	}
 
 	public void deleteNode(String profileID) {
 		if (profileExists(profileID)) {
 			Preferences p = getParent().node(profileID);
-			String database = p.get(FROM_DATABASE, "");
+			String database = p.get(FROM_DATABASE, General.EMPTY_STRING);
 			PrefUtils.deleteNode(getParent(), profileID);
 			if (database.isEmpty()) {
 				// No database has been setup yet for this profile
@@ -924,7 +931,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setPdaDatabaseName(String pdaDatabaseName) {
-		PrefUtils.writePref(child, "pda.database.name", pdaDatabaseName, this.pdaDatabaseName, "");
+		PrefUtils.writePref(child, "pda.database.name", pdaDatabaseName, this.pdaDatabaseName, General.EMPTY_STRING);
 		this.pdaDatabaseName = pdaDatabaseName;
 	}
 

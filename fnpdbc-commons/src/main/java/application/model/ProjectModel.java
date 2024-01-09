@@ -111,7 +111,7 @@ public class ProjectModel extends AbstractTableModel {
 		case HEADER_NOTES:
 			return profile.getNotes();
 		default:
-			return "";
+			return General.EMPTY_STRING;
 		}
 	}
 
@@ -140,7 +140,7 @@ public class ProjectModel extends AbstractTableModel {
 		profile = tableData.get(row);
 		profile.alignProfiles();
 
-		String s = object == null ? "" : object.toString();
+		String s = object == null ? General.EMPTY_STRING : object.toString();
 		switch (col) {
 		case HEADER_PROFILE:
 			if (!s.isEmpty() && !s.equals(objectData.getProfileID())) {
@@ -154,8 +154,8 @@ public class ProjectModel extends AbstractTableModel {
 			}
 			break;
 		case HEADER_LASTEXPORT:
-			objectData.setLastExported(
-					s.isEmpty() ? "" : General.convertTimestamp((LocalDateTime) object, General.sdInternalTimestamp));
+			objectData.setLastExported(s.isEmpty() ? General.EMPTY_STRING
+					: General.convertTimestamp((LocalDateTime) object, General.sdInternalTimestamp));
 			break;
 		case HEADER_NOTES:
 			objectData.setNotes(s);

@@ -18,6 +18,8 @@
 
 package fnprog2pda.utils;
 
+import application.utils.General;
+
 /**
  * <p>
  * The IniItem class represents the simplest element of an INI file, an item,
@@ -80,7 +82,7 @@ public class IniItem {
 	public IniItem(String name, boolean caseSensitive) {
 		this.caseSensitive = caseSensitive;
 		this.name = name;
-		setValue("");
+		setValue(General.EMPTY_STRING);
 	}
 
 	/**
@@ -196,7 +198,7 @@ public class IniItem {
 	 * @return true or false
 	 */
 	public boolean hasValue() {
-		return !value.equals("");
+		return !value.equals(General.EMPTY_STRING);
 	}
 
 	/**
@@ -220,7 +222,7 @@ public class IniItem {
 	 */
 	public void setValue(String value) {
 		if (value == null) {
-			this.value = "";
+			this.value = General.EMPTY_STRING;
 		} else {
 			this.value = value;
 		}

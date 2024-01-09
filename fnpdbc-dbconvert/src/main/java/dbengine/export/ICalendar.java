@@ -163,7 +163,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 			switch (comp.getName()) {
 			case Component.VALARM:
 				eventType = ALARM;
-				processProperties(comp.getPropertyList(), "");
+				processProperties(comp.getPropertyList(), General.EMPTY_STRING);
 				break;
 			case Component.VAVAILABILITY:
 				eventType = "Availability";
@@ -174,7 +174,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 				break;
 			case Component.VFREEBUSY:
 				eventType = "FreeBusy";
-				processProperties(comp.getPropertyList(), "");
+				processProperties(comp.getPropertyList(), General.EMPTY_STRING);
 				break;
 			case Component.VJOURNAL:
 				eventType = "Journal";
@@ -204,7 +204,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 	}
 
 	private void processEvent(VEvent event) {
-		processProperties(event.getPropertyList(), "");
+		processProperties(event.getPropertyList(), General.EMPTY_STRING);
 		event.getAlarms().forEach(alarm -> processProperties(alarm.getPropertyList(), ALARM));
 		event.getParticipants().forEach(participant -> processProperties(participant.getPropertyList(), PARTICIPANT));
 		processResources(event.getResources());
@@ -213,7 +213,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 	private void processAvailability(VAvailability availability) {
 		availability.getAvailable().forEach(avail -> {
 			map.put(EVENT, "Availability");
-			processProperties(availability.getPropertyList(), "");
+			processProperties(availability.getPropertyList(), General.EMPTY_STRING);
 			processProperties(avail.getPropertyList(), "Avail");
 
 			dbRecords.add(map);
@@ -222,13 +222,13 @@ public class ICalendar extends GeneralDB implements IConvert {
 	}
 
 	private void processJournal(VJournal journal) {
-		processProperties(journal.getPropertyList(), "");
+		processProperties(journal.getPropertyList(), General.EMPTY_STRING);
 		journal.getParticipants().forEach(participant -> processProperties(participant.getPropertyList(), PARTICIPANT));
 		processResources(journal.getResources());
 	}
 
 	private void processToDo(VToDo todo) {
-		processProperties(todo.getPropertyList(), "");
+		processProperties(todo.getPropertyList(), General.EMPTY_STRING);
 		todo.getAlarms().forEach(alarm -> processProperties(alarm.getPropertyList(), ALARM));
 		todo.getParticipants().forEach(participant -> processProperties(participant.getPropertyList(), PARTICIPANT));
 		processResources(todo.getResources());
@@ -318,7 +318,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 				getText(prop, prefix + REQUEST_STATUS, false);
 				break;
 			case Property.RRULE:
-				getRules(prop, "");
+				getRules(prop, General.EMPTY_STRING);
 				break;
 			case Property.STATUS:
 				getText(prop, prefix + STATUS, false);
@@ -536,7 +536,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 				WeekDay day = days.get(0);
 				buf.append(weekDays.get(day));
 				if (day.getOffset() > 0) {
-					buf.insert(0, General.ordinal(day.getOffset()) + " ");
+					buf.insert(0, General.ordinal(day.getOffset()) + General.SPACE);
 				}
 				break;
 			case 7:
@@ -560,7 +560,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 
 		if (recur.getFrequency() != null) {
 			if (buf.length() > 0) {
-				buf.append(" ").append(frequency.get(recur.getFrequency()));
+				buf.append(General.SPACE).append(frequency.get(recur.getFrequency()));
 			} else {
 				buf.append(General.capitalizeFirstLetter(recur.getFrequency().toString()));
 			}
@@ -676,7 +676,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		Set<Object> result = new HashSet<>();
-		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, General.EMPTY_STRING)));
 		return new ArrayList<>(result);
 	}
 }

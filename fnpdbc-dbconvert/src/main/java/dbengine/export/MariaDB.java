@@ -59,6 +59,6 @@ public class MariaDB extends SqlDB {
 		if (StringUtils.isNotBlank(myHelper.getKeyStore())) {
 			return myHelper.getKeyStore().toLowerCase().endsWith(".jks") ? "JKS" : "PKCS12";
 		}
-		return "";
+		return General.EMPTY_STRING;
 	}
 }

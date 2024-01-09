@@ -115,7 +115,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
 			String resourceID = "database";
-			if (myExportFile.isSqlDatabase()) {
+			if (myExportFile.isDatabase()) {
 				resourceID = "table";
 			} else if (myExportFile.isSpreadSheet()) {
 				resourceID = "worksheet";
@@ -172,7 +172,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dialog.pack();
 		};
 
-		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, "", false);
+		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, General.EMPTY_STRING,
+				false);
 
 		buildDialog();
 		activateComponents();
@@ -206,7 +207,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dim.setSize(dim.getWidth() + 10, dim.getHeight());
 		bDatabase.setPreferredSize(dim);
 
-		dbFileName = GUIFactory.getJTextField("database", "");
+		dbFileName = GUIFactory.getJTextField("database", General.EMPTY_STRING);
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
 		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
@@ -221,11 +222,11 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isSqlDatabase() ? "intoNewTable" : "intoNewDatabase",
+		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isDatabase() ? "intoNewTable" : "intoNewDatabase",
 				funcSelectExport);
 		rExists[1] = GUIFactory.getJRadioButton("replaceRecords", funcSelectExport);
 		rExists[2] = GUIFactory.getJRadioButton(
-				myExportFile.isSqlDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
+				myExportFile.isDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
 
 		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
 		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);
@@ -341,6 +342,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		}
 
 		pdaSettings.setPdaDatabaseName(dbFile);
+		pdaSettings.setTextFileFormat(ConfigTextFile.STANDARD_CSV);
+
 		if (dbConfig != null) {
 			dbConfig.setProperties();
 		}

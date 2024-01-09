@@ -59,7 +59,8 @@ public class Relations extends BasicDialog {
 	}
 
 	private void init() {
-		init(GUIFactory.getText("table") + " " + sqlTable.getName() + " - " + GUIFactory.getTitle("relationships"));
+		init(GUIFactory.getText("table") + General.SPACE + sqlTable.getName() + " - "
+				+ GUIFactory.getTitle("relationships"));
 		setHelpFile("relationships");
 		buildDialog();
 		pack();

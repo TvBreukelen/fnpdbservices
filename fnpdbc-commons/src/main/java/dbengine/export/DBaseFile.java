@@ -237,7 +237,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		Object[] rowData = new Object[dbInfo2Write.size()];
 		for (FieldDefinition field : dbInfo2Write) {
 			Object dbValue = dbRecord.get(field.getFieldAlias());
-			if (dbValue != null && !dbValue.equals("")) {
+			if (dbValue != null && !dbValue.equals(General.EMPTY_STRING)) {
 				dbValue = convertDataFields(dbValue, field);
 			}
 

@@ -50,8 +50,8 @@ public class XComparator implements Comparator<Object> {
 	}
 
 	private int compareField(Object obj1, Object obj2, FieldTypes field) {
-		String s1 = obj1 == null ? "" : obj1.toString();
-		String s2 = obj2 == null ? "" : obj2.toString();
+		String s1 = obj1 == null ? General.EMPTY_STRING : obj1.toString();
+		String s2 = obj2 == null ? General.EMPTY_STRING : obj2.toString();
 		switch (field) {
 		case FLOAT:
 		case NUMBER:

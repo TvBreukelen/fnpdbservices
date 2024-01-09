@@ -15,7 +15,8 @@ public class DateTimeRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 
-		String dateTime = value != null ? ((LocalDateTime) value).format(General.getSimpleTimestampFormat()) : "";
+		String dateTime = value != null ? ((LocalDateTime) value).format(General.getSimpleTimestampFormat())
+				: General.EMPTY_STRING;
 		return super.getTableCellRendererComponent(table, dateTime, isSelected, hasFocus, row, column);
 	}
 }

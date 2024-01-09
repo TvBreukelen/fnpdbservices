@@ -12,8 +12,8 @@ public class BookBuddy extends CsvFile {
 
 	@Override
 	public Object convertDataFields(Object dbValue, FieldDefinition field) {
-		if (dbValue == null || dbValue.equals("")) {
-			return "";
+		if (dbValue == null || dbValue.equals(General.EMPTY_STRING)) {
+			return General.EMPTY_STRING;
 		}
 
 		switch (field.getFieldAlias()) {
@@ -25,7 +25,7 @@ public class BookBuddy extends CsvFile {
 		case "DateBorrowed":
 			return General.convertFussyDate(dbValue.toString(), "yyyy/MM/dd");
 		case "ISBN":
-			return dbValue.toString().replace("-", "");
+			return dbValue.toString().replace("-", General.EMPTY_STRING);
 		case "Contents":
 		case "Notes":
 		case "PersonalRating":

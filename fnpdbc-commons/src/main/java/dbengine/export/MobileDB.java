@@ -189,10 +189,10 @@ public class MobileDB extends PalmDB {
 			FieldDefinition field = dbInfo2Write.get(i);
 			Object dbValue = dbRecord.get(field.getFieldAlias());
 			if (dbValue == null) {
-				dbValue = "";
+				dbValue = General.EMPTY_STRING;
 			}
 
-			if (!dbValue.equals("")) {
+			if (!dbValue.equals(General.EMPTY_STRING)) {
 				switch (field.getFieldType()) {
 				case DATE:
 					dbValue = field.isOutputAsText() ? convertDate(dbValue, field) : convertDate((LocalDate) dbValue);
@@ -220,7 +220,7 @@ public class MobileDB extends PalmDB {
 	 */
 	protected Object convertDate(LocalDate pDate) {
 		if (pDate == null) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		// Converts a LocalDate to a MobileDB date (no. of days since 01.01.1904)
@@ -243,7 +243,7 @@ public class MobileDB extends PalmDB {
 		// remove empty field names
 		Iterator<String> iter = dbFieldNames.iterator();
 		while (iter.hasNext()) {
-			if (iter.next().equals("")) {
+			if (iter.next().equals(General.EMPTY_STRING)) {
 				iter.remove();
 			}
 		}
@@ -259,7 +259,7 @@ public class MobileDB extends PalmDB {
 		dbFieldTypes.clear();
 		List<String> fields = getRecordFields(recordID);
 		for (String element : fields) {
-			element += " ";
+			element += General.SPACE;
 			switch (element.charAt(0)) {
 			case 'B':
 				dbFieldTypes.add(FieldTypes.BOOLEAN);

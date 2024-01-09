@@ -148,7 +148,7 @@ public class PilotDB extends PalmDB {
 	private byte[] convertData(Object dbField, FieldTypes pIndex, boolean isNoTextExport) {
 		byte[] result = new byte[1];
 
-		if (dbField == null || dbField.equals("")) {
+		if (dbField == null || dbField.equals(General.EMPTY_STRING)) {
 			return result;
 		}
 		String dbValue = dbField.toString();
@@ -436,7 +436,7 @@ public class PilotDB extends PalmDB {
 
 	private byte[] convertTime(String pTime) {
 		byte[] result = { 24, 0 };
-		if (pTime == null || pTime.equals("")) {
+		if (pTime == null || pTime.equals(General.EMPTY_STRING)) {
 			return result;
 		}
 
@@ -448,7 +448,7 @@ public class PilotDB extends PalmDB {
 
 	private String convertListField2DB(byte[] data, int i) {
 		if (dbList.isEmpty() || data[0] < 0) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		List<String> dbFieldValues = dbList.get((short) i);
@@ -457,7 +457,7 @@ public class PilotDB extends PalmDB {
 
 	private String convertLinkedField2DB(byte[] data) {
 		if (data == null || data.length < 5) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		int length = data.length - 5;
@@ -468,7 +468,7 @@ public class PilotDB extends PalmDB {
 
 	private String convertMemo2DB(byte[] fieldData, byte[] data, ArrayList<int[]> fieldLen, int fieldNum) {
 		if (fieldData == null) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		String s = General.convertByteArrayToString(fieldData, null);
@@ -506,11 +506,11 @@ public class PilotDB extends PalmDB {
 				return General.convertByteArrayToString(dataField, null);
 			}
 		}
-		return "";
+		return General.EMPTY_STRING;
 	}
 
 	private byte[] convertMemo(String pMemo) {
-		if (pMemo.equals("")) {
+		if (pMemo.equals(General.EMPTY_STRING)) {
 			return new byte[4];
 		}
 

@@ -107,8 +107,8 @@ public class JsonFile extends GeneralDB implements IConvert {
 		for (String field : memoFields) {
 			for (Map<String, Object> mapList : dbRecords) {
 				Object obj = mapList.get(field);
-				if (obj == null || obj.equals("")) {
-					mapList.put(field, "");
+				if (obj == null || obj.equals(General.EMPTY_STRING)) {
+					mapList.put(field, General.EMPTY_STRING);
 				} else {
 					mapList.put(field, General.convertListToString((List<Object>) obj));
 				}
@@ -268,7 +268,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		Set<Object> result = new HashSet<>();
-		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, General.EMPTY_STRING)));
 		return new ArrayList<>(result);
 	}
 

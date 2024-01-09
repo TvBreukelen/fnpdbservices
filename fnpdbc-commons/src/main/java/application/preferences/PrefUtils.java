@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.prefs.Preferences;
 
+import application.utils.General;
+
 public class PrefUtils {
 
 	private PrefUtils() {
@@ -54,18 +56,17 @@ public class PrefUtils {
 	public static void copyNode(Preferences copyFrom, Preferences copyTo, String profile) throws Exception {
 		String[] keys = copyFrom.keys();
 		Preferences p1 = copyTo.node(profile);
-		final String userList = "userList";
 
 		for (String key : keys) {
-			p1.put(key, copyFrom.get(key, ""));
+			p1.put(key, copyFrom.get(key, General.EMPTY_STRING));
 		}
 
-		if (copyFrom.nodeExists(userList)) {
-			Preferences p2 = copyFrom.node(userList);
-			Preferences p3 = p1.node(userList);
+		if (copyFrom.nodeExists(Profiles.USER_LIST)) {
+			Preferences p2 = copyFrom.node(Profiles.USER_LIST);
+			Preferences p3 = p1.node(Profiles.USER_LIST);
 			keys = p2.keys();
 			for (String key : keys) {
-				p3.put(key, p2.get(key, ""));
+				p3.put(key, p2.get(key, General.EMPTY_STRING));
 			}
 		}
 

@@ -11,6 +11,7 @@ import application.interfaces.TvBSoftware;
 import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 import application.preferences.PrefUtils;
+import application.utils.General;
 import dbconvert.preferences.PrefDBConvert;
 
 public class ConvertOldVersion {
@@ -122,21 +123,21 @@ public class ConvertOldVersion {
 				return;
 			}
 
-			String userHome = System.getProperty("user.home", "");
+			String userHome = System.getProperty("user.home", General.EMPTY_STRING);
 			Preferences myPref = Preferences.userRoot().node("fnprog2pda");
 			myPref = myPref.node("general_settings");
 
 			settings.setCheckBoxChecked(myPref.get("checkbox.checked", "Yes"));
-			settings.setCheckBoxUnchecked(myPref.get("checkbox.unchecked", ""));
+			settings.setCheckBoxUnchecked(myPref.get("checkbox.unchecked", General.EMPTY_STRING));
 			settings.setDateDelimiter(myPref.get("date.delimiter", "/"));
 			settings.setDateFormat(myPref.get("date.format", "dd MM yyyy"));
-			settings.setDbcVersion(myPref.get("dbconvert.version", ""));
+			settings.setDbcVersion(myPref.get("dbconvert.version", General.EMPTY_STRING));
 			settings.setDefaultBackupFolder(myPref.get("default.backup.folder", userHome));
 			settings.setDefaultFileFolder(myPref.get("default.file.folder", userHome));
 			settings.setDefaultImageFolder(myPref.get("default.image.folder", userHome));
 			settings.setDefaultPdaFolder(myPref.get("default.pda.folder", userHome));
 			settings.setDurationFormat(myPref.get("duration.format", "h:mm:ss"));
-			settings.setHandbaseConversionProgram(myPref.get("handbase.conversion.program", ""));
+			settings.setHandbaseConversionProgram(myPref.get("handbase.conversion.program", General.EMPTY_STRING));
 			settings.setLanguage(myPref.get("language", "English"));
 			settings.setLookAndFeel(myPref.get("gui.lookandfeel", "Nimbus"));
 			settings.setTimeFormat(myPref.get("time.format", "hh:mm"));

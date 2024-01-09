@@ -22,6 +22,7 @@ import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
 import application.model.SortData;
 import application.utils.GUIFactory;
+import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 
 public class ConfigSort extends BasicDialog {
@@ -66,12 +67,12 @@ public class ConfigSort extends BasicDialog {
 	}
 
 	private void init() {
-		init(myExportFile.getName() + " " + GUIFactory.getText("menuSortOrder"));
+		init(myExportFile.getName() + General.SPACE + GUIFactory.getText("menuSortOrder"));
 
 		btDelete = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcRemoveSort"), "Delete.png", e -> {
 			btApply.setEnabled(true);
 			btDelete.setEnabled(false);
-			Arrays.stream(jcSortField).forEach(cb -> cb.setSelectedItem(""));
+			Arrays.stream(jcSortField).forEach(cb -> cb.setSelectedItem(General.EMPTY_STRING));
 		});
 
 		btApply = GUIFactory.getJButton("apply", funcSave);
@@ -174,7 +175,7 @@ public class ConfigSort extends BasicDialog {
 				activateComponents();
 			});
 
-			txGroupingField[i] = GUIFactory.getJTextField("groupby", "");
+			txGroupingField[i] = GUIFactory.getJTextField("groupby", General.EMPTY_STRING);
 			txGroupingField[i].setVisible(hasGrouping);
 
 			if (isGroupBy && !sortField.isEmpty()) {
@@ -203,7 +204,7 @@ public class ConfigSort extends BasicDialog {
 			result.add(box, c.gridmultipleCell(2, index, 0, 0, 2, 1));
 		}
 
-		result.setBorder(BorderFactory.createTitledBorder(myExportFile.getName() + " "
+		result.setBorder(BorderFactory.createTitledBorder(myExportFile.getName() + General.SPACE
 				+ GUIFactory.getTitle(myExportFile.isSpecialFieldSort() ? "fieldDefinition" : "sortOrder")));
 		return result;
 	}
@@ -221,7 +222,7 @@ public class ConfigSort extends BasicDialog {
 				return filter;
 			}
 		}
-		return "";
+		return General.EMPTY_STRING;
 	}
 
 	@Override
@@ -249,9 +250,10 @@ public class ConfigSort extends BasicDialog {
 			}
 		}
 
-		pdaSettings.setCategoryField(jcCategoryField != null ? jcCategoryField.getSelectedItem().toString() : "");
-		pdaSettings
-				.setRemainingField(txRemainField != null && txRemainField.isEnabled() ? txRemainField.getText() : "");
+		pdaSettings.setCategoryField(
+				jcCategoryField != null ? jcCategoryField.getSelectedItem().toString() : General.EMPTY_STRING);
+		pdaSettings.setRemainingField(
+				txRemainField != null && txRemainField.isEnabled() ? txRemainField.getText() : General.EMPTY_STRING);
 	}
 
 	@Override
@@ -267,7 +269,7 @@ public class ConfigSort extends BasicDialog {
 				cbGroupField[i].setSelected(false);
 				cbGroupField[i].setEnabled(false);
 				if (hasGrouping) {
-					txGroupingField[i].setText("");
+					txGroupingField[i].setText(General.EMPTY_STRING);
 					txGroupingField[i].setEnabled(false);
 				}
 			} else {

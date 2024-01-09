@@ -10,15 +10,16 @@ import com.healthmarketscience.jackcess.Index;
 
 import application.interfaces.FieldTypes;
 import application.utils.FieldDefinition;
+import application.utils.General;
 import fnprog2pda.utils.IniItem;
 import fnprog2pda.utils.IniSection;
 
 public class MSTable {
-	private String alias = "";
-	private String name = "";
-	private String index = "";
-	private String fromIndex = "";
-	private String fromTable = "";
+	private String alias = General.EMPTY_STRING;
+	private String name = General.EMPTY_STRING;
+	private String index = General.EMPTY_STRING;
+	private String fromIndex = General.EMPTY_STRING;
+	private String fromTable = General.EMPTY_STRING;
 
 	private Map<String, FieldDefinition> dbFieldsHash;
 	private List<FieldDefinition> dbFields;
@@ -285,8 +286,8 @@ public class MSTable {
 			for (FieldDefinition field : dbFieldsHash.values()) {
 				FieldDefinition clone = field.copy();
 				if (!clone.isHideTable() && clone.getFieldAlias().indexOf(".") == -1) {
-					clone.setFieldAlias(alias
-							+ (clone.getTable().equals(clone.getFieldAlias()) ? "" : "." + clone.getFieldAlias()));
+					clone.setFieldAlias(alias + (clone.getTable().equals(clone.getFieldAlias()) ? General.EMPTY_STRING
+							: "." + clone.getFieldAlias()));
 					clone.setFieldHeader(clone.getFieldAlias());
 				}
 				result.add(clone);

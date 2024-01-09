@@ -215,7 +215,7 @@ public final class GUIFactory {
 	}
 
 	private static void setMnemonic(AbstractButton button, String resourceID) {
-		String mnemonic = pScreens.getProperty(resourceID + ".mnemonic", "");
+		String mnemonic = pScreens.getProperty(resourceID + ".mnemonic", General.EMPTY_STRING);
 		if (mnemonic.length() == 1) {
 			button.setMnemonic(mnemonic.charAt(0));
 		}
@@ -247,12 +247,12 @@ public final class GUIFactory {
 	public static String getTexts(String resourceID) {
 		StringBuilder buf = new StringBuilder(2000);
 		for (int i = 0; i < 25; i++) {
-			String s = pScreens.getProperty(resourceID + ".text" + i, "");
+			String s = pScreens.getProperty(resourceID + ".text" + i, General.EMPTY_STRING);
 			if (s.isEmpty()) {
 				break;
 			}
 			buf.append(s);
-			buf.append(" ");
+			buf.append(General.SPACE);
 		}
 		return buf.toString().trim();
 	}

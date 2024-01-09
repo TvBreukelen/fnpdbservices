@@ -131,7 +131,7 @@ public class JFile extends PalmDB {
 		while (index[2] != -1 && index[0] < numFields) {
 			FieldDefinition field = dbDef.get(index[0]++);
 			Object dbValue = s.substring(index[1], index[2]);
-			if (!dbValue.equals("")) {
+			if (!dbValue.equals(General.EMPTY_STRING)) {
 				try {
 					switch (field.getFieldType()) {
 					case BOOLEAN:
@@ -179,10 +179,10 @@ public class JFile extends PalmDB {
 		for (FieldDefinition field : dbInfo2Write) {
 			Object dbValue = dbRecord.get(field.getFieldAlias());
 			if (dbValue == null) {
-				dbValue = "";
+				dbValue = General.EMPTY_STRING;
 			}
 
-			if (!dbValue.equals("")) {
+			if (!dbValue.equals(General.EMPTY_STRING)) {
 				switch (field.getFieldType()) {
 				case DATE:
 					dbValue = General.convertDate((LocalDate) dbValue,

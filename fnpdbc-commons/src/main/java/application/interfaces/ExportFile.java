@@ -111,21 +111,6 @@ public enum ExportFile {
 		return this.equals(DBASE);
 	}
 
-	public boolean isSqlDatabase() {
-		switch (this) {
-		case ACCESS:
-		case FIREBIRD:
-		case MARIADB:
-		case PARADOX:
-		case POSTGRESQL:
-		case SQLITE:
-		case SQLSERVER:
-			return true;
-		default:
-			return false;
-		}
-	}
-
 	public boolean isBooleanExport() {
 		switch (this) {
 		case LIST:
@@ -237,7 +222,7 @@ public enum ExportFile {
 		case POSTGRESQL:
 			return "postgres";
 		default:
-			return "";
+			return General.EMPTY_STRING;
 		}
 	}
 
@@ -268,7 +253,7 @@ public enum ExportFile {
 		case PILOTDB:
 			return "DB00";
 		default:
-			return "";
+			return General.EMPTY_STRING;
 		}
 	}
 
@@ -285,7 +270,7 @@ public enum ExportFile {
 		case PILOTDB:
 			return "DBOS";
 		default:
-			return "";
+			return General.EMPTY_STRING;
 		}
 	}
 

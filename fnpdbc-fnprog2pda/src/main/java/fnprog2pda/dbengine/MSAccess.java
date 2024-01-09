@@ -49,7 +49,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	protected void openFile(boolean isInputFile) throws Exception {
 		// For the moment we only open the database file for input
 		database = DatabaseBuilder.open(new File(myDatabase));
-		String error = "";
+		String error = General.EMPTY_STRING;
 
 		try {
 			isIndexSupported = database.getFileFormat() != FileFormat.V1997;
@@ -66,7 +66,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 		if (!error.isEmpty()) {
 			setFileOpenWarning(GUIFactory.getMessage("msAccessFormatError", error));
 		} else if (!isIndexSupported) {
-			setFileOpenWarning(GUIFactory.getMessage("msAccess97Format", ""));
+			setFileOpenWarning(GUIFactory.getMessage("msAccess97Format", General.EMPTY_STRING));
 		}
 	}
 
@@ -379,8 +379,8 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	public Object convertObject(Map<String, Object> map, FieldDefinition field) {
 		Object result = map.get(field.getFieldName());
-		if (result == null || result.equals("")) {
-			return "";
+		if (result == null || result.equals(General.EMPTY_STRING)) {
+			return General.EMPTY_STRING;
 		}
 
 		switch (field.getFieldType()) {
@@ -395,7 +395,8 @@ public class MSAccess extends GeneralDB implements IConvert {
 		case FLOAT:
 			return ((Number) result).doubleValue();
 		case MEMO:
-			return result.toString().replace("<div>", "").replace("</div>", "").replace("\r\n\r\n", "\n");
+			return result.toString().replace("<div>", General.EMPTY_STRING).replace("</div>", General.EMPTY_STRING)
+					.replace("\r\n\r\n", "\n");
 		case NUMBER:
 			return ((Number) result).intValue();
 		default:

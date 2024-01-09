@@ -46,7 +46,7 @@ public class ListDB extends PalmDB {
 		listFields[2] = myPref.getCategoryField();
 
 		header = listFields.clone();
-		useCategory = !listFields[2].equals("");
+		useCategory = !listFields[2].equals(General.EMPTY_STRING);
 		maxFields = dbInfo2Write.size();
 
 		// Prepare list of fieldnumbers to write from the userlist that are not Field1,
@@ -137,7 +137,7 @@ public class ListDB extends PalmDB {
 
 		String s = General.convertByteArrayToString(bytes, null).substring(3);
 		String[] rec = new String[4];
-		Arrays.fill(rec, "");
+		Arrays.fill(rec, General.EMPTY_STRING);
 
 		for (int i = 0; i < 3; i++) {
 			int index = s.indexOf('\0');
@@ -165,14 +165,17 @@ public class ListDB extends PalmDB {
 		StringBuilder sb = new StringBuilder();
 
 		// For list we first obtain the category, datafield1 & 2
-		String fieldData1 = dbRecord.containsKey(listFields[0]) ? dbRecord.get(listFields[0]).toString() : "";
-		String fieldData2 = dbRecord.containsKey(listFields[1]) ? dbRecord.get(listFields[1]).toString() : "";
-		String category = dbRecord.containsKey(listFields[2]) ? dbRecord.get(listFields[2]).toString() : "";
+		String fieldData1 = dbRecord.containsKey(listFields[0]) ? dbRecord.get(listFields[0]).toString()
+				: General.EMPTY_STRING;
+		String fieldData2 = dbRecord.containsKey(listFields[1]) ? dbRecord.get(listFields[1]).toString()
+				: General.EMPTY_STRING;
+		String category = dbRecord.containsKey(listFields[2]) ? dbRecord.get(listFields[2]).toString()
+				: General.EMPTY_STRING;
 
 		int categoryID = getCategoryID(category);
 		if (categoryID == 0) {
 			// Didn't find the category or category = Unfiled
-			category = "";
+			category = General.EMPTY_STRING;
 		}
 
 		// Then we have to "assemble" the Notes field
@@ -193,7 +196,7 @@ public class ListDB extends PalmDB {
 				sb.append("\ntrunctated...");
 			}
 		} else {
-			sb.append(" ");
+			sb.append(General.SPACE);
 		}
 
 		// Now we can buildup the record to be written to the Export file
@@ -227,8 +230,8 @@ public class ListDB extends PalmDB {
 		List<String> tmp = General.splitNullTerminatedString(fld, 16);
 
 		dbFieldNames.clear();
-		dbFieldNames.add(tmp.isEmpty() ? "" : tmp.get(0)); // Field 1
-		dbFieldNames.add(tmp.size() > 1 ? tmp.get(1) : ""); // Field 2
+		dbFieldNames.add(tmp.isEmpty() ? General.EMPTY_STRING : tmp.get(0)); // Field 1
+		dbFieldNames.add(tmp.size() > 1 ? tmp.get(1) : General.EMPTY_STRING); // Field 2
 		dbFieldNames.add("Notes"); // Notes
 
 		dbFieldTypes.clear();
@@ -325,10 +328,10 @@ public class ListDB extends PalmDB {
 
 	private String format2Line(String pValue, String pHeader, FieldTypes pType) {
 		if (pValue == null || pValue.length() == 0) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
-		StringBuilder result = new StringBuilder("");
+		StringBuilder result = new StringBuilder(General.EMPTY_STRING);
 		if (pType == FieldTypes.MEMO) {
 			result.append("\n" + pHeader + DIVIDER + pValue + DIVIDER + "\n");
 		} else {

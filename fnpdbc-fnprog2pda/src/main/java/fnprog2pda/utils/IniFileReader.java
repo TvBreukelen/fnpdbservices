@@ -21,6 +21,8 @@ package fnprog2pda.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import application.utils.General;
+
 /**
  * <p>
  * This class provides users an easy way to read INI files from the hard disk
@@ -57,7 +59,7 @@ public class IniFileReader {
 
 		// get the index of the first occurrence of the equals sign
 		int pos = line.indexOf('=');
-		return pos == -1 ? "" : line.substring(0, pos).trim();
+		return pos == -1 ? General.EMPTY_STRING : line.substring(0, pos).trim();
 	}
 
 	/**
@@ -302,7 +304,7 @@ public class IniFileReader {
 				// Check that a section has already been read
 				// **************************************************************
 				if (currentSection == null) {
-					currentSection = ini.addSection("");
+					currentSection = ini.addSection(General.EMPTY_STRING);
 				}
 
 				// **************************************************************

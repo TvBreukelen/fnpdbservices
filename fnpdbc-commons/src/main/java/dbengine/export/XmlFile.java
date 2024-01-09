@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
 
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
+import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 import dbengine.utils.XmlReader;
@@ -70,8 +71,8 @@ public class XmlFile extends GeneralDB implements IConvert {
 			handler = new XmlReader();
 			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 			SAXParser parser = parserFactory.newSAXParser();
-			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, General.EMPTY_STRING);
+			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, General.EMPTY_STRING);
 			parser.parse(myDatabase, handler);
 		} else {
 			outFile.delete();
@@ -154,13 +155,13 @@ public class XmlFile extends GeneralDB implements IConvert {
 	@Override
 	public void createDbHeader() throws Exception {
 		String xmlRoot = eliminateIllegalXmlCharacters(myPref.getPdaDatabaseName());
-		if (xmlRoot.equals("")) {
+		if (xmlRoot.equals(General.EMPTY_STRING)) {
 			xmlRoot = "Results";
 		}
 
 		DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
-		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, General.EMPTY_STRING);
+		df.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, General.EMPTY_STRING);
 
 		DocumentBuilder builder = df.newDocumentBuilder();
 		doc = builder.newDocument();
@@ -168,7 +169,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 		doc.appendChild(results);
 
 		hElements.clear();
-		myPref.getGroupFields().forEach(s -> hElements.put(s, ""));
+		myPref.getGroupFields().forEach(s -> hElements.put(s, General.EMPTY_STRING));
 		nodes = new Element[hElements.isEmpty() ? 1 : 4];
 		splitDbInfoToWrite();
 	}
@@ -210,8 +211,8 @@ public class XmlFile extends GeneralDB implements IConvert {
 	public void closeData() {
 		DOMSource domSource = new DOMSource(doc);
 		TransformerFactory tf = TransformerFactory.newInstance();
-		tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+		tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, General.EMPTY_STRING);
+		tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, General.EMPTY_STRING);
 		tf.setAttribute("indent-number", 4);
 
 		try {
@@ -257,7 +258,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		Set<Object> result = new HashSet<>();
-		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, General.EMPTY_STRING)));
 		return new ArrayList<>(result);
 	}
 }

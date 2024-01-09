@@ -11,42 +11,43 @@ import java.util.prefs.Preferences;
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseHelper;
 import application.interfaces.TvBSoftware;
+import application.utils.General;
 
 public class Databases implements IDatabaseHelper {
-	private String databaseID = "";
-	private String database = "";
-	private String user = "";
-	private String password = "";
+	private String databaseID = General.EMPTY_STRING;
+	private String database = General.EMPTY_STRING;
+	private String user = General.EMPTY_STRING;
+	private String password = General.EMPTY_STRING;
 	private String databaseType;
-	private String databaseVersion = "";
+	private String databaseVersion = General.EMPTY_STRING;
 
 	// Remote databases
-	private String host = "";
+	private String host = General.EMPTY_STRING;
 	private int port = 0;
 
 	// Remote databases SSH
 	private boolean useSsh = false;
-	private String sshHost = "";
-	private String sshUser = "";
-	private String sshPassword = "";
-	private String privateKeyFile = "";
+	private String sshHost = General.EMPTY_STRING;
+	private String sshUser = General.EMPTY_STRING;
+	private String sshPassword = General.EMPTY_STRING;
+	private String privateKeyFile = General.EMPTY_STRING;
 	private int sshPort;
 
 	// Remote databases SSL/TSL
 	private boolean useSsl = false;
 	private boolean trustServerCertificate = false;
 
-	private String serverSslCert = "";
-	private String serverSslCaCert = "";
-	private String keyStore = "";
-	private String keyStorePassword = "";
-	private String hostNameInCertificate = "";
-	private String sslMode = "";
+	private String serverSslCert = General.EMPTY_STRING;
+	private String serverSslCaCert = General.EMPTY_STRING;
+	private String keyStore = General.EMPTY_STRING;
+	private String keyStorePassword = General.EMPTY_STRING;
+	private String hostNameInCertificate = General.EMPTY_STRING;
+	private String sslMode = General.EMPTY_STRING;
 
 	// For the import of Text files
 	private String fieldSeparator = ",";
-	private String textDelimiter = "\"";
-	private String textFileFormat = "";
+	private String textDelimiter = General.TEXT_DELIMITER;
+	private String textFileFormat = General.EMPTY_STRING;
 
 	private static final String DB_FILE = "database.file";
 	private static final String DB_TYPE = "database.type";
@@ -86,36 +87,36 @@ public class Databases implements IDatabaseHelper {
 		myPref = parent.node(databaseID);
 		this.databaseID = databaseID;
 
-		database = myPref.get(DB_FILE, "");
-		password = myPref.get("database.password", "");
-		databaseType = myPref.get(DB_TYPE, "");
-		user = myPref.get("database.user", "");
-		databaseVersion = myPref.get("database.version", "");
+		database = myPref.get(DB_FILE, General.EMPTY_STRING);
+		password = myPref.get("database.password", General.EMPTY_STRING);
+		databaseType = myPref.get(DB_TYPE, General.EMPTY_STRING);
+		user = myPref.get("database.user", General.EMPTY_STRING);
+		databaseVersion = myPref.get("database.version", General.EMPTY_STRING);
 
-		host = myPref.get("remote.host", "");
+		host = myPref.get("remote.host", General.EMPTY_STRING);
 		port = myPref.getInt("remote.port", 0);
 
 		// SSH
 		useSsh = myPref.getBoolean("use.ssh", false);
-		sshHost = myPref.get("ssh.host", "");
+		sshHost = myPref.get("ssh.host", General.EMPTY_STRING);
 		sshPort = myPref.getInt("ssh.port", 0);
-		sshUser = myPref.get("ssh.user", "");
-		sshPassword = myPref.get("ssh.password", "");
-		privateKeyFile = myPref.get("ssh.key.file", "");
+		sshUser = myPref.get("ssh.user", General.EMPTY_STRING);
+		sshPassword = myPref.get("ssh.password", General.EMPTY_STRING);
+		privateKeyFile = myPref.get("ssh.key.file", General.EMPTY_STRING);
 
 		// SSL
 		useSsl = myPref.getBoolean("use.ssl", false);
-		sslMode = myPref.get("ssl.mode", "");
-		keyStore = myPref.get("ssl.keystore", "");
-		keyStorePassword = myPref.get("ssl.keystore.password", "");
-		serverSslCert = myPref.get("ssl.server.cert", "");
-		serverSslCaCert = myPref.get("ssl.server.ca.cert", "");
+		sslMode = myPref.get("ssl.mode", General.EMPTY_STRING);
+		keyStore = myPref.get("ssl.keystore", General.EMPTY_STRING);
+		keyStorePassword = myPref.get("ssl.keystore.password", General.EMPTY_STRING);
+		serverSslCert = myPref.get("ssl.server.cert", General.EMPTY_STRING);
+		serverSslCaCert = myPref.get("ssl.server.ca.cert", General.EMPTY_STRING);
 		trustServerCertificate = myPref.getBoolean("ssl.trust.server.certificate", false);
-		hostNameInCertificate = myPref.get("ssl.hostname.in.certificate", "");
+		hostNameInCertificate = myPref.get("ssl.hostname.in.certificate", General.EMPTY_STRING);
 
 		fieldSeparator = myPref.get("field.separator", ",");
-		textDelimiter = myPref.get("text.delimiter", "\"");
-		textFileFormat = myPref.get("textfile.format", "");
+		textDelimiter = myPref.get("text.delimiter", General.TEXT_DELIMITER);
+		textFileFormat = myPref.get("textfile.format", General.EMPTY_STRING);
 	}
 
 	public void deleteNode(String databaseID) {
@@ -151,7 +152,7 @@ public class Databases implements IDatabaseHelper {
 
 	public List<String> getDatabaseFiles(ExportFile myImportFile) {
 		List<String> result = new ArrayList<>();
-		result.add("");
+		result.add(General.EMPTY_STRING);
 
 		for (String db : getDatabases()) {
 			setNode(db);
@@ -174,7 +175,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setHost(String host) {
-		PrefUtils.writePref(myPref, "remote.host", host, this.host, "");
+		PrefUtils.writePref(myPref, "remote.host", host, this.host, General.EMPTY_STRING);
 		this.host = host;
 	}
 
@@ -194,7 +195,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setDatabase(String database) {
-		PrefUtils.writePref(myPref, DB_FILE, database, this.database, "");
+		PrefUtils.writePref(myPref, DB_FILE, database, this.database, General.EMPTY_STRING);
 		this.database = database;
 		fillNodes();
 	}
@@ -205,7 +206,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setPassword(String databasePassword) {
-		PrefUtils.writePref(myPref, "database.password", databasePassword, this.password, "");
+		PrefUtils.writePref(myPref, "database.password", databasePassword, this.password, General.EMPTY_STRING);
 		this.password = databasePassword;
 	}
 
@@ -215,7 +216,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setUser(String databaseUser) {
-		PrefUtils.writePref(myPref, "database.user", databaseUser, this.user, "");
+		PrefUtils.writePref(myPref, "database.user", databaseUser, this.user, General.EMPTY_STRING);
 		this.user = databaseUser;
 	}
 
@@ -225,7 +226,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setDatabaseType(ExportFile databaseType) {
-		PrefUtils.writePref(myPref, DB_TYPE, databaseType.getName(), this.databaseType, "");
+		PrefUtils.writePref(myPref, DB_TYPE, databaseType.getName(), this.databaseType, General.EMPTY_STRING);
 		this.databaseType = databaseType.getName();
 	}
 
@@ -234,7 +235,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setDatabaseTypeAsString(String databaseType) {
-		PrefUtils.writePref(myPref, DB_TYPE, databaseType, this.databaseType, "");
+		PrefUtils.writePref(myPref, DB_TYPE, databaseType, this.databaseType, General.EMPTY_STRING);
 		this.databaseType = databaseType;
 	}
 
@@ -243,7 +244,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setDatabaseVersion(String databaseVersion) {
-		PrefUtils.writePref(myPref, "database.version", databaseVersion, this.databaseVersion, "");
+		PrefUtils.writePref(myPref, "database.version", databaseVersion, this.databaseVersion, General.EMPTY_STRING);
 		this.databaseVersion = databaseVersion;
 	}
 
@@ -263,7 +264,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setSslMode(String sslMode) {
-		PrefUtils.writePref(myPref, "ssl.mode", sslMode, this.sslMode, "");
+		PrefUtils.writePref(myPref, "ssl.mode", sslMode, this.sslMode, General.EMPTY_STRING);
 		this.sslMode = sslMode;
 	}
 
@@ -273,7 +274,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setServerSslCert(String serverSslCert) {
-		PrefUtils.writePref(myPref, "ssl.server.cert", serverSslCert, this.serverSslCert, "");
+		PrefUtils.writePref(myPref, "ssl.server.cert", serverSslCert, this.serverSslCert, General.EMPTY_STRING);
 		this.serverSslCert = serverSslCert;
 	}
 
@@ -283,7 +284,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setServerSslCaCert(String serverSslCaCert) {
-		PrefUtils.writePref(myPref, "ssl.server.ca.cert", serverSslCaCert, this.serverSslCaCert, "");
+		PrefUtils.writePref(myPref, "ssl.server.ca.cert", serverSslCaCert, this.serverSslCaCert, General.EMPTY_STRING);
 		this.serverSslCaCert = serverSslCaCert;
 	}
 
@@ -293,7 +294,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setKeyStore(String keyStore) {
-		PrefUtils.writePref(myPref, "ssl.keystore", keyStore, this.keyStore, "");
+		PrefUtils.writePref(myPref, "ssl.keystore", keyStore, this.keyStore, General.EMPTY_STRING);
 		this.keyStore = keyStore;
 	}
 
@@ -303,7 +304,8 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setKeyStorePassword(String keyStorePassword) {
-		PrefUtils.writePref(myPref, "ssl.keystore.password", keyStorePassword, this.keyStorePassword, "");
+		PrefUtils.writePref(myPref, "ssl.keystore.password", keyStorePassword, this.keyStorePassword,
+				General.EMPTY_STRING);
 		this.keyStorePassword = keyStorePassword;
 	}
 
@@ -323,7 +325,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setSshHost(String sshHost) {
-		PrefUtils.writePref(myPref, "ssh.host", sshHost, this.sshHost, "");
+		PrefUtils.writePref(myPref, "ssh.host", sshHost, this.sshHost, General.EMPTY_STRING);
 		this.sshHost = sshHost;
 	}
 
@@ -333,7 +335,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setSshUser(String shellUser) {
-		PrefUtils.writePref(myPref, "ssh.user", shellUser, this.sshUser, "");
+		PrefUtils.writePref(myPref, "ssh.user", shellUser, this.sshUser, General.EMPTY_STRING);
 		this.sshUser = shellUser;
 	}
 
@@ -343,7 +345,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setSshPassword(String shellPassword) {
-		PrefUtils.writePref(myPref, "ssh.password", shellPassword, this.sshPassword, "");
+		PrefUtils.writePref(myPref, "ssh.password", shellPassword, this.sshPassword, General.EMPTY_STRING);
 		this.sshPassword = shellPassword;
 	}
 
@@ -353,7 +355,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setPrivateKeyFile(String privateKeyFile) {
-		PrefUtils.writePref(myPref, "ssh.key.file", privateKeyFile, this.privateKeyFile, "");
+		PrefUtils.writePref(myPref, "ssh.key.file", privateKeyFile, this.privateKeyFile, General.EMPTY_STRING);
 		this.privateKeyFile = privateKeyFile;
 	}
 
@@ -385,7 +387,7 @@ public class Databases implements IDatabaseHelper {
 
 	public void setHostNameInCertificate(String hostNameInCertificate) {
 		PrefUtils.writePref(myPref, "ssl.hostname.in.certificate", hostNameInCertificate, this.hostNameInCertificate,
-				"");
+				General.EMPTY_STRING);
 		this.hostNameInCertificate = hostNameInCertificate;
 	}
 
@@ -403,7 +405,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setTextDelimiter(String textDelimiter) {
-		PrefUtils.writePref(myPref, "text.delimiter", textDelimiter, this.textDelimiter, "\"");
+		PrefUtils.writePref(myPref, "text.delimiter", textDelimiter, this.textDelimiter, General.TEXT_DELIMITER);
 		this.textDelimiter = textDelimiter;
 	}
 
@@ -412,7 +414,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setTextFileFormat(String textfileFormat) {
-		PrefUtils.writePref(myPref, "textfile.format", textfileFormat, textFileFormat, "");
+		PrefUtils.writePref(myPref, "textfile.format", textfileFormat, textFileFormat, General.EMPTY_STRING);
 		textFileFormat = textfileFormat;
 	}
 
@@ -421,7 +423,7 @@ public class Databases implements IDatabaseHelper {
 			String[] child = parent.childrenNames();
 			for (String element : child) {
 				Preferences p = parent.node(element);
-				String dbFile = p.get(DB_FILE, "");
+				String dbFile = p.get(DB_FILE, General.EMPTY_STRING);
 				if (dbFile.isEmpty()) {
 					PrefUtils.deleteNode(parent, element);
 					pdaSettings.removeDatabase(element);
@@ -441,7 +443,7 @@ public class Databases implements IDatabaseHelper {
 			String[] child = parent.childrenNames();
 			for (String element : child) {
 				Preferences p = parent.node(element);
-				String dbFile = p.get(DB_FILE, "") + "/" + p.get(DB_TYPE, "");
+				String dbFile = p.get(DB_FILE, General.EMPTY_STRING) + "/" + p.get(DB_TYPE, General.EMPTY_STRING);
 				nodes.put(dbFile.toUpperCase(), element);
 			}
 		} catch (Exception e) {

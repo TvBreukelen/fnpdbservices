@@ -45,7 +45,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private IConfigSoft dialog;
 	private BuddyExport buddy;
 
-	private static final String STANDARD_CSV = "standardCsv";
+	public static final String STANDARD_CSV = "standardCsv";
 	private static final String BUDDY_CSV = "buddyCsv";
 	private static final String OTHER_CSV = "otherCsv";
 
@@ -176,7 +176,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 				",\t;|".indexOf(isExport ? pdaSettings.getFieldSeparator() : pdaSettings.getImportFieldSeparator()));
 		separator.setToolTipText(GUIFactory.getToolTip("separator"));
 
-		delimiter = new JComboBox<>(new String[] { "\"", "'", "/", "$", "%" });
+		delimiter = new JComboBox<>(new String[] { General.TEXT_DELIMITER, "'", "/", "$", "%" });
 		delimiter.setSelectedItem(isExport ? pdaSettings.getTextDelimiter() : pdaSettings.getImportTextDelimiter());
 		delimiter.setToolTipText(GUIFactory.getToolTip("delimiter"));
 

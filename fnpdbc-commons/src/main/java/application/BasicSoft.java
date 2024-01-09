@@ -118,7 +118,7 @@ public abstract class BasicSoft {
 		for (Map<String, Object> rowData : table) {
 			Map<String, Object> dbRecord = new HashMap<>();
 			dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
-					rowData.getOrDefault(field.getFieldAlias(), "")));
+					rowData.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
 			dbOut.processData(dbRecord);
 			currentRecord++;
 		}
@@ -171,8 +171,8 @@ public abstract class BasicSoft {
 				if (!filterField.isEmpty() && dbFieldDefinition.get(filterField) == null) {
 					// Filter field doesn't exist
 					pdaSettings.setFilterCondition("AND");
-					pdaSettings.setFilterField(i, "");
-					pdaSettings.setFilterValue(i, "");
+					pdaSettings.setFilterField(i, General.EMPTY_STRING);
+					pdaSettings.setFilterValue(i, General.EMPTY_STRING);
 					pdaSettings.setFilterOperator(i, FilterOperator.IS_EQUAL_TO);
 
 					isFirst = i == 0;
@@ -184,8 +184,8 @@ public abstract class BasicSoft {
 			pdaSettings.setFilterField(0, pdaSettings.getFilterField(1));
 			pdaSettings.setFilterValue(0, pdaSettings.getFilterValue(1));
 			pdaSettings.setFilterOperator(0, pdaSettings.getFilterOperator(1));
-			pdaSettings.setFilterField(1, "");
-			pdaSettings.setFilterValue(1, "");
+			pdaSettings.setFilterField(1, General.EMPTY_STRING);
+			pdaSettings.setFilterValue(1, General.EMPTY_STRING);
 			pdaSettings.setFilterOperator(1, FilterOperator.IS_EQUAL_TO);
 		}
 
@@ -218,7 +218,7 @@ public abstract class BasicSoft {
 		}
 
 		Object obj = dbRecord.get(field.getFieldName());
-		if (obj == null || obj.equals("")) {
+		if (obj == null || obj.equals(General.EMPTY_STRING)) {
 			switch (field.getFieldType()) {
 			case FLOAT:
 				obj = Double.MIN_VALUE;
@@ -227,7 +227,7 @@ public abstract class BasicSoft {
 				obj = Integer.MIN_VALUE;
 				break;
 			default:
-				obj = "";
+				obj = General.EMPTY_STRING;
 			}
 		}
 

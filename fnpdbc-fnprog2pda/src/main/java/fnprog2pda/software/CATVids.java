@@ -232,9 +232,9 @@ public class CATVids extends FNProgramvare {
 			return;
 		}
 
-		dbDataRecord.put(DIRECTOR, "");
-		dbDataRecord.put(TV_CREATOR, "");
-		dbDataRecord.put(PERSON, "");
+		dbDataRecord.put(DIRECTOR, General.EMPTY_STRING);
+		dbDataRecord.put(TV_CREATOR, General.EMPTY_STRING);
+		dbDataRecord.put(PERSON, General.EMPTY_STRING);
 
 		if (useAudio) {
 			getAudioTracks(dbDataRecord, hashTable);
@@ -247,15 +247,15 @@ public class CATVids extends FNProgramvare {
 		if (useSeason) {
 			Number season = (Number) dbDataRecord.getOrDefault(SEASON, 0);
 			if (season.intValue() == 0) {
-				dbDataRecord.put(SEASON, "");
+				dbDataRecord.put(SEASON, General.EMPTY_STRING);
 			}
 		}
 
 		if (useEpisodeNo) {
 			Number episodeNo = (Number) dbDataRecord.getOrDefault(EPISODE_NO, 0);
 			if (episodeNo.intValue() == 0) {
-				dbDataRecord.put(EPISODE_NO, "");
-				dbDataRecord.put(EPISODES, "");
+				dbDataRecord.put(EPISODE_NO, General.EMPTY_STRING);
+				dbDataRecord.put(EPISODES, General.EMPTY_STRING);
 			} else {
 				dbDataRecord.put(EPISODES, dbDataRecord.get(TITLE));
 				dbDataRecord.put(TITLE, dbDataRecord.get(VIDEO_TITLE));
@@ -263,7 +263,7 @@ public class CATVids extends FNProgramvare {
 		}
 
 		if (useStatus) {
-			String viewed = dbDataRecord.getOrDefault(LAST_VIEWED, "").toString();
+			String viewed = dbDataRecord.getOrDefault(LAST_VIEWED, General.EMPTY_STRING).toString();
 			dbDataRecord.put(STATUS, StringUtils.isEmpty(viewed) ? "Not Watched" : "Watched");
 		}
 
@@ -374,7 +374,7 @@ public class CATVids extends FNProgramvare {
 
 	private Object getDirector(Set<String> directorSet) {
 		if (directorSet.isEmpty()) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		StringBuilder result = new StringBuilder();
@@ -400,7 +400,7 @@ public class CATVids extends FNProgramvare {
 	private void addDirector(Set<String> directorSet, Map<String, Object> map, Map<String, Object> pMap) {
 		int roleID = (Integer) pMap.get("RoleID");
 		if (roleID == 1) {
-			String directorName = map.getOrDefault("Name", "").toString();
+			String directorName = map.getOrDefault("Name", General.EMPTY_STRING).toString();
 
 			if (!directorName.isEmpty()) {
 				directorSet.add(directorName);
@@ -409,11 +409,11 @@ public class CATVids extends FNProgramvare {
 	}
 
 	private void addActorRole(Map<String, String> castMap, Map<String, Object> map, Map<String, Object> pMap) {
-		String castName = map.getOrDefault("Name", "").toString();
+		String castName = map.getOrDefault("Name", General.EMPTY_STRING).toString();
 
-		String character = "";
+		String character = General.EMPTY_STRING;
 		if (useRoles) {
-			character = pMap.getOrDefault("Character", "").toString();
+			character = pMap.getOrDefault("Character", General.EMPTY_STRING).toString();
 		}
 
 		if (!castName.isEmpty()) {
@@ -426,12 +426,12 @@ public class CATVids extends FNProgramvare {
 		StringBuilder result = new StringBuilder();
 		StringBuilder newLine = new StringBuilder();
 
-		String sideATitle = "";
-		String sideBTitle = "";
+		String sideATitle = General.EMPTY_STRING;
+		String sideBTitle = General.EMPTY_STRING;
 
 		Number sideAPlaytime = 0;
 		Number sideBPlaytime = 0;
-		String oldSide = "";
+		String oldSide = General.EMPTY_STRING;
 
 		int item = 0;
 		int oldItem = 0;
@@ -442,7 +442,7 @@ public class CATVids extends FNProgramvare {
 		List<Map<String, Object>> contentsList = hashTable.get(CONTENTS);
 
 		if (CollectionUtils.isEmpty(contentsList)) {
-			return "";
+			return General.EMPTY_STRING;
 		}
 
 		// Get Media
@@ -475,7 +475,7 @@ public class CATVids extends FNProgramvare {
 					sideBPlaytime = (Number) mapItem.get("SideBLength");
 
 					if (sideTitle == null) {
-						sideTitle = "";
+						sideTitle = General.EMPTY_STRING;
 					}
 
 					isDoubleSided = sideBPlaytime.intValue() > 0;
@@ -498,7 +498,7 @@ public class CATVids extends FNProgramvare {
 					int sidePlaytime = side.equals("A") ? sideAPlaytime.intValue() : sideBPlaytime.intValue();
 					String sideTitle = side.equals("A") ? sideATitle : sideBTitle;
 					if (sideTitle == null) {
-						sideTitle = "";
+						sideTitle = General.EMPTY_STRING;
 					}
 
 					if (useContentsLength) {
@@ -527,7 +527,7 @@ public class CATVids extends FNProgramvare {
 			if (useEpisodeNo) {
 				Number episode = (Number) map.getOrDefault(EPISODE_NO, -1);
 				if (episode.intValue() != -1) {
-					newLine.append(General.convertTrack((Number) map.get(EPISODE_NO), itemLength) + " ");
+					newLine.append(General.convertTrack((Number) map.get(EPISODE_NO), itemLength) + General.SPACE);
 				}
 			}
 

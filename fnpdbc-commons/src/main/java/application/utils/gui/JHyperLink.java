@@ -14,6 +14,8 @@ import java.util.List;
 
 import javax.swing.JLabel;
 
+import application.utils.General;
+
 public class JHyperLink extends JLabel {
 	private static final long serialVersionUID = 1413934641540367114L;
 
@@ -48,7 +50,7 @@ public class JHyperLink extends JLabel {
 	};
 
 	public JHyperLink() {
-		this("");
+		this(General.EMPTY_STRING);
 	}
 
 	public void setActionCommand(String actionCmd) {

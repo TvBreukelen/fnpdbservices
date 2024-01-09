@@ -5,6 +5,7 @@ import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
 import application.preferences.Databases;
+import application.utils.General;
 import fnprog2pda.FNProg2PDA;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
@@ -30,7 +31,7 @@ public class ConfigFNProg extends ProgramDialog {
 	}
 
 	private void init() {
-		init(TvBSoftware.FNPROG2PDA.getName() + " " + TvBSoftware.FNPROG2PDA.getVersion());
+		init(TvBSoftware.FNPROG2PDA.getName() + General.SPACE + TvBSoftware.FNPROG2PDA.getVersion());
 		setHelpFile("fnprog2pda");
 		setJMenuBar(createMenuBar());
 		buildDialog();
@@ -52,10 +53,10 @@ public class ConfigFNProg extends ProgramDialog {
 			}
 
 			myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
-			lSoftwareID.setText(dbSettings.getDatabaseType() + " " + dbSettings.getDatabaseVersion() + " / "
+			lSoftwareID.setText(dbSettings.getDatabaseType() + General.SPACE + dbSettings.getDatabaseVersion() + " / "
 					+ pdaSettings.getTableName());
 		} else {
-			lSoftwareID.setText("");
+			lSoftwareID.setText(General.EMPTY_STRING);
 		}
 	}
 

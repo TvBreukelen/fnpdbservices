@@ -60,8 +60,8 @@ public class ChangeExportToDialog extends BasicDialog {
 		dim.setSize(dim.getWidth() < 320 ? 320 : dim.getWidth(), dim.getHeight());
 		exportTo.setPreferredSize(dim);
 
-		JButton button = GUIFactory.getJButton("browseFile",
-				e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, "", false));
+		JButton button = GUIFactory.getJButton("browseFile", e -> General.getSelectedFile(ChangeExportToDialog.this,
+				exportTo, exportFile, General.EMPTY_STRING, false));
 
 		password = new JPasswordField(project.getExportPassword());
 		JLabel lPass = GUIFactory.getJLabel("password");

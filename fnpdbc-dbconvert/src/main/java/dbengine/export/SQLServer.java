@@ -66,7 +66,7 @@ public class SQLServer extends SqlDB {
 		totalRecords = Math.min(totalRecords, myPref.getSqlSelectLimit());
 		StringBuilder b = new StringBuilder(sqlQuery);
 		if (myPref.getSqlSelectLimit() > 0) {
-			b.insert(7, "TOP " + totalRecords + " ");
+			b.insert(7, "TOP " + totalRecords + General.SPACE);
 		}
 		return b.toString();
 	}

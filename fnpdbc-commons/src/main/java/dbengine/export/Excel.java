@@ -96,7 +96,7 @@ public class Excel extends ExcelFile {
 		Row row = sheet.createRow(excelRow);
 		for (FieldDefinition field : dbInfo2Write) {
 			Object dbValue = dbRecord.get(field.getFieldAlias());
-			if (dbValue == null || dbValue.equals("")) {
+			if (dbValue == null || dbValue.equals(General.EMPTY_STRING)) {
 				// Skip current column
 				excelCol++;
 				continue;

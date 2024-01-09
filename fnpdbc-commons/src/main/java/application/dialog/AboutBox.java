@@ -64,7 +64,7 @@ public class AboutBox extends JDialog {
 		panel.add(new JLabel("Version: " + software.getVersion()), c.gridCell(0, 1, 0, 0));
 		panel.add(new JLabel(software.getCopyright()), c.gridCell(0, 2, 0, 0));
 		panel.add(Box.createVerticalStrut(5), c.gridCell(0, 3, 0, 0));
-		panel.add(new JLabel("Java version: " + System.getProperty("java.version", "")
+		panel.add(new JLabel("Java version: " + System.getProperty("java.version", General.EMPTY_STRING)
 				+ (General.IS_X64 ? " (64 bit)" : " (32 bit)")), c.gridCell(0, 4, 0, 0));
 		panel.add(Box.createVerticalStrut(15), c.gridCell(0, 5, 0, 0));
 		panel.add(box, c.gridCell(0, 6, 0, 0));

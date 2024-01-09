@@ -2,24 +2,25 @@ package dbengine.utils;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseHelper;
+import application.utils.General;
 
 public class DatabaseHelper implements IDatabaseHelper {
 	private String database;
-	private String user = "";
-	private String host = "";
-	private String password = "";
-	private String sslMode = "";
-	private String serverSslCert = "";
-	private String serverSslCaCert = ""; // PostgreSQL only
-	private String keyStore = "";
-	private String keyStorePassword = "";
+	private String user = General.EMPTY_STRING;
+	private String host = General.EMPTY_STRING;
+	private String password = General.EMPTY_STRING;
+	private String sslMode = General.EMPTY_STRING;
+	private String serverSslCert = General.EMPTY_STRING;
+	private String serverSslCaCert = General.EMPTY_STRING; // PostgreSQL only
+	private String keyStore = General.EMPTY_STRING;
+	private String keyStorePassword = General.EMPTY_STRING;
 
-	private String sshHost = "";
-	private String sshUser = "";
-	private String sshPassword = "";
+	private String sshHost = General.EMPTY_STRING;
+	private String sshUser = General.EMPTY_STRING;
+	private String sshPassword = General.EMPTY_STRING;
 
-	private String privateKeyFile = "";
-	private String hostNameInCertificate = ""; // SQL Server only
+	private String privateKeyFile = General.EMPTY_STRING;
+	private String hostNameInCertificate = General.EMPTY_STRING; // SQL Server only
 
 	private int port;
 	private int sshPort;

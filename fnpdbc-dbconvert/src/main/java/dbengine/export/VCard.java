@@ -254,7 +254,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), uri.getGroup());
 			setField(getFieldName(field, i, ".MediaType"), uri.getMediaType());
 			setField(getFieldName(field, i, ".Type"), uri.getType());
-			setField(getFieldName(field, i, ""), uri.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), uri.getValue());
 		}
 	}
 
@@ -271,7 +271,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), uri.getGroup());
 			setField(getFieldName(field, i, ".MediaType"), uri.getMediaType());
 			setField(getFieldName(field, i, ".Type"), uri.getType());
-			setField(getFieldName(field, i, ""), uri.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), uri.getValue());
 		}
 	}
 
@@ -338,7 +338,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".AltId"), email.getAltId());
 			setField(getFieldName(field, i, ".Group"), email.getGroup());
 			setField(getFieldName(field, i, ".Types"), email.getTypes());
-			setField(getFieldName(field, i, ""), email.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), email.getValue());
 		}
 	}
 
@@ -355,7 +355,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), expert.getGroup());
 			setField(getFieldName(field, i, ".Language"), expert.getLanguage());
 			setField(getFieldName(field, i, ".Type"), expert.getType());
-			setField(getFieldName(field, i, ""), expert.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), expert.getValue());
 
 			Optional<ExpertiseLevel> level = Optional.ofNullable(expert.getLevel());
 			if (level.isPresent()) {
@@ -377,7 +377,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), url.getGroup());
 			setField(getFieldName(field, i, ".MediaType"), url.getMediaType());
 			setField(getFieldName(field, i, ".Type"), url.getType());
-			setField(getFieldName(field, i, ""), url.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), url.getValue());
 		}
 	}
 
@@ -421,7 +421,7 @@ public class VCard extends GeneralDB implements IConvert {
 			}
 
 			setField(getFieldName(field, i, ".Type"), hobby.getType());
-			setField(getFieldName(field, i, ""), hobby.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), hobby.getValue());
 		}
 	}
 
@@ -481,7 +481,7 @@ public class VCard extends GeneralDB implements IConvert {
 			}
 
 			setField(getFieldName(field, i, ".Type"), interest.getType());
-			setField(getFieldName(field, i, ""), interest.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), interest.getValue());
 		}
 	}
 
@@ -516,7 +516,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), member.getGroup());
 			setField(getFieldName(field, i, ".MediaType"), member.getMediaType());
 			setField(getFieldName(field, i, ".Uri"), member.getUri());
-			setField(getFieldName(field, i, ""), member.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), member.getValue());
 		}
 	}
 
@@ -545,7 +545,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), note.getGroup());
 			setField(getFieldName(field, i, ".Language"), note.getLanguage());
 			setField(getFieldName(field, i, ".Type"), note.getType());
-			setField(getFieldName(field, i, ""), note.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), note.getValue());
 
 		}
 
@@ -576,7 +576,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), dir.getGroup());
 			setField(getFieldName(field, i, ".Language"), dir.getLanguage());
 			setField(getFieldName(field, i, ".Type"), dir.getType());
-			setField(getFieldName(field, i, ""), dir.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), dir.getValue());
 		}
 	}
 
@@ -602,7 +602,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), role.getGroup());
 			setField(getFieldName(field, i, ".Language"), role.getLanguage());
 			setField(getFieldName(field, i, ".Type"), role.getType());
-			setField(getFieldName(field, i, ""), role.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), role.getValue());
 		}
 	}
 
@@ -626,7 +626,7 @@ public class VCard extends GeneralDB implements IConvert {
 			Source source = sources.get(i);
 			setField(getFieldName(field, i, ".AltId"), source.getAltId());
 			setField(getFieldName(field, i, ".Group"), source.getGroup());
-			setField(getFieldName(field, i, ""), source.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), source.getValue());
 		}
 	}
 
@@ -681,7 +681,7 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".AltId"), title.getAltId());
 			setField(getFieldName(field, i, ".Group"), title.getGroup());
 			setField(getFieldName(field, i, ".Type"), title.getType());
-			setField(getFieldName(field, i, ""), title.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), title.getValue());
 		}
 	}
 
@@ -707,12 +707,12 @@ public class VCard extends GeneralDB implements IConvert {
 			setField(getFieldName(field, i, ".Group"), url.getGroup());
 			setField(getFieldName(field, i, ".MediaType"), url.getMediaType());
 			setField(getFieldName(field, i, ".Type"), url.getType());
-			setField(getFieldName(field, i, ""), url.getValue());
+			setField(getFieldName(field, i, General.EMPTY_STRING), url.getValue());
 		}
 	}
 
 	private void setField(String field, Object value) {
-		if (value == null || value.equals("") || value.toString().startsWith("item")) {
+		if (value == null || value.equals(General.EMPTY_STRING) || value.toString().startsWith("item")) {
 			return;
 		}
 
@@ -741,7 +741,7 @@ public class VCard extends GeneralDB implements IConvert {
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		Set<Object> result = new HashSet<>();
-		dbRecords.forEach(m -> result.add(m.getOrDefault(field, "")));
+		dbRecords.forEach(m -> result.add(m.getOrDefault(field, General.EMPTY_STRING)));
 		return new ArrayList<>(result);
 	}
 }

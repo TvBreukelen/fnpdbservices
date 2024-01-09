@@ -93,7 +93,7 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 				pdaSettings.getAutoInstUser().equals("ALL USERS"), e -> activateComponents());
 
 		autoInstallUser = GUIFactory.getJTextField("autoInstallUser",
-				autoInstallAllUsers.isSelected() ? "" : pdaSettings.getAutoInstUser());
+				autoInstallAllUsers.isSelected() ? General.EMPTY_STRING : pdaSettings.getAutoInstUser());
 		autoInstallUser.setPreferredSize(new Dimension(70, 20));
 
 		userLabel = GUIFactory.getJLabel("user");

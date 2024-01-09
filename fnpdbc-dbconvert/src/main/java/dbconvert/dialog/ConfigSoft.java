@@ -110,7 +110,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private ProgramDialog dialog;
 	private ProjectModel model;
-	private DatabaseHelper dbVerified = new DatabaseHelper("", ExportFile.ACCESS);
+	private DatabaseHelper dbVerified = new DatabaseHelper(General.EMPTY_STRING, ExportFile.ACCESS);
 
 	public ConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNew) {
 		this.dialog = dialog;
@@ -122,13 +122,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private void init() {
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
-				: pdaSettings.getProfileID() + " " + GUIFactory.getText("configuration"), 6);
+				: pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
 
 		dbFactory = new XConverter();
 
 		if (isNewProfile) {
 			pdaSettings.reset();
-			dbFactory.getDbInHelper().setDatabase("");
+			dbFactory.getDbInHelper().setDatabase(General.EMPTY_STRING);
 		}
 
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
@@ -159,7 +159,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		funcSelectImportFileType = e -> importFileTypeChanged();
 		funcSelectImportFile = e -> importFileNameChanged(false);
 
-		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? "" : pdaSettings.getProfileID());
+		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 		profile.setPreferredSize(new Dimension(100, 25));
 
@@ -227,9 +227,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 					importFileNameChanged(true);
 				}
 			} else {
-				String dbFile = cbDatabases.getSelectedItem() == null ? "" : cbDatabases.getSelectedItem().toString();
+				String dbFile = cbDatabases.getSelectedItem() == null ? General.EMPTY_STRING
+						: cbDatabases.getSelectedItem().toString();
 				fdDatabase.setText(dbFile);
-				General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, "", true);
+				General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, General.EMPTY_STRING, true);
 				if (!fdDatabase.getText().isBlank()) {
 					importFileNameChanged(true);
 				}
@@ -249,7 +250,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		reloadImportFiles();
 
 		if (isNewProfile) {
-			myView = "";
+			myView = General.EMPTY_STRING;
 			JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			p1.setBorder(BorderFactory.createEtchedBorder());
 			p1.add(Box.createVerticalStrut(40));
@@ -320,7 +321,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		if (software != myImportFile && !db.isEmpty()) {
 			boolean abort = false;
 			if (!software.isConnectHost() == myImportFile.isConnectHost()) {
-				General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", ""), CONFIG_ERROR, true);
+				General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", General.EMPTY_STRING),
+						CONFIG_ERROR, true);
 				abort = true;
 			} else {
 				abort = !General.showConfirmMessage(this,
@@ -427,8 +429,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
 				} else {
 					dbFactory.close();
-					dbVerified.setDatabase("");
-					cbDatabases.setSelectedItem("");
+					dbVerified.setDatabase(General.EMPTY_STRING);
+					cbDatabases.setSelectedItem(General.EMPTY_STRING);
 					setTablesOrWorksheets();
 				}
 			} catch (Exception e) {
@@ -474,7 +476,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
 
-		if (myImportFile.isSqlDatabase()) {
+		if (myImportFile.isDatabase()) {
 			spSqlLimit.setValue(Integer.valueOf(pdaSettings.getSqlSelectLimit()));
 			lSqlLimit.setVisible(true);
 			spSqlLimit.setVisible(true);
@@ -544,11 +546,11 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		pdaSettings.setTableName(myImportFile.isDatabase() || myImportFile.isSpreadSheet()
 				? bTablesWorksheets.getSelectedItem().toString()
-				: "", true);
-		pdaSettings.setSqlSelectLimit(myImportFile.isSqlDatabase() ? sModel.getNumber().intValue() : 0);
+				: General.EMPTY_STRING, true);
+		pdaSettings.setSqlSelectLimit(myImportFile.isDatabase() ? sModel.getNumber().intValue() : 0);
 		pdaSettings.setPagination(ckPagination.isEnabled() && ckPagination.isSelected());
 
-		pdaSettings.setLastExported("");
+		pdaSettings.setLastExported(General.EMPTY_STRING);
 		configDb.setProperties();
 
 		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
@@ -572,18 +574,18 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbSettings.setHost(dbVerified.getHost());
 		dbSettings.setPort(dbVerified.getPort());
 		dbSettings.setUseSsh(dbVerified.isUseSsh());
-		dbSettings.setSshHost(isNotSsh ? "" : dbVerified.getSshHost());
+		dbSettings.setSshHost(isNotSsh ? General.EMPTY_STRING : dbVerified.getSshHost());
 		dbSettings.setSshPort(isNotSsh ? 0 : dbVerified.getSshPort());
-		dbSettings.setSshUser(isNotSsh ? "" : dbVerified.getSshUser());
-		dbSettings.setSshPassword(isNotSsh ? "" : dbVerified.getSshPassword());
-		dbSettings.setPrivateKeyFile(isNotSsh ? "" : dbVerified.getPrivateKeyFile());
+		dbSettings.setSshUser(isNotSsh ? General.EMPTY_STRING : dbVerified.getSshUser());
+		dbSettings.setSshPassword(isNotSsh ? General.EMPTY_STRING : dbVerified.getSshPassword());
+		dbSettings.setPrivateKeyFile(isNotSsh ? General.EMPTY_STRING : dbVerified.getPrivateKeyFile());
 
 		dbSettings.setUseSsl(dbVerified.isUseSsl());
-		dbSettings.setSslMode(isNotSsl ? "" : dbVerified.getSslMode());
-		dbSettings.setKeyStore(isNotSsl ? "" : dbVerified.getKeyStore());
-		dbSettings.setKeyStorePassword(isNotSsl ? "" : dbVerified.getKeyStorePassword());
-		dbSettings.setServerSslCert(isNotSsl ? "" : dbVerified.getServerSslCert());
-		dbSettings.setHostNameInCertificate(isNotSsl ? "" : dbVerified.getHostNameInCertificate());
+		dbSettings.setSslMode(isNotSsl ? General.EMPTY_STRING : dbVerified.getSslMode());
+		dbSettings.setKeyStore(isNotSsl ? General.EMPTY_STRING : dbVerified.getKeyStore());
+		dbSettings.setKeyStorePassword(isNotSsl ? General.EMPTY_STRING : dbVerified.getKeyStorePassword());
+		dbSettings.setServerSslCert(isNotSsl ? General.EMPTY_STRING : dbVerified.getServerSslCert());
+		dbSettings.setHostNameInCertificate(isNotSsl ? General.EMPTY_STRING : dbVerified.getHostNameInCertificate());
 		dbSettings.setTrustServerCertificate(isNotSsl ? isNotSsl : dbVerified.isTrustServerCertificate());
 	}
 
@@ -628,7 +630,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
 			calendarImport.setVisible(isICalFile);
-			btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase() && bTablesWorksheets.isEnabled());
+			btRelationships.setVisible(isFileValid && myImportFile.isDatabase() && bTablesWorksheets.isEnabled());
 			pack();
 		}
 	}

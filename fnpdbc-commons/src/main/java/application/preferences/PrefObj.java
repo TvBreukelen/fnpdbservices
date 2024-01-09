@@ -10,6 +10,8 @@ import java.io.ObjectOutputStream;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import application.utils.General;
+
 public class PrefObj {
 	// Max byte count is 3/4 max string length (see Preferences
 	// documentation).
@@ -46,7 +48,7 @@ public class PrefObj {
 		Preferences node = prefs.node(key);
 		node.clear();
 		for (int i = 0; i < pieces.length; ++i) {
-			node.putByteArray("" + i, pieces[i]);
+			node.putByteArray(General.EMPTY_STRING + i, pieces[i]);
 		}
 	}
 
@@ -56,7 +58,7 @@ public class PrefObj {
 		int numPieces = keys.length;
 		byte[][] pieces = new byte[numPieces][];
 		for (int i = 0; i < numPieces; ++i) {
-			pieces[i] = node.getByteArray("" + i, null);
+			pieces[i] = node.getByteArray(General.EMPTY_STRING + i, null);
 		}
 		return pieces;
 	}

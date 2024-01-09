@@ -53,8 +53,8 @@ public class Viewer extends BasicDialog {
 
 		General.packColumns(myTable);
 		result.add(new JScrollPane(myTable), BorderLayout.CENTER);
-		result.setBorder(
-				BorderFactory.createTitledBorder(GUIFactory.getTitle("noOfRecords") + " " + myModel.getRowCount()));
+		result.setBorder(BorderFactory
+				.createTitledBorder(GUIFactory.getTitle("noOfRecords") + General.SPACE + myModel.getRowCount()));
 		return result;
 	}
 
