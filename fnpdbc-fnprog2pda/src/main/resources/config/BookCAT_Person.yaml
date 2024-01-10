@@ -1,0 +1,54 @@
+# BookCAT - Person
+---
+table:
+  Name: Person
+tables:
+  Country: Country
+  FileLinks: PersonFileLinks
+  PersonImage: 'PersonImage,PersonID'
+tables7:
+  WebLinks: PersonWebLinks
+  WebLinkType: 'WebLinkType,WebLinks.TypeID'
+tables9:
+  Custom03: 'PersonCustom03,Custom03ID'
+  Custom04: 'PersonCustom04,Custom04ID'
+  Custom12: 'PersonCustom12,PersonCustom12Link.PersonCustom12ID'
+  PersonCustom12Link: PersonCustom12Link
+  PersonRelation: 'PersonRelation,PersonID'
+  RelatedTo: 'Person,PersonRelation.RelatedTo'
+tables10:
+  PersonPseudonym: 'PersonPseudonym,PersonID'
+  Pseudonym: 'Person,PersonPseudonym.PseudonymID'
+mainLineTables:
+  tables: PersonImage
+hideColumns:
+  columns: 'Custom03ID,Custom04ID,MarkedQS'
+userfields:
+  BirthName: Birth
+  Born: 'Born,date'
+  Custom03: Custom03.PersonCustom03
+  Custom04: Custom04.PersonCustom04
+  Custom12: Custom12.PersonCustom12
+  Dead: 'Dead,date'
+  'Image[1]': 'PersonImage.Image,Image'
+  'Image[2]': 'PersonImage.Image,Image'
+  'Image[3]': 'PersonImage.Image,Image'
+  'Image[4]': 'PersonImage.Image,Image'
+  'Image[5]': 'PersonImage.Image,Image'
+  'Image[6]': 'PersonImage.Image,Image'
+  'Image[7]': 'PersonImage.Image,Image'
+  'Image[8]': 'PersonImage.Image,Image'
+  'Image[9]': 'PersonImage.Image,Image'
+  Pseudonym.Person: Pseudonym.Person
+  Pseudonym.PersonSort: Pseudonym.PersonSort
+  RelatedTo.Person: RelatedTo.Person
+  RelatedTo.PersonSort: 'RelatedTo.PersonSort,l'
+  'Thumbnail[1]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[2]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[3]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[4]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[5]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[6]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[7]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[8]': 'PersonImage.ImageThumbnail,X'
+  'Thumbnail[9]': 'PersonImage.ImageThumbnail,X'

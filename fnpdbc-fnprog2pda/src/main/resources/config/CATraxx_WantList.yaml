@@ -1,0 +1,20 @@
+# CATraxx - WantList
+---
+table:
+  Name: WantList
+personColumns:
+  ArtistPerson: 'Name,SortBy'
+tables:
+  Artist: 'ArtistPerson,ArtistWantListLink.ArtistPersonID'
+  ArtistWantListLink: 'ArtistWantListLink,WantListID'
+  Format: Format
+  FormatGroup: 'FormatGroup,Format.FormatGroupID'
+  Label: Label
+  OrderedFrom: 'AcquiredFrom,OrderedFromID,AcquiredFromID'
+hideColumns:
+  columns: 'AcquiredFromID,MarkedQS'
+userfields:
+  OrderedFrom: OrderedFrom.AcquiredFrom
+  OrderDate: 'OrderDate,date'
+  Released: 'Released,date'
+  TitleSort: WantListSort

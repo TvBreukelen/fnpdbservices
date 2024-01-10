@@ -1,0 +1,102 @@
+# AssetCAT - Asset
+---
+table:
+# ------------------------------------------------------------------------------------------------
+# Here we define the main table and the table of contents 
+# ------------------------------------------------------------------------------------------------
+Name: Asset
+#  
+tables:
+# ------------------------------------------------------------------------------------------------
+# Here we define all tables relationships. By default we assume a link with the main table, where
+# foreign key = primary key of the linked table. Naturally we can override the linked table and
+# the indexes. Furthermore we can apply a filter on a column and decide whether we want to hide
+# the table or show all table columns in the program 
+#
+# Syntax: Table = Table Name[,linked table.key][,foreign key][;Hide|ShowAll] 
+# ------------------------------------------------------------------------------------------------
+  AcquiredFrom: AcquiredFrom
+  Appraiser: Appraiser
+  AssetCustom: AssetCustom
+  AssetImage: 'AssetImage,AssetID'
+  Beneficiary: Beneficiary
+  Category: Category
+  Color: Color
+  Condition: Condition
+  Custom05: 'Custom05,AssetCustom.Custom05ID'
+  Custom06: 'Custom06,AssetCustom.Custom06ID'
+  Custom07: 'Custom07,AssetCustom.Custom07ID'
+  Custom08: 'Custom08,AssetCustom.Custom08ID'
+  DocumentLink: DocumentLink
+  DocumentType: 'DocumentType,DocumentLink.TypeID'
+  FileLink: FileLink
+  FileLinkType: 'FileLinkType,FileLink.TypeID'
+  Insurance: Insurance
+  Location: Location
+  Manufacturer: Manufacturer
+  Owner: Owner
+  RepairLink: RepairLink
+  Room: Room
+  Status: Status
+  TagLink: TagLink
+  Tag: 'Tag,TagLink.TagID'
+  Users: Users
+  WarrantyType: WarrantyType
+  WebLink: WebLink
+  WebLinkType: 'WebLinkType,WebLink.TypeID'
+#
+mainLineTables:
+# ------------------------------------------------------------------------------------------------
+# Here we define all tables, who's fields we want to group a "level" higher
+# ------------------------------------------------------------------------------------------------
+  tables: 'AssetCustom,AssetImage'
+#
+hideColumns:
+# ------------------------------------------------------------------------------------------------
+# Here we hide all columns that we con't want to see
+#
+# Syntax: columns=col1[,col2]
+# or      tablename=col1[,col2]
+# ------------------------------------------------------------------------------------------------
+  columns: 'Custom03ID,Custom04ID,Custom05ID,Custom06ID,Custom07ID,Custom08ID,MarkedQS'
+#
+userfields:
+# ------------------------------------------------------------------------------------------------
+# Here we assign certain columns an alternative name and/or attribute
+# Syntax: Alias=Old Name[,Attribute][;Fixed Value]
+# Where:
+#      Old Name "Dummy" is a dummy column
+# and Attribute: 
+#      Date  = FNProgramvare real date in YYYYMMDD format
+#      date  = FNProgramvare date in DD, MM, DDMM or YYYYMMDD format
+#      Image = a blob field containing a picture (bitmap, jpeg, etc.)
+#      Index = Index of array
+#      Memo  = Memo
+#      N     = Number
+#      S     = Timestamp
+#      Time  = FNProgramvare time
+#      time  = FNProgramvare duration
+#      X     = Thumbnail
+# ------------------------------------------------------------------------------------------------
+  AppraisalDate: 'AppraisalDate,Date'
+  Image[1]: 'AssetImage.Image,Image;Index=1'
+  Image[2]: 'AssetImage.Image,Image;Index=2'
+  Image[3]: 'AssetImage.Image,Image;Index=3'
+  Image[4]: 'AssetImage.Image,Image;Index=4'
+  Image[5]: 'AssetImage.Image,Image;Index=5
+  Image[6]: 'AssetImage.Image,Image;Index=6'
+  Image[7]: 'AssetImage.Image,Image;Index=7'
+  Image[8]: 'AssetImage.Image,Image;Index=8'
+  Image[9]: 'AssetImage.Image,Image;Index=9'
+  DateAcquired: 'DateAcquired,Date'
+  Registered: 'Registered,Date'
+  Thumbnail[1]: 'AssetImage.ImageThumbnail,X;Index=1'
+  Thumbnail[2]: 'AssetImage.ImageThumbnail,X;Index=2'
+  Thumbnail[3]: 'AssetImage.ImageThumbnail,X;Index=3'
+  Thumbnail[4]: 'AssetImage.ImageThumbnail,X;Index=4'
+  Thumbnail[5]: 'AssetImage.ImageThumbnail,X;Index=5'
+  Thumbnail[6]: 'AssetImage.ImageThumbnail,X;Index=6'
+  Thumbnail[7]: 'AssetImage.ImageThumbnail,X;Index=7'
+  Thumbnail[8]: 'AssetImage.ImageThumbnail,X;Index=8'
+  Thumbnail[9]: 'AssetImage.ImageThumbnail,X;Index=9'
+  WarrantyExpiration: 'WarrantyExpiration,Date'

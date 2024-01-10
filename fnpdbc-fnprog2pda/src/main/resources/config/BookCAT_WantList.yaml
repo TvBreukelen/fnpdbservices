@@ -1,0 +1,20 @@
+# BookCAT - WantList
+---
+table:
+  Name: WantList
+personColumns:
+  Person: 'Name,SortBy'
+tables:
+  Author: 'Person,AuthorWantListLink.PersonID'
+  AuthorWantListLink: 'AuthorWantListLink,WantListID'
+  Binding: Binding
+  OrderedFrom: 'AcquiredFrom,OrderedFromID,AcquiredFromID'
+  Publisher: Publisher
+  Series: Series
+hideColumns:
+  columns: 'AcquiredFromID,MarkedQS'
+userfields:
+  OrderedFrom: OrderedFrom.AcquiredFrom
+  OrderDate: 'OrderDate,date'
+  PublishDate: 'PublishDate,date'
+  TitleSort: WantListSort

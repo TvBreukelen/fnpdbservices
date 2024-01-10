@@ -1,0 +1,19 @@
+# CATraxx - BoxSet
+---
+table:
+  Name: BoxSet
+  Contents: Album
+personColumns:
+  ArtistPerson: 'Name,SortBy'
+tables:
+  Album: 'Album,,BoxSetID'
+  ArtistAlbumLink: 'ArtistAlbumLink,Album.AlbumID,AlbumID'
+  ArtistBoxSetLink: ArtistBoxSetLink
+  Artist: 'ArtistPerson,ArtistBoxSetLink.ArtistPersonID'
+  ContentsPerson: 'ArtistPerson,ArtistAlbumLink.ArtistPersonID'
+  Format: 'Format,Album.FormatID'
+hideColumns:
+  columns: MarkedQS
+userfields:
+  Artist: ArtistPerson.Name
+  Released: 'Released,date'

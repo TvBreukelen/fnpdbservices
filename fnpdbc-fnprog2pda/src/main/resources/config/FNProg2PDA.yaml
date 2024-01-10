@@ -1,0 +1,68 @@
+---
+Software:
+  AssetCAT: Asset
+  BookCAT: Book
+  CATraxx: Album
+  CATVids: Video
+  SoftCAT: App
+  StampCAT: Stamp
+#  
+AssetCAT:
+  pda.database.name: Assets
+  versions: ['1']
+  version1.exists: Asset
+#  
+BookCAT:
+  pda.database.name: Books
+  versions: ['10','9','8.1','8','7','6']
+  version6.exists: Book,Deleted
+  version7.exists: Book,Dewey
+  version8.exists: Book,ReadCount
+  version8.1.exists: Book,PublicationPlaceID
+  version9.exists: AuthorWantListLink
+  version10.exists: Book,PrimaryGenreID
+#  
+CATraxx:
+  pda.database.name: Albums
+  versions: ['9','8','7','6','5']
+  version5.exists: Album,Deleted
+  version6.exists: AlbumCustom21
+  version7.exists: Album,LastModified
+  version8.exists: ArtistPerson
+  version9.exists: AlbumChartInfo
+#  
+CATVids:
+  pda.database.name: Video
+  versions: ['9','8','7','6','5']
+  version5.exists: Video,Deleted
+  version6.exists: VideoCustom
+  version7.exists: Video,LastModified
+  version8.exists: GenreLink
+  version9.exists: AudioFileLink
+#  
+SoftCAT:
+  pda.database.name: Software
+  versions: ['5','4.1','4','3','2','1']
+  version1.exists: App
+  version2.exists: AppCustom
+  version3.exists: App,LastModified
+  version4.exists: Weblinks
+  version4.1.exists: App,OrderID
+  version5.exists: CategoryAppLink
+#
+StampCAT:
+  pda.database.name: Stamps
+  versions: ['10','9','8','7','6']
+  version6.exists: Stamp,Deleted
+  version7.exists: StampCustom
+  version8.exists: Stamp,LastModified
+  version9.exists: Custom15
+  version10.exists: Custom44
+#  
+FieldRename:
+  Comments: Notes
+  AuthorSort: Authors
+  ArtistSort: Artists
+  '*_PlainText': ''
+  '*Name': ''
+  .SortBy: Sort

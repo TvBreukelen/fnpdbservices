@@ -1,0 +1,90 @@
+# CATVids - Video
+---
+table:
+  Name: Video
+  Contents: Contents
+tables:
+  AcquiredFrom: AcquiredFrom
+  Borrower: Borrower
+  Contents: 'Contents,,VideoID'
+  ContentsType: 'ContentsType,Contents.TypeID'
+  Country: Country
+  Distributor: Distributor
+  Format: 'Format,FormatID'
+  Insurance: Insurance
+  Karaoke: Karaoke
+  Label: Label
+  LaserFormat: LaserFormat
+  Location: Location
+  Owner: Owner
+  Publisher: Publisher
+  Region: Region
+  ReservedTo: 'Borrower,ReservedToBorrowerID'
+  Status: Status
+  SubCategory: SubCategory
+  VideoImage: 'VideoImage,VideoID'
+  VideoType: VideoType
+  VideoSeries: VideoSeries
+  VideoStandard: VideoStandard
+tables5:
+  Custom05: 'VideoCustom05,Custom05ID'
+  Custom06: 'VideoCustom06,Custom06ID'
+  Custom07: 'VideoCustom07,Custom07ID'
+  Custom08: 'VideoCustom08,Custom08ID'
+  Media: 'ItemInfo,,VideoID'
+tables6:
+  VideoCustom: VideoCustom
+  Custom05: 'VideoCustom05,VideoCustom.Custom05ID'
+  Custom06: 'VideoCustom06,VideoCustom.Custom06ID'
+  Custom07: 'VideoCustom07,VideoCustom.Custom07ID'
+  Custom08: 'VideoCustom08,VideoCustom.Custom08ID'
+tables7:
+  Media: 'Media,,VideoID'
+mainLineTables:
+  tables: 'VideoCustom,VideoImage'
+userfields:
+  'Cover[1]': 'VideoImage.Image,Image'
+  'Cover[2]': 'VideoImage.Image,Image'
+  'Cover[3]': 'VideoImage.Image,Image'
+  'Cover[4]': 'VideoImage.Image,Image'
+  'Cover[5]': 'VideoImage.Image,Image'
+  'Cover[6]': 'VideoImage.Image,Image'
+  'Cover[7]': 'VideoImage.Image,Image'
+  'Cover[8]': 'VideoImage.Image,Image'
+  'Cover[9]': 'VideoImage.Image,Image'
+  DateAcquired: 'DateAcquired,date'
+  DateBorrowed: 'DateBorrowed,Date'
+  DateDue: 'DateDue,Date'
+  EmailOverDueDate: 'EmailOverDueDate,Date'
+  EmailReminderDate: 'EmailReminderDate,Date'
+  EmailReservedDate: 'EmailReservedDate,Date'
+  FreeTimeEP: 'FreeTimeEP,time'
+  FreeTimeLP: 'FreeTimeLP,time'
+  FreeTimeSLP: 'FreeTimeSLP,time'
+  FreeTimeSP: 'FreeTimeSP,time'
+  Length: 'Length,time'
+  Registered: 'Registered,Date'
+  ReservedDate: 'ReservedDate,Date'
+  TapeUtilized: 'TapeUtilized,time'
+  'Thumbnail[1]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[2]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[3]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[4]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[5]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[6]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[7]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[8]': 'VideoImage.ImageThumbnail,X'
+  'Thumbnail[9]': 'VideoImage.ImageThumbnail,X'
+  TitleSort: VideoSort
+userfields5:
+  Custom09: 'Custom09,Date'
+userfields6:
+  Custom09: 'VideoCustom.Custom09,Date'
+userfields7:
+  LastModified: 'LastModified,date'
+userfields8:
+  LastModified: 'LastModified,S'
+userfields9:
+  Custom23: 'VideoCustom.Custom23,Date'
+  Media.Item: DiscNo
+  Contents.Item: DiscNo

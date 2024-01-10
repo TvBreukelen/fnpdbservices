@@ -1,0 +1,71 @@
+# StampCAT - Stamp
+---
+table:
+  Name: Stamp
+tables:
+  Category: Category
+  Class: Class
+  Color: Color
+  Condition: Condition
+  Country: Country
+  Group: GroupTbl
+  Location: Location
+  Perforation: Perforation
+  Postmark: Postmark
+  PostmarkCity: PostmarkCity
+  StampImage: 'StampImage,StampID'
+  Status: Status
+  Topic: Topic
+  Type: Type
+tables6:
+  Custom08: Custom08
+  Custom09: Custom09
+  Custom10: Custom10
+  Custom11: Custom11
+tables7:
+  Custom08: 'Custom08,StampCustom.Custom08ID'
+  Custom09: 'Custom09,StampCustom.Custom09ID'
+  Custom10: 'Custom10,StampCustom.Custom10ID'
+  Custom11: 'Custom11,StampCustom.Custom11ID'
+  StampCustom: StampCustom
+tables8:
+  Keyword: 'Keyword,KeywordLink.KeywordID'
+  KeywordLink: 'StampID,KeywordLink'
+  WebLink: WebLink
+  WebLinkType: 'WebLinkType,WebLink.TypeID'
+tables9:
+  Custom15: 'Custom15,StampCustom.Custom15ID'
+  Custom16: 'Custom16,StampCustom.Custom16ID'
+  Custom17: 'Custom17,StampCustom.Custom17ID'
+tables10:
+  Custom29: 'Custom29,StampCustom.Custom29ID'
+  Custom30: 'Custom30,StampCustom.Custom30ID'
+  Hinged: Hinged
+  Perforation_Horiz: 'Perforation,Perforation_HorizID'
+  Perforation_Vert: 'Perforation,Perforation_VertID'
+mainLineTables:
+  tables: 'StampCustom,StampImage'
+hideColumns:
+  columns: 'Custom08ID,Custom09ID,Custom10ID,Custom011D,MarkedQS'
+userfields:
+  Currency: Catalog.Currency
+  DateAcquired: 'DateAcquired,date'
+  Image[1]: 'StampImage.Image,Image;Index=1'
+  Image[2]: 'StampImage.Image,Image;Index=2'
+  Image[3]: 'StampImage.Image,Image;Index=3'
+  Image[4]: 'StampImage.Image,Image;Index=4'
+  Image[5]: 'StampImage.Image,Image;Index=5'
+  Image[6]: 'StampImage.Image,Image;Index=6'
+  Image[7]: 'StampImage.Image,Image;Index=7'
+  Image[8]: 'StampImage.Image,Image;Index=8'
+  Image[9]: 'StampImage.Image,Image;Index=9'
+  Issued: 'Issued,date'
+  PostmarkDate: 'PostmarkDate,date'
+  Registered: 'Registered,Date'
+userfields8:
+  Keyword: 'Keyword.Keyword,Memo'
+  LastModified: 'LastModified,Date'
+userfields9:
+  Custom20: 'StampCustom.Custom20,Date'
+  Custom21: 'StampCustom.Custom21,Date'
+  LastModified: 'LastModified,S'

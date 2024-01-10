@@ -1,0 +1,102 @@
+# CATraxx - Track
+---
+table:
+  Name: Track
+personColumns:
+  Artist: 'Name,SortBy'
+  ArtistPerson: 'Name,SortBy'
+  Person: 'Name,SortBy'
+  Studio: 'Studio,SortBy'
+tables:
+  Album: 'Album,AlbumID'
+  ArtistTrackLink: 'ArtistTrackLink,TrackID,TrackID'
+  Genre: Genre
+  ProductionTrackLink: 'ProductionTrackLink,TrackID,TrackID'
+  Rating: 'TrackRating,TrackRatingID'
+  Studio: 'Studio,StudioTrackLink.StudioID'
+  StudioTrackLink: 'StudioTrackLink,TrackID,TrackID'
+  Sound: Sound
+  Tour: Tour
+  Venue: Venue
+tables5:
+  Artist: 'Artist,ArtistTrackLink.ArtistID'
+  Custom04: 'TrackUserDef04,Userdef04ID'
+  Custom05: 'TrackUserDef05,Userdef05ID'
+  Custom06: 'TrackUserDef06,Userdef06ID'
+  OriginalBy: 'Artist,OriginalByID'
+  ProductionPerson: 'Person,ProductionTrackLink.PersonID'
+tables6:
+  Keyword: 'Keyword,KeywordTrackLink.KeywordID'
+  KeywordTrackLink: KeywordTrackLink
+  Custom04: 'TrackCustom04,TrackCustom.Custom04ID'
+  Custom05: 'TrackCustom05,TrackCustom.Custom05ID'
+  Custom06: 'TrackCustom06,TrackCustom.Custom06ID'
+  Custom18: 'TrackCustom18,TrackCustom.Custom18ID'
+  Custom19: 'TrackCustom19,TrackCustom.Custom19ID'
+  TrackCustom: TrackCustom
+tables8:
+  ArrangerTrackLink: 'ArrangerTrackLink,TrackID,TrackID'
+  Artist: 'ArtistPerson,ArtistTrackLink.ArtistPersonID'
+  ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID'
+  ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID'
+  ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID'
+  AuthorPublisherRole: 'AuthorPublisherRole,AuthorTrackLink.RoleID,AuthorPublisherRoleID'
+  AuthorTrackLink: 'AuthorTrackLink,TrackID,TrackID'
+  Instrument: 'Instrument,MusicianTrackLink.InstrumentID'
+  OriginalBy: 'ArtistPerson,OriginalByID'
+  MusicianTrackLink: 'MusicianTrackLink,TrackID,TrackID'
+  ProductionPerson: 'ArtistPerson,ProductionTrackLink.ArtistPersonID'
+  PersonalRating: PersonalRating
+tables9:
+  AudioFileLink: AudioFileLink
+  GenreTrackLink: GenreTrackLink
+  Genre: 'Genre,GenreTrackLink.GenreID'
+  MusicChart: 'MusicChart,TrackChartInfo.MusicChartID'
+  PrimaryGenre: 'Genre,PrimaryGenreID'
+  TrackChartInfo: 'TrackChartInfo,TrackID'
+mainLineTables:
+  tables: TrackCustom
+hideColumns:
+  columns: 'MarkedQS,UserDef04ID,UserDef05ID,UserDef06ID'
+userfields:
+  LastPlayed: 'Album.LastPlayed,Date'
+  Released: 'Album.Released,date'
+  Length: 'Length,time'
+  DateAcquired: 'Album.DateAcquired,date'
+  DateBorrowed: 'Album.DateBorrowed,Date'
+  DateDue: 'Album.DateDue,Date'
+  EmailOverdueDate: 'Album.EmailOverdueDate,Date'
+  EmailReminderDate: 'Album.EmailReminderDate,Date'
+  EmailReservedDate: 'Album.EmailReservedDate,Date'
+  PlayingTime: 'Album.PlayingTime,time'
+  Registered: 'Album.Registered,Date'
+  ReissueDate: 'Album.ReissueDate,date'
+  ReservedDate: 'Album.ReservedDate,Date'
+  ProductionPerson: 'ProductionPerson.ProductionPerson,Memo'
+userfields5:
+  Custom01: UserDef01
+  Custom02: UserDef02
+  Custom03: UserDef03
+  Custom07: UserDef07
+  Custom08: UserDef08
+  Custom09: UserDef09
+  Custom10: UserDef10
+  Custom11: UserDef11
+  Custom12: UserDef12
+  Custom13: UserDef13
+  Custom14: UserDef14
+  Custom15: UserDef15
+  TitleSort: TrackSort
+  Album.TitleSort: AlbumSort
+  Album.Title: Album.Title
+userfields6:
+  Keyword: 'Keyword.Keyword,Memo'
+  Performers: 'Dummy,Memo'
+userfields8:
+  LastPlayed: 'LastPlayed,S'
+  Composers: 'Dummy,Memo'
+  Conductors: 'Dummy,Memo'
+  Orchestras: 'Dummy,Memo'
+  Writers: 'Dummy,Memo'
+userfields9:
+  PrimaryGenre: PrimaryGenre.Genre

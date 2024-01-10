@@ -1,0 +1,73 @@
+# SoftCAT - App
+---
+table:
+  Name: App
+tables:
+  Category: Category
+  Language: Language
+  Media: Media
+  MediaLocation: MediaLocation
+  Platform: Platform
+  Publisher: Publisher
+  PurchaseLocation: PurchaseLocation
+  Status: Status
+  Type: Type
+tables2:
+  AppCustom: AppCustom
+  AppImage: 'AppImage,AppID'
+  Custom04: 'AppCustom04,AppCustom.Custom04ID'
+  Custom05: 'AppCustom05,AppCustom.Custom05ID'
+  Custom06: 'AppCustom06,AppCustom.Custom06ID'
+  Keyword: 'Keyword,KeywordAppLink.KeywordID'
+  KeywordAppLink: KeywordAppLink
+  LanguageAppLink: LanguageAppLink
+  Owner: Owner
+  PersonalRating: PersonalRating
+tables4:
+  SoftwareSuite: SoftwareSuite
+  WebLinks: WebLinks
+  WebLinkType: 'WebLinkType,WebLinks.TypeID'
+tables5:
+  Category: 'Category,CategoryAppLink.CategoryID'
+  CategoryAppLink: CategoryAppLink
+  Platform: 'Platform,PlatformAppLink.PlatformID'
+  PlatformAppLink: PlatformAppLink
+  PrimaryCategory: 'Category,PrimaryCategoryID'
+mainLineTables:
+  tables: 'AppCustom,AppImage'
+hideColumns:
+  columns: 'Custom04ID,Custom05ID,Custom06ID,MarkedQS'
+userfields:
+  InstallationDate: 'InstallationDate,date'
+  PurchaseDate: 'PurchaseDate,date'
+userfields2:
+  Custom08: 'AppCustom.Custom08,date'
+  Keyword: 'Keyword.Keyword,Memo'
+  Registered: 'Registered,Date'
+  Released: 'Released,date'
+  Screenshot[1]: 'AppImage.Image,Image;Index=1'
+  Screenshot[2]: 'AppImage.Image,Image;Index=2'
+  Screenshot[3]: 'AppImage.Image,Image;Index=3'
+  Screenshot[4]: 'AppImage.Image,Image;Index=4'
+  Screenshot[5]: 'AppImage.Image,Image;Index=5'
+  Screenshot[6]: 'AppImage.Image,Image;Index=6'
+  Screenshot[7]: 'AppImage.Image,Image;Index=7'
+  Screenshot[8]: 'AppImage.Image,Image;Index=8'
+  Screenshot[9]: 'AppImage.Image,Image;Index=9'
+  Thumbnail[1]: 'AppImage.ImageThumbnail,X;Index=1'
+  Thumbnail[2]: 'AppImage.ImageThumbnail,X;Index=2'
+  Thumbnail[3]: 'AppImage.ImageThumbnail,X;Index=3'
+  Thumbnail[4]: 'AppImage.ImageThumbnail,X;Index=4'
+  Thumbnail[5]: 'AppImage.ImageThumbnail,X;Index=5'
+  Thumbnail[6]: 'AppImage.ImageThumbnail,X;Index=6'
+  Thumbnail[7]: 'AppImage.ImageThumbnail,X;Index=7'
+  Thumbnail[8]: 'AppImage.ImageThumbnail,X;Index=8'
+  Thumbnail[9]: 'AppImage.ImageThumbnail,X;Index=9'
+userfields4.1:
+    Custom21: 'AppCustom.Custom21,date'
+    Custom22: 'AppCustom.Custom22,date'
+  LastModified: 'App.LastModified,S'
+userfields5:
+  ExpirationDate: 'ExpirationDate,date'
+  MainCategory: Category.MainCategory
+  PrimaryCategory: PrimaryCategory.Category

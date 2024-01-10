@@ -1,6 +1,5 @@
 package fnprog2pda.software;
 
-import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,11 +11,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.healthmarketscience.jackcess.Cursor;
 
 import application.interfaces.ExportFile;
@@ -33,10 +35,6 @@ import dbengine.utils.DatabaseHelper;
 import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.dbengine.utils.MSTable;
 import fnprog2pda.preferences.PrefFNProg;
-import fnprog2pda.utils.IniFile;
-import fnprog2pda.utils.IniFileReader;
-import fnprog2pda.utils.IniItem;
-import fnprog2pda.utils.IniSection;
 
 public final class DatabaseFactory implements IDatabaseFactory {
 	/**
@@ -49,15 +47,16 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private MSAccess msAccess;
 
 	private FNPSoftware databaseType;
-	private int databaseVersion;
-	private String[] versions;
+	private String databaseVersion;
+	private List<String> versions;
 	private int maxVersions;
 	private int versions2Test;
 
 	private String pdaDatabase;
 	private String currentTable;
 	private String contentsColumn;
-	private IniSection renameSection;
+	private Map<String, String> renameSection;
+	private Map<String, Object> fnpMap;
 
 	private Map<String, MSTable> dbTables = new LinkedHashMap<>();
 	private Set<String> hShowFields = new HashSet<>();
@@ -66,8 +65,6 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	private String[] dbFilterFields;
 	private String[] dbSortFields;
 	private List<FieldDefinition> dbSelectFields = new ArrayList<>();
-
-	private IniFile ini;
 
 	private DatabaseHelper dbHelper;
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
@@ -108,7 +105,7 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	public String getDatabaseVersion() {
-		return versions[databaseVersion];
+		return databaseVersion;
 	}
 
 	public String getPdaDatabase() {
@@ -156,16 +153,25 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		return isConnected;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void verifyDatabase(String pDatabase) throws FNProgException {
 		boolean isVersionNotFound = true;
 
 		// Load FNProg2PDA properties
-		IniFile properties = getIniFile("config/FNProg2PDA.ini");
-		IniSection section = properties.getSection("Software");
+		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		Map<String, Object> map;
+		try {
+			map = mapper.readValue(General.getInputStreamReader("config/FNProg2PDA.yaml"), Map.class);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		Map<String, Object> software = (Map<String, Object>) map.get("Software");
 
 		// Check with which software we are dealing with
 		for (FNPSoftware soft : FNPSoftware.values()) {
-			if (msAccess.tableColumnExists(section.getItem(soft.getName()).getValue())) {
+			Optional<Object> table = Optional.ofNullable(software.get(soft.getName()));
+			if (table.isPresent() && msAccess.tableColumnExists(table.get().toString())) {
 				databaseType = soft;
 				break;
 			}
@@ -176,18 +182,19 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			throw FNProgException.getException("noFNprogramwareDB", pDatabase, "FNProgramvare");
 		}
 
-		section = properties.getSection(databaseType.getName());
-		versions = section.getItem("versions").getValue().split(",");
-		maxVersions = versions.length;
+		Map<String, Object> fnp = (Map<String, Object>) map.get(databaseType.getName());
+		versions = (List<String>) fnp.get("versions");
+		maxVersions = versions.size();
+		versions2Test = maxVersions;
 
-		for (int i = 0; i < maxVersions; i++) {
-			String verify = section.getItem("version" + versions[i] + ".exists").getValue();
-			if (verify != null && msAccess.tableColumnExists(verify.split(","))) {
-				databaseVersion = i;
-				versions2Test = maxVersions - i;
+		for (String version : versions) {
+			Optional<Object> verify = Optional.ofNullable(fnp.get("version" + version + ".exists"));
+			if (verify.isPresent() && msAccess.tableColumnExists(verify.get().toString().split(","))) {
+				databaseVersion = version;
 				isVersionNotFound = false;
 				break;
 			}
+			versions2Test--;
 		}
 
 		if (isVersionNotFound) {
@@ -195,12 +202,21 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			throw FNProgException.getException("noFNprogramwareDB", pDatabase, databaseType.getName());
 		}
 
-		pdaDatabase = section.getItem("pda.database.name").getValue();
-		renameSection = properties.getSection("FieldRename");
+		pdaDatabase = fnp.get("pda.database.name").toString();
+		renameSection = (Map<String, String>) map.get("FieldRename");
 	}
 
+	@SuppressWarnings("unchecked")
 	public void loadConfiguration(String view) throws FNProgException {
-		ini = getIniFile("config/" + databaseType.getName() + "_" + view + ".ini");
+		// Load FNProg2PDA properties
+		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		try {
+			fnpMap = mapper.readValue(
+					General.getInputStreamReader("config/" + databaseType.getName() + "_" + view + ".yaml"), Map.class);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 		currentTable = view;
 
 		dbFieldDefinition.clear();
@@ -245,25 +261,6 @@ public final class DatabaseFactory implements IDatabaseFactory {
 				.collect(Collectors.toList());
 		dbFilterFields = filterFields.stream().sorted().toArray(String[]::new);
 		dbSortFields = sortFields.stream().sorted().toArray(String[]::new);
-	}
-
-	private List<IniSection> getSections(String key) {
-		List<IniSection> result = new ArrayList<>();
-		int index = maxVersions - versions2Test;
-
-		for (int i = index; i < maxVersions; i++) {
-			IniSection section = ini.getSection(key + versions[i]);
-			if (section != null) {
-				result.add(section);
-			}
-		}
-
-		IniSection main = ini.getSection(key);
-		if (main != null) {
-			result.add(main);
-		}
-
-		return result;
 	}
 
 	private void setContentsDefinition() {
@@ -419,7 +416,6 @@ public final class DatabaseFactory implements IDatabaseFactory {
 			Set<String> hHiddenColumns = getSectionHash("hideColumns", table.getName());
 			for (FieldDefinition field : table.getFields()) {
 				String alias = field.getFieldAlias();
-
 				if (dbFieldDefinition.containsKey(alias) || field.getFieldType() == FieldTypes.UNKNOWN) {
 					continue;
 				}
@@ -447,32 +443,42 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private Set<String> getSectionHash(String sectionName, String key) {
 		Set<String> result = new HashSet<>();
-		IniSection section = ini.getSection(sectionName);
+		Map<String, String> section = (Map<String, String>) fnpMap.get(sectionName);
 		if (section == null || section.isEmpty()) {
 			return result;
 		}
 
-		IniItem item = section.getItem(key);
+		String item = section.get(key);
 		if (item == null) {
 			return result;
 		}
 
-		String[] values = item.getValue().split(",");
+		String[] values = item.split(",");
 		result.addAll(Arrays.asList(values));
 		return result;
 	}
 
 	private Map<String, String> getSectionHash(String sectionName) {
 		Map<String, String> result = new LinkedHashMap<>();
-		List<IniSection> list = getSections(sectionName);
-		for (IniSection section : list) {
-			for (String name : section.getItemNames()) {
-				result.putIfAbsent(name, section.getItem(name).getValue());
-			}
+		int index = maxVersions - versions2Test;
+
+		for (int i = index; i < maxVersions; i++) {
+			getSection(sectionName + versions.get(i), result);
 		}
+
+		getSection(sectionName, result);
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void getSection(String sectionName, Map<String, String> result) {
+		Map<String, String> section = (Map<String, String>) fnpMap.get(sectionName);
+		if (section != null) {
+			section.entrySet().forEach(item -> result.putIfAbsent(item.getKey(), item.getValue()));
+		}
 	}
 
 	public boolean isValidField(String pField) {
@@ -542,17 +548,5 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	@Override
 	public ExportFile getExportFile() {
 		return ExportFile.getExportFile(pdaSettings.getProjectID());
-	}
-
-	public IniFile getIniFile(String file) {
-		IniFile result = new IniFile();
-
-		try (BufferedReader reader = new BufferedReader(General.getInputStreamReader(file))) {
-			IniFileReader iniReader = new IniFileReader(result, reader);
-			iniReader.read();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		return result;
 	}
 }

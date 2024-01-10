@@ -1,0 +1,57 @@
+# CATraxx - Artist
+---
+table:
+  Name: ArtistPerson
+tables5:
+  ArtistImage: ArtistImage
+  ArtistRelation: ArtistRelation
+  ArtistType: 'ArtistType,ArtistTypeID'
+  Country: Country
+  FileLinks: ArtistFileLinks
+  RelatedTo: 'Artist,ArtistRelation.RelatedTo'
+  WebLinks: ArtistWebLinks
+tables8:
+  ArtistImage: ArtistPersonImage
+  ArtistRelation: 'ArtistPersonRelation,ArtistPerson.ArtistPersonID'
+  ArtistType: 'ArtistPersonType,ArtistPerson.TypeID'
+  Country: 'Country,ArtistPerson.CountryID'
+  Custom03: 'ArtistPersonCustom03,Custom03ID'
+  Custom04: 'ArtistPersonCustom04,Custom04ID'
+  FileLinks: ArtistPersonFileLinks
+  RelatedTo: 'ArtistPerson,ArtistRelation.RelatedTo'
+  WebLinks: ArtistPersonWebLinks
+  WebLinkType: 'WebLinkType,WebLinks.TypeID'
+mainLineTables:
+  tables: 'ArtistImage,RelatedTo'
+hideColumns:
+  columns: 'Custom03ID,Custom04ID,MarkedQS'
+userfields:
+  AltName: Alt
+  BirthName: Birth
+  'Image[1]': 'ArtistImage.Image,Image'
+  'Image[2]': 'ArtistImage.Image,Image'
+  'Image[3]': 'ArtistImage.Image,Image'
+  'Image[4]': 'ArtistImage.Image,Image'
+  'Image[5]': 'ArtistImage.Image,Image'
+  'Image[6]': 'ArtistImage.Image,Image'
+  'Image[7]': 'ArtistImage.Image,Image'
+  'Image[8]': 'ArtistImage.Image,Image'
+  'Image[9]': 'ArtistImage.Image,Image'
+  Start: 'Date1,date'
+  Ended: 'Date2,date'
+  RelatedTo: RelatedTo.Artist
+  RelatedToSort: RelatedTo.Artists
+  'Thumbnail[1]': 'ArtistImage.ImageThumbnail,X'
+  'Thumbnail[2]': 'ArtistImage.ImageThumbnail,X'
+  'Thumbnail[3]': 'ArtistImage.ImageThumbnail,X'
+  'Thumbnail[4]': 'ArtistImage.ImageThumbnail,X'
+  'Thumbnail[5]': 'Artistmage.ImageThumbnail,X'
+  'Thumbnail[6]': 'Artistmage.ImageThumbnail,X'
+  'Thumbnail[7]': 'ArtistImage.ImageThumbnail,X'
+  'Thumbnail[8]': 'ArtistImage.ImageThumbnail,X'
+  'Thumbnail[9]': 'ArtistImage.ImageThumbnail,X'
+userfields8:
+  IsArtist: Artist
+  Artist: ArtistPerson
+  ArtistSort: ArtistPersonSort
+  RelatedToSort: RelatedTo.ArtistPersonSort

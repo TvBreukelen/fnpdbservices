@@ -1,0 +1,36 @@
+# CATraxx - PlayList
+---
+table:
+  Name: Playlist
+  Contents: Tracks
+personColumns:
+  Artist: 'Name,SortBy'
+  ArtistPerson: 'Name,SortBy'
+tables:
+  ContentsLink: 'ArtistTrackLink,Tracks.TrackID,TrackID'
+tables5:
+  ContentsPerson: 'Artist,ContentsLink.ArtistID'
+  Tracks: 'Track,PlaylistItems.TrackID'
+tables8:
+  Category: 'PlaylistCategory,CategoryID'
+  ContentsPerson: 'ArtistPerson,ContentsLink.ArtistPersonID'
+  PlaylistCreatedBy: 'PlaylistCreatedBy,CreatedByID,PlaylistCreatedByID'
+  PlaylistTrack: 'PlaylistTrack,PlaylistID'
+  Status: 'PlaylistStatus,StatusID'
+  Tracks: 'Track,PlaylistTrack.TrackID'
+tables9:
+  GenrePlaylisLink: GenrePlaylistLink
+  Genre: 'Genre,GenrePlaylistLink.GenreID'
+  PrimaryGenre: 'Genre,PrimaryGenreID'
+hideColumns:
+  columns: MarkedQS
+userfields8:
+  Category: PlayListCategory.Category
+  CreationDate: 'CreationDate,Date'
+  PlaylistCreatedBy: PlaylistCreatedBy.PlaylistCreatedBy
+  FullCategory: PlayListCategory.FullCategory
+  PlayingTime: 'PlayingTime,time'
+  Status: PlayListStatus.Status
+  Type: Title
+userfields9:
+  PrimaryGenre: PrimaryGenre.Genre

@@ -1,0 +1,15 @@
+# CATVids - WantList
+---
+table:
+  Name: WantList
+tables:
+  Format: Format
+  FormatGroup: 'FormatGroup,Format.FormatGroupID'
+  OrderedFrom: 'AcquiredFrom,OrderedFromID,AcquiredFromID'
+hideColumns:
+  columns: 'AcquiredFromID,MarkedQS'
+userfields:
+  OrderedFrom: OrderedFrom.AcquiredFrom
+  OrderDate: 'OrderDate,date'
+  ReleaseDate: 'ReleaseDate,date'
+  TitleSort: WantListSort
