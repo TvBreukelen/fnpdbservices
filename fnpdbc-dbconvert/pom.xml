@@ -78,8 +78,8 @@
 
 	<build>
 		<plugins>
+			<!-- Copy dependencies -->
 			<plugin>
-				<!-- Copy dependencies -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
@@ -97,8 +97,8 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- Build an executable JAR -->
 			<plugin>
-				<!-- Build an executable JAR -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>3.1.0</version>
@@ -112,44 +112,52 @@
 					</archive>
 				</configuration>
 			</plugin>
-			<plugin>
-				<!-- Builds a DMG file (works only on a Mac) Run clean package appbundle:bundle -->
-				<groupId>sh.tak.appbundler</groupId>
-				<artifactId>appbundle-maven-plugin</artifactId>
-				<version>1.2.0</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-archiver</artifactId>
-						<version>4.8.0</version>
-					</dependency>
-					<dependency>
-						<groupId>org.apache.velocity</groupId>
-						<artifactId>velocity-tools</artifactId>
-						<version>2.0</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<mainClass>dbconvert.DBConvert</mainClass>
-					<generateDiskImageFile>true</generateDiskImageFile>
-					<bundleName>DBConvert</bundleName>
-					<iconFile>DBConvert.icns</iconFile>
-					<additionalClasspath>:$APP_ROOT/../libs/</additionalClasspath>
-					<additionalResources>
-						<fileSet>
-							<directory>${project.basedir}/dist</directory>
-						</fileSet>
-					</additionalResources>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>bundle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
+
+	<!-- Builds a macOS App and DMG file when run from a Mac PC-->
+	<profiles>
+		<profile>
+			<id>MacOS</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>de.perdian.maven.plugins</groupId>
+						<artifactId>macosappbundler-maven-plugin</artifactId>
+						<version>1.20.0</version>
+						<configuration>
+							<plist>
+								<CFBundleIconFile>DBConvert.icns</CFBundleIconFile>
+								<CFBundleDisplayName>DBConvert</CFBundleDisplayName>
+								<JVMMainClassName>dbconvert.DBConvert</JVMMainClassName>
+							</plist>
+							<dmg>
+								<generate>true</generate>
+								<appendVersion>false}</appendVersion>
+								<additionalResources>
+									<additionalResource>
+										<directory>${project.basedir}/release</directory>
+										<include>**/*.txt</include>
+									</additionalResource>
+								</additionalResources>
+							</dmg>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>bundle</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

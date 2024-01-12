@@ -103,7 +103,7 @@ public final class General {
 
 	private static final String TEMP_DIR = System.getProperty("java.io.tmpdir", EMPTY_STRING);
 
-	public static final boolean IS_MAC_OSX = System.getProperty("os.name").equals("Mac OS X");
+	public static final boolean IS_MAC_OSX = System.getProperty("os.name").startsWith("Mac");
 	public static final boolean IS_WINDOWS = System.getProperty("os.name").startsWith("Win");
 	public static final boolean IS_X64 = System.getProperty("sun.arch.data.model", "32").equals("64");
 

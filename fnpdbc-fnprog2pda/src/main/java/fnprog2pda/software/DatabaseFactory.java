@@ -158,17 +158,10 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		boolean isVersionNotFound = true;
 
 		// Load FNProg2PDA properties
-		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-		Map<String, Object> map;
-		try {
-			map = mapper.readValue(General.getInputStreamReader("config/FNProg2PDA.yaml"), Map.class);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		Map<String, Object> software = (Map<String, Object>) map.get("Software");
+		Map<String, Object> map = loadYamlFile("config/FNProg2PDA.yaml");
 
 		// Check with which software we are dealing with
+		Map<String, Object> software = (Map<String, Object>) map.get("Software");
 		for (FNPSoftware soft : FNPSoftware.values()) {
 			Optional<Object> table = Optional.ofNullable(software.get(soft.getName()));
 			if (table.isPresent() && msAccess.tableColumnExists(table.get().toString())) {
@@ -207,18 +200,22 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void loadConfiguration(String view) throws FNProgException {
-		// Load FNProg2PDA properties
+	private Map<String, Object> loadYamlFile(String path) {
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+		Map<String, Object> result;
 		try {
-			fnpMap = mapper.readValue(
-					General.getInputStreamReader("config/" + databaseType.getName() + "_" + view + ".yaml"), Map.class);
+			result = mapper.readValue(General.getInputStreamReader(path), Map.class);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+		return result;
+	}
+
+	public void loadConfiguration(String view) throws FNProgException {
+		// Load software properties
+		fnpMap = loadYamlFile("config/" + databaseType.getName() + "_" + view + ".yaml");
 
 		currentTable = view;
-
 		dbFieldDefinition.clear();
 		dbSelectFields.clear();
 		dbTables.clear();
@@ -279,22 +276,24 @@ public final class DatabaseFactory implements IDatabaseFactory {
 
 	private void setRoleFieldDefinitions() {
 		Map<String, String> personHash = getSectionHash("personColumns");
-		if (!personHash.isEmpty()) {
-			for (Entry<String, String> entry : personHash.entrySet()) {
-				List<FieldDefinition> list = null;
-				try {
-					list = msAccess.getTableModelFields(entry.getKey());
-				} catch (Exception e) {
-					continue;
-				}
+		if (personHash.isEmpty()) {
+			return;
+		}
 
-				String[] personFields = entry.getValue().split(",");
-				for (String s : personFields) {
-					for (FieldDefinition field : list) {
-						if (field.getFieldName().equals(s)) {
-							field.setRoleField(true);
-							break;
-						}
+		for (Entry<String, String> entry : personHash.entrySet()) {
+			List<FieldDefinition> list = null;
+			try {
+				list = msAccess.getTableModelFields(entry.getKey());
+			} catch (Exception e) {
+				continue;
+			}
+
+			String[] personFields = entry.getValue().split(",");
+			for (String s : personFields) {
+				for (FieldDefinition field : list) {
+					if (field.getFieldName().equals(s)) {
+						field.setRoleField(true);
+						break;
 					}
 				}
 			}
