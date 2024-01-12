@@ -64,8 +64,8 @@ userfields2:
   Thumbnail[8]: 'AppImage.ImageThumbnail,X;Index=8'
   Thumbnail[9]: 'AppImage.ImageThumbnail,X;Index=9'
 userfields4.1:
-    Custom21: 'AppCustom.Custom21,date'
-    Custom22: 'AppCustom.Custom22,date'
+  Custom21: 'AppCustom.Custom21,date'
+  Custom22: 'AppCustom.Custom22,date'
   LastModified: 'App.LastModified,S'
 userfields5:
   ExpirationDate: 'ExpirationDate,date'
