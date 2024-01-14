@@ -6,18 +6,18 @@ personColumns:
   Person: 'Name,SortBy'
 tables:
   Author: 'Person,AuthorContentsLink.PersonID'
-  AuthorContentsLink: AuthorContentsLink
-  Book: 'Book,,BookID'
-  Chapter: 'Chapter,ContentsID'
+  AuthorContentsLink: AuthorContentsLink;Hide
+  Book: 'Book,,BookID;ShowAll'
+  Chapter: 'Chapter,ContentsID;ShowAll'
   Country: Country
   Keyword: 'Keyword,KeywordContentsLink.KeywordID'
-  KeywordContentsLink: KeywordContentsLink
+  KeywordContentsLink: KeywordContentsLink;Hide
   Language: Language
   OriginalCountry: 'Country,OriginalCountryID'
   OriginalLanguage: 'Language,OriginalLanguageID'
   OriginalPublisher: 'Publisher,OriginalPublisherID'
   OriginalSeries: 'Series,OriginalSeriesID'
-  Publisher: Publisher
+  Publisher: Publisher;ShowAll
   Series: Series
   Type: 'ContentsType,TypeID'
 tables6:
@@ -25,12 +25,12 @@ tables6:
   Custom05: 'ContentsCustom05,Custom05ID'
   Custom06: 'ContentsCustom06,Custom06ID'
 tables7:
-  ContentsCustom: ContentsCustom
+  ContentsCustom: ContentsCustom;ShowAll
   Custom04: 'ContentsCustom04,ContentsCustom.Custom04ID'
   Custom05: 'ContentsCustom05,ContentsCustom.Custom05ID'
   Custom06: 'ContentsCustom06,ContentsCustom.Custom06ID'
 tables8:
-  CreditContentsLink: 'CreditContentsLink,ContentsID'
+  CreditContentsLink: 'CreditContentsLink,ContentsID;Hide'
   Credits: 'Person,CreditContentsLink.PersonID'
 mainLineTables:
   tables: ContentsCustom

@@ -4,20 +4,20 @@ table:
   Name: Person
 tables:
   Country: Country
-  FileLinks: PersonFileLinks
+  FileLinks: PersonFileLinks;ShowAll
   PersonImage: 'PersonImage,PersonID'
 tables7:
-  WebLinks: PersonWebLinks
+  WebLinks: PersonWebLinks;ShowAll
   WebLinkType: 'WebLinkType,WebLinks.TypeID'
 tables9:
   Custom03: 'PersonCustom03,Custom03ID'
   Custom04: 'PersonCustom04,Custom04ID'
   Custom12: 'PersonCustom12,PersonCustom12Link.PersonCustom12ID'
-  PersonCustom12Link: PersonCustom12Link
-  PersonRelation: 'PersonRelation,PersonID'
+  PersonCustom12Link: PersonCustom12Link;Hide
+  PersonRelation: 'PersonRelation,PersonID;NoDup'
   RelatedTo: 'Person,PersonRelation.RelatedTo'
 tables10:
-  PersonPseudonym: 'PersonPseudonym,PersonID'
+  PersonPseudonym: 'PersonPseudonym,PersonID;NoDup'
   Pseudonym: 'Person,PersonPseudonym.PseudonymID'
 mainLineTables:
   tables: PersonImage
@@ -30,25 +30,25 @@ userfields:
   Custom04: Custom04.PersonCustom04
   Custom12: Custom12.PersonCustom12
   Dead: 'Dead,date'
-  'Image[1]': 'PersonImage.Image,Image'
-  'Image[2]': 'PersonImage.Image,Image'
-  'Image[3]': 'PersonImage.Image,Image'
-  'Image[4]': 'PersonImage.Image,Image'
-  'Image[5]': 'PersonImage.Image,Image'
-  'Image[6]': 'PersonImage.Image,Image'
-  'Image[7]': 'PersonImage.Image,Image'
-  'Image[8]': 'PersonImage.Image,Image'
-  'Image[9]': 'PersonImage.Image,Image'
+  Image[1]: 'PersonImage.Image,Image;Index=1'
+  Image[2]: 'PersonImage.Image,Image;Index=2'
+  Image[3]: 'PersonImage.Image,Image;Index=3'
+  Image[4]: 'PersonImage.Image,Image;Index=4'
+  Image[5]: 'PersonImage.Image,Image;Index=5'
+  Image[6]: 'PersonImage.Image,Image;Index=6'
+  Image[7]: 'PersonImage.Image,Image;Index=7'
+  Image[8]: 'PersonImage.Image,Image;Index=8'
+  Image[9]: 'PersonImage.Image,Image;Index=9'
   Pseudonym.Person: Pseudonym.Person
   Pseudonym.PersonSort: Pseudonym.PersonSort
   RelatedTo.Person: RelatedTo.Person
   RelatedTo.PersonSort: 'RelatedTo.PersonSort,l'
-  'Thumbnail[1]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[2]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[3]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[4]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[5]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[6]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[7]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[8]': 'PersonImage.ImageThumbnail,X'
-  'Thumbnail[9]': 'PersonImage.ImageThumbnail,X'
+  Thumbnail[1]: 'PersonImage.ImageThumbnail,X;Index=1'
+  Thumbnail[2]: 'PersonImage.ImageThumbnail,X;Index=2'
+  Thumbnail[3]: 'PersonImage.ImageThumbnail,X;Index=3'
+  Thumbnail[4]: 'PersonImage.ImageThumbnail,X;Index=4'
+  Thumbnail[5]: 'PersonImage.ImageThumbnail,X;Index=5'
+  Thumbnail[6]: 'PersonImage.ImageThumbnail,X;Index=6'
+  Thumbnail[7]: 'PersonImage.ImageThumbnail,X;Index=7'
+  Thumbnail[8]: 'PersonImage.ImageThumbnail,X;Index=8'
+  Thumbnail[9]: 'PersonImage.ImageThumbnail,X;Index=9'

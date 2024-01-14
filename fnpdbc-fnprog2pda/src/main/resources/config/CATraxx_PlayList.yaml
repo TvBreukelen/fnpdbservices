@@ -7,20 +7,20 @@ personColumns:
   Artist: 'Name,SortBy'
   ArtistPerson: 'Name,SortBy'
 tables:
-  ContentsLink: 'ArtistTrackLink,Tracks.TrackID,TrackID'
+  ContentsLink: 'ArtistTrackLink,Tracks.TrackID,TrackID;Hide'
 tables5:
-  ContentsPerson: 'Artist,ContentsLink.ArtistID'
-  Tracks: 'Track,PlaylistItems.TrackID'
+  ContentsPerson: 'Artist,ContentsLink.ArtistID;Hide'
+  Tracks: 'Track,PlaylistItems.TrackID;Hide'
 tables8:
   Category: 'PlaylistCategory,CategoryID'
-  ContentsPerson: 'ArtistPerson,ContentsLink.ArtistPersonID'
-  PlaylistCreatedBy: 'PlaylistCreatedBy,CreatedByID,PlaylistCreatedByID'
-  PlaylistTrack: 'PlaylistTrack,PlaylistID'
-  Status: 'PlaylistStatus,StatusID'
-  Tracks: 'Track,PlaylistTrack.TrackID'
+  ContentsPerson: 'ArtistPerson,ContentsLink.ArtistPersonID;Hide'
+  PlaylistCreatedBy: 'PlaylistCreatedBy,CreatedByID,PlaylistCreatedByID;Hide'
+  PlaylistTrack: 'PlaylistTrack,PlaylistID;Hide'
+  Status: 'PlaylistStatus,StatusID;Hide'
+  Tracks: 'Track,PlaylistTrack.TrackID;Hide'
 tables9:
-  GenrePlaylisLink: GenrePlaylistLink
-  Genre: 'Genre,GenrePlaylistLink.GenreID'
+  GenrePlaylisLink: GenrePlaylistLink;Hide
+  Genre: 'Genre,GenrePlaylistLink.GenreID;Hide'
   PrimaryGenre: 'Genre,PrimaryGenreID'
 hideColumns:
   columns: MarkedQS

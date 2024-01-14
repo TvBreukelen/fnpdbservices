@@ -86,7 +86,7 @@ public class MSTable {
 
 		boolean isIndexOverride = false;
 
-		// Check for ;Hide or ;ShowAll
+		// Check for ;Hide ;ShowAll or ;NoDup
 		String[] options = args[idx].split(";");
 		if (options.length > 1) {
 			args[idx] = options[0];

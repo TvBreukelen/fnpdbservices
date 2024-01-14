@@ -6,28 +6,28 @@ table:
 personColumns:
   Person: 'Name,SortBy'
 tables:
-  AcquiredFrom: AcquiredFrom
+  AcquiredFrom: AcquiredFrom;ShowAll
   Appraiser: Appraiser
   Author: 'Person,AuthorBookLink.PersonID'
-  AuthorBookLink: AuthorBookLink
+  AuthorBookLink: AuthorBookLink;Hide
   Award: 'Award,AwardLink.AwardID'
   AwardLink: 'AwardLink,BookID'
   Binding: Binding
   BookImage: 'BookImage,BookID'
   BookType: BookType
-  Borrower: Borrower
-  Contents: 'Contents,,BookID'
-  ContentsLink: 'AuthorContentsLink,Contents.ContentsID'
-  ContentsPerson: 'Person,ContentsLink.PersonID'
+  Borrower: Borrower;ShowAll
+  Contents: 'Contents,,BookID;Hide'
+  ContentsLink: 'AuthorContentsLink,Contents.ContentsID;Hide'
+  ContentsPerson: 'Person,ContentsLink.PersonID;Hide'
   ContentsType: 'ContentsType,Contents.TypeID'
   Category: Category
   Condition: Condition
   Country: Country
   DustjacketCondition: DustjacketCondition
   Edition: Edition
-  Insurance: Insurance
-  FileLinks: FileLinks
-  KeywordBookLink: KeywordBookLink
+  Insurance: Insurance;ShowAll
+  FileLinks: FileLinks;ShowAll
+  KeywordBookLink: KeywordBookLink;Hide
   Keyword: 'Keyword,KeywordBookLink.KeywordID'
   Language: Language
   Location: Location
@@ -39,14 +39,14 @@ tables:
   OriginalSeries: 'Series,OriginalSeriesID'
   Owner: Owner
   PersonalRating: PersonalRating
-  PrintedBy: PrintedBy
+  PrintedBy: PrintedBy;ShowAll
   Printing: Printing
-  Publisher: Publisher
-  ReservedTo: 'Borrower,ReservedToBorrowerID'
+  Publisher: Publisher;ShowAll
+  ReservedTo: 'Borrower,ReservedToBorrowerID;ShowAll'
   Series: Series
   Status: Status
   SubCategory: SubCategory
-  WebLinks: WebLinks
+  WebLinks: WebLinks;ShowAll
 tables6:
   Media: 'ItemInfo,,BookID'
   Custom05: 'BookCustom05,Custom05ID'
@@ -54,7 +54,7 @@ tables6:
   Custom07: 'BookCustom07,Custom07ID'
   Custom08: 'BookCustom08,Custom08ID'
 tables7:
-  BookCustom: BookCustom
+  BookCustom: BookCustom;ShowAll
   Currency: 'TblCurrency,CoverPrice_CurrencyID'
   Custom05: 'BookCustom05,BookCustom.Custom05ID'
   Custom06: 'BookCustom06,BookCustom.Custom06ID'
@@ -62,13 +62,13 @@ tables7:
   Custom08: 'BookCustom08,BookCustom.Custom08ID'
 tables8.1:
   PublicationPlace: PublicationPlace
-  CreditBookLink: 'CreditBookLink,BookID'
+  CreditBookLink: 'CreditBookLink,BookID;Hide'
   Credits: 'Person,CreditBookLink.PersonID'
   Media: 'Media,,BookID'
   ReadHistory: ReadHistory
   WebLinkType: 'WebLinkType,WebLinks.TypeID'
 tables9:
-  GenreLink: GenreLink
+  GenreLink: GenreLink;Hide
   Genre: 'Genre,GenreLink.GenreID'
   PrimaryGenre: 'Genre,MainGenreID'
 tables10:

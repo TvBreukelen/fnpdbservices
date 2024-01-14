@@ -27,11 +27,11 @@ tables7:
   Custom09: 'Custom09,StampCustom.Custom09ID'
   Custom10: 'Custom10,StampCustom.Custom10ID'
   Custom11: 'Custom11,StampCustom.Custom11ID'
-  StampCustom: StampCustom
+  StampCustom: StampCustom;ShowAll
 tables8:
   Keyword: 'Keyword,KeywordLink.KeywordID'
-  KeywordLink: 'StampID,KeywordLink'
-  WebLink: WebLink
+  KeywordLink: 'StampID,KeywordLink;Hide'
+  WebLink: WebLink;ShowAll
   WebLinkType: 'WebLinkType,WebLink.TypeID'
 tables9:
   Custom15: 'Custom15,StampCustom.Custom15ID'

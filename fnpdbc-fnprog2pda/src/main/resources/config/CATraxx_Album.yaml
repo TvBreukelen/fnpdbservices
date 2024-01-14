@@ -7,20 +7,20 @@ personColumns:
   Artist: 'Name,SortBy'
   ArtistPerson: 'Name,SortBy'
 tables:
-  AcquiredFrom: AcquiredFrom
+  AcquiredFrom: AcquiredFrom;ShowAll
   AlbumImage: 'AlbumImage,AlbumID'
-  Appraiser: Appraiser
-  ArtistAlbumLink: ArtistAlbumLink
-  Borrower: Borrower
-  Company: Company
+  Appraiser: Appraiser;ShowAll
+  ArtistAlbumLink: ArtistAlbumLink;Hide
+  Borrower: Borrower;ShowAll
+  Company: Company;ShowAll
   ConditionRecord: ConditionRecord
-  ContentsLink: 'ArtistTrackLink,Tracks.TrackID,TrackID'
+  ContentsLink: 'ArtistTrackLink,Tracks.TrackID,TrackID;Hide'
   ConditionSleeve: ConditionSleeve
   Country: Country
-  Distributor: Distributor
+  Distributor: Distributor;ShowAll
   Format: Format
   FormatGroup: 'FormatGroup,Format.FormatGroupID'
-  Genre: Genre
+  Genre: Genre;ShowAll
   Insurance: Insurance
   Label: Label
   Location: Location
@@ -31,18 +31,18 @@ tables:
   SPARS: SPARS
   Status: Status
   TapeType: TapeType
-  Tracks: 'Track,,AlbumID'
+  Tracks: 'Track,,AlbumID;Hide'
   VinylColor: VinylColor
 tables5:
   Artist: 'Artist,ArtistAlbumLink.ArtistID'
-  ContentsPerson: 'Artist,ContentsLink.ArtistID'
+  ContentsPerson: 'Artist,ContentsLink.ArtistID;Hide'
   Custom05: 'AlbumUserDef05,UserDef05ID'
   Custom06: 'AlbumUserDef06,UserDef06ID'
   Custom07: 'AlbumUserDef07,UserDef07ID'
   Custom08: 'AlbumUserDef08,UserDef08ID'
-  Media: 'ItemInfo,,AlbumID'
+  Media: 'ItemInfo,,AlbumID;Hide'
 tables6:
-  AlbumCustom: AlbumCustom
+  AlbumCustom: AlbumCustom;ShowAll
   Custom05: 'AlbumCustom05,AlbumCustom.Custom05ID'
   Custom06: 'AlbumCustom06,AlbumCustom.Custom06ID'
   Custom07: 'AlbumCustom07,AlbumCustom.Custom07ID'
@@ -50,27 +50,27 @@ tables6:
   Custom20: 'AlbumCustom20,AlbumCustom.Custom20ID'
   Custom21: 'AlbumCustom21,AlbumCustom.Custom21ID'
   Keyword: 'Keyword,KeywordAlbumLink.KeywordID'
-  KeywordAlbumLink: KeywordAlbumLink
+  KeywordAlbumLink: KeywordAlbumLink;Hide
 tables7:
-  Media: 'Media,,AlbumID'
+  Media: 'Media,,AlbumID;Hide'
 tables8:
-  ArrangerTrackLink: 'ArrangerTrackLink,Tracks.TrackID,TrackID'
+  ArrangerTrackLink: 'ArrangerTrackLink,Tracks.TrackID,TrackID;Hide'
   Artist: 'ArtistPerson,ArtistAlbumLink.ArtistPersonID'
-  ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID'
-  ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID'
-  ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID'
-  AuthorTrackLink: 'AuthorTrackLink,Tracks.TrackID,TrackID'
-  ContentsPerson: 'ArtistPerson,ContentsLink.ArtistPersonID'
-  Instrument: 'Instrument,MusicianTrackLink.InstrumentID'
-  MusicianTrackLink: 'MusicianTrackLink,Tracks.TrackID,TrackID'
-  WebLinks: WebLinks
-  WebLinkType: 'WebLinkType,WebLinks.TypeID'
+  ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID;Hide'
+  ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID;Hide'
+  ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID;Hide'
+  AuthorTrackLink: 'AuthorTrackLink,Tracks.TrackID,TrackID;Hide'
+  ContentsPerson: 'ArtistPerson,ContentsLink.ArtistPersonID;Hide'
+  Instrument: 'Instrument,MusicianTrackLink.InstrumentID;Hide'
+  MusicianTrackLink: 'MusicianTrackLink,Tracks.TrackID,TrackID;Hide'
+  WebLinks: WebLinks;ShowAll
+  WebLinkType: 'WebLinkType,WebLinks.TypeID;ShowAll'
 tables9:
-  AlbumChartInfo: 'AlbumChartInfo,,AlbumID'
-  GenreAlbumLink: GenreAlbumLink
+  AlbumChartInfo: 'AlbumChartInfo,,AlbumID;ShowAll'
+  GenreAlbumLink: GenreAlbumLink;Hide
   Genre: 'Genre,GenreAlbumLink.GenreID'
-  MusicChart: 'MusicChart,AlbumChartInfo.MusicChartID'
-  PrimaryGenre: 'Genre,PrimaryGenreID'
+  MusicChart: 'MusicChart,AlbumChartInfo.MusicChartID;ShowAll'
+  PrimaryGenre: 'Genre,PrimaryGenreID;ShowAll'
 mainLineTables:
   tables: 'AlbumCustom,AlbumImage'
 hideColumns:

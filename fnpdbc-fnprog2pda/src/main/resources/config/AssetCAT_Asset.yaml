@@ -11,27 +11,27 @@ tables:
 # Here we define all tables relationships. By default we assume a link with the main table, where
 # foreign key = primary key of the linked table. Naturally we can override the linked table and
 # the indexes. Furthermore we can apply a filter on a column and decide whether we want to hide
-# the table or show all table columns in the program 
+# the table or show all table columns in the program or filter out duplicate records
 #
-# Syntax: Table = Table Name[,linked table.key][,foreign key][;Hide|ShowAll] 
+# Syntax: Table = Table Name[,linked table.key][,foreign key][;Hide|ShowAll|NoDup] 
 # ------------------------------------------------------------------------------------------------
-  AcquiredFrom: AcquiredFrom
+  AcquiredFrom: AcquiredFrom;ShowAll
   Appraiser: Appraiser
-  AssetCustom: AssetCustom
+  AssetCustom: AssetCustom;ShowAll
   AssetImage: 'AssetImage,AssetID'
   Beneficiary: Beneficiary
-  Category: Category
+  Category: Category;ShowAll
   Color: Color
   Condition: Condition
   Custom05: 'Custom05,AssetCustom.Custom05ID'
   Custom06: 'Custom06,AssetCustom.Custom06ID'
   Custom07: 'Custom07,AssetCustom.Custom07ID'
   Custom08: 'Custom08,AssetCustom.Custom08ID'
-  DocumentLink: DocumentLink
+  DocumentLink: DocumentLink;ShowAll
   DocumentType: 'DocumentType,DocumentLink.TypeID'
-  FileLink: FileLink
+  FileLink: FileLink;ShowAll
   FileLinkType: 'FileLinkType,FileLink.TypeID'
-  Insurance: Insurance
+  Insurance: Insurance;ShowAll
   Location: Location
   Manufacturer: Manufacturer
   Owner: Owner
@@ -42,7 +42,7 @@ tables:
   Tag: 'Tag,TagLink.TagID'
   Users: Users
   WarrantyType: WarrantyType
-  WebLink: WebLink
+  WebLink: WebLink;ShowAll
   WebLinkType: 'WebLinkType,WebLink.TypeID'
 #
 mainLineTables:

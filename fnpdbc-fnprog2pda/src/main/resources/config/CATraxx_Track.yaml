@@ -8,13 +8,13 @@ personColumns:
   Person: 'Name,SortBy'
   Studio: 'Studio,SortBy'
 tables:
-  Album: 'Album,AlbumID'
-  ArtistTrackLink: 'ArtistTrackLink,TrackID,TrackID'
+  Album: 'Album,AlbumID;ShowAll'
+  ArtistTrackLink: 'ArtistTrackLink,TrackID,TrackID;Hide'
   Genre: Genre
-  ProductionTrackLink: 'ProductionTrackLink,TrackID,TrackID'
+  ProductionTrackLink: 'ProductionTrackLink,TrackID,TrackID;Hide'
   Rating: 'TrackRating,TrackRatingID'
   Studio: 'Studio,StudioTrackLink.StudioID'
-  StudioTrackLink: 'StudioTrackLink,TrackID,TrackID'
+  StudioTrackLink: 'StudioTrackLink,TrackID,TrackID;Hide'
   Sound: Sound
   Tour: Tour
   Venue: Venue
@@ -27,33 +27,33 @@ tables5:
   ProductionPerson: 'Person,ProductionTrackLink.PersonID'
 tables6:
   Keyword: 'Keyword,KeywordTrackLink.KeywordID'
-  KeywordTrackLink: KeywordTrackLink
+  KeywordTrackLink: KeywordTrackLink;Hide
   Custom04: 'TrackCustom04,TrackCustom.Custom04ID'
   Custom05: 'TrackCustom05,TrackCustom.Custom05ID'
   Custom06: 'TrackCustom06,TrackCustom.Custom06ID'
   Custom18: 'TrackCustom18,TrackCustom.Custom18ID'
   Custom19: 'TrackCustom19,TrackCustom.Custom19ID'
-  TrackCustom: TrackCustom
+  TrackCustom: TrackCustom;ShowAll
 tables8:
-  ArrangerTrackLink: 'ArrangerTrackLink,TrackID,TrackID'
+  ArrangerTrackLink: 'ArrangerTrackLink,TrackID,TrackID;Hide'
   Artist: 'ArtistPerson,ArtistTrackLink.ArtistPersonID'
-  ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID'
-  ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID'
-  ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID'
-  AuthorPublisherRole: 'AuthorPublisherRole,AuthorTrackLink.RoleID,AuthorPublisherRoleID'
-  AuthorTrackLink: 'AuthorTrackLink,TrackID,TrackID'
-  Instrument: 'Instrument,MusicianTrackLink.InstrumentID'
+  ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID;Hide'
+  ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID;Hide'
+  ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID;Hide'
+  AuthorPublisherRole: 'AuthorPublisherRole,AuthorTrackLink.RoleID,AuthorPublisherRoleID;Hide'
+  AuthorTrackLink: 'AuthorTrackLink,TrackID,TrackID;Hide'
+  Instrument: 'Instrument,MusicianTrackLink.InstrumentID;Hide'
   OriginalBy: 'ArtistPerson,OriginalByID'
-  MusicianTrackLink: 'MusicianTrackLink,TrackID,TrackID'
-  ProductionPerson: 'ArtistPerson,ProductionTrackLink.ArtistPersonID'
+  MusicianTrackLink: 'MusicianTrackLink,TrackID,TrackID;Hide'
+  ProductionPerson: 'ArtistPerson,ProductionTrackLink.ArtistPersonID;Hide'
   PersonalRating: PersonalRating
 tables9:
-  AudioFileLink: AudioFileLink
-  GenreTrackLink: GenreTrackLink
-  Genre: 'Genre,GenreTrackLink.GenreID'
-  MusicChart: 'MusicChart,TrackChartInfo.MusicChartID'
-  PrimaryGenre: 'Genre,PrimaryGenreID'
-  TrackChartInfo: 'TrackChartInfo,TrackID'
+  AudioFileLink: AudioFileLink;ShowAll
+  GenreTrackLink: GenreTrackLink;Hide
+  Genre: 'Genre,GenreTrackLink.GenreID;ShowAll'
+  MusicChart: 'MusicChart,TrackChartInfo.MusicChartID;ShowAll'
+  PrimaryGenre: 'Genre,PrimaryGenreID;ShowAll'
+  TrackChartInfo: 'TrackChartInfo,TrackID;ShowAll'
 mainLineTables:
   tables: TrackCustom
 hideColumns:

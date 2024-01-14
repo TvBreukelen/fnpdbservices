@@ -4,12 +4,12 @@ table:
   Name: Video
   Contents: Contents
 tables:
-  AcquiredFrom: AcquiredFrom
-  Borrower: Borrower
-  Contents: 'Contents,,VideoID'
+  AcquiredFrom: AcquiredFrom;ShowAll
+  Borrower: Borrower;ShowAll
+  Contents: 'Contents,,VideoID;Hide'
   ContentsType: 'ContentsType,Contents.TypeID'
   Country: Country
-  Distributor: Distributor
+  Distributor: Distributor;ShowAll
   Format: 'Format,FormatID'
   Insurance: Insurance
   Karaoke: Karaoke
@@ -17,9 +17,9 @@ tables:
   LaserFormat: LaserFormat
   Location: Location
   Owner: Owner
-  Publisher: Publisher
+  Publisher: Publisher;ShowAll
   Region: Region
-  ReservedTo: 'Borrower,ReservedToBorrowerID'
+  ReservedTo: 'Borrower,ReservedToBorrowerID;ShowAll'
   Status: Status
   SubCategory: SubCategory
   VideoImage: 'VideoImage,VideoID'
@@ -33,7 +33,7 @@ tables5:
   Custom08: 'VideoCustom08,Custom08ID'
   Media: 'ItemInfo,,VideoID'
 tables6:
-  VideoCustom: VideoCustom
+  VideoCustom: VideoCustom;ShowAll
   Custom05: 'VideoCustom05,VideoCustom.Custom05ID'
   Custom06: 'VideoCustom06,VideoCustom.Custom06ID'
   Custom07: 'VideoCustom07,VideoCustom.Custom07ID'

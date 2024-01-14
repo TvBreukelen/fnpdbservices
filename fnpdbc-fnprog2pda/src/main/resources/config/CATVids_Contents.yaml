@@ -6,57 +6,57 @@ personColumns:
   Person: 'Name,SortBy'
 tables:
   Audio: 'Audio,AudioLink.AudioID'
-  AudioLink: AudioLink
+  AudioLink: AudioLink;Hide
   Award: 'Award,AwardLink.AwardID'
-  AwardLink: AwardLink
+  AwardLink: AwardLink;Hide
   Color: Color
-  CreditsLink: 'CreditsLink,ContentsID'
+  CreditsLink: 'CreditsLink,ContentsID;Hide'
   Country: Country
-  DialogLanguageLink: 'DialogLanguageLink,ContentsID'
+  DialogLanguageLink: 'DialogLanguageLink,ContentsID;Hide'
   DialogLanguage: 'Language,DialogLanguageLink.LanguageID'
   FileLinks: FileLinks
   Keyword: 'Keyword,KeywordLink.KeywordID'
-  KeywordLink: KeywordLink
+  KeywordLink: KeywordLink;Hide
   Person: 'Person,CreditsLink.PersonID'
   PersonalRating: PersonalRating
   RecordingSpeed: RecordingSpeed
   Series: Series
   Source: Source
   SubCategory: SubCategory
-  SubtitleLanguageLink: 'SubtitleLanguageLink,ContentsID'
+  SubtitleLanguageLink: 'SubtitleLanguageLink,ContentsID;Hide'
   SubtitleLanguage: 'Language,SubtitleLanguageLink.LanguageID'
   Type: 'ContentsType,TypeID'
-  Video: 'Video,VideoID'
-  AcquiredFrom: 'AcquiredFrom,Video.AcquiredFromID'
-  Borrower: 'Borrower,Video.BorrowerID'
+  Video: 'Video,VideoID;ShowAll'
+  AcquiredFrom: 'AcquiredFrom,Video.AcquiredFromID;ShowAll'
+  Borrower: 'Borrower,Video.BorrowerID;ShowAll'
   Format: 'Format,Video.FormatID'
   Location: 'Location,Video.LocationID'
-  VideoCustom: 'VideoCustom,Video.VideoID'
+  VideoCustom: 'VideoCustom,Video.VideoID;ShowAll'
   VideoSeries: 'VideoSeries,Video.VideoSeriesID'
 tables5:
   Custom04: 'ContentsCustom04,Custom04ID'
   Custom05: 'ContentsCustom05,Custom05ID'
   Custom06: 'ContentsCustom06,Custom06ID'
 tables6:
-  ContentsCustom: ContentsCustom
+  ContentsCustom: ContentsCustom;ShowAll
   Custom04: 'ContentsCustom04,ContentsCustom.Custom04ID'
   Custom05: 'ContentsCustom05,ContentsCustom.Custom05ID'
   Custom06: 'ContentsCustom06,ContentsCustom.Custom06ID'
   Custom20: 'ContentsCustom20,ContentsCustom.Custom20ID'
   Custom21: 'ContentsCustom21,ContentsCustom.Custom21ID'
 tables7:
-  AspectRatioLink: AspectRatioLink
+  AspectRatioLink: AspectRatioLink;Hide
   AspectRatio: 'AspectRation,AspectRatioLink.AspectRatioID'
   ViewHistory: ViewHistory
 tables8:
   AspectRatio: AspectRatio
   AudioLanguage: 'Language,AudioLink.LanguageID'
-  CertificationLink: 'CertificationLink,ContentsID'
+  CertificationLink: 'CertificationLink,ContentsID;Hide'
   Certification: 'Certification,CertificationLink.CertificationID'
   Genre: 'Genre,GenreLink.GenreID'
-  GenreLink: GenreLink
+  GenreLink: GenreLink;Hide
 tables9:
-  AudioFileLink: AudioFileLink
+  AudioFileLink: AudioFileLink;ShowAll
   Custom24: 'ContentsCustom24,ContentsCustom.Custom24ID'
   PrimaryGenre: 'Genre,PrimaryGenreID'
 mainLineTables:

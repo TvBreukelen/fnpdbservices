@@ -8,12 +8,12 @@ tables:
   Media: Media
   MediaLocation: MediaLocation
   Platform: Platform
-  Publisher: Publisher
+  Publisher: Publisher;ShowAll
   PurchaseLocation: PurchaseLocation
   Status: Status
   Type: Type
 tables2:
-  AppCustom: AppCustom
+  AppCustom: AppCustom;ShowAll
   AppImage: 'AppImage,AppID'
   Custom04: 'AppCustom04,AppCustom.Custom04ID'
   Custom05: 'AppCustom05,AppCustom.Custom05ID'
@@ -25,7 +25,7 @@ tables2:
   PersonalRating: PersonalRating
 tables4:
   SoftwareSuite: SoftwareSuite
-  WebLinks: WebLinks
+  WebLinks: WebLinks;ShowAll
   WebLinkType: 'WebLinkType,WebLinks.TypeID'
 tables5:
   Category: 'Category,CategoryAppLink.CategoryID'

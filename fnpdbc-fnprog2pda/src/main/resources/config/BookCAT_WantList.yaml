@@ -6,10 +6,10 @@ personColumns:
   Person: 'Name,SortBy'
 tables:
   Author: 'Person,AuthorWantListLink.PersonID'
-  AuthorWantListLink: 'AuthorWantListLink,WantListID'
+  AuthorWantListLink: 'AuthorWantListLink,WantListID;Hide'
   Binding: Binding
-  OrderedFrom: 'AcquiredFrom,OrderedFromID,AcquiredFromID'
-  Publisher: Publisher
+  OrderedFrom: 'AcquiredFrom,OrderedFromID,AcquiredFromID;ShowAll'
+  Publisher: Publisher;ShowAll
   Series: Series
 hideColumns:
   columns: 'AcquiredFromID,MarkedQS'

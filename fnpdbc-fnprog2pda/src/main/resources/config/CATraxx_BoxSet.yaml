@@ -6,9 +6,9 @@ table:
 personColumns:
   ArtistPerson: 'Name,SortBy'
 tables:
-  Album: 'Album,,BoxSetID'
-  ArtistAlbumLink: 'ArtistAlbumLink,Album.AlbumID,AlbumID'
-  ArtistBoxSetLink: ArtistBoxSetLink
+  Album: 'Album,,BoxSetID;Hide'
+  ArtistAlbumLink: 'ArtistAlbumLink,Album.AlbumID,AlbumID;Hide'
+  ArtistBoxSetLink: ArtistBoxSetLink;Hide
   Artist: 'ArtistPerson,ArtistBoxSetLink.ArtistPersonID'
   ContentsPerson: 'ArtistPerson,ArtistAlbumLink.ArtistPersonID'
   Format: 'Format,Album.FormatID'
