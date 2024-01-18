@@ -27,7 +27,7 @@ tables:
   Owner: Owner
   Packaging: Packaging
   PersonalRating: PersonalRating
-  ReservedTo: 'Borrower,ReservedToBorrowerID'
+  ReservedTo: 'Borrower,ReservedToBorrowerID;ShowAll'
   SPARS: SPARS
   Status: Status
   TapeType: TapeType

@@ -27,6 +27,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
+				 <version>3.1.1</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -46,7 +47,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.1</version>
 				<configuration>
 					<archive>
 						<manifest>
@@ -62,6 +63,12 @@
 
 	<!-- Builds a macOS App and DMG file when run from a Mac PC-->
 	<profiles>
+		 <profile>
+    <id>profile-default</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+  		</profile>
 		<profile>
 			<id>MacOS</id>
 			<activation>

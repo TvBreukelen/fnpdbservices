@@ -7,7 +7,7 @@ personColumns:
   Person: 'Name,SortBy'
 tables:
   AcquiredFrom: AcquiredFrom;ShowAll
-  Appraiser: Appraiser
+  Appraiser: Appraiser;ShowAll
   Author: 'Person,AuthorBookLink.PersonID'
   AuthorBookLink: AuthorBookLink;Hide
   Award: 'Award,AwardLink.AwardID'
@@ -76,8 +76,7 @@ tables10:
 mainLineTables:
   tables: 'BookCustom,BookImage,Currency'
 hideColumns:
-  columns: >-
-    BorrowerCategoryID,Custom03ID,Custom04ID,Custom05ID,Custom06ID,Custom07ID,Custom08ID,MarkedQS
+  columns: 'BorrowerCategoryID,Custom03ID,Custom04ID,Custom05ID,Custom06ID,Custom07ID,Custom08ID,MarkedQS'
 userfields:
   Award: 'Award.Award,Memo'
   Award.Details: 'AwardLink.Details,Memo'

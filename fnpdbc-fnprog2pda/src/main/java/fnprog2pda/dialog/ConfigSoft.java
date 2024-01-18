@@ -149,6 +149,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 
+		if (isNewProfile) {
+			pdaSettings.setTextFileFormat("standardCsv");
+		}
+
 		fieldSelect = new ScFieldSelect(dbFactory);
 		configDb = new ScConfigDb(this, fieldSelect, myExportFile, pdaSettings);
 		fdView.setPreferredSize(configDb.getComboBoxSize());
