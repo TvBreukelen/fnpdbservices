@@ -521,6 +521,7 @@ public final class General {
 		if (obj == null || obj.equals(EMPTY_STRING)) {
 			return EMPTY_STRING;
 		}
+
 		switch (dbField) {
 		case DATE:
 			return convertDate((LocalDate) obj);

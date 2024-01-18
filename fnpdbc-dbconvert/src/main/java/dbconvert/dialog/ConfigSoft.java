@@ -162,6 +162,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 		profile.setPreferredSize(new Dimension(100, 25));
+		pdaSettings.setNewProfile(isNewProfile);
 
 		buildDialog();
 		verifyDatabase();
@@ -450,11 +451,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		spSqlLimit.setVisible(false);
 		ckPagination.setVisible(false);
 
-		if (dbFactory.getDatabaseFilename().isEmpty()) {
-			return;
-		}
-
-		if (!(myImportFile.isDatabase() || myImportFile.isSpreadSheet())) {
+		if (dbFactory.getDatabaseFilename().isEmpty() || !(myImportFile.isDatabase() || myImportFile.isSpreadSheet())) {
 			// Tables and worksheets are not supported
 			return;
 		}

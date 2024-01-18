@@ -206,8 +206,8 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setPassword(String databasePassword) {
-		PrefUtils.writePref(myPref, "database.password", databasePassword, this.password, General.EMPTY_STRING);
-		this.password = databasePassword;
+		PrefUtils.writePref(myPref, "database.password", databasePassword, password, General.EMPTY_STRING);
+		password = databasePassword;
 	}
 
 	@Override
@@ -216,8 +216,8 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setUser(String databaseUser) {
-		PrefUtils.writePref(myPref, "database.user", databaseUser, this.user, General.EMPTY_STRING);
-		this.user = databaseUser;
+		PrefUtils.writePref(myPref, "database.user", databaseUser, user, General.EMPTY_STRING);
+		user = databaseUser;
 	}
 
 	@Override
@@ -335,8 +335,8 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setSshUser(String shellUser) {
-		PrefUtils.writePref(myPref, "ssh.user", shellUser, this.sshUser, General.EMPTY_STRING);
-		this.sshUser = shellUser;
+		PrefUtils.writePref(myPref, "ssh.user", shellUser, sshUser, General.EMPTY_STRING);
+		sshUser = shellUser;
 	}
 
 	@Override
@@ -345,8 +345,8 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	public void setSshPassword(String shellPassword) {
-		PrefUtils.writePref(myPref, "ssh.password", shellPassword, this.sshPassword, General.EMPTY_STRING);
-		this.sshPassword = shellPassword;
+		PrefUtils.writePref(myPref, "ssh.password", shellPassword, sshPassword, General.EMPTY_STRING);
+		sshPassword = shellPassword;
 	}
 
 	@Override

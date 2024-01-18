@@ -72,7 +72,7 @@ public enum FieldTypes {
 	}
 
 	public boolean isSort() {
-		return this.isSort;
+		return isSort;
 	}
 
 	public static final int MIN_MEMO_FIELD_LEN = 120;

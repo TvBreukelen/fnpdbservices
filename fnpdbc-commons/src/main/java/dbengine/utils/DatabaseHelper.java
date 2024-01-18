@@ -162,7 +162,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 	}
 
 	public void setSshUser(String shellUser) {
-		this.sshUser = shellUser;
+		sshUser = shellUser;
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class DatabaseHelper implements IDatabaseHelper {
 	}
 
 	public void setSshPassword(String shellPassword) {
-		this.sshPassword = shellPassword;
+		sshPassword = shellPassword;
 	}
 
 	@Override

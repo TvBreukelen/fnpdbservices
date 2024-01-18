@@ -108,7 +108,7 @@ public enum ExportFile {
 	}
 
 	public boolean isxBase() {
-		return this.equals(DBASE);
+		return equals(DBASE);
 	}
 
 	public boolean isBooleanExport() {

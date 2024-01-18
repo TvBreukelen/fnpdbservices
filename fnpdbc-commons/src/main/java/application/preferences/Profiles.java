@@ -54,6 +54,7 @@ public abstract class Profiles extends Project {
 	private boolean appendRecords;
 	private boolean createBackup;
 	private boolean exportImages;
+	private boolean isNewProfile;
 
 	private int imageOption;
 	private int imageHeight;
@@ -271,9 +272,8 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setRelation(int index, String relation) {
-		PrefUtils.writePref(child, RELATION + index + ".field", relation, this.filterField[index],
-				General.EMPTY_STRING);
-		this.filterField[index] = relation;
+		PrefUtils.writePref(child, RELATION + index + ".field", relation, filterField[index], General.EMPTY_STRING);
+		filterField[index] = relation;
 	}
 
 	public String getFilterCondition() {
@@ -694,9 +694,9 @@ public abstract class Profiles extends Project {
 		return textFileFormat;
 	}
 
-	public void setTextFileFormat(String textfileFormat) {
-		PrefUtils.writePref(child, "textfile.format", textfileFormat, this.textFileFormat, "standardCsv");
-		this.textFileFormat = textfileFormat;
+	public void setTextFileFormat(String textFileFormat) {
+		PrefUtils.writePref(child, "textfile.format", textFileFormat, this.textFileFormat, "standardCsv");
+		this.textFileFormat = textFileFormat;
 	}
 
 	public int getMaxFileSize() {
@@ -974,5 +974,13 @@ public abstract class Profiles extends Project {
 	public void setPagination(boolean pagination) {
 		PrefUtils.writePref(child, "database.pagination", pagination, this.pagination, false);
 		this.pagination = pagination;
+	}
+
+	public boolean isNewProfile() {
+		return isNewProfile;
+	}
+
+	public void setNewProfile(boolean isNewProfile) {
+		this.isNewProfile = isNewProfile;
 	}
 }

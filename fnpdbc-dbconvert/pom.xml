@@ -17,17 +17,17 @@
 		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.41.2.2</version>
+			<version>3.44.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
-			<version>11.2.0.jre11</version>
+			<version>12.4.2.jre11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>3.0.3</version>
+			<version>3.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.paradoxdriver</groupId>
@@ -37,12 +37,12 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.4.3</version>
+			<version>42.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.firebirdsql.jdbc</groupId>
 			<artifactId>jaybird</artifactId>
-			<version>4.0.6.java11</version>
+			<version>5.0.3.java11</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.ucanaccess</groupId>
@@ -52,22 +52,22 @@
 		<dependency>
 			<groupId>com.github.mwiede</groupId>
 			<artifactId>jsch</artifactId>
-			<version>0.2.0</version>
+			<version>0.2.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.70</version>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.77</version>
 		</dependency>
 		<dependency>
 			<groupId>com.googlecode.ez-vcard</groupId>
 			<artifactId>ez-vcard</artifactId>
-			<version>0.12.0</version>
+			<version>0.12.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mnode.ical4j</groupId>
 			<artifactId>ical4j</artifactId>
-			<version>4.0.0-beta9</version>
+			<version>4.0.0-rc3</version>
 		</dependency>
 		<dependency>
 			<groupId>Fnp-Dbc</groupId>
@@ -82,8 +82,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-	  			<version>3.1.1</version>
-	  			<executions>
+				<version>3.1.1</version>
+				<executions>
 					<execution>
 						<id>copy-dependencies</id>
 						<phase>prepare-package</phase>

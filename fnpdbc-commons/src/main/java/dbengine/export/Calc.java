@@ -71,7 +71,7 @@ public class Calc extends GeneralDB implements IConvert {
 			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
-		totalRecords = sheet.getLastRow() - 1;
+		totalRecords = sheet.getMaxRows() - 1;
 		if (totalRecords < 1) {
 			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), myDatabase);
 		}
@@ -88,7 +88,7 @@ public class Calc extends GeneralDB implements IConvert {
 		List<FieldDefinition> result = new ArrayList<>();
 		dbFieldNames.clear();
 
-		if (sheet.getLastRow() < 2) {
+		if (sheet.getMaxRows() < 2) {
 			return result;
 		}
 
