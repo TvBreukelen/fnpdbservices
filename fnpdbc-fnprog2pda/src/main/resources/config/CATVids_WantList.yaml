@@ -10,5 +10,7 @@ hideColumns:
   columns: 'AcquiredFromID,MarkedQS'
 userfields:
   OrderDate: 'OrderDate,date'
+  OrderedFrom: OrderedFrom.AcquiredFrom
   ReleaseDate: 'ReleaseDate,date'
+  Sort: OrderedFrom.AcquiredFromSort
   TitleSort: WantListSort

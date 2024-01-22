@@ -17,4 +17,5 @@ userfields:
   OrderedFrom: OrderedFrom.AcquiredFrom
   OrderDate: 'OrderDate,date'
   PublishDate: 'PublishDate,date'
+  Sort: OrderedFrom.AcquiredFromSort
   TitleSort: WantListSort

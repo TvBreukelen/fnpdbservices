@@ -9,12 +9,13 @@ tables:
   ArtistWantListLink: 'ArtistWantListLink,WantListID;Hide'
   Format: Format
   FormatGroup: 'FormatGroup,Format.FormatGroupID'
-  Label: Label
+  Label: Label;ShowAll
   OrderedFrom: 'AcquiredFrom,OrderedFromID,AcquiredFromID;ShowAll'
 hideColumns:
   columns: 'AcquiredFromID,MarkedQS'
 userfields:
-  OrderedFrom: OrderedFrom.AcquiredFrom
   OrderDate: 'OrderDate,date'
+  OrderedFrom: OrderedFrom.AcquiredFrom
   Released: 'Released,date'
+  Sort: OrderedFrom.AcquiredFromSort
   TitleSort: WantListSort
