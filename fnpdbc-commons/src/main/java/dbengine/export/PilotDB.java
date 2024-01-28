@@ -361,6 +361,7 @@ public class PilotDB extends PalmDB {
 				break;
 			case TIME:
 				result.put(field.getFieldAlias(), convertTime2DB(fieldData));
+				break;
 			default:
 				break;
 			}

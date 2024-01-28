@@ -86,14 +86,14 @@ public class UserFieldModel extends AbstractTableModel {
 	public Object getValueAt(int row, int col) {
 		BasisField field = tableData.get(row);
 		switch (col) {
-		case 0:
+		case COL_IMPORT_FIELD:
 			return field.getFieldAlias();
-		case 1:
+		case COL_TYPE:
 			String text = field.getFieldType().toString();
 			return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
-		case 2:
+		case COL_EXPORT_FIELD:
 			return field.getFieldHeader();
-		case 3:
+		case COL_TEXT_EXPORT:
 			return field.getFieldType().isTextConvertable(inputFile) ? field.isOutputAsText() : null;
 		default:
 			return null;

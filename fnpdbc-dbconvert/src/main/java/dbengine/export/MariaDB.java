@@ -7,9 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import application.preferences.Profiles;
 import application.utils.General;
-import dbengine.SqlDB;
+import dbengine.SqlRemote;
 
-public class MariaDB extends SqlDB {
+public class MariaDB extends SqlRemote {
 	private Properties info;
 
 	public MariaDB(Profiles pref) {

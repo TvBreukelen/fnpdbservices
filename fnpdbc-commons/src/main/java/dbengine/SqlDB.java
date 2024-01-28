@@ -1,7 +1,5 @@
 package dbengine;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -23,15 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
@@ -40,10 +32,9 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
-import dbconvert.model.RelationData;
 import dbengine.utils.ForeignKey;
+import dbengine.utils.RelationData;
 import dbengine.utils.SqlTable;
-import microsoft.sql.DateTimeOffset;
 
 public abstract class SqlDB extends GeneralDB implements IConvert {
 	private List<FieldDefinition> dbInfoToRead;
@@ -59,8 +50,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected boolean isConnected;
 	private Statement dbStatement;
 	private ResultSet dbResultSet;
-	private Session session;
-	protected int assignedPort;
 	protected String sqlQuery;
 
 	protected int offset;
@@ -71,96 +60,20 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		super(pref);
 	}
 
-	protected void getSshSession() throws FileNotFoundException, FNProgException, JSchException {
-		// Remote host
-		final String remoteHost = myHelper.getSshHost();
-
-		boolean usePrivateKey = !myHelper.getPrivateKeyFile().isEmpty();
-		boolean usePassword = !myHelper.getSshPassword().isEmpty();
-
-		JSch jsch = new JSch();
-
-		// Check if a private key is provided
-		if (usePrivateKey) {
-			verifyKeyFile(myHelper.getPrivateKeyFile());
-
-			if (usePassword) {
-				jsch.addIdentity(myHelper.getPrivateKeyFile(), General.decryptPassword(myHelper.getSshPassword()));
-			} else {
-				jsch.addIdentity(myHelper.getPrivateKeyFile());
-			}
-		}
-
-		// Create SSH session. Port 22 is the default SSH port which is open in your
-		// firewall setup.
-		session = jsch.getSession(myHelper.getSshUser(), remoteHost, myHelper.getSshPort());
-
-		if (usePassword && !usePrivateKey) {
-			session.setPassword(General.decryptPassword(myHelper.getSshPassword()));
-		}
-
-		// Additional SSH options. See your ssh_config manual for more options. Set
-		// options according to your requirements.
-		Properties config = new Properties();
-		config.put("StrictHostKeyChecking", "no"); // Not really wanted..
-		config.put("Compression", "yes");
-		config.put("ConnectionAttempts", "2");
-
-		session.setConfig(config);
-
-		// Connect
-		session.connect();
-
-		// Create the tunnel through port forwarding. This is basically instructing jsch
-		// session to send data received from local_port in the local machine to
-		// remote_port of the remote_host assigned_port is the port assigned by jsch for
-		// use, it may not always be the same as local_port.
-
-		assignedPort = session.setPortForwardingL(0, remoteHost, myHelper.getPort());
-
-		if (assignedPort == 0) {
-			throw new JSchException("Port forwarding failed !");
-		}
-	}
-
-	protected void verifyKeyFile(String keyFile) throws FileNotFoundException, FNProgException {
-		if (!General.existFile(keyFile)) {
-			// Should not occur unless file has been deleted
-			throw FNProgException.getException("noDatabaseExists", keyFile);
-		}
-
-		boolean hasBeginTag = false;
-		boolean hasEndTag = false;
-
-		try (Scanner sc = new Scanner(new File(keyFile))) {
-			while (sc.hasNext()) {
-				String line = sc.nextLine();
-				if (line.startsWith("-----BEGIN ")) {
-					hasBeginTag = true;
-				} else if (line.startsWith("-----END ")) {
-					hasEndTag = true;
-					break;
-				}
-			}
-		}
-
-		if (!(hasBeginTag && hasEndTag)) {
-			throw FNProgException.getException("invalidKeyfile", keyFile);
-		}
-	}
-
 	@Override
 	public void readTableContents() throws Exception {
 		// read all tables in the database
 		aTables = new LinkedHashMap<>();
-		String db = myImportFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
-		if (myImportFile == ExportFile.PARADOX) {
+		ExportFile dbFile = isInputFile ? myImportFile : myExportFile;
+
+		String db = dbFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
+		if (dbFile == ExportFile.PARADOX) {
 			db = myDatabase.substring(myDatabase.lastIndexOf(FileSystems.getDefault().getSeparator()) + 1,
 					myDatabase.lastIndexOf("."));
 		}
 
 		String[] types = null;
-		switch (myImportFile) {
+		switch (dbFile) {
 		case POSTGRESQL:
 			types = new String[] { "TABLE", "VIEW" };
 			break;
@@ -182,15 +95,24 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				SqlTable sqlTable = null;
 
 				boolean isOK = true;
-
-				if (myImportFile == ExportFile.PARADOX) {
+				switch (dbFile) {
+				case PARADOX:
 					if (!db.equals(table)) {
 						isOK = false;
 					}
-				} else if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
-						|| "trace_xe_event_map".equals(table)) {
-					// SQL Server internal tables
-					isOK = false;
+					break;
+				case SQLITE:
+					if (table.startsWith("sqlite_")) {
+						isOK = false;
+					}
+					break;
+				default:
+					if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
+							|| "trace_xe_event_map".equals(table)) {
+						// SQL Server internal tables
+						isOK = false;
+					}
+					break;
 				}
 
 				if (isOK) {
@@ -230,7 +152,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		if (aTables.isEmpty()) {
-			throw FNProgException.getException("noTablesFound", General.EMPTY_STRING);
+			if (isInputFile) {
+				throw FNProgException.getException("noTablesFound", General.EMPTY_STRING);
+			} else {
+				return;
+			}
 		}
 
 		setReversedForeignKeys();
@@ -299,7 +225,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private boolean setFieldType(FieldDefinition field) {
+	protected boolean setFieldType(FieldDefinition field) {
 		switch (field.getSQLType()) {
 		case Types.BIGINT:
 		case Types.INTEGER:
@@ -326,7 +252,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.TIME:
 			field.setFieldType(FieldTypes.TIME);
 			break;
-		case microsoft.sql.Types.DATETIMEOFFSET:
 		case Types.TIMESTAMP:
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
@@ -415,10 +340,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				connection.close();
 				connection = null;
 			}
-			// Verify if we have a SSH session open
-			if (session != null && session.isConnected()) {
-				session.disconnect();
-			}
 		} catch (Exception e) {
 			// Should not occur
 		}
@@ -474,7 +395,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	public SqlTable getSqlTable() {
-		return getSqlTable(myPref.getTableName());
+		return getSqlTable(isInputFile ? myPref.getTableName() : myPref.getPdaDatabaseName());
 	}
 
 	public SqlTable getSqlTable(String table) {
@@ -777,7 +698,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private Object getFieldValue(int colType, int colNo, ResultSet rs) throws SQLException, IOException {
+	protected Object getFieldValue(int colType, int colNo, ResultSet rs) throws SQLException, IOException {
 		switch (colType) {
 		case Types.LONGVARCHAR:
 			return readMemoField(rs, colNo);
@@ -794,13 +715,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				return date == null ? General.EMPTY_STRING : date;
 			} catch (IllegalArgumentException e) {
 				// We are dealing with a Year "0000" (MariaDB)
-				return General.EMPTY_STRING;
-			}
-		case microsoft.sql.Types.DATETIMEOFFSET:
-			try {
-				DateTimeOffset date = rs.getObject(colNo, DateTimeOffset.class);
-				return date == null ? General.EMPTY_STRING : date.getOffsetDateTime().toLocalDateTime();
-			} catch (IllegalArgumentException e) {
 				return General.EMPTY_STRING;
 			}
 		case Types.FLOAT:
@@ -858,5 +772,67 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public void processData(Map<String, Object> dbRecord) throws Exception {
 		// Not supported yet
+	}
+
+	@Override
+	public void createDbHeader() throws Exception {
+		int numFields = dbInfo2Write.size();
+		readTableContents();
+		SqlTable table = getSqlTable();
+		if (table == null) {
+			useAppend = false;
+		}
+
+		if (!useAppend) {
+			if (table != null) {
+				dropTable();
+			}
+
+			createTable();
+			createPreparedStatement();
+			return;
+		}
+
+		if (numFields != table.getDbFields().size()) {
+			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
+					Integer.toString(table.getDbFields().size()));
+		}
+
+		// Verify if fields match in type and size
+		for (int i = 0; i < numFields; i++) {
+			FieldDefinition field1 = table.getDbFields().get(i);
+			FieldDefinition field2 = dbInfo2Write.get(i);
+
+			if (!field1.getFieldName().equals(field2.getFieldHeader())) {
+				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getFieldName(),
+						field2.getFieldHeader());
+			}
+
+			if (field1.getFieldType() != field2.getFieldType()) {
+				throw FNProgException.getException("noMatchFieldType", field1.getFieldName(), field2.getFieldHeader());
+			}
+
+			if (field1.getSize() < field2.getSize()) {
+				throw FNProgException.getException("noMatchFieldLength", field1.getFieldName(),
+						Integer.toString(field1.getSize()), Integer.toString(field2.getSize()));
+			}
+		}
+	}
+
+	private void dropTable() throws SQLException {
+		dbStatement = connection.createStatement();
+		try {
+			dbStatement.execute("DROP TABLE " + myPref.getPdaDatabaseName());
+		} finally {
+			dbStatement.close();
+		}
+	}
+
+	protected void createTable() throws SQLException {
+		// To be implemented by the child classes
+	}
+
+	protected void createPreparedStatement() throws SQLException {
+		// To be implemented by the child classes
 	}
 }

@@ -1,15 +1,20 @@
 package dbengine.export;
 
+import java.io.IOException;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
+import application.utils.FieldDefinition;
 import application.utils.General;
-import dbengine.SqlDB;
+import dbengine.SqlRemote;
 
-public class SQLServer extends SqlDB {
+public class SQLServer extends SqlRemote {
 	private Properties info;
 
 	public SQLServer(Profiles pref) {
@@ -69,6 +74,28 @@ public class SQLServer extends SqlDB {
 			b.insert(7, "TOP " + totalRecords + General.SPACE);
 		}
 		return b.toString();
+	}
+
+	@Override
+	protected boolean setFieldType(FieldDefinition field) {
+		if (field.getSQLType() == microsoft.sql.Types.DATETIMEOFFSET) {
+			field.setFieldType(FieldTypes.TIMESTAMP);
+			return true;
+		}
+		return super.setFieldType(field);
+	}
+
+	@Override
+	protected Object getFieldValue(int colType, int colNo, ResultSet rs) throws SQLException, IOException {
+		if (colType == microsoft.sql.Types.DATETIMEOFFSET) {
+			try {
+				microsoft.sql.DateTimeOffset date = rs.getObject(colNo, microsoft.sql.DateTimeOffset.class);
+				return date == null ? General.EMPTY_STRING : date.getOffsetDateTime().toLocalDateTime();
+			} catch (IllegalArgumentException e) {
+				return General.EMPTY_STRING;
+			}
+		}
+		return super.getFieldValue(colType, colNo, rs);
 	}
 
 }

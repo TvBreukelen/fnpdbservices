@@ -28,10 +28,10 @@ import application.interfaces.IDatabaseFactory;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
-import dbconvert.model.RelationData;
 import dbconvert.software.XConverter;
 import dbengine.SqlDB;
 import dbengine.utils.ForeignKey;
+import dbengine.utils.RelationData;
 import dbengine.utils.SqlTable;
 
 public class Relations extends BasicDialog {

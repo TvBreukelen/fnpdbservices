@@ -73,7 +73,6 @@ public enum ExportFile {
 			result.remove(MARIADB.name);
 			result.remove(PARADOX.name);
 			result.remove(POSTGRESQL.name);
-			result.remove(SQLITE.name);
 			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
 			result.remove(ICAL.name);

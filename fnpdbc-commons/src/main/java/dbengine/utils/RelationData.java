@@ -1,4 +1,4 @@
-package dbconvert.model;
+package dbengine.utils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import application.preferences.Profiles;
-import dbengine.utils.ForeignKey;
 
 public class RelationData {
 	private Map<String, ForeignKey> relationMap = new HashMap<>();

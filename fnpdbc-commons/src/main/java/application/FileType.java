@@ -6,13 +6,24 @@ import java.util.List;
 import application.utils.General;
 
 public enum FileType {
-	NEW(General.EMPTY_STRING), JSON(" Json (*.json)"), PDB(" Palm database (*.pdb)"),
-	TXT(" textfile (*.csv, *.tsv, *.txt)"), XLSX(" MS-Excel (*.xlsx, *.xls)"), ODS("OpenOffice Calc (*.ods)"),
-	DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"), DBF(" Dbase / FoxPro file (*.dbf)"), HOST(General.EMPTY_STRING),
-	PARADOX("Paradox (*.db"), XML(" XML File (*.xml)"), MDB(" MS Access Database (*.mdb, *.accdb)"),
-	FIREBIRD(" Firebird (*.fdb)"), TRUSTSTORE(" Certificate (*.crt, *.pem)"),
-	KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"), PPK(" PuTTy private key ('*.pkk)"),
-	ICS("ICalendar (*.ics, *.ical, *.icalendar, *.ifb)"), VCF("VCard (*.vcf, *.hlml, *.json, *.xml)"),
+	NEW(General.EMPTY_STRING), //
+	DB(" SQLite (*.db, *.db3, *.sqlite, *.sqlite3)"), //
+	DBF(" Dbase / FoxPro file (*.dbf)"), //
+	FIREBIRD(" Firebird (*.fdb)"), //
+	HOST(General.EMPTY_STRING), //
+	ICS("ICalendar (*.ics, *.ical, *.icalendar, *.ifb)"), //
+	JSON(" Json (*.json)"), //
+	KEYSTORE(" Java KeyStore (*.jks,*.p12, *.pfx"), //
+	MDB(" MS Access Database (*.mdb, *.accdb)"), //
+	ODS("OpenOffice Calc (*.ods)"), //
+	PARADOX("Paradox (*.db"), //
+	PDB(" Palm database (*.pdb)"), //
+	PPK(" PuTTy private key ('*.pkk)"), //
+	TRUSTSTORE(" Certificate (*.crt, *.pem)"), //
+	TXT(" textfile (*.csv, *.tsv, *.txt)"), //
+	VCF("VCard (*.vcf, *.hlml, *.json, *.xml)"), //
+	XLSX(" MS-Excel (*.xlsx, *.xls)"), //
+	XML(" XML File (*.xml)"), //
 	YAML(" Yaml (*.yml, *.yaml)");
 
 	private String name;

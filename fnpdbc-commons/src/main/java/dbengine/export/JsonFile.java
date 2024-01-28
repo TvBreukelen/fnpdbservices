@@ -109,8 +109,10 @@ public class JsonFile extends GeneralDB implements IConvert {
 				Object obj = mapList.get(field);
 				if (obj == null || obj.equals(General.EMPTY_STRING)) {
 					mapList.put(field, General.EMPTY_STRING);
-				} else {
+				} else if (obj instanceof List) {
 					mapList.put(field, General.convertListToString((List<Object>) obj));
+				} else {
+					mapList.put(field, obj.toString());
 				}
 			}
 		}

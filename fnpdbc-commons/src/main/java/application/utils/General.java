@@ -973,8 +973,6 @@ public final class General {
 	}
 
 	public static boolean isFileExtensionOk(String dbFile, ExportFile exp) {
-		boolean isExtOK = false;
-
 		int index = dbFile.lastIndexOf('.');
 		String ext = "csv";
 		if (index != -1) {
@@ -983,11 +981,10 @@ public final class General {
 
 		for (String element : exp.getFileExtention()) {
 			if (element.equals(".*") || ext.equals(element)) {
-				isExtOK = true;
-				break;
+				return true;
 			}
 		}
-		return isExtOK;
+		return false;
 	}
 
 	public static boolean isNumerical(String str) {

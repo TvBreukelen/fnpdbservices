@@ -46,10 +46,10 @@ import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
-import dbconvert.model.RelationData;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
 import dbengine.utils.DatabaseHelper;
+import dbengine.utils.RelationData;
 
 public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	/**

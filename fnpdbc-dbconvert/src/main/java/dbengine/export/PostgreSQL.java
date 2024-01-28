@@ -7,9 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import application.preferences.Profiles;
 import application.utils.General;
-import dbengine.SqlDB;
+import dbengine.SqlRemote;
 
-public class PostgreSQL extends SqlDB {
+public class PostgreSQL extends SqlRemote {
 	public PostgreSQL(Profiles pref) {
 		super(pref);
 	}

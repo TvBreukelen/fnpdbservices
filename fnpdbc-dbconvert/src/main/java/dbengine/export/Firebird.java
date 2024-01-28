@@ -5,9 +5,9 @@ import java.util.Properties;
 
 import application.preferences.Profiles;
 import application.utils.General;
-import dbengine.SqlDB;
+import dbengine.SqlRemote;
 
-public class Firebird extends SqlDB {
+public class Firebird extends SqlRemote {
 
 	public Firebird(Profiles pref) {
 		super(pref);

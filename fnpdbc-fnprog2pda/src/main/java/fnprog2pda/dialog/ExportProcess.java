@@ -19,6 +19,7 @@ import dbengine.export.JsonFile;
 import dbengine.export.ListDB;
 import dbengine.export.MobileDB;
 import dbengine.export.PilotDB;
+import dbengine.export.SQLite;
 import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
 import fnprog2pda.dbengine.MSAccess;
@@ -137,12 +138,14 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new MSAccess(profile);
 		case CALC:
 			return new Calc(profile);
-		case JSON:
-			return new JsonFile(profile);
-		case YAML:
-			return new YamlFile(profile);
+		case DBASE:
+			return new DBaseFile(profile);
+		case EXCEL:
+			return new Excel(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
+		case JSON:
+			return new JsonFile(profile);
 		case JFILE:
 			return new JFile(profile);
 		case LIST:
@@ -151,8 +154,8 @@ public class ExportProcess implements Runnable, IExportProcess {
 			return new MobileDB(profile);
 		case PILOTDB:
 			return new PilotDB(profile);
-		case EXCEL:
-			return new Excel(profile);
+		case SQLITE:
+			return new SQLite(profile);
 		case TEXTFILE:
 			String csvFormat = profile.getTextFileFormat();
 			if (csvFormat.equals("buddyCsv")) {
@@ -169,10 +172,10 @@ public class ExportProcess implements Runnable, IExportProcess {
 				}
 			}
 			return new CsvFile(profile);
-		case DBASE:
-			return new DBaseFile(profile);
 		case XML:
 			return new XmlFile(profile);
+		case YAML:
+			return new YamlFile(profile);
 		default:
 			return null;
 		}

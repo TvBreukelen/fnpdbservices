@@ -24,5 +24,4 @@ public class MSAccess extends SqlDB {
 		connection = DriverManager.getConnection(url);
 		isConnected = true;
 	}
-
 }

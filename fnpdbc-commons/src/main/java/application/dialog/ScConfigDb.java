@@ -114,16 +114,19 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
-			String resourceID = "database";
 			if (myExportFile.isDatabase()) {
-				resourceID = "table";
+				rExists[0].setText(GUIFactory.getText("intoNewTable"));
+				rExists[2].setText(GUIFactory.getText("appendTableRecords"));
+				dbFileNameLabel.setText(GUIFactory.getText("table"));
 			} else if (myExportFile.isSpreadSheet()) {
-				resourceID = "worksheet";
+				dbFileNameLabel.setText(GUIFactory.getText("worksheet"));
 			} else if (myExportFile == ExportFile.XML) {
-				resourceID = "xmlRoot";
+				dbFileNameLabel.setText(GUIFactory.getText("xmlRoot"));
+			} else {
+				rExists[0].setText(GUIFactory.getText("intoNewDatabase"));
+				rExists[2].setText(GUIFactory.getText("appendDatabaseRecords"));
+				dbFileNameLabel.setText(GUIFactory.getText("database"));
 			}
-
-			dbFileNameLabel.setText(GUIFactory.getText(resourceID));
 
 			if (myExportFile.isPasswordSupported()) {
 				fdPassword.setText(pdaSettings.getExportPassword());
