@@ -189,7 +189,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void sortTableModel() {
 		// If we have less than one record or we importing from a SQL database then we
 		// don't need to sort
-		if (myModel.getRowCount() <= 1 || myImportFile.isDatabase()) {
+		if (myModel.getRowCount() <= 1 || myImportFile.isSqlDatabase()) {
 			return;
 		}
 
@@ -350,7 +350,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	private boolean isIncludeRecord(Map<String, Object> dbRecord) {
-		if (!isFilterDefined || myImportFile.isDatabase()) {
+		if (!isFilterDefined || myImportFile.isSqlDatabase()) {
 			return true;
 		}
 
@@ -418,7 +418,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public SqlDB getSqlDB() {
-		return myImportFile.isDatabase() ? (SqlDB) dbIn : null;
+		return myImportFile.isSqlDatabase() ? (SqlDB) dbIn : null;
 	}
 
 	public void checkNumberOfFields() throws FNProgException {

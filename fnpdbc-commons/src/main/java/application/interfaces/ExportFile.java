@@ -91,7 +91,7 @@ public enum ExportFile {
 		}
 	}
 
-	public boolean isDatabase() {
+	public boolean isSqlDatabase() {
 		switch (this) {
 		case ACCESS:
 		case FIREBIRD:
@@ -151,7 +151,7 @@ public enum ExportFile {
 		case PILOTDB:
 			return true;
 		default:
-			return isDatabase() || isxBase();
+			return isSqlDatabase() || isxBase();
 		}
 	}
 
@@ -161,7 +161,7 @@ public enum ExportFile {
 		case EXCEL:
 			return true;
 		default:
-			return isDatabase() || isxBase();
+			return isSqlDatabase() || isxBase();
 		}
 	}
 

@@ -9,9 +9,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -624,6 +624,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
+	protected String getSqlFieldName(String value, boolean noDot) {
+		return noDot ? getSqlFieldName(value).replace(".", "") : getSqlFieldName(value);
+	}
+
 	protected String getSqlFieldName(String value) {
 		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
 			return value;
@@ -731,8 +735,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.BIGINT:
 			return rs.getLong(colNo);
 		case Types.TIMESTAMP:
-			Timestamp ts = rs.getTimestamp(colNo);
-			return ts == null ? General.EMPTY_STRING : ts.toLocalDateTime();
+			LocalDateTime ts = rs.getObject(colNo, LocalDateTime.class);
+			return ts == null ? General.EMPTY_STRING : ts;
 		case Types.TIME:
 			LocalTime time = rs.getObject(colNo, LocalTime.class);
 			return time == null ? General.EMPTY_STRING : time;
@@ -779,17 +783,22 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		int numFields = dbInfo2Write.size();
 		readTableContents();
 		SqlTable table = getSqlTable();
+
 		if (table == null) {
+			createTable();
 			useAppend = false;
+		} else {
+			if (myPref.getExportOption() == 0) {
+				dropTable();
+				createTable();
+			} else if (myPref.getExportOption() == 1) {
+				clearTable();
+				useAppend = true;
+			}
 		}
 
+		createPreparedStatement();
 		if (!useAppend) {
-			if (table != null) {
-				dropTable();
-			}
-
-			createTable();
-			createPreparedStatement();
 			return;
 		}
 
@@ -803,13 +812,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			FieldDefinition field1 = table.getDbFields().get(i);
 			FieldDefinition field2 = dbInfo2Write.get(i);
 
-			if (!field1.getFieldName().equals(field2.getFieldHeader())) {
+			if (!field1.getFieldName().equals(getSqlFieldName(field2.getFieldHeader(), true))) {
 				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getFieldName(),
 						field2.getFieldHeader());
 			}
 
 			if (field1.getFieldType() != field2.getFieldType()) {
-				throw FNProgException.getException("noMatchFieldType", field1.getFieldName(), field2.getFieldHeader());
+				if (!(field1.getFieldType() == FieldTypes.TEXT || field1.getFieldType() == FieldTypes.MEMO)) {
+					throw FNProgException.getException("noMatchFieldType", field1.getFieldName(),
+							field2.getFieldHeader());
+				}
 			}
 
 			if (field1.getSize() < field2.getSize()) {
@@ -823,6 +835,15 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		dbStatement = connection.createStatement();
 		try {
 			dbStatement.execute("DROP TABLE " + myPref.getPdaDatabaseName());
+		} finally {
+			dbStatement.close();
+		}
+	}
+
+	private void clearTable() throws SQLException {
+		dbStatement = connection.createStatement();
+		try {
+			dbStatement.execute("DELETE FROM " + myPref.getPdaDatabaseName());
 		} finally {
 			dbStatement.close();
 		}

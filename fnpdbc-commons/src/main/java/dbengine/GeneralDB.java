@@ -84,7 +84,7 @@ public abstract class GeneralDB {
 
 		isBooleanExport = myExportFile.isBooleanExport();
 		isDateExport = myExportFile.isDateExport();
-		isTimeExport = myExportFile.isDatabase();
+		isTimeExport = myExportFile.isSqlDatabase();
 
 		GeneralSettings generalProps = GeneralSettings.getInstance();
 		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();

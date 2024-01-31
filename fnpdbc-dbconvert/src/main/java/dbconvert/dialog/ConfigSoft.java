@@ -451,7 +451,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		spSqlLimit.setVisible(false);
 		ckPagination.setVisible(false);
 
-		if (dbFactory.getDatabaseFilename().isEmpty() || !(myImportFile.isDatabase() || myImportFile.isSpreadSheet())) {
+		if (dbFactory.getDatabaseFilename().isEmpty() || !(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet())) {
 			// Tables and worksheets are not supported
 			return;
 		}
@@ -473,7 +473,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
 
-		if (myImportFile.isDatabase()) {
+		if (myImportFile.isSqlDatabase()) {
 			spSqlLimit.setValue(Integer.valueOf(pdaSettings.getSqlSelectLimit()));
 			lSqlLimit.setVisible(true);
 			spSqlLimit.setVisible(true);
@@ -541,10 +541,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			calendarImport.setProperties();
 		}
 
-		pdaSettings.setTableName(myImportFile.isDatabase() || myImportFile.isSpreadSheet()
+		pdaSettings.setTableName(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet()
 				? bTablesWorksheets.getSelectedItem().toString()
 				: General.EMPTY_STRING, true);
-		pdaSettings.setSqlSelectLimit(myImportFile.isDatabase() ? sModel.getNumber().intValue() : 0);
+		pdaSettings.setSqlSelectLimit(myImportFile.isSqlDatabase() ? sModel.getNumber().intValue() : 0);
 		pdaSettings.setPagination(ckPagination.isEnabled() && ckPagination.isSelected());
 
 		pdaSettings.setLastExported(General.EMPTY_STRING);
@@ -627,7 +627,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			textImport.activateComponents();
 			textImport.setVisible(isTextFile);
 			calendarImport.setVisible(isICalFile);
-			btRelationships.setVisible(isFileValid && myImportFile.isDatabase() && bTablesWorksheets.isEnabled());
+			btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase() && bTablesWorksheets.isEnabled());
 			pack();
 		}
 	}

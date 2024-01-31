@@ -2,12 +2,18 @@ package dbengine.export;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
-import java.sql.Blob;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 
 import application.interfaces.ExportFile;
@@ -85,10 +91,24 @@ public class SQLite extends SqlDB implements IConvert {
 				.append(" (\n");
 
 		dbInfo2Write.forEach(field -> {
-			buf.append(field.getFieldHeader());
+			buf.append(getSqlFieldName(field.getFieldHeader(), true));
 			switch (field.getFieldType()) {
+			case BOOLEAN:
+				buf.append(" BOOLEAN");
+				break;
+			case DATE:
+				buf.append(" DATE");
+				break;
+			case TIME:
+				buf.append(" TIME");
+				break;
+			case TIMESTAMP:
+				buf.append(" TIMESTAMP");
+				break;
 			case TEXT:
 			case MEMO:
+			case IMAGE:
+			case THUMBNAIL:
 				buf.append(" TEXT");
 				break;
 			case NUMBER:
@@ -96,9 +116,6 @@ public class SQLite extends SqlDB implements IConvert {
 				break;
 			case FLOAT:
 				buf.append(" REAL");
-				break;
-			case IMAGE:
-				buf.append(" BLOB");
 				break;
 			default:
 				buf.append(" NUMERIC");
@@ -127,7 +144,8 @@ public class SQLite extends SqlDB implements IConvert {
 	protected void createPreparedStatement() throws SQLException {
 		int maxFields = dbInfo2Write.size();
 		StringBuilder buf = new StringBuilder("REPLACE INTO ").append(myPref.getPdaDatabaseName()).append(" (");
-		dbInfo2Write.forEach(field -> buf.append(field.getFieldHeader()).append(","));
+		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader(), true)).append(","));
+
 		buf.deleteCharAt(buf.length() - 1);
 		buf.append(")\n");
 		buf.append("VALUES (");
@@ -145,25 +163,37 @@ public class SQLite extends SqlDB implements IConvert {
 	public void processData(Map<String, Object> dbRecord) throws Exception {
 		int index = 1;
 		for (FieldDefinition field : dbInfo2Write) {
-			Object obj = dbRecord.getOrDefault(field.getFieldHeader(), "");
-			switch (field.getFieldType()) {
-			case TEXT:
-			case MEMO:
-				prepStmt.setString(index, obj.toString());
-				break;
-			case NUMBER:
-				prepStmt.setInt(index, ((Number) obj).intValue());
-				break;
-			case FLOAT:
-				prepStmt.setDouble(index, ((Number) obj).doubleValue());
-				break;
-			case IMAGE:
-				prepStmt.setBlob(index, (Blob) obj);
-				break;
-			default:
-				prepStmt.setObject(index, obj);
+			Object obj = dbRecord.get(field.getFieldAlias());
+			if (obj == null || obj.equals("")) {
+				prepStmt.setNull(index, field.getSQLType());
+			} else {
+				switch (field.getFieldType()) {
+				case BIG_DECIMAL:
+					prepStmt.setBigDecimal(index, (BigDecimal) obj);
+					break;
+				case BOOLEAN:
+					prepStmt.setBoolean(index, (Boolean) obj);
+					break;
+				case DATE:
+					prepStmt.setDate(index, Date.valueOf((LocalDate) obj));
+					break;
+				case FLOAT:
+					prepStmt.setDouble(index, ((Number) obj).doubleValue());
+					break;
+				case NUMBER:
+					prepStmt.setInt(index, ((Number) obj).intValue());
+					break;
+				case TIME:
+					prepStmt.setTime(index, Time.valueOf((LocalTime) obj));
+					break;
+				case TIMESTAMP:
+					prepStmt.setTimestamp(index, Timestamp.valueOf((LocalDateTime) obj));
+					break;
+				default:
+					prepStmt.setString(index, obj.toString());
+					break;
+				}
 			}
-
 			index++;
 		}
 		prepStmt.executeUpdate();

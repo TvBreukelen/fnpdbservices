@@ -26,6 +26,7 @@ import javax.swing.SpinnerNumberModel;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigDb;
 import application.interfaces.IConfigSoft;
+import application.interfaces.TvBSoftware;
 import application.preferences.Profiles;
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -114,8 +115,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
-			if (myExportFile.isDatabase()) {
+			if (myExportFile.isSqlDatabase()) {
 				rExists[0].setText(GUIFactory.getText("intoNewTable"));
+				rExists[1].setText(GUIFactory.getText("replaceTableRecords"));
 				rExists[2].setText(GUIFactory.getText("appendTableRecords"));
 				dbFileNameLabel.setText(GUIFactory.getText("table"));
 			} else if (myExportFile.isSpreadSheet()) {
@@ -124,6 +126,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				dbFileNameLabel.setText(GUIFactory.getText("xmlRoot"));
 			} else {
 				rExists[0].setText(GUIFactory.getText("intoNewDatabase"));
+				rExists[1].setText(GUIFactory.getText("replaceDatabaseRecords"));
 				rExists[2].setText(GUIFactory.getText("appendDatabaseRecords"));
 				dbFileNameLabel.setText(GUIFactory.getText("database"));
 			}
@@ -134,7 +137,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 			// Restore Export Data options
 			int index = 0;
-			if (myExportFile == ExportFile.HANDBASE) {
+			if (myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE) {
 				index = pdaSettings.getExportOption();
 			} else {
 				index = pdaSettings.isAppendRecords() ? 2 : 0;
@@ -142,7 +145,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			rExists[index].setSelected(true);
 
 			// Restore Conversion options
-			cConvertImages.setSelected(pdaSettings.isExportImages());
+			cConvertImages.setSelected(
+					pdaSettings.isExportImages() && pdaSettings.getTvBSoftware() == TvBSoftware.FNPROG2PDA);
 			rImages[pdaSettings.getImageOption()].setSelected(true);
 
 			dbConfig = null;
@@ -225,11 +229,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isDatabase() ? "intoNewTable" : "intoNewDatabase",
+		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isSqlDatabase() ? "intoNewTable" : "intoNewDatabase",
 				funcSelectExport);
-		rExists[1] = GUIFactory.getJRadioButton("replaceRecords", funcSelectExport);
+		rExists[1] = GUIFactory.getJRadioButton(
+				myExportFile.isSqlDatabase() ? "replaceTableRecords" : "replaceDatabaseRecords", funcSelectExport);
 		rExists[2] = GUIFactory.getJRadioButton(
-				myExportFile.isDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
+				myExportFile.isSqlDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
 
 		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
 		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);
@@ -315,11 +320,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			}
 		}
 
-		if (myExportFile == ExportFile.HANDBASE) {
-			pdaSettings.setExportOption(index);
-		} else {
-			pdaSettings.setAppendRecords(index == 2);
-		}
+		pdaSettings.setExportOption(index);
+		pdaSettings.setAppendRecords(index == 2);
 
 		index = 0;
 		for (int i = 0; i < 3; i++) {
@@ -383,7 +385,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		}
 
 		pExport.setVisible(myExportFile.isAppend());
-		rExists[1].setVisible(myExportFile == ExportFile.HANDBASE);
+		rExists[1].setVisible(myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE);
 		passwordBox.setVisible(myExportFile.isPasswordSupported());
 
 		cConvertImages.setVisible(myExportFile.isImageExport());
@@ -393,9 +395,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		lHeight.setVisible(cConvertImages.isVisible());
 		lWidth.setVisible(cConvertImages.isVisible());
 
+		rImages[0].setVisible(cConvertImages.isVisible());
 		rImages[1].setVisible(cConvertImages.isVisible());
-		rImages[0].setVisible(rImages[1].isVisible());
-		rImages[2].setVisible(rImages[1].isVisible());
+		rImages[2].setVisible(cConvertImages.isVisible());
 		rImages[0].setEnabled(cConvertImages.isSelected());
 		rImages[1].setEnabled(cConvertImages.isSelected());
 		rImages[2].setEnabled(cConvertImages.isSelected());

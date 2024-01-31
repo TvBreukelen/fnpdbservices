@@ -629,42 +629,39 @@ public abstract class FNProgramvare extends BasicSoft {
 	// external file
 	private boolean check4ExternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
 			throws Exception {
+
 		String imageFilename = (String) map.get("ImageFilename");
-		if (imageFilename != null && !imageFilename.isEmpty()) {
-			// Return fully qualified external filename
-			if (exportImages) {
-				// Load image from external file (works with JPEG and GIF files only ?)
-				if (General.existFile(imageFilename)) {
-					try {
-						BufferedImage image = ImageIO.read(new File(imageFilename));
-						if (convertImage(field, image, dbRecord)) {
-							return true;
-						}
-					} catch (IllegalArgumentException e) {
-						// File format is invalid
-						return false;
-					}
-				} else {
-					return false;
-				}
-			} else {
-				dbRecord.put(field,
-						isNoImagePath ? imageFilename.substring(imageFilename.lastIndexOf('\\') + 1) : imageFilename);
+		if (StringUtils.isEmpty(imageFilename) || !General.existFile(imageFilename)) {
+			return false;
+		}
+
+		// Return fully qualified external filename
+		if (exportImages) {
+			// Load image from external file and create a new image file (works with JPEG
+			// and GIF files only ?)
+			try {
+				BufferedImage image = ImageIO.read(new File(imageFilename));
+				return convertImage(field, image, dbRecord);
+			} catch (IllegalArgumentException e) {
+				// File format is invalid
+				return false;
 			}
+		} else {
+			dbRecord.put(field,
+					isNoImagePath ? imageFilename.substring(imageFilename.lastIndexOf('\\') + 1) : imageFilename);
 		}
 		return true;
 	}
 
 	private boolean check4InternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
 			throws Exception {
+
 		if (exportImages) {
 			Object obj = map.get(field.startsWith(THUMB) ? "ImageThumbnail" : "Image");
 			if (obj != null) {
 				try {
 					BufferedImage image = ImageIO.read(new ByteArrayInputStream((byte[]) obj));
-					if (convertImage(field, image, dbRecord)) {
-						return true;
-					}
+					return convertImage(field, image, dbRecord);
 				} catch (IllegalArgumentException e) {
 					// Image format is not valid
 				}
