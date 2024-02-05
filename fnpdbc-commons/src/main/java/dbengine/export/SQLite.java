@@ -2,18 +2,11 @@ package dbengine.export;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Map;
 
 import application.interfaces.ExportFile;
@@ -90,46 +83,71 @@ public class SQLite extends SqlDB implements IConvert {
 		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(myPref.getPdaDatabaseName())
 				.append(" (\n");
 
+		StringBuilder pkBuf = new StringBuilder();
+
 		dbInfo2Write.forEach(field -> {
-			buf.append(getSqlFieldName(field.getFieldHeader(), true));
-			switch (field.getFieldType()) {
-			case BOOLEAN:
-				buf.append(" BOOLEAN");
-				break;
-			case DATE:
-				buf.append(" DATE");
-				break;
-			case TIME:
-				buf.append(" TIME");
-				break;
-			case TIMESTAMP:
-				buf.append(" TIMESTAMP");
-				break;
-			case TEXT:
-			case MEMO:
-			case IMAGE:
-			case THUMBNAIL:
+			String fieldName = getSqlFieldName(field.getFieldHeader(), true);
+			buf.append(fieldName);
+
+			if (field.isOutputAsText()) {
 				buf.append(" TEXT");
-				break;
-			case NUMBER:
-				buf.append(" INTEGER");
-				break;
-			case FLOAT:
-				buf.append(" REAL");
-				break;
-			default:
-				buf.append(" NUMERIC");
-				break;
+			} else {
+				switch (field.getFieldType()) {
+				case BOOLEAN:
+					buf.append(" BOOLEAN");
+					break;
+				case DATE:
+					buf.append(" DATE");
+					break;
+				case TIME:
+					buf.append(" TIME");
+					break;
+				case TIMESTAMP:
+					buf.append(" TIMESTAMP");
+					break;
+				case TEXT:
+				case MEMO:
+				case IMAGE:
+				case THUMBNAIL:
+					buf.append(" TEXT");
+					break;
+				case NUMBER:
+					buf.append(" INTEGER");
+					break;
+				case FLOAT:
+					buf.append(" REAL");
+					break;
+				default:
+					buf.append(" NUMERIC");
+					break;
+				}
 			}
 
-			if (buf.indexOf(" PRIMARY KEY") == -1) {
-				buf.append(" PRIMARY KEY");
+			if (field.isPrimaryKey()) {
+				pkBuf.append(fieldName).append(",");
+				if (field.isAutoIncrement()) {
+					buf.append(" AUTO INCREMENT");
+				}
+			}
+
+			if (field.isNotNullable()) {
+				buf.append(" NOT NULL");
+			}
+
+			if (field.isUnique()) {
+				buf.append(" UNIQUE");
 			}
 
 			buf.append(",\n");
 		});
 
 		buf.delete(buf.lastIndexOf(","), buf.length());
+
+		if (!pkBuf.isEmpty()) {
+			pkBuf.delete(pkBuf.length() - 1, pkBuf.length());
+			buf.append(",\nPRIMARY KEY (").append(pkBuf).append(")");
+		}
+
 		buf.append("\n);");
 
 		Statement dbStatement = connection.createStatement();
@@ -167,32 +185,7 @@ public class SQLite extends SqlDB implements IConvert {
 			if (obj == null || obj.equals("")) {
 				prepStmt.setNull(index, field.getSQLType());
 			} else {
-				switch (field.getFieldType()) {
-				case BIG_DECIMAL:
-					prepStmt.setBigDecimal(index, (BigDecimal) obj);
-					break;
-				case BOOLEAN:
-					prepStmt.setBoolean(index, (Boolean) obj);
-					break;
-				case DATE:
-					prepStmt.setDate(index, Date.valueOf((LocalDate) obj));
-					break;
-				case FLOAT:
-					prepStmt.setDouble(index, ((Number) obj).doubleValue());
-					break;
-				case NUMBER:
-					prepStmt.setInt(index, ((Number) obj).intValue());
-					break;
-				case TIME:
-					prepStmt.setTime(index, Time.valueOf((LocalTime) obj));
-					break;
-				case TIMESTAMP:
-					prepStmt.setTimestamp(index, Timestamp.valueOf((LocalDateTime) obj));
-					break;
-				default:
-					prepStmt.setString(index, obj.toString());
-					break;
-				}
+				prepStmt.setObject(index, convertDataFields(obj, field));
 			}
 			index++;
 		}

@@ -70,13 +70,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		table = new ETable(userModel, false);
 		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 
-		TableColumn colType = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);
-		colType.setMaxWidth(100);
-
-		if (userModel.getColumnCount() > UserFieldModel.COL_TEXT_EXPORT) {
-			TableColumn colText = table.getColumnModel().getColumn(UserFieldModel.COL_TEXT_EXPORT);
-			colText.setMaxWidth(100);
-		}
+		setTableColumns();
 
 		funcAddFields = e -> {
 			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
@@ -131,6 +125,25 @@ public class ScFieldSelect implements PropertyChangeListener {
 		btUp = createImageButton("ArrowU.png", GUIFactory.getToolTip("funcMoveFieldsUp"), funcMoveFieldsUp);
 		btDown = createImageButton("ArrowD.png", GUIFactory.getToolTip("funcMoveFieldsDown"), funcMoveFieldsDown);
 		btClear = createImageButton("Delete.png", GUIFactory.getToolTip("funcClearFields"), funcClearFields);
+	}
+
+	private void setTableColumns() {
+		TableColumn col = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);
+		col.setMaxWidth(80);
+
+		int setColumn = UserFieldModel.COL_TEXT_EXPORT;
+		if (userModel.getColumnCount() > setColumn) {
+			if (userModel.isColumnVisible(setColumn)) {
+				col = table.getColumnModel().getColumn(setColumn);
+				col.setMaxWidth(100);
+				setColumn++;
+			}
+
+			for (int i = setColumn; i < userModel.getColumnCount(); i++) {
+				col = table.getColumnModel().getColumn(i);
+				col.setMaxWidth(30);
+			}
+		}
 	}
 
 	public void loadFieldPanel(List<BasisField> userFields) {
@@ -230,11 +243,11 @@ public class ScFieldSelect implements PropertyChangeListener {
 		ExportFile newValue = (ExportFile) evt.getNewValue();
 		ExportFile oldValue = (ExportFile) evt.getOldValue();
 
-		if (newValue.isDateExport() == oldValue.isDateExport()) {
-			// No change in text export
+		if (newValue == oldValue) {
 			return;
 		}
 
 		userModel.setInputFile(newValue);
+		setTableColumns();
 	}
 }

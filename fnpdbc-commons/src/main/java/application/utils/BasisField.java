@@ -11,6 +11,11 @@ public class BasisField implements Serializable {
 	private String fieldName;
 	private String fieldHeader;
 	private boolean outputAsText;
+	private boolean isNotNullable;
+	private boolean isPrimaryKey;
+	private boolean isAutoIncrement;
+	private boolean isUnique;
+
 	private FieldTypes fieldType;
 
 	public BasisField() {
@@ -67,12 +72,48 @@ public class BasisField implements Serializable {
 		this.outputAsText = outputAsText;
 	}
 
+	public boolean isNotNullable() {
+		return isNotNullable;
+	}
+
+	public void setNotNullable(boolean isNotNullable) {
+		this.isNotNullable = isNotNullable;
+	}
+
+	public boolean isAutoIncrement() {
+		return isAutoIncrement;
+	}
+
+	public void setAutoIncrement(boolean isAutoIncrement) {
+		this.isAutoIncrement = isAutoIncrement;
+	}
+
+	public boolean isPrimaryKey() {
+		return isPrimaryKey;
+	}
+
+	public void setPrimaryKey(boolean isPrimaryKey) {
+		this.isPrimaryKey = isPrimaryKey;
+	}
+
+	public boolean isUnique() {
+		return isUnique;
+	}
+
+	public void setUnique(boolean isUnique) {
+		this.isUnique = isUnique;
+	}
+
 	public void set(BasisField field) {
 		setFieldAlias(field.getFieldAlias());
 		setFieldName(field.getFieldName());
 		setFieldHeader(field.getFieldHeader());
 		setFieldType(field.getFieldType());
 		setOutputAsText(field.isOutputAsText());
+		setNotNullable(field.isNotNullable());
+		setAutoIncrement(field.isAutoIncrement());
+		setPrimaryKey(field.isPrimaryKey());
+		setUnique(field.isUnique());
 	}
 
 	@Override

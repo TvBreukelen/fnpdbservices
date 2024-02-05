@@ -1107,7 +1107,7 @@ public final class General {
 	}
 
 	public static void setEnabled(Component component, boolean enable) {
-		if (component == null) {
+		if (component == null || !component.isVisible()) {
 			return;
 		}
 

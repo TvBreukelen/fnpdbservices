@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeSupport;
 
 import javax.swing.BorderFactory;
@@ -69,15 +71,16 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private JCheckBox btBackup;
 	private JCheckBox btSkipEmpty;
 
-	private ActionListener funcSelectExport;
-	private ActionListener funcSelectConvert;
-	private ActionListener funcSelectFile;
-	private ActionListener funcSelectDb;
+	transient ActionListener funcSelectExport;
+	transient ActionListener funcSelectConvert;
+	transient ActionListener funcSelectFile;
+	transient ActionListener funcSelectDb;
+
 	private ExportFile myExportFile;
 
-	private IConfigDb dbConfig;
-	private IConfigSoft dialog;
-	private Profiles pdaSettings;
+	transient IConfigDb dbConfig;
+	transient IConfigSoft dialog;
+	transient Profiles pdaSettings;
 	private PropertyChangeSupport support;
 
 	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
@@ -215,6 +218,27 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		bDatabase.setPreferredSize(dim);
 
 		dbFileName = GUIFactory.getJTextField("database", General.EMPTY_STRING);
+		dbFileName.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// Not used
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				boolean enable = !dbFileName.getText().isBlank();
+				General.setEnabled(pExport, enable);
+				General.setEnabled(pOtherOptions, enable);
+				General.setEnabled(pConvert, enable);
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// Not used
+			}
+		});
+
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
 		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
@@ -387,7 +411,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pExport.setVisible(myExportFile.isAppend());
 		rExists[1].setVisible(myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE);
 		passwordBox.setVisible(myExportFile.isPasswordSupported());
-
 		cConvertImages.setVisible(myExportFile.isImageExport());
 
 		spHeight.setVisible(cConvertImages.isVisible());

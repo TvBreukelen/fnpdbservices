@@ -231,7 +231,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			}
 
 			dbField = dbField.copy();
-			field.setFieldType(dbField.getFieldType()); // Just incase the type has changed
+			field.setFieldType(dbField.getFieldType()); // Just in case the type has changed
 			dbField.set(field);
 
 			dbTableModelFields.add(dbField);

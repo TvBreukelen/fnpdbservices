@@ -207,14 +207,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			}
 
 			fieldDef.setSize(columns.getInt("COLUMN_SIZE"));
-
-			if (myImportFile == ExportFile.ACCESS) {
-				fieldDef.setAutoIncrement("YES".equals(columns.getString("IS_NULLABLE")));
-				fieldDef.setNullable("YES".equals(columns.getString("IS_AUTOINCREMENT")));
-			} else {
-				fieldDef.setAutoIncrement(columns.getBoolean("IS_AUTOINCREMENT"));
-				fieldDef.setNullable(columns.getBoolean("IS_NULLABLE"));
-			}
+			fieldDef.setNotNullable("NO".equals(columns.getString("IS_NULLABLE")));
+			fieldDef.setAutoIncrement("YES".equals(columns.getString("IS_AUTOINCREMENT")));
 
 			aFields.add(fieldDef);
 		}
@@ -355,6 +349,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	public List<FieldDefinition> getTableModelFields(boolean loadFromRegistry) {
 		SqlTable table = aTables.get(myPref.getTableName());
 		Map<String, ForeignKey> map = table.getFkList();
+		Set<String> primaryKeys = table.getPkList();
 
 		if (loadFromRegistry) {
 			RelationData joinData = new RelationData();
@@ -365,6 +360,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		List<FieldDefinition> result = new ArrayList<>(table.getDbFields());
+		result.forEach(field -> {
+			if (primaryKeys.contains(field.getFieldName())) {
+				field.setPrimaryKey(true);
+			}
+		});
+
 		for (Entry<String, ForeignKey> entry : map.entrySet()) {
 			Optional<SqlTable> optPkTable = Optional.ofNullable(aTables.get(entry.getKey()));
 			if (optPkTable.isPresent()) {

@@ -1,5 +1,6 @@
 package dbengine.utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,7 +11,7 @@ import application.utils.FieldDefinition;
 
 public class SqlTable {
 	private String name;
-	private List<FieldDefinition> dbFields;
+	private List<FieldDefinition> dbFields = new ArrayList<>();
 	private Set<String> pkList = new HashSet<>();
 	private Map<String, ForeignKey> fkList = new LinkedHashMap<>();
 

@@ -11,7 +11,9 @@ public interface IConfigSoft {
 		// used only by DBConvert
 	}
 
-	BuddyExport getBuddyExport();
+	default BuddyExport getBuddyExport() {
+		return BuddyExport.None;
+	}
 
 	void activateComponents();
 }

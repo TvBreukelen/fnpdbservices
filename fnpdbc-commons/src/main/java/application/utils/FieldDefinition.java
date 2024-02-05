@@ -22,8 +22,6 @@ public class FieldDefinition extends BasisField {
 	private boolean isHideTable = false;
 	private boolean isRoleField = false;
 	private boolean isComposed = false;
-	private boolean isNullable = false;
-	private boolean isAutoIncrement = false;
 	private int indexValue = 0;
 	private String indexField = General.EMPTY_STRING;
 
@@ -157,30 +155,18 @@ public class FieldDefinition extends BasisField {
 		isComposed = isContentsField;
 	}
 
-	public boolean isNullable() {
-		return isNullable;
-	}
-
-	public void setNullable(boolean isNullable) {
-		this.isNullable = isNullable;
-	}
-
-	public boolean isAutoIncrement() {
-		return isAutoIncrement;
-	}
-
-	public void setAutoIncrement(boolean isAutoIncrement) {
-		this.isAutoIncrement = isAutoIncrement;
-	}
-
 	public FieldDefinition copy() {
 		FieldDefinition result = new FieldDefinition();
+		result.setFieldAlias(getFieldAlias());
+		result.setFieldName(getFieldName());
+		result.setFieldHeader(getFieldHeader());
+		result.setFieldType(getFieldType());
+		result.setOutputAsText(isOutputAsText());
+		result.setNotNullable(isNotNullable());
+		result.setAutoIncrement(isAutoIncrement());
+		result.setPrimaryKey(isPrimaryKey());
 		result.setDecimalPoint(decimalPoint);
 		result.setExport(isExport);
-		result.setFieldAlias(getFieldAlias());
-		result.setFieldHeader(getFieldHeader());
-		result.setFieldName(getFieldName());
-		result.setFieldType(getFieldType());
 		result.setContentsField(isComposed);
 		result.setSize(size);
 		result.setTable(table);
@@ -189,8 +175,6 @@ public class FieldDefinition extends BasisField {
 		result.setIndexField(indexField);
 		result.setIndexValue(indexValue);
 		result.setSQLType(sqlType);
-		result.setNullable(isNullable);
-		result.setAutoIncrement(isAutoIncrement);
 		return result;
 	}
 

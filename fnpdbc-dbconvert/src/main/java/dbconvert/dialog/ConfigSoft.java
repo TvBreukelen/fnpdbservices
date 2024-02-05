@@ -29,7 +29,6 @@ import application.dialog.BasicDialog;
 import application.dialog.ConfigFilter;
 import application.dialog.ConfigSort;
 import application.dialog.ConfigTextFile;
-import application.dialog.ConfigTextFile.BuddyExport;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
@@ -451,7 +450,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		spSqlLimit.setVisible(false);
 		ckPagination.setVisible(false);
 
-		if (dbFactory.getDatabaseFilename().isEmpty() || !(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet())) {
+		if (dbFactory.getDatabaseFilename().isEmpty()
+				|| !(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet())) {
 			// Tables and worksheets are not supported
 			return;
 		}
@@ -630,10 +630,5 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			btRelationships.setVisible(isFileValid && myImportFile.isSqlDatabase() && bTablesWorksheets.isEnabled());
 			pack();
 		}
-	}
-
-	@Override
-	public BuddyExport getBuddyExport() {
-		return BuddyExport.None;
 	}
 }

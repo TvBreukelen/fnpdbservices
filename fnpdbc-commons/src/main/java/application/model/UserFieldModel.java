@@ -1,6 +1,7 @@
 package application.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -16,22 +17,38 @@ public class UserFieldModel extends AbstractTableModel {
 	public static final int COL_TYPE = 1;
 	public static final int COL_EXPORT_FIELD = 2;
 	public static final int COL_TEXT_EXPORT = 3;
+	public static final int COL_NOT_NULL = 4;
+	public static final int COL_PRIMARY_KEY = 5;
+	public static final int COL_AUTO_INCREMENT = 6;
+	public static final int COL_UNIQUE = 7;
 
 	private List<BasisField> tableData = new ArrayList<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
-	private ExportFile inputFile;
+	private ExportFile importFile;
+
+	private boolean[] columnsVisible;
+	private int visibleColumns;
 
 	public UserFieldModel(ExportFile exp) {
-		inputFile = exp;
+		setInputFile(exp);
 	}
 
 	public void setInputFile(ExportFile exp) {
-		inputFile = exp;
-		if (inputFile.isDateExport()) {
+		importFile = exp;
+
+		int totalColumns = columnNames.length;
+		columnsVisible = new boolean[totalColumns];
+		visibleColumns = totalColumns;
+		Arrays.fill(columnsVisible, true);
+
+		if (importFile.isDateExport()) {
 			// Reset text fields
 			tableData.forEach(e -> e.setOutputAsText(false));
+			columnsVisible[COL_TEXT_EXPORT] = false;
+			visibleColumns--;
 		}
-		fireTableStructureChanged();
+
+		resetColumnVisibility();
 	}
 
 	public void setTableData(List<BasisField> tableData) {
@@ -41,24 +58,78 @@ public class UserFieldModel extends AbstractTableModel {
 		}
 	}
 
-	@Override
-	public String getColumnName(int col) {
-		return columnNames[col];
+	private void resetColumnVisibility() {
+		boolean enableSql = importFile.isSqlDatabase();
+		boolean isChanged = enableSql != columnsVisible[COL_PRIMARY_KEY];
+
+		if (isChanged) {
+			columnsVisible[COL_NOT_NULL] = enableSql;
+			columnsVisible[COL_PRIMARY_KEY] = enableSql;
+			columnsVisible[COL_AUTO_INCREMENT] = enableSql;
+			columnsVisible[COL_UNIQUE] = enableSql;
+
+			visibleColumns = visibleColumns + (enableSql ? 4 : -4);
+		}
+
+		fireTableStructureChanged();
 	}
 
-	@Override
-	public boolean isCellEditable(int row, int col) {
-		return col == COL_EXPORT_FIELD || col == COL_TEXT_EXPORT && getValueAt(row, col) != null;
-	}
-
-	@Override
-	public Class<?> getColumnClass(int col) {
-		return col == 3 ? Boolean.class : Object.class;
+	/**
+	 * This function converts a column number in the table to the right number of
+	 * the data.
+	 */
+	public int getNumber(int col) {
+		int n = col; // right number to return
+		int i = 0;
+		do {
+			if (!columnsVisible[i]) {
+				n++;
+			}
+			i++;
+		} while (i < n);
+		// If we are on an invisible column,
+		// we have to go one step further
+		while (!columnsVisible[n]) {
+			n++;
+		}
+		return n;
 	}
 
 	@Override
 	public int getColumnCount() {
-		return inputFile.isDateExport() ? 4 : 3;
+		return visibleColumns;
+	}
+
+	@Override
+	public String getColumnName(int col) {
+		return columnNames[getNumber(col)];
+	}
+
+	@Override
+	public boolean isCellEditable(int row, int col) {
+		switch (getNumber(col)) {
+		case COL_EXPORT_FIELD:
+			return true;
+		case COL_TEXT_EXPORT:
+			return getValueAt(row, col) != null;
+		case COL_NOT_NULL:
+		case COL_PRIMARY_KEY:
+		case COL_UNIQUE:
+			return true;
+		case COL_AUTO_INCREMENT:
+			return getValueAt(row, COL_TYPE).toString().equals("Number");
+		default:
+			return false;
+		}
+	}
+
+	public boolean isColumnVisible(int col) {
+		return columnsVisible[col];
+	}
+
+	@Override
+	public Class<?> getColumnClass(int col) {
+		return getNumber(col) > 2 ? Boolean.class : Object.class;
 	}
 
 	@Override
@@ -85,7 +156,7 @@ public class UserFieldModel extends AbstractTableModel {
 	@Override
 	public Object getValueAt(int row, int col) {
 		BasisField field = tableData.get(row);
-		switch (col) {
+		switch (getNumber(col)) {
 		case COL_IMPORT_FIELD:
 			return field.getFieldAlias();
 		case COL_TYPE:
@@ -94,9 +165,17 @@ public class UserFieldModel extends AbstractTableModel {
 		case COL_EXPORT_FIELD:
 			return field.getFieldHeader();
 		case COL_TEXT_EXPORT:
-			return field.getFieldType().isTextConvertable(inputFile) ? field.isOutputAsText() : null;
+			return field.getFieldType().isTextConvertable(importFile) ? field.isOutputAsText() : null;
+		case COL_NOT_NULL:
+			return field.isNotNullable();
+		case COL_PRIMARY_KEY:
+			return field.isPrimaryKey();
+		case COL_AUTO_INCREMENT:
+			return field.isAutoIncrement();
+		case COL_UNIQUE:
+			return field.isUnique();
 		default:
-			return null;
+			return "";
 		}
 	}
 
@@ -108,11 +187,34 @@ public class UserFieldModel extends AbstractTableModel {
 		}
 
 		BasisField field = tableData.get(row);
-		if (col == COL_EXPORT_FIELD) {
+		switch (getNumber(col)) {
+		case COL_EXPORT_FIELD:
 			field.setFieldHeader(s);
-		} else if (col == COL_TEXT_EXPORT) {
+			break;
+		case COL_TEXT_EXPORT:
 			field.setOutputAsText((Boolean) value);
+			break;
+		case COL_PRIMARY_KEY:
+			boolean isPK = (Boolean) value;
+			field.setPrimaryKey(isPK);
+			if (!isPK && field.isAutoIncrement()) {
+				field.setAutoIncrement(false);
+				fireTableDataChanged();
+			}
+			break;
+		case COL_NOT_NULL:
+			field.setNotNullable((Boolean) value);
+			break;
+		case COL_AUTO_INCREMENT:
+			field.setAutoIncrement((Boolean) value && field.isPrimaryKey());
+			break;
+		case COL_UNIQUE:
+			field.setUnique((Boolean) value);
+			break;
+		default:
+			break;
 		}
+
 		fireTableCellUpdated(row, col);
 	}
 

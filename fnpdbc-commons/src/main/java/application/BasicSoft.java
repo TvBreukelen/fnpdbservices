@@ -144,8 +144,7 @@ public abstract class BasicSoft {
 		if (validFields.isEmpty()) {
 			dbUserFields.clear();
 			if (isDBConvert) {
-				dbTableModelFields.forEach(b -> dbUserFields.add(
-						new BasisField(b.getFieldAlias(), b.getFieldName(), b.getFieldHeader(), b.getFieldType())));
+				dbTableModelFields.forEach(b -> dbUserFields.add(new BasisField(b)));
 			}
 			return;
 		}

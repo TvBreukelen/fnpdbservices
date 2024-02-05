@@ -22,9 +22,9 @@ import application.utils.gui.XGridBagConstraints;
 
 public class ConfigTextFile extends JPanel implements IConfigDb {
 	/**
-	 * Title: DbTextFile Description: TextFile Configuration parms Copyright: (c)
-	 * 2005
+	 * Title: DbTextFile
 	 *
+	 * @description: TextFile Configuration parms Copyright: (c) 2005
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
