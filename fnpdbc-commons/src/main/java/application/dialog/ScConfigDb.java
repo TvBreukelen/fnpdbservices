@@ -5,8 +5,6 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.beans.PropertyChangeSupport;
 
 import javax.swing.BorderFactory;
@@ -60,6 +58,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	private JRadioButton[] rExists = new JRadioButton[3];
 	private JRadioButton[] rImages = new JRadioButton[3];
+	private JRadioButton[] rOnConflict = new JRadioButton[5];
+
 	private SpinnerNumberModel hModel;
 	private SpinnerNumberModel wModel;
 	private JSpinner spHeight;
@@ -139,11 +139,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			}
 
 			// Restore Export Data options
-			int index = 0;
+			int index = pdaSettings.isAppendRecords() ? 2 : 0;
 			if (myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE) {
 				index = pdaSettings.getExportOption();
-			} else {
-				index = pdaSettings.isAppendRecords() ? 2 : 0;
 			}
 			rExists[index].setSelected(true);
 
@@ -176,6 +174,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pOtherOptions.removeAll();
 			if (dbConfig != null) {
 				pOtherOptions.add((JComponent) dbConfig);
+			} else if (myExportFile == ExportFile.SQLITE) {
+				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict[0],
+						rOnConflict[1], rOnConflict[2], rOnConflict[3], rOnConflict[4]));
+				rOnConflict[pdaSettings.getOnConflict()].setSelected(true);
 			}
 
 			activateComponents();
@@ -218,27 +220,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		bDatabase.setPreferredSize(dim);
 
 		dbFileName = GUIFactory.getJTextField("database", General.EMPTY_STRING);
-		dbFileName.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-				// Not used
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				boolean enable = !dbFileName.getText().isBlank();
-				General.setEnabled(pExport, enable);
-				General.setEnabled(pOtherOptions, enable);
-				General.setEnabled(pConvert, enable);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				// Not used
-			}
-		});
-
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
 		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
@@ -263,6 +244,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
 		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);
 		rImages[2] = GUIFactory.getJRadioButton("imageToPng", null);
+
+		rOnConflict[0] = GUIFactory.getJRadioButton("onConflictAbort", null);
+		rOnConflict[1] = GUIFactory.getJRadioButton("onConflictFail", null);
+		rOnConflict[2] = GUIFactory.getJRadioButton("onConflictIgnore", null);
+		rOnConflict[3] = GUIFactory.getJRadioButton("onConflictReplace", null);
+		rOnConflict[4] = GUIFactory.getJRadioButton("onConflictRollback", null);
 
 		cConvertImages = GUIFactory.getJCheckBox("imageToImageFile", false, funcSelectConvert);
 
@@ -336,32 +323,32 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	@Override
 	public void setProperties() throws Exception {
-		int index = 0;
-		for (int i = 0; i < 3; i++) {
-			if (rExists[i].isSelected()) {
-				index = i;
-				break;
-			}
-		}
-
+		int index = getSelected(rExists);
 		pdaSettings.setExportOption(index);
 		pdaSettings.setAppendRecords(index == 2);
+		pdaSettings.setExportFile(getDatabaseName(false));
 
-		index = 0;
-		for (int i = 0; i < 3; i++) {
-			if (rImages[i].isSelected()) {
-				index = i;
-				break;
-			}
+		if (cConvertImages.isVisible()) {
+			index = getSelected(rImages);
+			pdaSettings.setExportImages(cConvertImages.isSelected());
+			pdaSettings.setImageOption(index);
+			pdaSettings.setImageHeight(hModel.getNumber().intValue());
+			pdaSettings.setImageWidth(wModel.getNumber().intValue());
+		} else {
+			pdaSettings.setExportImages(false);
+			pdaSettings.setImageOption(0);
+			pdaSettings.setImageHeight(0);
+			pdaSettings.setImageWidth(0);
 		}
 
-		pdaSettings.setExportFile(getDatabaseName(false));
+		if (myExportFile == ExportFile.SQLITE) {
+			pdaSettings.setOnConflict(getSelected(rOnConflict));
+		} else {
+			pdaSettings.setOnConflict(4);
+		}
+
 		pdaSettings.setCreateBackup(btBackup.isEnabled() && btBackup.isSelected());
 		pdaSettings.setSkipEmptyRecords(btSkipEmpty.isEnabled() && btSkipEmpty.isSelected());
-		pdaSettings.setExportImages(cConvertImages.isVisible() ? cConvertImages.isSelected() : false);
-		pdaSettings.setImageOption(cConvertImages.isVisible() ? index : 0);
-		pdaSettings.setImageHeight(cConvertImages.isVisible() ? hModel.getNumber().intValue() : 0);
-		pdaSettings.setImageWidth(cConvertImages.isVisible() ? wModel.getNumber().intValue() : 0);
 		pdaSettings.setExportPassword(fdPassword.getPassword());
 
 		String dbFile = dbFileName.getText().trim();
@@ -380,6 +367,15 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pdaSettings.setLastSaved();
 	}
 
+	private int getSelected(JRadioButton[] buttons) {
+		for (int i = 0; i < buttons.length; i++) {
+			if (buttons[i].isSelected()) {
+				return i;
+			}
+		}
+		return 0;
+	}
+
 	public Dimension getComboBoxSize() {
 		return bDatabase.getPreferredSize();
 	}
@@ -395,6 +391,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pOtherOptions);
 			break;
 		case DBASE:
+		case SQLITE:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;
@@ -430,7 +427,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pConvert.setVisible(cConvertImages.isVisible());
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
-
 		dbFileName.setVisible(myExportFile != ExportFile.TEXTFILE);
 		dbFileNameLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
 

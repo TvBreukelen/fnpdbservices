@@ -7,7 +7,9 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -37,6 +39,7 @@ import application.model.ProfileObject;
 import application.model.ProjectModel;
 import application.model.SortData;
 import application.preferences.Databases;
+import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -263,6 +266,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	@Override
 	protected void save() throws Exception {
 		myExportFile = configDb.getExportFile();
+		checkDuplicatelFieldNames();
+
 		String projectID = myExportFile.getName();
 		String profileID = profile.getText().trim();
 
@@ -312,6 +317,19 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		pdaSettings.setLastSaved();
 
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
+	}
+
+	private void checkDuplicatelFieldNames() throws FNProgException {
+		// Check for duplicate field names
+		if (myExportFile.isSqlDatabase()) {
+			Set<String> fields = new HashSet<>();
+			for (BasisField f : fieldSelect.getFieldList()) {
+				if (fields.contains(f.getFieldHeader())) {
+					throw FNProgException.getException("duplicateField", f.getFieldHeader());
+				}
+				fields.add(f.getFieldHeader());
+			}
+		}
 	}
 
 	private void verifyDatabase(boolean isFirstRun) {

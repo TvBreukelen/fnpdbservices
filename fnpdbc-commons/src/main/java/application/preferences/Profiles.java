@@ -64,9 +64,10 @@ public abstract class Profiles extends Project {
 
 	private List<BasisField> userList = new ArrayList<>();
 
-	// Sql database pagination
+	// Sql database options
 	private int sqlSelectLimit = 0;
 	private boolean pagination;
+	private int onConflict = 3;
 
 	// HanDBase Settings
 	private String autoInstUser;
@@ -205,6 +206,7 @@ public abstract class Profiles extends Project {
 		// Sql Databases
 		sqlSelectLimit = child.getInt("sql.select.limit", 0);
 		pagination = child.getBoolean("database.pagination", false);
+		onConflict = child.getInt("onconflict.action", 3);
 
 		// Files to be imported
 		if (!databaseFromFile.isEmpty()) {
@@ -614,6 +616,15 @@ public abstract class Profiles extends Project {
 	public void setImportOption(int importOption) {
 		PrefUtils.writePref(child, "import.option", importOption, this.importOption, 0);
 		this.importOption = importOption;
+	}
+
+	public int getOnConflict() {
+		return onConflict;
+	}
+
+	public void setOnConflict(int onConflict) {
+		PrefUtils.writePref(child, "onconflict.action", onConflict, this.onConflict, 3);
+		this.onConflict = onConflict;
 	}
 
 	// MS-Excel

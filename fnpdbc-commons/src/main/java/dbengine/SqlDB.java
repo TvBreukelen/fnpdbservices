@@ -790,10 +790,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			useAppend = false;
 		} else {
 			if (myPref.getExportOption() == 0) {
-				dropTable();
+				executeStatement("DROP TABLE " + myPref.getPdaDatabaseName());
 				createTable();
 			} else if (myPref.getExportOption() == 1) {
-				clearTable();
+				executeStatement("DELETE FROM " + myPref.getPdaDatabaseName());
 				useAppend = true;
 			}
 		}
@@ -832,19 +832,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	private void dropTable() throws SQLException {
+	protected void executeStatement(String statement) throws SQLException {
 		dbStatement = connection.createStatement();
 		try {
-			dbStatement.execute("DROP TABLE " + myPref.getPdaDatabaseName());
-		} finally {
-			dbStatement.close();
-		}
-	}
-
-	private void clearTable() throws SQLException {
-		dbStatement = connection.createStatement();
-		try {
-			dbStatement.execute("DELETE FROM " + myPref.getPdaDatabaseName());
+			dbStatement.execute(statement);
 		} finally {
 			dbStatement.close();
 		}

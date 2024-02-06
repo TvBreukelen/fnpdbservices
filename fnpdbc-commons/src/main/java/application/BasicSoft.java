@@ -114,18 +114,20 @@ public abstract class BasicSoft {
 		setCurrentRecord(0);
 		totalRecords = table.size();
 
-		dbOut.createDbHeader();
-		for (Map<String, Object> rowData : table) {
-			Map<String, Object> dbRecord = new HashMap<>();
-			dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
-					rowData.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
-			dbOut.processData(dbRecord);
-			currentRecord++;
+		try {
+			dbOut.createDbHeader();
+			for (Map<String, Object> rowData : table) {
+				Map<String, Object> dbRecord = new HashMap<>();
+				dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
+						rowData.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
+				dbOut.processData(dbRecord);
+				currentRecord++;
+			}
+		} finally {
+			timer.cancel();
+			setCurrentRecord(totalRecords);
+			dbOut.closeData();
 		}
-
-		timer.cancel();
-		setCurrentRecord(totalRecords);
-		dbOut.closeData();
 	}
 
 	public List<FieldDefinition> getDbInfoToWrite() {

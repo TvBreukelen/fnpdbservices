@@ -6,8 +6,9 @@ import java.nio.channels.FileChannel;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
+
+import org.sqlite.SQLiteException;
 
 import application.interfaces.ExportFile;
 import application.preferences.Profiles;
@@ -149,19 +150,33 @@ public class SQLite extends SqlDB implements IConvert {
 		}
 
 		buf.append("\n);");
-
-		Statement dbStatement = connection.createStatement();
-		try {
-			dbStatement.execute(buf.toString());
-		} finally {
-			dbStatement.close();
-		}
+		executeStatement(buf.toString());
 	}
 
 	@Override
 	protected void createPreparedStatement() throws SQLException {
 		int maxFields = dbInfo2Write.size();
-		StringBuilder buf = new StringBuilder("REPLACE INTO ").append(myPref.getPdaDatabaseName()).append(" (");
+		StringBuilder buf = new StringBuilder("INSERT OR ");
+
+		switch (myPref.getOnConflict()) {
+		case 0:
+			buf.append("ABORT INTO ");
+			break;
+		case 1:
+			buf.append("FAIL INTO ");
+			break;
+		case 2:
+			buf.append("IGNORE INTO ");
+			break;
+		case 3:
+			buf.append("REPLACE INTO ");
+			break;
+		case 4:
+			buf.append("ROLLBACK INTO ");
+			break;
+		}
+
+		buf.append(myPref.getPdaDatabaseName()).append(" (");
 		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader(), true)).append(","));
 
 		buf.deleteCharAt(buf.length() - 1);
@@ -175,6 +190,7 @@ public class SQLite extends SqlDB implements IConvert {
 		buf.append(")");
 
 		prepStmt = connection.prepareStatement(buf.toString());
+		connection.setAutoCommit(false);
 	}
 
 	@Override
@@ -189,7 +205,22 @@ public class SQLite extends SqlDB implements IConvert {
 			}
 			index++;
 		}
-		prepStmt.executeUpdate();
+
+		try {
+			prepStmt.executeUpdate();
+		} catch (SQLiteException ex) {
+			throw FNProgException.getException(ex.getResultCode().message);
+		}
+	}
+
+	@Override
+	public void closeData() {
+		try {
+			// commits the transaction as well
+			connection.setAutoCommit(true);
+		} catch (SQLException e) {
+			// Transaction is no longer active
+		}
 	}
 
 	@Override
