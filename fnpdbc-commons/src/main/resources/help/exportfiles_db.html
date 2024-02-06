@@ -53,100 +53,10 @@ In the second combobox you can select a file or host database from the list of p
 You can use the Open button to select the file to be exported.<br>
  <br>
 </ul>
-
-<h2>Export From iCalendar</h2>
-<img src="../images/ExportToICalendar.png">
-<h3>Compatibility</h3>
-<ul>
-<li><b>Standard</b></li>
-This setting let you import iCalendar files created according to the iCalendar standard<br>
-<br>
-<li><b>Lotus Notes</b></li>
-This will improve the compatibility with Lotus Notes generated iCalendar files, especially 
- regarding client- and domain mappings.
-<br><br>
-<li><b>Outlook</b></li>
-When activated it enforces a folding length of 75 characters (by default DBConvert will fold at
- 73 characters). It allows for spaces when parsing a WEEKDAY list.<br>
-</ul>
-<h3>Parsing Validation</h3>
-<ul>
-<li><b>Relaxed Parsing</b></li>
-This option is intended as a general relaxation of parsing rules to allow for parsing otherwise
- invalid calendar files. Initially enabling this property will allow for the creation of properties
- and components with illegal names (e.g. Mozilla Calendar's "X" property).<br>
- <br>
-<li><b>Relaxed Unfolding</b></li>
-You can relax DBConvert unfolding rules by activating this option. Some Mozilla-, Linux- and Unix
- based calendar apps use the non-standard LF instead of CRLF characters to fold long lines of text.
-<br><br>
-<li><b>Relaxed Validation</b></li>
-When activated DBConvert becomes more lenient toward interpreting missing or faulty time zones in the
- iCalender files.    
-</ul> 
-
-<h2>Export From Calc or Excel</h2>
-<img src="../images/SpreadsheetExport.png">
-<h3>Additional Field</h3>
-<ul>
-<li><b>Worksheet</b>
-</li>
-If your spreadsheet has more than one worksheet then you can select in this comboxbox the worksheet to export.<br>
-<br>
-</ul>
-
-<h2>Export From SQL database (SqLite, ProgresSQL, MariaDB etc.)</h2>
-<img src="../images/SqlDatabaseExport.png">
-<h3>Additional Fields</h3>
-<ul>
-<li><b>Table</b>
-</li>
-If your database has more than one table then you can select in this comboxbox the table to export.<br>
-<br>
-<li><b>Read Limit</b>
-</li>
-The Read Limit allows you to constrain the number of rows returned by a query. A limit of 0 returns all rows.<br>
-For example, a query may return one million rows. However, if you just need the first 10 rows then you can set<br>
-the Read Limit to 10.<br> 
-<br>
-<li><b>Pagination</b>
-</li>
-Returns all records in a query, but reading the rows from the table is done in blocks of "Read Limit" rows.<br>
-For example, if the Read limit is set to 10 and the table contains 30 records to read then DBConvert sends three<br>
-queries to the database. First query returns row 1 to 10; the second rows 11 to 20 and the third query row 21 to 30.<br>
-<br>
-<p> 
-<b>Important:</b> In SQL Server we can use Pagination only, if the query is sorted. If no sort fields are defined then<br>
-you'll see the following warning message.<br>
-<img src="../images/PaginationWarning.png">
- </p> 
-</ul>
-
-<h2>Export From TextFile</h2>
-<img src="../images/ExportFromTextfile.gif">
-<h3>Additional Fields</h3>
-<ul>
-<li><b>Export Format</b>
-</li>The export format specifies the the textfile format you are exporting from.
-<br><br>
-<ul>
-<li><b>Standard CSV File</b>
-</li>Export from a standard CSV File, created for example by HanDBase, JFile,
- MS-Excel or other program.<br><br>
-<li><b>Other</b>
-</li>Exports from a delimited text file according to your own requirements.<br><br>
-</ul>
-
-<li><b>Other</b>
-</li>The right part of the screen contains the options for exporting from
- another textfile format It contains of the following parts:
-<ul>
-<li><b>Field Separator</b>
-</li> By selecting the field separator you can either export from a Comma-,
- Tab-, Semi colon- or pipe delimited file<br>
-<li><b>Text Delimiter</b>
-</li> This specifies the text delimiter (to enclose all database fields).<br>
-</ul>
+<h3><a href="export_from_icalendar.html">Export From iCalendar</a></h3>
+<h3><a href="export_from_spreadsheet.html">Export From Calc or Excel</a></h3>
+<h3><a href="export_from_sqldb.html">Export From SQL databases</a></h3>
+<h3><a href="export_from_textfile.html">Export From Textfile</a></h3>
 
 <p> 
 <b>Important:</b> DBConvert checks whether the database file truly exists and
@@ -161,7 +71,7 @@ Dbase or FoxPro Memo fields that contain binary data (like OLE-Objects or
  read Visual FoxPro files, but doesn't support the non-standard xBase
  fieldtypes, like Currency, DateTime or Variant.
 </p>
-
+<br>
 <hr WIDTH="50%" SIZE="3" NOSHADE>
 <h2>Export To</h2>
 <img src="../images/ExportTo.png">
@@ -177,13 +87,13 @@ In the combobox you can select the format of the "Export To" file
 You can use the Open button to select the database to export to or type in
  the name of the database directly in the text field.<br>
 <br>
-</li><b>Database / Worksheet</b>
+</li><b>Database, Table or Worksheet</b>
 </li>
-This field identifies the database or worksheet name as it should appear in your
- export file. For spreadsheets it represents the tab sheet label and for XML files the root-
-element. If left unchanged, DBConvert uses this as default database name for
- the export file. Should your export file require another name then you could
- enter the new name in this field.<br>	
+This field identifies the database-, table- or worksheet name as it should appear
+ in your export file. For spreadsheets it represents the tab sheet label and for
+ XML files the root-element. If left unchanged, DBConvert uses this as default
+ name for the export file. Should your export file require another name then you
+ could enter the new name in this field.<br>	
  <br>
 <li><b>Skip empty records</b>
 </li>
@@ -206,6 +116,7 @@ DBConvert verifies whether the export file exists and  whether its format
 <h3><a href="export_calc.html">Export To Calc</a></h3>
 <h3><a href="export_excel.html">Export To MS-Excel</a></h3>
 <h3><a href="export_textfile.html">Export To TextFile</a></h3>
+<h3><a href="export_sqlite.html">Export To SQLite</a></h3>
 <h3><a href="export_handbase.html">Export To HanDBase</a></h3>
 <h3><a href="export_palmdb.html">Export To Palm databases</a></h3>
 <h3><a href="export_xbase.html">Export To xBase databases</a></h3>

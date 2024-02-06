@@ -15,8 +15,6 @@ public class FieldDefinition extends BasisField {
 	private static final long serialVersionUID = 1031194870833449030L;
 
 	private String table = General.EMPTY_STRING;
-	private int size = 1;
-	private int decimalPoint = 0;
 	private int sqlType = 0;
 	private boolean isExport = true;
 	private boolean isHideTable = false;
@@ -42,21 +40,13 @@ public class FieldDefinition extends BasisField {
 		super(field);
 	}
 
-	public int getSize() {
-		return size;
-	}
-
-	public void setSize(int size) {
-		this.size = size;
-	}
-
 	public void setSize(Object obj) {
 		if (obj == null) {
 			return;
 		}
 
 		String s = obj.toString();
-		size = Math.max(size, s.length());
+		setSize(Math.max(getSize(), s.length()));
 
 		if (getFieldType() != FieldTypes.BIG_DECIMAL && getFieldType() != FieldTypes.FLOAT) {
 			return;
@@ -73,27 +63,19 @@ public class FieldDefinition extends BasisField {
 				}
 			}
 
-			setDecimalPoint(Math.max(decimalPoint, s.length() - index));
+			setDecimalPoint(Math.max(getDecimalPoint(), s.length() - index));
 		}
-	}
-
-	public int getDecimalPoint() {
-		return decimalPoint;
 	}
 
 	public NumberFormat getNumberFormat() {
 		if (getFieldType().isNumeric()) {
 			NumberFormat result = NumberFormat.getNumberInstance();
-			result.setMaximumFractionDigits(decimalPoint);
+			result.setMaximumFractionDigits(getDecimalPoint());
 			result.setMinimumFractionDigits(0);
 			return result;
 		}
 
 		return null;
-	}
-
-	public void setDecimalPoint(int decimalPoint) {
-		this.decimalPoint = decimalPoint;
 	}
 
 	public boolean isExport() {
@@ -165,10 +147,10 @@ public class FieldDefinition extends BasisField {
 		result.setNotNullable(isNotNullable());
 		result.setAutoIncrement(isAutoIncrement());
 		result.setPrimaryKey(isPrimaryKey());
-		result.setDecimalPoint(decimalPoint);
+		result.setDecimalPoint(getDecimalPoint());
+		result.setSize(getSize());
 		result.setExport(isExport);
 		result.setContentsField(isComposed);
-		result.setSize(size);
 		result.setTable(table);
 		result.setHideTable(isHideTable);
 		result.setRoleField(isRoleField);

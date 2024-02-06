@@ -15,6 +15,8 @@ public class BasisField implements Serializable {
 	private boolean isPrimaryKey;
 	private boolean isAutoIncrement;
 	private boolean isUnique;
+	private int size;
+	private int decimalPoint;
 
 	private FieldTypes fieldType;
 
@@ -104,6 +106,22 @@ public class BasisField implements Serializable {
 		this.isUnique = isUnique;
 	}
 
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public int getDecimalPoint() {
+		return decimalPoint;
+	}
+
+	public void setDecimalPoint(int decimalPoint) {
+		this.decimalPoint = decimalPoint;
+	}
+
 	public void set(BasisField field) {
 		setFieldAlias(field.getFieldAlias());
 		setFieldName(field.getFieldName());
@@ -114,6 +132,8 @@ public class BasisField implements Serializable {
 		setAutoIncrement(field.isAutoIncrement());
 		setPrimaryKey(field.isPrimaryKey());
 		setUnique(field.isUnique());
+		setDecimalPoint(field.getDecimalPoint());
+		setSize(field.getSize());
 	}
 
 	@Override

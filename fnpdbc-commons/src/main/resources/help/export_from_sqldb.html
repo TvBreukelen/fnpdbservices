@@ -1,0 +1,30 @@
+<html>
+<body>
+<h1>Export From SQL database (SQLite, ProgresSQL, MariaDB etc.)</h1>
+<img src="../images/SqlDatabaseExport.png">
+<h2>Additional Fields</h2>
+<ul>
+<li><b>Table</b>
+</li>
+If your database has more than one table then you can select in this comboxbox the table to export.<br>
+<br>
+<li><b>Read Limit</b>
+</li>
+The Read Limit allows you to constrain the number of rows returned by a query. A limit of 0 returns all rows.<br>
+For example, a query may return one million rows. However, if you just need the first 10 rows then you can set<br>
+the Read Limit to 10.<br> 
+<br>
+<li><b>Pagination</b>
+</li>
+Returns all records in a query, but reading the rows from the table is done in blocks of "Read Limit" rows.<br>
+For example, if the Read limit is set to 10 and the table contains 30 records to read then DBConvert sends three<br>
+queries to the database. First query returns row 1 to 10; the second rows 11 to 20 and the third query row 21 to 30.<br>
+<br>
+<p> 
+<b>Important:</b> In SQL Server we can use Pagination only, if the query is sorted. If no sort fields are defined then<br>
+you'll see the following warning message.<br>
+<img src="../images/PaginationWarning.png">
+</p> 
+</ul>
+</html>
+</body>

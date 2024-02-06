@@ -80,7 +80,7 @@ public class SQLite extends SqlDB implements IConvert {
 	}
 
 	@Override
-	protected void createTable() throws SQLException {
+	public String buildTableString() {
 		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(myPref.getPdaDatabaseName())
 				.append(" (\n");
 
@@ -150,7 +150,7 @@ public class SQLite extends SqlDB implements IConvert {
 		}
 
 		buf.append("\n);");
-		executeStatement(buf.toString());
+		return buf.toString();
 	}
 
 	@Override

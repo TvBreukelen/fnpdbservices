@@ -149,6 +149,10 @@ public class UserFieldModel extends AbstractTableModel {
 
 	public void addRecord(BasisField field, int row) {
 		BasisField obj = new BasisField(field);
+		if (importFile.isSqlDatabase()) {
+			// No dot allowed in the field name
+			obj.setFieldHeader(obj.getFieldHeader().replace(".", ""));
+		}
 		tableData.add(row, obj);
 		fireTableDataChanged();
 	}
