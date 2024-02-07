@@ -70,8 +70,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		userModel = new UserFieldModel(factory.getExportFile());
 		table = new ETable(userModel, false);
 		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
-
-		setTableColumns();
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 
 		funcAddFields = e -> {
 			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
@@ -129,6 +128,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	private void setTableColumns() {
+		General.packColumns(table);
 		TableColumn col = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);
 		col.setMaxWidth(80);
 
@@ -136,13 +136,13 @@ public class ScFieldSelect implements PropertyChangeListener {
 		if (userModel.getColumnCount() > setColumn) {
 			if (userModel.isColumnVisible(setColumn)) {
 				col = table.getColumnModel().getColumn(setColumn);
-				col.setMaxWidth(100);
+				col.setMaxWidth(80);
 				setColumn++;
 			}
 
 			for (int i = setColumn; i < userModel.getColumnCount(); i++) {
 				col = table.getColumnModel().getColumn(i);
-				col.setMaxWidth(30);
+				col.setMaxWidth(40);
 			}
 		}
 	}
@@ -170,6 +170,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 
 		lstAvailableFields.setSelectedIndex(0);
 		userModel.setTableData(userFields, hasTextExport);
+		setTableColumns();
 		activateComponents();
 		fieldPanel.updateUI();
 	}
