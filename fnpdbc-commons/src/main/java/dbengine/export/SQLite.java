@@ -6,6 +6,7 @@ import java.nio.channels.FileChannel;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.sqlite.SQLiteException;
@@ -20,6 +21,7 @@ import dbengine.SqlDB;
 
 public class SQLite extends SqlDB implements IConvert {
 	private PreparedStatement prepStmt;
+	private int currentRecord;
 
 	public SQLite(Profiles pref) {
 		super(pref);
@@ -80,13 +82,11 @@ public class SQLite extends SqlDB implements IConvert {
 	}
 
 	@Override
-	public String buildTableString() {
-		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(myPref.getPdaDatabaseName())
-				.append(" (\n");
-
+	public String buildTableString(String table, List<FieldDefinition> fields) {
+		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(table).append(" (\n");
 		StringBuilder pkBuf = new StringBuilder();
 
-		dbInfo2Write.forEach(field -> {
+		fields.forEach(field -> {
 			String fieldName = getSqlFieldName(field.getFieldHeader(), true);
 			buf.append(fieldName);
 
@@ -191,10 +191,14 @@ public class SQLite extends SqlDB implements IConvert {
 
 		prepStmt = connection.prepareStatement(buf.toString());
 		connection.setAutoCommit(false);
+		currentRecord = 0;
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
+		currentRecord++;
+		int result = 0;
+
 		int index = 1;
 		for (FieldDefinition field : dbInfo2Write) {
 			Object obj = dbRecord.get(field.getFieldAlias());
@@ -207,10 +211,15 @@ public class SQLite extends SqlDB implements IConvert {
 		}
 
 		try {
-			prepStmt.executeUpdate();
+			result = prepStmt.executeUpdate();
 		} catch (SQLiteException ex) {
-			throw FNProgException.getException(ex.getResultCode().message);
+			String error = ex.getMessage();
+			error = error.substring(error.lastIndexOf("(") + 1, error.lastIndexOf(")"));
+			throw FNProgException.getException("tableInsertError", Integer.toString(currentRecord),
+					myPref.getPdaDatabaseName(), error);
 		}
+
+		return result;
 	}
 
 	@Override

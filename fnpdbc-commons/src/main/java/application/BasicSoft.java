@@ -37,6 +37,7 @@ public abstract class BasicSoft {
 	protected int totalRecords = 0;
 	protected int firstRecord = 0;
 	protected int currentRecord = 0;
+	protected int writtenRecords = 0;
 
 	protected static final int LISTDB_MAX_CATEGORIES = 15;
 	protected static final int LISTDB_MAX_CATEGORY_LENGTH = 15;
@@ -113,6 +114,7 @@ public abstract class BasicSoft {
 
 		setCurrentRecord(0);
 		totalRecords = table.size();
+		writtenRecords = 0;
 
 		try {
 			dbOut.createDbHeader();
@@ -120,7 +122,7 @@ public abstract class BasicSoft {
 				Map<String, Object> dbRecord = new HashMap<>();
 				dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
 						rowData.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
-				dbOut.processData(dbRecord);
+				writtenRecords += dbOut.processData(dbRecord);
 				currentRecord++;
 			}
 		} finally {

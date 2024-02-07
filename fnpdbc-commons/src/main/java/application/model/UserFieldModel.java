@@ -27,6 +27,7 @@ public class UserFieldModel extends AbstractTableModel {
 	private ExportFile importFile;
 
 	private boolean[] columnsVisible;
+	private boolean hasTextExport;
 	private int visibleColumns;
 
 	public UserFieldModel(ExportFile exp) {
@@ -41,34 +42,33 @@ public class UserFieldModel extends AbstractTableModel {
 		visibleColumns = totalColumns;
 		Arrays.fill(columnsVisible, true);
 
-		if (importFile.isDateExport()) {
-			// Reset text fields
-			tableData.forEach(e -> e.setOutputAsText(false));
-			columnsVisible[COL_TEXT_EXPORT] = false;
-			visibleColumns--;
-		}
-
+		// Reset text fields
+		tableData.forEach(e -> e.setOutputAsText(false));
 		resetColumnVisibility();
 	}
 
-	public void setTableData(List<BasisField> tableData) {
+	public void setTableData(List<BasisField> tableData, boolean isTextExport) {
 		if (tableData != null) {
 			this.tableData = tableData;
-			fireTableDataChanged();
+			hasTextExport = isTextExport;
+			resetColumnVisibility();
 		}
 	}
 
 	private void resetColumnVisibility() {
 		boolean enableSql = importFile.isSqlDatabase();
-		boolean isChanged = enableSql != columnsVisible[COL_PRIMARY_KEY];
 
-		if (isChanged) {
-			columnsVisible[COL_NOT_NULL] = enableSql;
-			columnsVisible[COL_PRIMARY_KEY] = enableSql;
-			columnsVisible[COL_AUTO_INCREMENT] = enableSql;
-			columnsVisible[COL_UNIQUE] = enableSql;
+		columnsVisible[COL_TEXT_EXPORT] = hasTextExport;
+		columnsVisible[COL_NOT_NULL] = enableSql;
+		columnsVisible[COL_PRIMARY_KEY] = enableSql;
+		columnsVisible[COL_AUTO_INCREMENT] = enableSql;
+		columnsVisible[COL_UNIQUE] = enableSql;
 
-			visibleColumns = visibleColumns + (enableSql ? 4 : -4);
+		visibleColumns = 0;
+		for (boolean element : columnsVisible) {
+			if (element) {
+				visibleColumns++;
+			}
 		}
 
 		fireTableStructureChanged();
@@ -169,7 +169,7 @@ public class UserFieldModel extends AbstractTableModel {
 		case COL_EXPORT_FIELD:
 			return field.getFieldHeader();
 		case COL_TEXT_EXPORT:
-			return field.getFieldType().isTextConvertable(importFile) ? field.isOutputAsText() : null;
+			return field.getFieldType().isTextConvertable() ? field.isOutputAsText() : null;
 		case COL_NOT_NULL:
 			return field.isNotNullable();
 		case COL_PRIMARY_KEY:

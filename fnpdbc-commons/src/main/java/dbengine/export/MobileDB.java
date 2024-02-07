@@ -180,7 +180,7 @@ public class MobileDB extends PalmDB {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		numFields = dbInfo2Write.size();
 
 		// Read the user defined list of DB fields
@@ -213,6 +213,7 @@ public class MobileDB extends PalmDB {
 		// Write to Export File
 		writeRecord(pdbBaos.toByteArray(), 2 << 24);
 		pdbBaos.reset();
+		return 1;
 	}
 
 	/**

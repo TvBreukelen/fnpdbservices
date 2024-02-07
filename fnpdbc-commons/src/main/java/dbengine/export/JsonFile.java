@@ -161,7 +161,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		Map<String, Object> map = new LinkedHashMap<>();
 
 		dbInfo2Write.forEach(field -> {
@@ -172,11 +172,13 @@ public class JsonFile extends GeneralDB implements IConvert {
 		if (!map.isEmpty()) {
 			if (hElements.isEmpty()) {
 				dbRecords.add(map);
-				return;
+				return 1;
 			}
 
 			createSortedMap(map);
 		}
+
+		return 1;
 	}
 
 	@SuppressWarnings("unchecked")

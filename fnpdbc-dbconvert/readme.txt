@@ -1,9 +1,18 @@
 Release Notes
 -------------
 
+Version 8.1
+-----------
+Updated Java version to 17
+Added export to SQLite databases.
+Updated third party libraries.
+Updated help files.
+Fixed some minor bugs.
+
+
 Version 8.0.1
 -------------
-Fixed: "Last Export" field couldn't be set manually
+Fixed: "Last Export" field couldn't be set manually.
 
 
 Version 8.0

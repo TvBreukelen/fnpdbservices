@@ -141,13 +141,14 @@ public class CsvFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		// Read the user defined list of DB fields
 		List<String> list = dbInfo2Write.stream()
 				.map(field -> convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString())
 				.collect(Collectors.toList());
 
 		writeOutputFile(list);
+		return 1;
 	}
 
 	protected void writeOutputFile(List<String> list) throws IOException {

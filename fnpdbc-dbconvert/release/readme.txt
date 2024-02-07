@@ -42,8 +42,8 @@ JFile           Palm
 List            Palm 
 JSON            All Platforms
 MobileDB        Palm/PocketPC
-MS-Access       Microsoft Windows / Mac OS X
-MS-Excel        Microsoft Windows / Mac OS X
+MS-Access       Microsoft Windows/MacOS
+MS-Excel        Microsoft Windows/MacOS
 MySQL/MariaDB   All platforms 
 Paradox         PC
 Pilot-DB        Palm  
@@ -71,12 +71,13 @@ List            Palm
 MobileDB        Palm/PocketPC
 MS-Excel        Microsoft Windows / Mac OS X
 Pilot-DB        Palm  
+SQLite          All platforms
 TSV             All platforms
 XML             All platforms
 YAML            All platforms
 
 
-DBConvert is compatible with all operating systems that are able to run Java (version 11 or higher).
+DBConvert is compatible with all operating systems that are able to run Java (version 17 or higher).
 DBConvert is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License 
 as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
@@ -150,9 +151,17 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 8.1
+-----------
+Updated Java version to 17
+Added export to SQLite databases.
+Updated third party libraries.
+Updated help files.
+Fixed some minor bugs.
+
 Version 8.0.1
 -------------
-Fixed: "Last Export" field couldn't be set manually
+Fixed: "Last Export" field couldn't be set manually.
 
 
 Version 8.0

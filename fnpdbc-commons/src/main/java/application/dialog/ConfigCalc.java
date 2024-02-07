@@ -47,6 +47,6 @@ public class ConfigCalc extends JPanel implements IConfigDb {
 		cHeader[0] = GUIFactory.getJCheckBox("includeHeaders", pdaSettings.isUseHeader(), e -> activateComponents());
 		cHeader[1] = GUIFactory.getJCheckBox("fontBold", pdaSettings.isBoldHeader());
 
-		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader[0], cHeader[1]));
+		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader));
 	}
 }

@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -28,9 +30,11 @@ import application.interfaces.IConfigDb;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.preferences.Profiles;
+import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
+import dbengine.export.SQLite;
 
 public class ScConfigDb extends JPanel implements IConfigDb {
 	/**
@@ -75,26 +79,40 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	transient ActionListener funcSelectConvert;
 	transient ActionListener funcSelectFile;
 	transient ActionListener funcSelectDb;
+	transient ActionListener funcShowSchema;
 
 	private ExportFile myExportFile;
+	private JButton btTableSchema;
 
 	transient IConfigDb dbConfig;
 	transient IConfigSoft dialog;
 	transient Profiles pdaSettings;
+	transient ScFieldSelect scFieldSelect;
+
 	private PropertyChangeSupport support;
 
 	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
 		myExportFile = db;
 		pdaSettings = profiles;
+		scFieldSelect = sc;
 		this.dialog = dialog;
 
 		support = new PropertyChangeSupport(this);
-		support.addPropertyChangeListener(sc);
+		support.addPropertyChangeListener(scFieldSelect);
 
+		init();
+		buildDialog();
+		activateComponents();
+		setVisible(true);
+	}
+
+	private void init() {
 		funcSelectExport = e -> {
 			if (myExportFile == ExportFile.HANDBASE) {
 				boolean enableImport = !rExists[0].isSelected();
 				((ConfigHanDBase) dbConfig).setImportEnabled(enableImport);
+			} else {
+				btTableSchema.setVisible(myExportFile == ExportFile.SQLITE && rExists[0].isSelected());
 			}
 		};
 
@@ -105,6 +123,27 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			spHeight.setEnabled(cConvertImages.isSelected());
 			spWidth.setEnabled(spHeight.isEnabled());
 		};
+
+		funcShowSchema = e -> {
+			String dbName = dbFileName.getText();
+			if (dbName.isBlank()) {
+				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noTableDefined"), "Schema", true);
+				return;
+			}
+
+			if (scFieldSelect.getFieldList().isEmpty()) {
+				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noFieldsDefined", dbName), "Schema", true);
+				return;
+			}
+
+			SQLite db = new SQLite(pdaSettings);
+			List<FieldDefinition> fields = new ArrayList<>();
+			scFieldSelect.getFieldList().forEach(field -> fields.add(new FieldDefinition(field)));
+			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), "Schema", false);
+		};
+
+		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, General.EMPTY_STRING,
+				false);
 
 		funcSelectDb = e -> {
 			ExportFile exportFile = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
@@ -175,21 +214,13 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			if (dbConfig != null) {
 				pOtherOptions.add((JComponent) dbConfig);
 			} else if (myExportFile == ExportFile.SQLITE) {
-				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict[0],
-						rOnConflict[1], rOnConflict[2], rOnConflict[3], rOnConflict[4]));
+				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict));
 				rOnConflict[pdaSettings.getOnConflict()].setSelected(true);
 			}
 
 			activateComponents();
 			dialog.pack();
 		};
-
-		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, General.EMPTY_STRING,
-				false);
-
-		buildDialog();
-		activateComponents();
-		setVisible(true);
 	}
 
 	public ExportFile getExportFile() {
@@ -234,22 +265,17 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		rExists[0] = GUIFactory.getJRadioButton(myExportFile.isSqlDatabase() ? "intoNewTable" : "intoNewDatabase",
-				funcSelectExport);
-		rExists[1] = GUIFactory.getJRadioButton(
-				myExportFile.isSqlDatabase() ? "replaceTableRecords" : "replaceDatabaseRecords", funcSelectExport);
-		rExists[2] = GUIFactory.getJRadioButton(
-				myExportFile.isSqlDatabase() ? "appendTableRecords" : "appendDatabaseRecords", funcSelectExport);
+		if (myExportFile.isSqlDatabase()) {
+			createRadioButtons(rExists, funcSelectExport, "intoNewTable", "replaceTableRecords", "appendTableRecords");
+		} else {
+			createRadioButtons(rExists, funcSelectExport, "intoNewDatabase", "replaceDatabaseRecords",
+					"appendDatabaseRecords");
+		}
 
-		rImages[0] = GUIFactory.getJRadioButton("imageToBitmap", null);
-		rImages[1] = GUIFactory.getJRadioButton("imageToJpeg", null);
-		rImages[2] = GUIFactory.getJRadioButton("imageToPng", null);
-
-		rOnConflict[0] = GUIFactory.getJRadioButton("onConflictAbort", null);
-		rOnConflict[1] = GUIFactory.getJRadioButton("onConflictFail", null);
-		rOnConflict[2] = GUIFactory.getJRadioButton("onConflictIgnore", null);
-		rOnConflict[3] = GUIFactory.getJRadioButton("onConflictReplace", null);
-		rOnConflict[4] = GUIFactory.getJRadioButton("onConflictRollback", null);
+		btTableSchema = GUIFactory.getJButton("funcShowSchema", funcShowSchema);
+		createRadioButtons(rImages, null, "imageToBitmap", "imageToJpeg", "imageToPng");
+		createRadioButtons(rOnConflict, null, "onConflictAbort", "onConflictFail", "onConflictIgnore",
+				"onConflictReplace", "onConflictRollback");
 
 		cConvertImages = GUIFactory.getJCheckBox("imageToImageFile", false, funcSelectConvert);
 
@@ -278,9 +304,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pExport = General.addVerticalButtons(GUIFactory.getTitle("exportData"), rExists);
 		pExport.add(dbNameBox, c.gridCell(1, 4, 0, 0));
 		pExport.add(passwordBox, c.gridCell(1, 5, 0, 0));
+		pExport.add(btTableSchema);
 
 		pConvert = General.addVerticalButtons(GUIFactory.getTitle("convert"), cConvertImages);
-		pConvert.add(General.addVerticalButtons(null, rImages[0], rImages[1], rImages[2]), c.gridCell(1, 4, 2, 0));
+		pConvert.add(General.addVerticalButtons(null, rImages), c.gridCell(1, 4, 2, 0));
 		pConvert.add(box, c.gridCell(1, 5, 0, 0));
 		pConvert.add(Box.createVerticalGlue());
 
@@ -309,6 +336,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("exportTo")));
 		bDatabase.setSelectedItem(myExportFile.getName());
+	}
+
+	private void createRadioButtons(JRadioButton[] buttons, ActionListener action, String... ids) {
+		for (int i = 0; i < buttons.length; i++) {
+			buttons[i] = GUIFactory.getJRadioButton(ids[i], action);
+		}
 	}
 
 	public void reload() {
@@ -429,6 +462,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
 		dbFileName.setVisible(myExportFile != ExportFile.TEXTFILE);
 		dbFileNameLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
+		btTableSchema.setVisible(myExportFile == ExportFile.SQLITE && rExists[0].isSelected());
 
 		if (dbConfig != null) {
 			dbConfig.activateComponents();

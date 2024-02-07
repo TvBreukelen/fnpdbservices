@@ -29,18 +29,14 @@ public enum FieldTypes {
 		return FieldTypes.TEXT;
 	}
 
-	public boolean isTextConvertable(ExportFile file) {
+	public boolean isTextConvertable() {
 		switch (this) {
 		case BOOLEAN:
-			return file.isBooleanExport();
 		case DATE:
-			return file.isDateExport();
 		case TIMESTAMP:
-			return file.isTimestampExport();
 		case DURATION:
-			return file.isDurationExport();
 		case TIME:
-			return file.isTimeExport();
+			return true;
 		default:
 			return false;
 		}

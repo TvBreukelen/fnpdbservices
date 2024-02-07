@@ -498,7 +498,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 							((CsvFile) dbOut).getExportFiles(GUIFactory.getText("file"), GUIFactory.getText("files"))),
 					GUIFactory.getTitle("information"), false);
 		} else {
-			General.showMessage(parent, GUIFactory.getMessage("createdFile", pdaSettings.getExportFile()),
+			General.showMessage(parent,
+					GUIFactory.getMessage("createdFile", pdaSettings.getExportFile(), Integer.toString(totalRecords),
+							Integer.toString(writtenRecords), Integer.toString(totalRecords - writtenRecords)),
 					GUIFactory.getTitle("information"), false);
 		}
 

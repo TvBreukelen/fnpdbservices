@@ -231,7 +231,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		// Read the user defined list of DB fields
 		int index = 0;
 		Object[] rowData = new Object[dbInfo2Write.size()];
@@ -249,6 +249,8 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		} catch (DBFException ex) {
 			throw new FNProgException(ex.getMessage());
 		}
+
+		return 1;
 	}
 
 	@Override

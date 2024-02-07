@@ -100,7 +100,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		if (hElements.isEmpty()) {
 			nodes[index] = doc.createElement("Row");
 		} else {
@@ -133,6 +133,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 		}
 
 		createXmlDocument(dbRecord);
+		return 1;
 	}
 
 	private void createXmlDocument(Map<String, Object> dbRecord) {

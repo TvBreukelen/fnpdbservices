@@ -775,23 +775,34 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
-		// Not supported yet
-	}
-
-	@Override
 	public void createDbHeader() throws Exception {
-		int numFields = dbInfo2Write.size();
 		readTableContents();
 
 		SqlTable table = getSqlTable();
-		buildEraseOrAppendTable(table);
+		String tableName = myPref.getPdaDatabaseName();
 
-		createPreparedStatement();
-		if (!useAppend) {
+		if (table == null || myPref.getExportOption() == 0) {
+			useAppend = false;
+			if (myPref.getExportOption() == 0) {
+				executeStatement("DROP TABLE " + tableName);
+			}
+			executeStatement(buildTableString(tableName, dbInfo2Write));
+			createPreparedStatement();
 			return;
 		}
 
+		validateTable(table);
+
+		if (myPref.getExportOption() == 1) {
+			executeStatement("DELETE FROM " + tableName);
+			useAppend = true;
+		}
+
+		createPreparedStatement();
+	}
+
+	private void validateTable(SqlTable table) throws FNProgException {
+		int numFields = dbInfo2Write.size();
 		if (numFields != table.getDbFields().size()) {
 			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
 					Integer.toString(table.getDbFields().size()));
@@ -811,28 +822,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			boolean isField2Text = field2.isOutputAsText() || field2.getFieldType() == FieldTypes.MEMO
 					|| field2.getFieldType() == FieldTypes.TEXT;
 
-			if (field1.getFieldType() != field2.getFieldType() && isField1Text || isField2Text) {
+			if (field1.getFieldType() != field2.getFieldType() && isField1Text != isField2Text) {
 				throw FNProgException.getException("noMatchFieldType", field1.getFieldName(), field2.getFieldHeader());
 			}
 
 			if (field1.getSize() < field2.getSize()) {
 				throw FNProgException.getException("noMatchFieldLength", field1.getFieldName(),
 						Integer.toString(field1.getSize()), Integer.toString(field2.getSize()));
-			}
-		}
-	}
-
-	private void buildEraseOrAppendTable(SqlTable table) throws SQLException {
-		if (table == null) {
-			executeStatement(buildTableString());
-			useAppend = false;
-		} else {
-			if (myPref.getExportOption() == 0) {
-				executeStatement("DROP TABLE " + myPref.getPdaDatabaseName());
-				executeStatement(buildTableString());
-			} else if (myPref.getExportOption() == 1) {
-				executeStatement("DELETE FROM " + myPref.getPdaDatabaseName());
-				useAppend = true;
 			}
 		}
 	}
@@ -846,11 +842,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
+	@Override
+	public int processData(Map<String, Object> dbRecord) throws Exception {
+		// To be implemented by the child classes
+		return 0;
+	}
+
 	protected void createPreparedStatement() throws SQLException {
 		// To be implemented by the child classes
 	}
 
-	public String buildTableString() {
+	public String buildTableString(String table, List<FieldDefinition> fields) {
 		// To be implemented by the child classes
 		return null;
 	}

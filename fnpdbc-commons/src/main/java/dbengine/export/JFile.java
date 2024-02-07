@@ -171,7 +171,7 @@ public class JFile extends PalmDB {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		numFields = dbInfo2Write.size();
 		StringBuilder bf = new StringBuilder();
 
@@ -206,6 +206,7 @@ public class JFile extends PalmDB {
 		pdbDas.write(General.convertStringToByteArray(bf.toString(), null));
 		writeRecord(pdbBaos.toByteArray(), 0);
 		pdbBaos.reset();
+		return 1;
 	}
 
 	@Override

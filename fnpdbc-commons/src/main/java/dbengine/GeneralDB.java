@@ -318,7 +318,7 @@ public abstract class GeneralDB {
 		}
 	}
 
-	public abstract void processData(Map<String, Object> dbRecord) throws Exception;
+	public abstract int processData(Map<String, Object> dbRecord) throws Exception;
 
 	public void createDbHeader() throws Exception {
 		// Nothing to do here

@@ -118,7 +118,7 @@ public class PilotDB extends PalmDB {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		numFields = dbInfo2Write.size();
 		int start = numFields * 2;
 
@@ -143,6 +143,7 @@ public class PilotDB extends PalmDB {
 		pdbDas.write(baoNames.toByteArray());
 		writeRecord(pdbBaos.toByteArray(), 0);
 		pdbBaos.reset();
+		return 1;
 	}
 
 	private byte[] convertData(Object dbField, FieldTypes pIndex, boolean isNoTextExport) {

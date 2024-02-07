@@ -89,7 +89,7 @@ public class Excel extends ExcelFile {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		int excelCol = 0;
 
 		// Read the user defined list of DB fields
@@ -161,5 +161,7 @@ public class Excel extends ExcelFile {
 		} else {
 			excelRow++;
 		}
+
+		return 1;
 	}
 }

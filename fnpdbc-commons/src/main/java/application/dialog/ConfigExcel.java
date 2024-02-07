@@ -78,6 +78,6 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 		cHeader[1] = GUIFactory.getJCheckBox("freezeHeaders", pdaSettings.isLockHeader());
 		cHeader[2] = GUIFactory.getJCheckBox("fontBold", pdaSettings.isBoldHeader());
 
-		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader[0], cHeader[1], cHeader[2]));
+		add(General.addVerticalButtons(GUIFactory.getTitle("headerSettings"), cHeader));
 	}
 }

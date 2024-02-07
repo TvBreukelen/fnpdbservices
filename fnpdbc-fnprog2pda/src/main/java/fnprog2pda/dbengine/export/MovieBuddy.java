@@ -41,9 +41,9 @@ public class MovieBuddy extends CsvFile {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		if (dbRecord.isEmpty()) {
-			return;
+			return 0;
 		}
 
 		boolean hasEpisodes = !dbRecord.get(EPISODE_NO).toString().isEmpty();
@@ -68,7 +68,9 @@ public class MovieBuddy extends CsvFile {
 		} else {
 			updateActions(dbRecord, false);
 			writeOutputFile(dbRecord);
+			return 1;
 		}
+		return 0;
 	}
 
 	private void updateActions(Map<String, Object> dbRecord, boolean isTV) {

@@ -3,6 +3,7 @@ package application.table;
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -35,9 +36,14 @@ public class ETable extends JTable {
 				return c;
 			}
 
-			c.setBackground(getModel().isCellEditable(convertRowIndexToModel(row), convertColumnIndexToModel(column))
-					? secondRow
-					: disabledcolor);
+			boolean isEnabled = getModel().isCellEditable(convertRowIndexToModel(row),
+					convertColumnIndexToModel(column));
+			c.setBackground(isEnabled ? secondRow : disabledcolor);
+
+			if (renderer instanceof JCheckBox) {
+				((JCheckBox) renderer).setEnabled(isEnabled);
+			}
+
 		}
 		return c;
 	}

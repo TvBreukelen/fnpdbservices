@@ -240,7 +240,7 @@ public class Calc extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		int row = calcRow++;
 		int col = 0;
 		sheet.appendRow();
@@ -249,5 +249,7 @@ public class Calc extends GeneralDB implements IConvert {
 			Range cell = sheet.getRange(row, col++);
 			cell.setValue(convertDataFields(dbRecord.get(field.getFieldAlias()), field));
 		}
+
+		return 1;
 	}
 }

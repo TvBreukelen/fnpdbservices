@@ -26,6 +26,7 @@ import application.model.UserFieldModel;
 import application.table.BooleanRenderer;
 import application.table.ETable;
 import application.utils.BasisField;
+import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
 
@@ -148,9 +149,27 @@ public class ScFieldSelect implements PropertyChangeListener {
 
 	public void loadFieldPanel(List<BasisField> userFields) {
 		availableModel.clear();
-		factory.getDbSelectFields().forEach(availableModel::addElement);
+
+		boolean hasTextExport = false;
+		for (FieldDefinition field : factory.getDbSelectFields()) {
+			availableModel.addElement(field);
+			if (!hasTextExport) {
+				switch (field.getFieldType()) {
+				case BOOLEAN:
+				case DATE:
+				case DURATION:
+				case TIME:
+				case TIMESTAMP:
+					hasTextExport = true;
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
 		lstAvailableFields.setSelectedIndex(0);
-		userModel.setTableData(userFields);
+		userModel.setTableData(userFields, hasTextExport);
 		activateComponents();
 		fieldPanel.updateUI();
 	}

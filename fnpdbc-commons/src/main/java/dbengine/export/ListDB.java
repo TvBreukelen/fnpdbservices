@@ -161,7 +161,7 @@ public class ListDB extends PalmDB {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		StringBuilder sb = new StringBuilder();
 
 		// For list we first obtain the category, datafield1 & 2
@@ -215,6 +215,7 @@ public class ListDB extends PalmDB {
 
 		writeRecord(pdbBaos.toByteArray(), categoryID);
 		pdbBaos.reset();
+		return 1;
 	}
 
 	private void getCategories() throws Exception {

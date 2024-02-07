@@ -58,6 +58,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -81,7 +82,6 @@ import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
-import application.table.BooleanRenderer;
 import application.utils.gui.XGridBagConstraints;
 
 public final class General {
@@ -1026,7 +1026,7 @@ public final class General {
 
 			if (maxRows > 0) {
 				renderer = table.getCellRenderer(0, vColIndex);
-				if (renderer instanceof BooleanRenderer) {
+				if (renderer instanceof JCheckBox) {
 					width = Math.max(width, 25);
 				} else {
 					// Get maximum width of column data

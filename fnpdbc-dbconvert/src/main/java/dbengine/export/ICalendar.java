@@ -669,8 +669,9 @@ public class ICalendar extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public void processData(Map<String, Object> dbRecord) throws Exception {
+	public int processData(Map<String, Object> dbRecord) throws Exception {
 		// Not used yet, we are only importing
+		return 0;
 	}
 
 	@Override
