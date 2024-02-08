@@ -1,5 +1,14 @@
 Release Notes
 
+Version 10.4
+------------
+Updated Java version to 17
+Added export to SQLite databases.
+Updated third party libraries.
+Updated help files.
+Fixed some minor bugs.
+
+
 Version 10.3.1
 --------------
 CATVids: VideoCustom can now be exported from Contents.

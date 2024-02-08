@@ -39,7 +39,8 @@ HanDBase        Palm/Pocket PC/iPhone/iPad
 List            Palm 
 MobileDB        Palm/PocketPC
 MS-Excel        Microsoft Windows / Mac OS X
-Pilot-DB        Palm  
+Pilot-DB        Palm
+SQLite          All platforms
 TSV             All platforms
 XML             All platforms
 YAML            All Platforms
@@ -80,7 +81,8 @@ For Windows
 
 For Mac
 -------
-1. Unpack the FNProg2PDA_Mac.zip file in your Applications folder.
+1. Open the FNProg2PDA.dmg file
+2. Drag the FNProg2PDA app to the Applications folder
 
 
 For Linux
@@ -132,6 +134,15 @@ General Public License for more details.
 ===================================================================================================
 5. What is New?
 ===================================================================================================
+
+Version 10.4
+------------
+Updated Java version to 17
+Added export to SQLite databases.
+Updated third party libraries.
+Updated help files.
+Fixed some minor bugs.
+
 
 Version 10.3.1
 --------------
