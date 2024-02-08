@@ -149,7 +149,7 @@ public class SQLite extends SqlDB implements IConvert {
 			buf.append(",\nPRIMARY KEY (").append(pkBuf).append(")");
 		}
 
-		buf.append("\n);");
+		buf.append(");");
 		return buf.toString();
 	}
 
