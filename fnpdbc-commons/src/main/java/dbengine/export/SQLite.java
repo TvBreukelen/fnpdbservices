@@ -174,6 +174,8 @@ public class SQLite extends SqlDB implements IConvert {
 		case 4:
 			buf.append("ROLLBACK INTO ");
 			break;
+		default:
+			break;
 		}
 
 		buf.append(myPref.getPdaDatabaseName()).append(" (");

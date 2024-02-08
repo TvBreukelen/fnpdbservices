@@ -384,7 +384,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		dbFactory.loadConfiguration(view);
 		FNProgramvare mySoft = FNProgramvare.getSoftware(myImportFile);
 		mySoft.setupDBTranslation(isNewProfile); // Load user fields
-		fieldSelect.loadFieldPanel(mySoft.getDbUserFields());
+		fieldSelect.loadFieldPanel(mySoft.getDbUserFields(), true);
 		myView = view;
 		configDb.reload();
 	}

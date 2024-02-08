@@ -50,7 +50,7 @@ import application.utils.gui.XGridBagConstraints;
 public class ConfigFilter extends BasicDialog {
 	/**
 	 * Title: ScFilter Description: FNProgramvare Software Filter Configuration
-	 * parms Cpyright (c) 2011-2020
+	 * parms Copyright (c) 2011-2020
 	 *
 	 * @author Tom van Breukelen
 	 * @version 8.0

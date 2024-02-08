@@ -261,8 +261,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private boolean setFieldType(FieldDefinition field, String type) {
 		// SqLite sets the SQL Type incorrectly, but the type name correct
-		switch (type) {
+		switch (type.toUpperCase()) {
 		case "BOOL":
+		case "BOOLEAN":
 			field.setFieldType(FieldTypes.BOOLEAN);
 			field.setSQLType(Types.BOOLEAN);
 			break;
@@ -275,8 +276,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			field.setSQLType(Types.TIMESTAMP);
 			break;
-		case "INTEGER":
 		case "DECIMAL":
+		case "INT":
+		case "INTEGER":
+		case "LONG":
 		case "NUMBER":
 			field.setFieldType(FieldTypes.NUMBER);
 			field.setSQLType(Types.INTEGER);
@@ -293,16 +296,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.TIME);
 			field.setSQLType(Types.TIME);
 			break;
-		case "money":
+		case "MONEY":
 			field.setFieldType(FieldTypes.BIG_DECIMAL);
 			field.setSQLType(Types.NUMERIC);
 			break;
-		case "nchar":
-		case "nvarchar":
-		case "ntext":
-			// time and timestamps with time zones will be treated as string
-		case "timestamptz":
-		case "timetz":
+		case "NCHAR":
+		case "NVARCHAR":
+		case "NTEXT":
+			// time and time stamps with time zones will be treated as string
+		case "TIMESTAMPTZ":
+		case "TIMETZ":
 			field.setFieldType(FieldTypes.TEXT);
 			field.setSQLType(Types.VARCHAR);
 			break;
@@ -783,7 +786,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 		if (table == null || myPref.getExportOption() == 0) {
 			useAppend = false;
-			if (myPref.getExportOption() == 0) {
+			if (table != null) {
 				executeStatement("DROP TABLE " + tableName);
 			}
 			executeStatement(buildTableString(tableName, dbInfo2Write));

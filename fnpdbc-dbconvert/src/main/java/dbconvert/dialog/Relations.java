@@ -83,7 +83,7 @@ public class Relations extends BasicDialog {
 		pdaSettings.setForeignKeys(mapFk.values());
 		sqlTable.setFkList(mapFk);
 		dbFactory.setupDBTranslation(false);
-		fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
+		fieldSelect.loadFieldPanel(dbFactory.getDbUserFields(), false);
 	}
 
 	@Override

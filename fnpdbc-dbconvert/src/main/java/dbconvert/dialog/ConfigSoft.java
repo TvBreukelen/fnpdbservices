@@ -412,7 +412,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		try {
 			dbFactory.setupDBTranslation(true);
-			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
+			fieldSelect.loadFieldPanel(dbFactory.getDbUserFields(), true);
 		} catch (Exception e) {
 			General.errorMessage(this, e, CONFIG_ERROR, null);
 			dbFactory.close();
@@ -429,7 +429,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 				if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
 					dbFactory.connect2DB(dbVerified);
 					dbFactory.setupDBTranslation(true);
-					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields());
+					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields(), true);
 				} else {
 					dbFactory.close();
 					dbVerified.setDatabase(General.EMPTY_STRING);

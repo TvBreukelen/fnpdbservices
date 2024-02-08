@@ -114,7 +114,8 @@ For Windows
 
 For Mac
 -------
-1. Unpack the DBConvert_Mac.zip file in your  Applications folder.
+1. Open the DBConvert.dmg file in Finder
+2. Drag the DBConvert App to the Applications folder
 
 
 For Linux

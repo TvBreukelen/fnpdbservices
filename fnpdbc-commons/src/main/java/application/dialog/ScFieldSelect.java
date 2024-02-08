@@ -147,7 +147,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 		}
 	}
 
-	public void loadFieldPanel(List<BasisField> userFields) {
+	public void loadFieldPanel(List<BasisField> userFields, boolean isUserfieldUpdate) {
 		availableModel.clear();
 
 		boolean hasTextExport = false;
@@ -169,8 +169,11 @@ public class ScFieldSelect implements PropertyChangeListener {
 		}
 
 		lstAvailableFields.setSelectedIndex(0);
-		userModel.setTableData(userFields, hasTextExport);
-		setTableColumns();
+		if (isUserfieldUpdate) {
+			userModel.setTableData(userFields, hasTextExport);
+			setTableColumns();
+		}
+
 		activateComponents();
 		fieldPanel.updateUI();
 	}

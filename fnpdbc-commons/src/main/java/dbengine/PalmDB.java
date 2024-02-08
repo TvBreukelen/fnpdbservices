@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import application.interfaces.ExportFile;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
@@ -150,6 +152,37 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 			pdbRaf.seek(offsetPos);
 			pdbRaf.writeInt(offset);
 			offsetPos += 8;
+		}
+	}
+
+	private void compareNewFields(List<FieldDefinition> newFields) throws FNProgException {
+		if (CollectionUtils.isEmpty(newFields)) {
+			return;
+		}
+
+		List<FieldDefinition> dbDef = getTableModelFields();
+		if (CollectionUtils.isEmpty(dbDef)) {
+			return;
+		}
+
+		final int index1 = dbDef.size();
+		final int index2 = newFields.size();
+
+		// Verify mutual size
+		if (index1 != index2) {
+			// There are more new fields than fields in the database
+			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(index1),
+					Integer.toString(index2));
+		}
+
+		// Verify field names
+		for (int i = 0; i < index1; i++) {
+			FieldDefinition dbField = dbDef.get(i);
+			FieldDefinition newField = newFields.get(i);
+			if (!dbField.getFieldName().equals(newField.getFieldHeader())) {
+				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), dbField.getFieldName(),
+						newField.getFieldHeader());
+			}
 		}
 	}
 
