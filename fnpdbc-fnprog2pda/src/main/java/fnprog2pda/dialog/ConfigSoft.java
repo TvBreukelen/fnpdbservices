@@ -445,13 +445,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	public BuddyExport getBuddyExport() {
 		switch (myImportFile) {
 		case BOOKCAT:
-			return myView.equals("Book") ? BuddyExport.BookBuddy : BuddyExport.None;
+			return myView.equals("Book") ? BuddyExport.BOOK_BUDDY : BuddyExport.NONE;
 		case CATRAXX:
-			return myView.equals("Album") ? BuddyExport.MusicBuddy : BuddyExport.None;
+			return myView.equals("Album") ? BuddyExport.MUSIC_BUDDY : BuddyExport.NONE;
 		case CATVIDS:
-			return myView.equals("Contents") ? BuddyExport.MovieBuddy : BuddyExport.None;
+			return myView.equals("Contents") ? BuddyExport.MOVIE_BUDDY : BuddyExport.NONE;
 		default:
-			return BuddyExport.None;
+			return BuddyExport.NONE;
 		}
 	}
 

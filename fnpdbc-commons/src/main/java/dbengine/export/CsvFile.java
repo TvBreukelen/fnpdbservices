@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.SequenceWriter;
@@ -118,7 +117,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 		}
 
 		// Read the user defined list of DB fields and write the headers
-		List<String> list = dbInfo2Write.stream().map(FieldDefinition::getFieldHeader).collect(Collectors.toList());
+		List<String> list = dbInfo2Write.stream().map(FieldDefinition::getFieldHeader).toList();
 		writer.write(list);
 		fileSize = list.toString().length();
 	}
@@ -144,8 +143,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 	public int processData(Map<String, Object> dbRecord) throws Exception {
 		// Read the user defined list of DB fields
 		List<String> list = dbInfo2Write.stream()
-				.map(field -> convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString())
-				.collect(Collectors.toList());
+				.map(field -> convertDataFields(dbRecord.get(field.getFieldAlias()), field).toString()).toList();
 
 		writeOutputFile(list);
 		return 1;
@@ -153,8 +151,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	protected void writeOutputFile(List<String> list) throws IOException {
 		if (useNoLineBreaks) {
-			list = list.stream().map(e -> e.replace("\n", General.SPACE).replace("\r", General.EMPTY_STRING))
-					.collect(Collectors.toList());
+			list = list.stream().map(e -> e.replace("\n", General.SPACE).replace("\r", General.EMPTY_STRING)).toList();
 		}
 
 		writer.write(list);

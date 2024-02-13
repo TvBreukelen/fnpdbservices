@@ -1,5 +1,6 @@
 package application;
 
+import java.awt.Component;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.time.LocalDate;
@@ -21,8 +22,11 @@ import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.utils.BasisField;
 import application.utils.FieldDefinition;
+import application.utils.GUIFactory;
 import application.utils.General;
 import dbengine.GeneralDB;
+import dbengine.export.CsvFile;
+import dbengine.export.HanDBase;
 
 public abstract class BasicSoft {
 	/**
@@ -56,6 +60,7 @@ public abstract class BasicSoft {
 	protected ExportFile myExportFile = ExportFile.EXCEL;
 	protected ExportFile myImportFile = ExportFile.EXCEL;
 	protected Profiles pdaSettings;
+	protected GeneralDB dbOut;
 
 	protected int numFilter;
 	protected Timer timer;
@@ -157,12 +162,49 @@ public abstract class BasicSoft {
 				.collect(Collectors.toList());
 	}
 
+	protected boolean verifyUserfields(List<String> usrList, Map<String, FieldDefinition> dbInfoToExport) {
+		boolean result = false;
+		dbTableModelFields.clear();
+		for (BasisField field : dbUserFields) {
+			FieldDefinition dbField = dbFieldDefinition.get(field.getFieldAlias());
+			if (dbField == null) {
+				result = true;
+				continue;
+			}
+
+			dbField = dbField.copy();
+			field.setFieldType(dbField.getFieldType()); // Just in case the type has changed
+			dbField.set(field);
+
+			dbTableModelFields.add(dbField);
+			usrList.add(dbField.getFieldAlias());
+
+			// FNProg2PDA only
+			if (dbInfoToExport != null && !dbInfoToExport.containsKey(dbField.getFieldAlias())) {
+				dbInfoToExport.put(dbField.getFieldAlias(), dbField);
+			}
+
+		}
+		return result;
+	}
+
+	protected void verifySortFields() {
+		// Verify sort fields
+		for (String dbField : pdaSettings.getSortFields()) {
+			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
+			if (fieldDef == null) {
+				pdaSettings.removeSortField(dbField);
+				pdaSettings.removeGroupField(dbField);
+			}
+		}
+	}
+
 	public void setupDbInfoToWrite() {
 		Set<String> dbSpecialFields = pdaSettings.getSpecialFields();
 		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 		dbTableModelFields.stream().filter(b -> dbSpecialFields.contains(b.getFieldAlias()))
 				.forEach(b -> b.setExport(true));
-		dbInfoToWrite = dbTableModelFields.stream().filter(FieldDefinition::isExport).collect(Collectors.toList());
+		dbInfoToWrite = dbTableModelFields.stream().filter(FieldDefinition::isExport).toList();
 	}
 
 	protected void verifyFilter() {
@@ -239,8 +281,8 @@ public abstract class BasicSoft {
 			idx = obj.toString().compareTo(filterValue);
 			switch (field.getFieldType()) {
 			case DATE:
-				if (obj instanceof LocalDate) {
-					idx = General.convertDate((LocalDate) obj, General.sdInternalDate).compareTo(filterValue);
+				if (obj instanceof LocalDate localdate) {
+					idx = General.convertDate(localdate, General.sdInternalDate).compareTo(filterValue);
 				}
 				break;
 			case FLOAT:
@@ -256,9 +298,8 @@ public abstract class BasicSoft {
 				idx = ((Integer) obj).compareTo(Integer.valueOf(filterValue));
 				break;
 			case TIMESTAMP:
-				if (obj instanceof LocalDateTime) {
-					idx = General.convertTimestamp((LocalDateTime) obj, General.sdInternalTimestamp)
-							.compareTo(filterValue);
+				if (obj instanceof LocalDateTime localdatetime) {
+					idx = General.convertTimestamp(localdatetime, General.sdInternalTimestamp).compareTo(filterValue);
 				}
 				break;
 			default:
@@ -310,6 +351,27 @@ public abstract class BasicSoft {
 
 	public List<String> getCategories() {
 		return myCategories;
+	}
+
+	public void runConversionProgram(Component parent) throws Exception {
+		if (myExportFile == ExportFile.HANDBASE) {
+			((HanDBase) dbOut).runConversionProgram(pdaSettings);
+		}
+
+		if (myExportFile == ExportFile.TEXTFILE) {
+			General.showMessage(parent,
+					GUIFactory.getMessage("createdFiles",
+							((CsvFile) dbOut).getExportFiles(GUIFactory.getText("file"), GUIFactory.getText("files"))),
+					GUIFactory.getTitle("information"), false);
+		} else {
+			General.showMessage(parent,
+					GUIFactory.getMessage("createdFile", pdaSettings.getExportFile(), Integer.toString(totalRecords),
+							Integer.toString(writtenRecords), Integer.toString(totalRecords - writtenRecords)),
+					GUIFactory.getTitle("information"), false);
+		}
+
+		// Save last export date
+		pdaSettings.setLastExported(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
 	}
 
 	protected abstract List<Map<String, Object>> getDataListMap() throws Exception;

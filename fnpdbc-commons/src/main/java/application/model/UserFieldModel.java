@@ -108,13 +108,9 @@ public class UserFieldModel extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int row, int col) {
 		switch (getNumber(col)) {
-		case COL_EXPORT_FIELD:
-			return true;
 		case COL_TEXT_EXPORT:
 			return getValueAt(row, col) != null;
-		case COL_NOT_NULL:
-		case COL_PRIMARY_KEY:
-		case COL_UNIQUE:
+		case COL_EXPORT_FIELD, COL_NOT_NULL, COL_PRIMARY_KEY, COL_UNIQUE:
 			return true;
 		case COL_AUTO_INCREMENT:
 			return getValueAt(row, COL_TYPE).toString().equals("Number");

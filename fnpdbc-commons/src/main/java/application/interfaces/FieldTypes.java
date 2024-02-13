@@ -30,41 +30,15 @@ public enum FieldTypes {
 	}
 
 	public boolean isTextConvertable() {
-		switch (this) {
-		case BOOLEAN:
-		case DATE:
-		case TIMESTAMP:
-		case DURATION:
-		case TIME:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	public boolean isSetFieldSize() {
-		switch (this) {
-		case BIG_DECIMAL:
-		case CURRENCY:
-		case FLOAT:
-		case NUMBER:
-		case TEXT:
-			return true;
-		default:
-			return false;
-		}
+		return this == BOOLEAN || this == DATE || this == TIMESTAMP || this == DURATION || this == TIME;
 	}
 
 	public boolean isNumeric() {
-		switch (this) {
-		case BIG_DECIMAL:
-		case FLOAT:
-		case NUMBER:
-		case CURRENCY:
-			return true;
-		default:
-			return false;
-		}
+		return this == BIG_DECIMAL || this == CURRENCY || this == FLOAT || this == NUMBER;
+	}
+
+	public boolean isSetFieldSize() {
+		return this == TEXT || isNumeric();
 	}
 
 	public boolean isSort() {

@@ -7,9 +7,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -42,8 +42,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -119,10 +117,12 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	protected boolean isProfileSet = true;
 	private boolean isInit = true;
+
 	private TvBSoftware software;
 	private Component centerScreen;
 
 	private JTabbedPane tabPane;
+	private JSplitPane splitPane;
 	private ProjectModel model;
 
 	private Map<String, JTable> projects = new HashMap<>();
@@ -279,6 +279,14 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 			}
 		});
 
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				int location = ProgramDialog.this.getWidth() - 200;
+				splitPane.setDividerLocation(location);
+			}
+		});
+
 	}
 
 	protected void buildDialog() {
@@ -400,30 +408,32 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	}
 
 	private void checkVersion(boolean isSilent) throws FNProgException {
-		Client client = ClientBuilder.newClient();
-		WebTarget webTarget = client.target(software.getReleaseInfo());
-		Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-		Response response = invocationBuilder.get();
+		try (Client client = ClientBuilder.newClient()) {
+			WebTarget webTarget = client.target(software.getReleaseInfo());
+			Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+			Response response = invocationBuilder.get();
 
-		if (response.getStatus() == 200) {
-			// Extract version from response
-			String result = response.readEntity(String.class);
-			String version = result.substring(result.indexOf("filename") + 13,
-					result.indexOf("/" + software.getName()));
+			if (response.getStatus() == 200) {
+				// Extract version from response
+				String result = response.readEntity(String.class);
+				String version = result.substring(result.indexOf("filename") + 13,
+						result.indexOf("/" + software.getName()));
 
-			// Check if there is a later version
-			if (General.compareVersions(version, software.getVersion()) > 0) {
-				if (General.showConfirmMessage(this, GUIFactory.getMessage("newVersion", version, software.getName()),
-						GUIFactory.getText(CHECK_VERSION))) {
-					General.gotoWebsite(software.getSupport());
+				// Check if there is a later version
+				if (General.compareVersions(version, software.getVersion()) > 0) {
+					if (General.showConfirmMessage(this,
+							GUIFactory.getMessage("newVersion", version, software.getName()),
+							GUIFactory.getText(CHECK_VERSION))) {
+						General.gotoWebsite(software.getSupport());
+					}
+				} else if (!isSilent) {
+					General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText(CHECK_VERSION),
+							false);
 				}
-			} else if (!isSilent) {
-				General.showMessage(this, GUIFactory.getText("checkVersionOK"), GUIFactory.getText(CHECK_VERSION),
-						false);
+			} else {
+				throw FNProgException.getException("websiteError", software.getReleaseInfo(), "Status: "
+						+ response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
 			}
-		} else {
-			throw FNProgException.getException("websiteError", software.getReleaseInfo(),
-					"Status: " + response.getStatus() + ", Status Info: " + response.getStatusInfo().getReasonPhrase());
 		}
 
 		generalSettings.setCheckVersionDate();
@@ -448,8 +458,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		String profileID = pdaSettings.getProfileID();
 
 		switch (action) {
-		case ADD:
-		case CLONE:
+		case ADD, CLONE:
 			model.addRecord(projectID, profileID);
 			break;
 		case TABCHANGE:
@@ -486,9 +495,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 					return;
 				}
 				break;
-			case CLONE:
-			case ADD:
-			case EDIT:
+			case CLONE, ADD, EDIT:
 				modelIndex = model.getProfileIndex(projectID, profileID);
 				break;
 			default:
@@ -521,20 +528,11 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		model.setParent(tabPane);
 		projects.put(project, table);
 
-		table.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() > 1) {
-					btEdit.doClick();
-				}
-			}
-		});
-
 		MainTableSelectionListener listener = new MainTableSelectionListener(table, this);
 
 		table.setRowSorter(sortModel);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		table.getSelectionModel().addListSelectionListener(listener);
 
 		TableColumn editProfile = table.getColumnModel().getColumn(ProjectModel.HEADER_EDIT);
@@ -553,18 +551,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		edit.getDatePickerSettings().setFormatForDatesCommonEra(General.getDateFormat());
 		edit.getTimePickerSettings().setFormatForDisplayTime(General.sdInternalTime);
 		edit.getTimePickerSettings().setFormatForMenuTimes(General.sdInternalTime);
-
-		edit.addCellEditorListener(new CellEditorListener() {
-			@Override
-			public void editingStopped(ChangeEvent arg0) {
-				activateComponents();
-			}
-
-			@Override
-			public void editingCanceled(ChangeEvent arg0) {
-				// Nothing to do
-			}
-		});
 
 		TableColumn lastExport = table.getColumnModel().getColumn(ProjectModel.HEADER_LASTEXPORT);
 		lastExport.setCellEditor(edit);
@@ -732,28 +718,21 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		Box result = Box.createHorizontalBox();
 		progressText = new JLabel();
 		progressBar = new JProgressBar(0, 100);
-		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, progressBar, progressText);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, progressBar, progressText);
 
-		pane.setDividerLocation(700);
-		pane.setToolTipText(GUIFactory.getToolTip("statusbar"));
-		pane.setBorder(BorderFactory.createEtchedBorder());
+		splitPane.setDividerLocation(generalSettings.getWidth() - 200);
+		splitPane.setToolTipText(GUIFactory.getToolTip("statusbar"));
+		splitPane.setBorder(BorderFactory.createEtchedBorder());
 
-		result.add(pane);
+		result.add(splitPane);
 		return result;
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		int newValue = (int) evt.getNewValue();
-		int oldValue = (int) evt.getOldValue();
-
-		if (oldValue != progressBar.getMaximum()) {
-			// filter has been applied, need to lower progress bar max value
-			progressBar.setMaximum(oldValue);
-		}
-
 		progressBar.setValue(newValue);
-		progressText.setText(General.SPACE + Integer.toString(newValue) + " Records");
+		progressText.setText(GUIFactory.getMessage("recordsRead", Integer.toString(newValue)));
 	}
 
 	public void enableForm(boolean enable) {

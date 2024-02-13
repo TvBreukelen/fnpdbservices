@@ -138,8 +138,7 @@ public class ConfigSort extends BasicDialog {
 			guiText = "sortFieldXml";
 			hasGrouping = false;
 			break;
-		case JSON:
-		case YAML:
+		case JSON, YAML:
 			guiText = "sortFieldJson";
 			break;
 		default:

@@ -24,11 +24,11 @@ public class ProjectModel extends AbstractTableModel {
 	public static final int HEADER_LASTEXPORT = 7;
 	public static final int HEADER_NOTES = 8;
 
-	private List<ProfileObject> tableData = new ArrayList<>();
+	transient List<ProfileObject> tableData = new ArrayList<>();
 
 	private JComponent parent;
-	private Profiles objectData;
-	private ProfileObject profile;
+	transient Profiles objectData;
+	transient ProfileObject profile;
 
 	private String[] columnNames = GUIFactory.getArray("mainTableHeaders");
 

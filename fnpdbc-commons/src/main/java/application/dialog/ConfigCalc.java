@@ -22,7 +22,7 @@ public class ConfigCalc extends JPanel implements IConfigDb {
 	private static final long serialVersionUID = 6451018966275061118L;
 
 	private JCheckBox[] cHeader = new JCheckBox[2];
-	private Profiles pdaSettings;
+	transient Profiles pdaSettings;
 
 	public ConfigCalc(Profiles pref) {
 		pdaSettings = pref;

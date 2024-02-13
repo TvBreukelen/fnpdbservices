@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.github.miachm.sods.OfficeCurrency;
 import com.github.miachm.sods.OfficePercentage;
@@ -230,8 +229,7 @@ public class Calc extends GeneralDB implements IConvert {
 		if (myPref.isUseHeader()) {
 			sheet.appendRow();
 			Range range = sheet.getRange(calcRow++, 0, 1, dbInfo2Write.size());
-			List<String> headers = dbInfo2Write.stream().map(FieldDefinition::getFieldHeader)
-					.collect(Collectors.toList());
+			List<String> headers = dbInfo2Write.stream().map(FieldDefinition::getFieldHeader).toList();
 			range.setValues(headers.toArray());
 			if (myPref.isBoldHeader()) {
 				range.setFontBold(true);

@@ -24,8 +24,8 @@ public class ObjectRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 
-		if (value instanceof Component) {
-			int rowHeight = Math.max(getPreferredHeight((Component) value), 30);
+		if (value instanceof Component component) {
+			int rowHeight = Math.max(getPreferredHeight(component), 30);
 			table.setRowHeight(row, rowHeight);
 			return (Component) value;
 		}

@@ -14,7 +14,7 @@ import application.utils.GUIFactory;
 
 public class XBaseCharsets extends JPanel implements IConfigDb {
 	private static final long serialVersionUID = -3737375965488553609L;
-	private Profiles pdaSettings;
+	transient Profiles pdaSettings;
 	private List<Integer> langList = Arrays.asList(3, 203, 202, 31, 201, 19, 7);
 	private JComboBox<String> jc = new JComboBox<>(new String[] { "Windows Latin-1", "Modern Greek", "Turkish",
 			"Central and Eastern European", "Cyrillic languages (like Russian)", "Japanese", "Arabic" });

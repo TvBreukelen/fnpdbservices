@@ -1,8 +1,5 @@
 package dbconvert.software;
 
-import java.awt.Component;
-import java.beans.PropertyChangeSupport;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,10 +18,8 @@ import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
 import application.preferences.Databases;
 import application.preferences.Profiles;
-import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
 import dbconvert.dialog.ExportProcess;
@@ -32,8 +27,6 @@ import dbconvert.preferences.PrefDBConvert;
 import dbengine.GeneralDB;
 import dbengine.IConvert;
 import dbengine.SqlDB;
-import dbengine.export.CsvFile;
-import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
 
 public class XConverter extends BasicSoft implements IDatabaseFactory {
@@ -46,7 +39,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	 */
 	private String[] myFile;
 	private IConvert dbIn;
-	private GeneralDB dbOut;
 	private DatabaseHelper dbInHelper;
 
 	private boolean isInputFileOpen = false;
@@ -58,10 +50,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	private Map<String, Object> dbDataRecord = new HashMap<>(); // database record
 
 	private static final String FILTER_FIELD = "{filterfield}";
-
-	private PropertyChangeSupport support;
-	private String recordsRead;
-
 	private ViewerModel myModel; // Tablemodel containing all records of the inputfile
 
 	/*
@@ -78,7 +66,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		dbDataRecord.clear();
 		myImportFile = dbInHelper.getDatabaseType();
-		support = new PropertyChangeSupport(this);
 	}
 
 	// Called via ConfigSoft.verifyDatabase
@@ -219,24 +206,10 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// Load user fields from the registry and verify whether they match with the
 		// dbFieldDefinition
 		boolean isUserListError = false;
-		dbTableModelFields.clear();
 		dbUserFields = pdaSettings.getUserList();
+
 		List<String> usrList = new ArrayList<>();
-
-		for (BasisField field : dbUserFields) {
-			FieldDefinition dbField = dbFieldDefinition.get(field.getFieldAlias());
-			if (dbField == null) {
-				isUserListError = true;
-				continue;
-			}
-
-			dbField = dbField.copy();
-			field.setFieldType(dbField.getFieldType()); // Just in case the type has changed
-			dbField.set(field);
-
-			dbTableModelFields.add(dbField);
-			usrList.add(dbField.getFieldAlias());
-		}
+		isUserListError = verifyUserfields(usrList, null);
 
 		if (isUserListError || dbUserFields.isEmpty()) {
 			// Correct the list of selected user fields because they don't match the
@@ -245,13 +218,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		}
 
 		// Verify sort fields
-		for (String dbField : pdaSettings.getSortFields()) {
-			FieldDefinition fieldDef = dbFieldDefinition.get(dbField);
-			if (fieldDef == null) {
-				pdaSettings.removeSortField(dbField);
-				pdaSettings.removeGroupField(dbField);
-			}
-		}
+		verifySortFields();
 
 		// Verify filter fields
 		verifyFilter();
@@ -312,6 +279,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// Write all records into the table model
 		for (int i = 0; i < totalRecords; i++) {
 			Map<String, Object> pRead = dbIn.readRecord();
+			currentRecord++;
 
 			// Verify if the record to write contains any values
 			if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream().noneMatch(field -> !pRead
@@ -485,32 +453,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	@Override
 	public boolean isConnected() {
 		return isInputFileOpen;
-	}
-
-	public void runConversionProgram(Component parent) throws Exception {
-		if (myExportFile == ExportFile.HANDBASE) {
-			((HanDBase) dbOut).runConversionProgram(pdaSettings);
-		}
-
-		if (myExportFile == ExportFile.TEXTFILE) {
-			General.showMessage(parent,
-					GUIFactory.getMessage("createdFiles",
-							((CsvFile) dbOut).getExportFiles(GUIFactory.getText("file"), GUIFactory.getText("files"))),
-					GUIFactory.getTitle("information"), false);
-		} else {
-			General.showMessage(parent,
-					GUIFactory.getMessage("createdFile", pdaSettings.getExportFile(), Integer.toString(totalRecords),
-							Integer.toString(writtenRecords), Integer.toString(totalRecords - writtenRecords)),
-					GUIFactory.getTitle("information"), false);
-		}
-
-		// Save last export date
-		pdaSettings.setLastExported(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
-	}
-
-	public void setRecordsRead(String value) {
-		support.firePropertyChange("recordsRead", recordsRead, value);
-		recordsRead = value;
 	}
 
 	@Override

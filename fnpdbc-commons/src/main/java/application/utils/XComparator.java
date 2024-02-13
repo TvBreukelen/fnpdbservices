@@ -52,14 +52,11 @@ public class XComparator implements Comparator<Object> {
 	private int compareField(Object obj1, Object obj2, FieldTypes field) {
 		String s1 = obj1 == null ? General.EMPTY_STRING : obj1.toString();
 		String s2 = obj2 == null ? General.EMPTY_STRING : obj2.toString();
-		switch (field) {
-		case FLOAT:
-		case NUMBER:
+		if (field == FieldTypes.FLOAT || field == FieldTypes.NUMBER) {
 			Double d1 = s1.isEmpty() ? Double.MIN_VALUE : Double.valueOf(s1);
 			Double d2 = s2.isEmpty() ? Double.MIN_VALUE : Double.valueOf(s2);
 			return d1.compareTo(d2);
-		default:
-			return s1.compareTo(s2);
 		}
+		return s1.compareTo(s2);
 	}
 }

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -71,12 +70,12 @@ public class CATVids extends FNProgramvare {
 
 	public CATVids() {
 		super();
-		useContentsLength = pdaSettings.isUseContentsLength();
-		useContentsSide = pdaSettings.isUseContentsSide();
-		useEpisodeNo = pdaSettings.isUseContentsIndex();
-		useSeason = pdaSettings.isUseSeason();
-		useEntireCast = pdaSettings.isUseEntireCast();
-		useMovieBuddy = pdaSettings.getTextFileFormat().equals("buddyCsv");
+		useContentsLength = mySettings.isUseContentsLength();
+		useContentsSide = mySettings.isUseContentsSide();
+		useEpisodeNo = mySettings.isUseContentsIndex();
+		useSeason = mySettings.isUseSeason();
+		useEntireCast = mySettings.isUseEntireCast();
+		useMovieBuddy = mySettings.getTextFileFormat().equals("buddyCsv");
 
 		sortContents.put(CONTENTS_ITEM, FieldTypes.NUMBER);
 		sortContents.put(EPISODE_NO, FieldTypes.NUMBER);
@@ -332,8 +331,7 @@ public class CATVids extends FNProgramvare {
 		personList.forEach(map -> {
 			Integer personID = (Integer) map.get("PersonID");
 			List<Map<String, Object>> personCredit = creditsList.stream()
-					.filter(credit -> personID.equals(credit.get("PersonID")) && !rowSet.contains(personID))
-					.collect(Collectors.toList());
+					.filter(credit -> personID.equals(credit.get("PersonID")) && !rowSet.contains(personID)).toList();
 			rowSet.add(personID);
 
 			personCredit.forEach(pMap -> {

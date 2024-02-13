@@ -301,7 +301,7 @@ public class MSTable {
 	public boolean setColumnValues(Map<String, Object> tableMap) {
 		Object obj = tableMap.get(getFromIndex());
 		if (obj != null) {
-			if (obj instanceof Number && ((Number) obj).intValue() == -1) {
+			if (obj instanceof Number number && number.intValue() == -1) {
 				return false;
 			}
 

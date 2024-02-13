@@ -144,8 +144,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			case DURATION:
 				dbField.setLength(7);
 				break;
-			case BIG_DECIMAL:
-			case FLOAT:
+			case BIG_DECIMAL, FLOAT:
 				dbField.setType(DBFDataType.FLOATING_POINT);
 				dbField.setLength(getNumericalSize(field));
 				dbField.setDecimalCount(field.getDecimalPoint());
@@ -266,8 +265,8 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field = dbDef.get(i);
 			Object dbValue = rowObjects[i];
-			if (field.getFieldType() == FieldTypes.NUMBER && dbValue instanceof Double) {
-				dbValue = ((Double) dbValue).intValue();
+			if (field.getFieldType() == FieldTypes.NUMBER && dbValue instanceof Double dbl) {
+				dbValue = dbl.intValue();
 			}
 			result.put(dbFieldNames.get(i), dbValue);
 		}
@@ -296,12 +295,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			case DATE:
 				dbFieldTypes.add(FieldTypes.DATE);
 				break;
-			case AUTOINCREMENT:
-			case CURRENCY:
-			case DOUBLE:
-			case FLOATING_POINT:
-			case LONG:
-			case NUMERIC:
+			case AUTOINCREMENT, CURRENCY, DOUBLE, FLOATING_POINT, LONG, NUMERIC:
 				dbFieldTypes.add(dbField.getDecimalCount() == 0 ? FieldTypes.NUMBER : FieldTypes.FLOAT);
 				break;
 			case LOGICAL:
@@ -310,8 +304,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			case MEMO:
 				dbFieldTypes.add(FieldTypes.MEMO);
 				break;
-			case TIMESTAMP:
-			case TIMESTAMP_DBASE7:
+			case TIMESTAMP, TIMESTAMP_DBASE7:
 				dbFieldTypes.add(FieldTypes.TIMESTAMP);
 				break;
 			default:

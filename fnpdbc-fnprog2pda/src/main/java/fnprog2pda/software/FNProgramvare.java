@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -43,8 +42,6 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
 import dbengine.GeneralDB;
-import dbengine.export.CsvFile;
-import dbengine.export.HanDBase;
 import dbengine.utils.DatabaseHelper;
 import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.dbengine.utils.MSTable;
@@ -96,13 +93,12 @@ public abstract class FNProgramvare extends BasicSoft {
 	private int fileCounter;
 	private int imageOption;
 
-	private GeneralDB dbOut;
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
 	private boolean isNoImagePath = false;
 
 	protected Map<String, Map<Integer, String>> myRoles = new HashMap<>(30);
-	protected static PrefFNProg pdaSettings = PrefFNProg.getInstance();
+	protected static PrefFNProg mySettings = PrefFNProg.getInstance();
 
 	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 	private GeneralSettings generalSettings = GeneralSettings.getInstance();
@@ -114,31 +110,29 @@ public abstract class FNProgramvare extends BasicSoft {
 	public static FNPSoftware whoAmI;
 
 	protected FNProgramvare() {
-		super(pdaSettings);
+		super(mySettings);
 
 		isNoImagePath = generalSettings.isNoImagePath();
 		mySoftwareVersion = dbSettings.getDatabaseVersion();
 
 		// Initialize "Global" variables
-		exportImages = pdaSettings.isExportImages();
-		useRoles = pdaSettings.isUseRoles();
-		useCategory = !pdaSettings.getCategoryField().isEmpty();
-		useContentsPerson = pdaSettings.isUseContentsPerson();
-		useContentsOrigTitle = pdaSettings.isUseContentsOrigTitle();
-		useContentsItemTitle = pdaSettings.isUseContentsItemTitle();
+		exportImages = mySettings.isExportImages();
+		useRoles = mySettings.isUseRoles();
+		useCategory = !mySettings.getCategoryField().isEmpty();
+		useContentsPerson = mySettings.isUseContentsPerson();
+		useContentsOrigTitle = mySettings.isUseContentsOrigTitle();
+		useContentsItemTitle = mySettings.isUseContentsItemTitle();
 
-		imageKey = pdaSettings.getProfileID();
-		imageOption = pdaSettings.getImageOption();
+		imageKey = mySettings.getProfileID();
+		imageOption = mySettings.getImageOption();
 		fileCounter = 0;
 
-		lastIndex = pdaSettings.getLastIndex();
-		lastExported = pdaSettings.getLastExported();
+		lastIndex = mySettings.getLastIndex();
+		lastExported = mySettings.getLastExported();
 		myImportFile = ExportFile.ACCESS;
 	}
 
 	public void setupDBTranslation(boolean isNew) {
-		boolean isUserListError = false;
-
 		msTable = dbFactory.getMSTable();
 		myTable = msTable.getName();
 		myTableID = msTable.getIndex();
@@ -148,28 +142,11 @@ public abstract class FNProgramvare extends BasicSoft {
 		dbInfoToExport.put(myTableID, dbFieldDefinition.get(myTableID));
 
 		// Add the user's Export fields to the fields to export and to write
-		dbUserFields = isNew ? new ArrayList<>() : pdaSettings.getUserList();
+		dbUserFields = isNew ? new ArrayList<>() : mySettings.getUserList();
 		List<String> usrList = new ArrayList<>();
-		dbTableModelFields.clear();
 		dbSortList.clear();
 
-		for (BasisField field : dbUserFields) {
-			FieldDefinition dbField = dbFieldDefinition.get(field.getFieldAlias());
-			if (dbField == null) {
-				isUserListError = true;
-				continue;
-			}
-
-			dbField = dbField.copy();
-			field.setFieldType(dbField.getFieldType()); // Just incase the type has changed
-			dbField.set(field);
-			dbTableModelFields.add(dbField);
-
-			usrList.add(dbField.getFieldAlias());
-			if (!dbInfoToExport.containsKey(dbField.getFieldAlias())) {
-				dbInfoToExport.put(dbField.getFieldAlias(), dbField);
-			}
-		}
+		boolean isUserListError = verifyUserfields(usrList, dbInfoToExport);
 
 		if (isUserListError) {
 			// Correct the list of selected user fields because they don't match the
@@ -177,12 +154,15 @@ public abstract class FNProgramvare extends BasicSoft {
 			validateUserFields(usrList, false);
 		}
 
+		// Verify sort fields
+		verifySortFields();
+
 		// Add special fields for list or XML to the fields to
 		// export and to write
-		for (String dbField : pdaSettings.getSpecialFields()) {
+		for (String dbField : mySettings.getSpecialFields()) {
 			if (addField(dbField, usrList, false, false) == null) {
-				pdaSettings.removeSortField(dbField);
-				pdaSettings.removeGroupField(dbField);
+				mySettings.removeSortField(dbField);
+				mySettings.removeGroupField(dbField);
 			}
 		}
 
@@ -204,7 +184,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		getContentsFields(usrList).forEach(dbField -> addField(dbField, usrList, true, true));
 
 		// Add (optional) sort fields to extend and enforce sorting
-		getMandatorySortFields(pdaSettings.getSortFields()).forEach(dbField -> addSortField(usrList, dbField));
+		getMandatorySortFields(mySettings.getSortFields()).forEach(dbField -> addSortField(usrList, dbField));
 
 		// Add the System specific fields to the fields to export, but hide them in
 		// xViewer and don't export them
@@ -243,9 +223,9 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	public void openToFile() throws Exception {
-		dbOut = ExportProcess.getDatabase(myExportFile, pdaSettings);
+		dbOut = ExportProcess.getDatabase(myExportFile, mySettings);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(pdaSettings.getExportFile(), myExportFile), false);
+		dbOut.openFile(new DatabaseHelper(mySettings.getExportFile(), myExportFile), false);
 		isOutputFileOpen = true;
 	}
 
@@ -257,7 +237,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	public void openFile() throws Exception {
 		dbFactory.connect2DB(new DatabaseHelper(dbSettings));
 		dbFactory.verifyDatabase(dbSettings.getDatabase());
-		dbFactory.loadConfiguration(pdaSettings.getTableName());
+		dbFactory.loadConfiguration(mySettings.getTableName());
 
 		isInputFileOpen = true;
 
@@ -319,7 +299,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			return;
 		}
 
-		List<Object> fieldData = dbFactory.getFilterFieldValues(pdaSettings.getCategoryField());
+		List<Object> fieldData = dbFactory.getFilterFieldValues(mySettings.getCategoryField());
 		final int MAX_RECORDS = fieldData.size();
 
 		int count = 1;
@@ -389,7 +369,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			}
 
 			int index = ((Number) map.get(myTableID)).intValue();
-			if (pdaSettings.getLastIndex() >= index) {
+			if (mySettings.getLastIndex() >= index) {
 				boolean isOK = true;
 				if (isNewModified && !lastExported.isEmpty()) {
 					Object obj = map.getOrDefault("LastModified", General.EMPTY_STRING);
@@ -411,16 +391,16 @@ public abstract class FNProgramvare extends BasicSoft {
 				for (Entry<Integer, FieldDefinition> entry : hFilterTable.entrySet()) {
 					if (entry.getValue().getTable().equals(myTable)) {
 						isTrue[entry.getKey()] = isIncludeRecord(map, entry.getValue(),
-								pdaSettings.getFilterValue(entry.getKey()),
-								pdaSettings.getFilterOperator(entry.getKey()));
+								mySettings.getFilterValue(entry.getKey()),
+								mySettings.getFilterOperator(entry.getKey()));
 					} else {
 						isTrue[entry.getKey()] = isIncludeRecord(getLinkedRecords(map, hashTable, entry.getValue()),
-								entry.getValue(), pdaSettings.getFilterValue(entry.getKey()),
-								pdaSettings.getFilterOperator(entry.getKey()));
+								entry.getValue(), mySettings.getFilterValue(entry.getKey()),
+								mySettings.getFilterOperator(entry.getKey()));
 					}
 				}
 
-				if (!(pdaSettings.getFilterCondition().equals("AND") ? isTrue[0] && isTrue[1]
+				if (!(mySettings.getFilterCondition().equals("AND") ? isTrue[0] && isTrue[1]
 						: isTrue[0] || isTrue[1])) {
 					// Filter returned false
 					continue;
@@ -681,9 +661,9 @@ public abstract class FNProgramvare extends BasicSoft {
 		buf.append(field);
 		buf.append("_");
 		buf.append(fileCounter++);
-		buf.append(types[pdaSettings.getImageOption()]);
+		buf.append(types[mySettings.getImageOption()]);
 
-		if (General.convertImage(image, myExportFile, pdaSettings, buf.toString(), field.startsWith(THUMB))) {
+		if (General.convertImage(image, myExportFile, mySettings, buf.toString(), field.startsWith(THUMB))) {
 			if (imageOption != 0 && myExportFile == ExportFile.HANDBASE) {
 				buf.delete(0, generalSettings.getDefaultImageFolder().length());
 				buf.insert(0, generalSettings.getDefaultPdaFolder());
@@ -697,7 +677,7 @@ public abstract class FNProgramvare extends BasicSoft {
 	private void prepareFilters(Map<Integer, FieldDefinition> hFilterTable, Set<Object> idSet) throws Exception {
 		isSkipFirstFilter = false;
 		isSkipLastFilter = numFilter == 1;
-		int index = pdaSettings.getLastIndex();
+		int index = mySettings.getLastIndex();
 
 		isNewRecords = generalSettings.isNewExport() && index > 0;
 		isNewModified = generalSettings.isIncrementalExport() && (index > 0 || !lastExported.isEmpty());
@@ -731,17 +711,17 @@ public abstract class FNProgramvare extends BasicSoft {
 					hTemp.add(1);
 				}
 				for (int i : hTemp) {
-					hFilterTable.put(i, dbFactory.getDbFieldDefinition().get(pdaSettings.getFilterField(i)));
+					hFilterTable.put(i, dbFactory.getDbFieldDefinition().get(mySettings.getFilterField(i)));
 				}
 			}
 		}
 	}
 
 	private void setContentsFilter() {
-		if (useContents && !pdaSettings.getContentsFilter().isEmpty()) {
+		if (useContents && !mySettings.getContentsFilter().isEmpty()) {
 			try {
 				Map<String, Object> map = msAccess.getSingleRecord("ContentsType", null,
-						Collections.singletonMap("ContentsType", pdaSettings.getContentsFilter()));
+						Collections.singletonMap("ContentsType", mySettings.getContentsFilter()));
 				if (!map.isEmpty()) {
 					MSTable table = dbFactory.getMSTable("Contents");
 					table.getColumnValues().put("TypeID", map.get("ContentsTypeID"));
@@ -757,15 +737,15 @@ public abstract class FNProgramvare extends BasicSoft {
 		final String KEYWORD_ID = "KeywordID";
 
 		idSet.clear();
-		if (!pdaSettings.getKeywordFilter().isEmpty()) {
-			Object kwFilter = pdaSettings.getKeywordFilter();
+		if (!mySettings.getKeywordFilter().isEmpty()) {
+			Object kwFilter = mySettings.getKeywordFilter();
 
 			MSTable table = dbFactory.getMSTable(KEYWORD);
 			Map<String, Object> map = msAccess.getSingleRecord(KEYWORD, table.isIndexedColumn(KEYWORD) ? KEYWORD : null,
 					Collections.singletonMap(KEYWORD, kwFilter));
 			if (!map.isEmpty() && !setIdFilter(idSet, msAccess.getMultipleRecords(table.getFromTable(), KEYWORD_ID,
 					Collections.singletonMap(KEYWORD_ID, map.get(KEYWORD_ID))))) {
-				pdaSettings.setKeywordFilter(General.EMPTY_STRING);
+				mySettings.setKeywordFilter(General.EMPTY_STRING);
 				return false;
 			}
 
@@ -775,16 +755,16 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	private boolean setStandardFilter(Set<Object> idSet) throws Exception {
-		if (pdaSettings.getFilterCondition().equals("OR")) {
+		if (mySettings.getFilterCondition().equals("OR")) {
 			// This is a bit too complex to handle, we'll use the default filter method
 			// instead
 			return false;
 		}
 
 		FilterOperator[] oper = new FilterOperator[2];
-		oper[0] = pdaSettings.getFilterOperator(0);
-		oper[1] = pdaSettings.getFilterField(1).isEmpty() ? FilterOperator.IS_NOT_EQUAL_TO
-				: pdaSettings.getFilterOperator(1);
+		oper[0] = mySettings.getFilterOperator(0);
+		oper[1] = mySettings.getFilterField(1).isEmpty() ? FilterOperator.IS_NOT_EQUAL_TO
+				: mySettings.getFilterOperator(1);
 
 		if (oper[0] == FilterOperator.IS_NOT_EQUAL_TO && oper[1] == FilterOperator.IS_NOT_EQUAL_TO) {
 			// a bit too complex, we'll use the default filter method instead
@@ -793,7 +773,7 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		int idx = oper[1] == FilterOperator.IS_EQUAL_TO ? 1 : 0;
 		int index = oper[0] == FilterOperator.IS_EQUAL_TO ? 0 : idx;
-		FieldDefinition field = dbFieldDefinition.get(pdaSettings.getFilterField(index));
+		FieldDefinition field = dbFieldDefinition.get(mySettings.getFilterField(index));
 		MSTable table = dbFactory.getMSTable(field.getTable());
 		boolean isIndexColumn = table.isIndexedColumn(field.getFieldName());
 
@@ -804,7 +784,7 @@ public abstract class FNProgramvare extends BasicSoft {
 				return false;
 			}
 
-			field = dbFieldDefinition.get(pdaSettings.getFilterField(index));
+			field = dbFieldDefinition.get(mySettings.getFilterField(index));
 			table = dbFactory.getMSTable(field.getTable());
 			isIndexColumn = table.isIndexedColumn(field.getFieldName());
 			if (!isIndexColumn && table.getName().equals(myTable)) {
@@ -813,7 +793,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		Map<String, Object> hFilter = new HashMap<>();
-		hFilter.put(field.getFieldName(), pdaSettings.getFilterValue(index));
+		hFilter.put(field.getFieldName(), mySettings.getFilterValue(index));
 
 		if (field.getTable().equals(myTable)) {
 			cursor = msAccess.getCursor(myTable, field.getFieldName(), hFilter, oper[index]);
@@ -894,7 +874,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		setDatabaseData(pRead, hashTable);
 
 		// Verify if the record to write contains any values
-		if (pRead.isEmpty() || pdaSettings.isSkipEmptyRecords() && dbInfoToWrite.stream().noneMatch(field -> !pRead
+		if (pRead.isEmpty() || mySettings.isSkipEmptyRecords() && dbInfoToWrite.stream().noneMatch(field -> !pRead
 				.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING).equals(General.EMPTY_STRING))) {
 			return;
 		}
@@ -921,31 +901,20 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		// Check if there are any records to process
 		if (totalRecords == 0) {
-			throw FNProgException.getException("noRecordsFound", pdaSettings.getProfileID());
+			throw FNProgException.getException("noRecordsFound", mySettings.getProfileID());
 		}
 
 		verifyFilter();
 	}
 
+	@Override
 	public void runConversionProgram(Component parent) throws Exception {
-		if (myExportFile == ExportFile.HANDBASE) {
-			((HanDBase) dbOut).runConversionProgram(pdaSettings);
-		}
+		super.runConversionProgram(parent);
 
-		if (myExportFile == ExportFile.TEXTFILE) {
-			General.showMessage(parent,
-					GUIFactory.getMessage("createdFiles",
-							((CsvFile) dbOut).getExportFiles(GUIFactory.getText("file"), GUIFactory.getText("files"))),
-					GUIFactory.getTitle("information"), false);
-		} else {
-			General.showMessage(parent, GUIFactory.getMessage("createdFile", pdaSettings.getExportFile()),
-					GUIFactory.getTitle("information"), false);
-		}
-
-		// Save last export date and record
+		// Save last export record
 		if (lastIndex > 0) {
-			pdaSettings.setLastIndex(lastIndex);
-			pdaSettings.setLastExported(General.convertTimestamp(LocalDateTime.now(), General.sdInternalTimestamp));
+			int prevIndex = mySettings.getLastIndex();
+			mySettings.setLastIndex(Math.max(lastIndex, prevIndex));
 		}
 	}
 
@@ -1068,7 +1037,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		}));
 
 		List<FieldDefinition> invalidHeaders = dbInfoToWrite.stream()
-				.filter(field -> !buddySet.contains(field.getFieldHeader())).collect(Collectors.toList());
+				.filter(field -> !buddySet.contains(field.getFieldHeader())).toList();
 
 		if (!invalidHeaders.isEmpty()) {
 			StringBuilder error = new StringBuilder(GUIFactory.getText("buddyInvalid1"));

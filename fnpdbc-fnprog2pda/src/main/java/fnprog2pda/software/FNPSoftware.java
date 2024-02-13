@@ -44,9 +44,7 @@ public enum FNPSoftware {
 	public boolean isUseMisc(String view) {
 		boolean enabled = false;
 		switch (this) {
-		case ASSETCAT:
-		case SOFTCAT:
-		case STAMPCAT:
+		case ASSETCAT, SOFTCAT, STAMPCAT:
 			break;
 		default:
 			enabled = "AlbumBookContentsTrackVideoPlaylist".indexOf(view) != -1;

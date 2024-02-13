@@ -79,10 +79,10 @@ public class CATraxx extends FNProgramvare {
 
 	public CATraxx() {
 		super();
-		useContentsLength = pdaSettings.isUseContentsLength();
-		useContentsSide = pdaSettings.isUseContentsSide();
-		useContentsIndex = pdaSettings.isUseContentsIndex();
-		useMusicBuddy = pdaSettings.getTextFileFormat().equals("buddyCsv");
+		useContentsLength = mySettings.isUseContentsLength();
+		useContentsSide = mySettings.isUseContentsSide();
+		useContentsIndex = mySettings.isUseContentsIndex();
+		useMusicBuddy = mySettings.getTextFileFormat().equals("buddyCsv");
 
 		personField = new String[] { ARTIST, ARTIST_SORT };
 	}
@@ -401,7 +401,7 @@ public class CATraxx extends FNProgramvare {
 		// Get the arranger(s)
 		List<Integer> arrangers = arrangerTrackList.stream()
 				.filter(map -> (Integer) map.getOrDefault("RoleID", -1) == 2)
-				.map(x -> (Integer) x.getOrDefault(ARTIST_PERSON_ID, -1)).collect(Collectors.toList());
+				.map(x -> (Integer) x.getOrDefault(ARTIST_PERSON_ID, -1)).toList();
 		if (arrangers.isEmpty()) {
 			return;
 		}
@@ -457,11 +457,7 @@ public class CATraxx extends FNProgramvare {
 					case 2:
 						bComposers.append(entry.getValue()).append("\n");
 						break;
-					case 1:
-					case 4:
-					case 5:
-					case 7:
-					case 8:
+					case 1, 4, 5, 7, 8:
 						bAuthors.append(entry.getValue()).append("\n");
 						break;
 					default:
@@ -532,7 +528,7 @@ public class CATraxx extends FNProgramvare {
 		// Get the orchestra(s)
 		List<Integer> orchestras = musicianTrackList.stream()
 				.filter(map -> (Integer) map.getOrDefault(INSTRUMENT_ID, -1) == 64)
-				.map(x -> (Integer) x.getOrDefault(ARTIST_PERSON_ID, -1)).collect(Collectors.toList());
+				.map(x -> (Integer) x.getOrDefault(ARTIST_PERSON_ID, -1)).toList();
 		if (orchestras.isEmpty()) {
 			return;
 		}

@@ -20,8 +20,8 @@ public class FilenameRenderer extends DefaultTableCellRenderer {
 		String shortName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
 		Component result = super.getTableCellRendererComponent(table, shortName, isSelected, hasFocus, row, column);
 
-		if (result instanceof JComponent) {
-			((JComponent) result).setToolTipText(fileName);
+		if (result instanceof JComponent component) {
+			component.setToolTipText(fileName);
 		}
 
 		// Allow superclass to return rendering component.

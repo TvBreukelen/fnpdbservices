@@ -107,6 +107,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	}
 
 	private void init() {
+		final String schema = "Schema";
+
 		funcSelectExport = e -> {
 			if (myExportFile == ExportFile.HANDBASE) {
 				boolean enableImport = !rExists[0].isSelected();
@@ -127,7 +129,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		funcShowSchema = e -> {
 			String dbName = dbFileName.getText();
 			if (dbName.isBlank()) {
-				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noTableDefined"), "Schema", true);
+				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noTableDefined"), schema, true);
 				return;
 			}
 
@@ -139,7 +141,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			SQLite db = new SQLite(pdaSettings);
 			List<FieldDefinition> fields = new ArrayList<>();
 			scFieldSelect.getFieldList().forEach(field -> fields.add(new FieldDefinition(field)));
-			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), "Schema", false);
+			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), schema, false);
 		};
 
 		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, General.EMPTY_STRING,
@@ -419,12 +421,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pBottomContainer.removeAll();
 
 		switch (myExportFile) {
-		case CALC:
-		case EXCEL:
+		case CALC, EXCEL:
 			pTopContainer.add(pOtherOptions);
 			break;
-		case DBASE:
-		case SQLITE:
+		case DBASE, SQLITE:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;

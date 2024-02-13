@@ -152,8 +152,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		switch (pCell.getCellType()) {
 		case BOOLEAN:
 			return FieldTypes.BOOLEAN;
-		case BLANK:
-		case STRING:
+		case BLANK, STRING:
 			String contents = pCell.getRichStringCellValue().getString();
 			if (contents.length() > ExportFile.EXCEL.getMaxTextSize() || contents.indexOf('\n') > -1) {
 				return FieldTypes.MEMO;

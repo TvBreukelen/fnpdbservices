@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
+import application.interfaces.FilterOperator;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
@@ -77,9 +78,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case POSTGRESQL:
 			types = new String[] { "TABLE", "VIEW" };
 			break;
-		case SQLSERVER:
-		case PARADOX:
-		case FIREBIRD:
+		case SQLSERVER, PARADOX, FIREBIRD:
 			types = new String[] { "TABLE" };
 			break;
 		default:
@@ -221,23 +220,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	protected boolean setFieldType(FieldDefinition field) {
 		switch (field.getSQLType()) {
-		case Types.BIGINT:
-		case Types.INTEGER:
-		case Types.SMALLINT:
-		case Types.TINYINT:
-		case Types.DECIMAL:
+		case Types.BIGINT, Types.INTEGER, Types.SMALLINT, Types.TINYINT, Types.DECIMAL:
 			field.setFieldType(FieldTypes.NUMBER);
 			break;
-		case Types.BIT:
-		case Types.BOOLEAN:
+		case Types.BIT, Types.BOOLEAN:
 			field.setFieldType(FieldTypes.BOOLEAN);
 			break;
 		case Types.DATE:
 			field.setFieldType(FieldTypes.DATE);
 			break;
-		case Types.DOUBLE:
-		case Types.FLOAT:
-		case Types.REAL:
+		case Types.DOUBLE, Types.FLOAT, Types.REAL:
 			field.setFieldType(FieldTypes.FLOAT);
 			break;
 		case Types.LONGVARCHAR:
@@ -249,9 +241,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.TIMESTAMP:
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
-		case Types.CHAR:
-		case Types.LONGNVARCHAR:
-		case Types.VARCHAR:
+		case Types.CHAR, Types.LONGNVARCHAR, Types.VARCHAR:
 			return true;
 		default:
 			return false;
@@ -262,8 +252,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private boolean setFieldType(FieldDefinition field, String type) {
 		// SqLite sets the SQL Type incorrectly, but the type name correct
 		switch (type.toUpperCase()) {
-		case "BOOL":
-		case "BOOLEAN":
+		case "BOOL", "BOOLEAN":
 			field.setFieldType(FieldTypes.BOOLEAN);
 			field.setSQLType(Types.BOOLEAN);
 			break;
@@ -271,16 +260,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.DATE);
 			field.setSQLType(Types.DATE);
 			break;
-		case "DATETIME":
-		case "TIMESTAMP":
+		case "DATETIME", "TIMESTAMP":
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			field.setSQLType(Types.TIMESTAMP);
 			break;
-		case "DECIMAL":
-		case "INT":
-		case "INTEGER":
-		case "LONG":
-		case "NUMBER":
+		case "DECIMAL", "INT", "INTEGER", "LONG", "NUMBER":
 			field.setFieldType(FieldTypes.NUMBER);
 			field.setSQLType(Types.INTEGER);
 			break;
@@ -288,7 +272,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.MEMO);
 			field.setSQLType(Types.VARCHAR);
 			break;
-		case "REAL":
+		case "DOUBLE", "FLOAT", "REAL":
 			field.setFieldType(FieldTypes.FLOAT);
 			field.setSQLType(Types.FLOAT);
 			break;
@@ -300,12 +284,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.BIG_DECIMAL);
 			field.setSQLType(Types.NUMERIC);
 			break;
-		case "NCHAR":
-		case "NVARCHAR":
-		case "NTEXT":
-			// time and time stamps with time zones will be treated as string
-		case "TIMESTAMPTZ":
-		case "TIMETZ":
+		case "NCHAR", "NVARCHAR", "NTEXT", "TIMESTAMPTZ", "TIMETZ":
 			field.setFieldType(FieldTypes.TEXT);
 			field.setSQLType(Types.VARCHAR);
 			break;
@@ -603,28 +582,19 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			break;
 		}
 
-		switch (field.getFieldType()) {
-		case BOOLEAN:
-		case CURRENCY:
-		case FLOAT:
-		case NUMBER:
+		if (field.getFieldType() == FieldTypes.BOOLEAN || field.getFieldType() == FieldTypes.CURRENCY
+				|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER) {
 			buf.append(myPref.getFilterValue(i));
-			break;
-		default:
+		} else {
 			buf.append("'").append(myPref.getFilterValue(i)).append("'");
 			if (myPref.getFilterValue(i).isBlank()) {
 				// Also check for NULL values
-				switch (myPref.getFilterOperator(i)) {
-				case IS_EQUAL_TO:
-				case IS_GREATER_THAN_OR_EQUAL_TO:
-				case IS_LESS_THAN_OR_EQUAL_TO:
+				FilterOperator op = myPref.getFilterOperator(i);
+				if (op == FilterOperator.IS_EQUAL_TO || op == FilterOperator.IS_GREATER_THAN_OR_EQUAL_TO
+						|| op == FilterOperator.IS_LESS_THAN_OR_EQUAL_TO) {
 					buf.append(" OR ").append(field.getFieldName()).append(" IS NULL");
-					break;
-				default:
-					// No change
 				}
 			}
-			break;
 		}
 	}
 
@@ -710,8 +680,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		switch (colType) {
 		case Types.LONGVARCHAR:
 			return readMemoField(rs, colNo);
-		case Types.BIT:
-		case Types.BOOLEAN:
+		case Types.BIT, Types.BOOLEAN:
 			return rs.getBoolean(colNo);
 		case Types.BLOB:
 			return rs.getBlob(colNo);
@@ -730,11 +699,9 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.NUMERIC:
 			BigDecimal bd = rs.getBigDecimal(colNo);
 			return bd == null ? General.EMPTY_STRING : bd;
-		case Types.DECIMAL:
-		case Types.INTEGER:
+		case Types.DECIMAL, Types.INTEGER:
 			return rs.getInt(colNo);
-		case Types.SMALLINT:
-		case Types.TINYINT:
+		case Types.SMALLINT, Types.TINYINT:
 			return (int) rs.getShort(colNo);
 		case Types.BIGINT:
 			return rs.getLong(colNo);

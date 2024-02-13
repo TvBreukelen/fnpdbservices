@@ -179,9 +179,7 @@ public abstract class GeneralDB {
 				return dbField.substring(0, myExportFile.getMaxMemoSize() - 15) + " truncated...";
 			}
 			return dbField;
-		case BIG_DECIMAL:
-		case FLOAT:
-		case NUMBER:
+		case BIG_DECIMAL, FLOAT, NUMBER:
 			return dbValue;
 		case TIME:
 			return convertTime(dbValue, field);

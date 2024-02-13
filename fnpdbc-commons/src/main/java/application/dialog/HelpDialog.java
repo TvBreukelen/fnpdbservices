@@ -130,8 +130,8 @@ public class HelpDialog extends JDialog {
 	private HyperlinkListener createHyperLinkListener() {
 		return e -> {
 			if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-				if (e instanceof HTMLFrameHyperlinkEvent) {
-					((HTMLDocument) helpInfo.getDocument()).processHTMLFrameHyperlinkEvent((HTMLFrameHyperlinkEvent) e);
+				if (e instanceof HTMLFrameHyperlinkEvent hyperLink) {
+					((HTMLDocument) helpInfo.getDocument()).processHTMLFrameHyperlinkEvent(hyperLink);
 				} else {
 					try {
 						URL url = e.getURL();

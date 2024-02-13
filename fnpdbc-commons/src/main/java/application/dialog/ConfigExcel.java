@@ -29,7 +29,7 @@ public class ConfigExcel extends JPanel implements IConfigDb {
 	private JComboBox<String> fontSize = null;
 	private JCheckBox[] cHeader = new JCheckBox[3];
 	private JCheckBox lockColumn = null;
-	private Profiles pdaSettings;
+	transient Profiles pdaSettings;
 
 	public ConfigExcel(Profiles pref) {
 		pdaSettings = pref;

@@ -24,7 +24,7 @@ public class ViewerModel extends AbstractTableModel {
 	 */
 	private static final long serialVersionUID = -4971384644052737284L;
 	private List<FieldDefinition> fieldList;
-	private List<Map<String, Object>> tableData = new ArrayList<>();
+	transient List<Map<String, Object>> tableData = new ArrayList<>();
 
 	private boolean[] columnsVisible;
 	private int totalColumns;
@@ -128,12 +128,9 @@ public class ViewerModel extends AbstractTableModel {
 		}
 
 		switch (field.getFieldType()) {
-		case BOOLEAN:
-		case IMAGE:
+		case BOOLEAN, IMAGE:
 			return obj;
-		case BIG_DECIMAL:
-		case FLOAT:
-		case NUMBER:
+		case BIG_DECIMAL, FLOAT, NUMBER:
 			return obj instanceof Number ? field.getNumberFormat().format(obj) : obj.toString();
 		case MEMO:
 			String s = obj.toString();

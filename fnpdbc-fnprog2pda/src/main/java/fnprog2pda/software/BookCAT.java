@@ -51,6 +51,7 @@ public class BookCAT extends FNProgramvare {
 	private static final String ORIGINAL_SERIES_SORT = "OriginalSeriesSort";
 	private static final String ORIGINAL_TITLE = "OriginalTitle";
 	private static final String PHOTOGRAPHER = "Photographer";
+	private static final String PUBLISHER = "Publisher";
 	private static final String RATING = "PersonalRating";
 	private static final String RELEASE_NO = "ReleaseNo";
 	private static final String SERIES = "Series";
@@ -69,9 +70,9 @@ public class BookCAT extends FNProgramvare {
 
 	public BookCAT() {
 		super();
-		useOriginalTitle = pdaSettings.isUseOriginalTitle();
-		inclReleaseNo = pdaSettings.isUseReleaseNo();
-		useBookBuddy = pdaSettings.getTextFileFormat().equals("buddyCsv");
+		useOriginalTitle = mySettings.isUseOriginalTitle();
+		inclReleaseNo = mySettings.isUseReleaseNo();
+		useBookBuddy = mySettings.getTextFileFormat().equals("buddyCsv");
 
 		personField = new String[] { AUTHOR, AUTHOR_SORT };
 		sortContents.put(CONTENTS_ITEM, FieldTypes.NUMBER);
@@ -89,7 +90,7 @@ public class BookCAT extends FNProgramvare {
 			result.add(new BasisField(LANGUAGE, LANGUAGE, LANGUAGE, FieldTypes.TEXT));
 			result.add(new BasisField("Pages", "Pages", "Number of Pages", FieldTypes.NUMBER));
 			result.add(new BasisField("PrimaryGenre", "PrimaryGenre", "Genre", FieldTypes.TEXT));
-			result.add(new BasisField("Publisher", "Publisher", "Publisher", FieldTypes.TEXT));
+			result.add(new BasisField(PUBLISHER, PUBLISHER, PUBLISHER, FieldTypes.TEXT));
 			result.add(new BasisField(RELEASE_NO, RELEASE_NO, "Volume", FieldTypes.TEXT));
 			result.add(new BasisField(SERIES, SERIES, SERIES, FieldTypes.TEXT));
 			result.add(new BasisField(STATUS, STATUS, "Status", FieldTypes.TEXT));

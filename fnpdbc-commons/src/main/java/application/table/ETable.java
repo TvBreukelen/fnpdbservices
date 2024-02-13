@@ -40,8 +40,8 @@ public class ETable extends JTable {
 					convertColumnIndexToModel(column));
 			c.setBackground(isEnabled ? secondRow : disabledcolor);
 
-			if (renderer instanceof JCheckBox) {
-				((JCheckBox) renderer).setEnabled(isEnabled);
+			if (renderer instanceof JCheckBox checkbox) {
+				checkbox.setEnabled(isEnabled);
 			}
 
 		}

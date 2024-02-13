@@ -23,7 +23,7 @@ public class ConfigClone extends BasicDialog {
 	private JTextField exportToFile;
 	private JComboBox<String> cbExportFile;
 
-	private Profiles project;
+	transient Profiles project;
 	private ProgramDialog dialog;
 	private static final long serialVersionUID = -6576646959544052585L;
 

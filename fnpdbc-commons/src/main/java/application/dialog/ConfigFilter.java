@@ -77,12 +77,12 @@ public class ConfigFilter extends BasicDialog {
 	private ScrollComboBoxImpl cbContentsBook = new ScrollComboBoxImpl();
 	private ScrollComboBoxImpl cbKeywordFilter = new ScrollComboBoxImpl();
 
-	private ActionListener funcFieldSelect;
-	private ActionListener funcRemoveFilter;
-	private ActionListener funcBoolFilter;
-	private ActionListener funcListFilter;
-	private ActionListener funcSelectPressed;
-	private ActionListener funcSubSelectPressed;
+	transient ActionListener funcFieldSelect;
+	transient ActionListener funcRemoveFilter;
+	transient ActionListener funcBoolFilter;
+	transient ActionListener funcListFilter;
+	transient ActionListener funcSelectPressed;
+	transient ActionListener funcSubSelectPressed;
 
 	private JRadioButton btFilterAnd = GUIFactory.getJRadioButton("and", null);
 	private JButton[] btErase = new JButton[2];
@@ -93,8 +93,8 @@ public class ConfigFilter extends BasicDialog {
 	private boolean isKeywordFilter = false;
 	private boolean isContentsFilter = false;
 
-	private FilterData pdaSettings;
-	private IDatabaseFactory dbFactory;
+	transient FilterData pdaSettings;
+	transient IDatabaseFactory dbFactory;
 
 	private final String[] option1 = GUIFactory.getArray("filter");
 	private final String[] optionEnglish = FilterOperator.getFilterOperators();

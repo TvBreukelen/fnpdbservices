@@ -9,6 +9,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
+import application.interfaces.FieldTypes;
 import application.utils.FieldDefinition;
 import application.utils.General;
 
@@ -43,15 +44,9 @@ public class CellEditor extends AbstractCellEditor implements TableCellEditor {
 
 	@Override
 	public boolean stopCellEditing() {
-		if (!isTextAreaSet) {
-			switch (field.getFieldType()) {
-			case DATE:
-			case FUSSY_DATE:
-				component.setText(General.convertFussyDate2DB(component.getText()));
-				break;
-			default:
-				break;
-			}
+		if (!isTextAreaSet
+				&& (field.getFieldType() == FieldTypes.DATE || field.getFieldType() == FieldTypes.FUSSY_DATE)) {
+			component.setText(General.convertFussyDate2DB(component.getText()));
 		}
 
 		fireEditingStopped();

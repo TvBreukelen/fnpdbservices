@@ -106,10 +106,7 @@ public class SQLite extends SqlDB implements IConvert {
 				case TIMESTAMP:
 					buf.append(" TIMESTAMP");
 					break;
-				case TEXT:
-				case MEMO:
-				case IMAGE:
-				case THUMBNAIL:
+				case TEXT, MEMO, IMAGE, THUMBNAIL:
 					buf.append(" TEXT");
 					break;
 				case NUMBER:

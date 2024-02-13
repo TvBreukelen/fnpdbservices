@@ -25,6 +25,7 @@ import application.interfaces.IDatabaseFactory;
 import application.model.UserFieldModel;
 import application.table.BooleanRenderer;
 import application.table.ETable;
+import application.table.ToolTipHeader;
 import application.utils.BasisField;
 import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
@@ -71,6 +72,10 @@ public class ScFieldSelect implements PropertyChangeListener {
 		table = new ETable(userModel, false);
 		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
+
+		ToolTipHeader toolTipHeader = new ToolTipHeader(table.getColumnModel(),
+				GUIFactory.getArray("exportToolTipHeaders"));
+		table.setTableHeader(toolTipHeader);
 
 		funcAddFields = e -> {
 			List<BasisField> items = lstAvailableFields.getSelectedValuesList();
@@ -155,11 +160,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 			availableModel.addElement(field);
 			if (!hasTextExport) {
 				switch (field.getFieldType()) {
-				case BOOLEAN:
-				case DATE:
-				case DURATION:
-				case TIME:
-				case TIMESTAMP:
+				case BOOLEAN, DATE, DURATION, TIME, TIMESTAMP:
 					hasTextExport = true;
 					break;
 				default:

@@ -108,25 +108,16 @@ public class MSAccess extends GeneralDB implements IConvert {
 					fieldDef.setTable(s);
 
 					switch (col.getType()) {
-					case BINARY:
-					case GUID:
-					case OLE:
-					case UNKNOWN_0D:
-					case UNKNOWN_11:
+					case BINARY, GUID, OLE, UNKNOWN_0D, UNKNOWN_11:
 						fieldDef.setFieldType(FieldTypes.UNKNOWN);
 						break;
 					case BOOLEAN:
 						fieldDef.setFieldType(FieldTypes.BOOLEAN);
 						break;
-					case BYTE:
-					case INT:
-					case LONG:
+					case BYTE, INT, LONG:
 						fieldDef.setFieldType(FieldTypes.NUMBER);
 						break;
-					case DOUBLE:
-					case FLOAT:
-					case MONEY:
-					case NUMERIC:
+					case DOUBLE, FLOAT, MONEY, NUMERIC:
 						fieldDef.setFieldType(FieldTypes.FLOAT);
 						break;
 					case MEMO:

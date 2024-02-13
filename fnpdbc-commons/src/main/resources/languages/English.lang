@@ -103,6 +103,7 @@ exportFilter.text=Export Filter
 exportFormat.title=Export Format
 exportFrom.text=Export From
 exportHeaders.array=Import Field, Type, Export Field, Text Export, NN, PK, AI , U
+exportToolTipHeaders.array=Import Field, Data Type, Export Field / Column, Export values as Text, Not Null, Primary Key, Auto Increment, Unique
 exportTo.title=Export To
 false.text=False
 fieldConvertError.mesg=Unable to convert field '%0', due to: %1.

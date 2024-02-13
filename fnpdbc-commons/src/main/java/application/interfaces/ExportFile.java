@@ -82,44 +82,20 @@ public enum ExportFile {
 	}
 
 	public boolean isSpreadSheet() {
-		switch (this) {
-		case CALC:
-		case EXCEL:
-			return true;
-		default:
-			return false;
-		}
+		return this == CALC || this == EXCEL;
 	}
 
 	public boolean isSqlDatabase() {
-		switch (this) {
-		case ACCESS:
-		case FIREBIRD:
-		case MARIADB:
-		case PARADOX:
-		case POSTGRESQL:
-		case SQLITE:
-		case SQLSERVER:
-			return true;
-		default:
-			return false;
-		}
+		return this == ACCESS || this == FIREBIRD || this == MARIADB || this == PARADOX || this == POSTGRESQL
+				|| this == SQLITE || this == SQLSERVER;
 	}
 
 	public boolean isxBase() {
-		return equals(DBASE);
+		return this == DBASE;
 	}
 
 	public boolean isBooleanExport() {
-		switch (this) {
-		case LIST:
-		case TEXTFILE:
-		case VCARD:
-		case XML:
-			return false;
-		default:
-			return true;
-		}
+		return !(this == LIST || this == TEXTFILE || this == VCARD || this == XML);
 	}
 
 	public boolean isDurationExport() {
@@ -127,66 +103,24 @@ public enum ExportFile {
 	}
 
 	public boolean isDateExport() {
-		switch (this) {
-		case HANDBASE:
-		case JSON:
-		case LIST:
-		case TEXTFILE:
-		case ICAL:
-		case VCARD:
-		case XML:
-		case YAML:
-			return false;
-		default:
-			return true;
-		}
+		return !(this == HANDBASE || this == JSON || this == LIST || this == TEXTFILE || this == ICAL || this == VCARD
+				|| this == XML || this == YAML);
 	}
 
 	public boolean isTimeExport() {
-		switch (this) {
-		case CALC:
-		case EXCEL:
-		case JFILE:
-		case MOBILEDB:
-		case PILOTDB:
-			return true;
-		default:
-			return isSqlDatabase() || isxBase();
-		}
+		return this == JFILE || this == MOBILEDB || this == PILOTDB || isTimestampExport();
 	}
 
 	public boolean isTimestampExport() {
-		switch (this) {
-		case CALC:
-		case EXCEL:
-			return true;
-		default:
-			return isSqlDatabase() || isxBase();
-		}
+		return isSpreadSheet() || isSqlDatabase() || isxBase();
 	}
 
 	public boolean isImageExport() {
-		switch (this) {
-		case HANDBASE:
-		case ACCESS:
-			return true;
-		default:
-			return false;
-		}
+		return this == HANDBASE || this == ACCESS;
 	}
 
 	public boolean isAppend() {
-		switch (this) {
-		case CALC:
-		case EXCEL:
-		case JSON:
-		case YAML:
-		case TEXTFILE:
-		case XML:
-			return false;
-		default:
-			return true;
-		}
+		return !(this == CALC || this == EXCEL || this == JSON || this == YAML || this == TEXTFILE || this == XML);
 	}
 
 	public boolean isConnectHost() {
@@ -226,15 +160,7 @@ public enum ExportFile {
 	}
 
 	public boolean isSpecialFieldSort() {
-		switch (this) {
-		case LIST:
-		case JSON:
-		case YAML:
-		case XML:
-			return true;
-		default:
-			return false;
-		}
+		return this == LIST || this == JSON || this == YAML || this == XML;
 	}
 
 	public String getDbType() {
@@ -303,13 +229,9 @@ public enum ExportFile {
 
 	public String getTrueValue() {
 		switch (this) {
-		case DBASE:
-		case PARADOX:
+		case DBASE, PARADOX:
 			return "T";
-		case SQLITE:
-		case HANDBASE:
-		case JFILE:
-		case PILOTDB:
+		case SQLITE, HANDBASE, JFILE, PILOTDB:
 			return "1";
 		default:
 			return "true";
@@ -318,13 +240,9 @@ public enum ExportFile {
 
 	public String getFalseValue() {
 		switch (this) {
-		case DBASE:
-		case PARADOX:
+		case DBASE, PARADOX:
 			return "F";
-		case SQLITE:
-		case HANDBASE:
-		case JFILE:
-		case PILOTDB:
+		case SQLITE, HANDBASE, JFILE, PILOTDB:
 			return "0";
 		default:
 			return "false";

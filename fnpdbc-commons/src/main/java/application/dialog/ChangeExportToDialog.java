@@ -27,7 +27,7 @@ public class ChangeExportToDialog extends BasicDialog {
 	private String exportFilename;
 	private ExportFile exportFile;
 
-	private Profiles project;
+	transient Profiles project;
 	private ExportToTableCellEditor editor;
 
 	public ChangeExportToDialog(ProfileObject project, ExportToTableCellEditor editor) {

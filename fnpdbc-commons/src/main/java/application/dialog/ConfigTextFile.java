@@ -41,8 +41,8 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private JPanel otherPanel;
 	private boolean isExport;
 
-	private Profiles pdaSettings;
-	private IConfigSoft dialog;
+	transient Profiles pdaSettings;
+	transient IConfigSoft dialog;
 	private BuddyExport buddy;
 
 	public static final String STANDARD_CSV = "standardCsv";
@@ -50,7 +50,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private static final String OTHER_CSV = "otherCsv";
 
 	public enum BuddyExport {
-		None, BookBuddy, MovieBuddy, MusicBuddy
+		NONE, BOOK_BUDDY, MOVIE_BUDDY, MUSIC_BUDDY
 	}
 
 	public ConfigTextFile(Profiles pref, boolean isExport, BuddyExport buddy) {
@@ -64,7 +64,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 	// For imports only
 	public ConfigTextFile(IConfigSoft configSoft, Profiles prefText) {
-		this(prefText, false, BuddyExport.None);
+		this(prefText, false, BuddyExport.NONE);
 		dialog = configSoft;
 	}
 
@@ -128,14 +128,14 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 
 		buddyCsv = GUIFactory.getJRadioButton(buddy.name(), buddy.name(), e -> activateComponents());
 
-		if (buddy == BuddyExport.None) {
+		if (buddy == BuddyExport.NONE) {
 			panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
 		} else {
 			panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, buddyCsv, otherCsv));
 		}
 
 		String csvType = isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat();
-		if (pdaSettings.isNewProfile() || buddy == BuddyExport.None) {
+		if (pdaSettings.isNewProfile() || buddy == BuddyExport.NONE) {
 			csvType = STANDARD_CSV;
 		}
 

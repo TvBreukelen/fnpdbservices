@@ -595,6 +595,7 @@ public final class General {
 			ICON_MAP.put(image, result);
 
 		} catch (Exception e) {
+			// Nothing to do
 		}
 		return result;
 	}
@@ -1117,9 +1118,9 @@ public final class General {
 		}
 
 		// Check for instance of container.
-		if (component instanceof Container) {
+		if (component instanceof Container container) {
 			// Continue setEnabled if there are more components.
-			Component[] components = ((Container) component).getComponents();
+			Component[] components = container.getComponents();
 			for (Component element : components) {
 				if (element != null) {
 					setEnabled(element, enable); // <- Here is the recursive

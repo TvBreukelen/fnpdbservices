@@ -103,8 +103,7 @@ public enum FileType {
 			result.add(".html");
 			result.add(".json");
 			break;
-		case HOST:
-		case NEW:
+		case HOST, NEW:
 			break;
 		}
 		return result;

@@ -12,7 +12,7 @@ public interface IConfigSoft {
 	}
 
 	default BuddyExport getBuddyExport() {
-		return BuddyExport.None;
+		return BuddyExport.NONE;
 	}
 
 	void activateComponents();

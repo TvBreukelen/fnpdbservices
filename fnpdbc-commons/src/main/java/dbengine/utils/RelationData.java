@@ -3,7 +3,6 @@ package dbengine.utils;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import application.preferences.Profiles;
 
@@ -18,9 +17,8 @@ public class RelationData {
 	}
 
 	public void saveProfile(Profiles profile) {
-		profile.setRelations(
-				relationMap.values().stream().filter(e -> e.isUserDefined() || !e.getJoin().equals("Left Join"))
-						.map(ForeignKey::toString).collect(Collectors.toList()));
+		profile.setRelations(relationMap.values().stream()
+				.filter(e -> e.isUserDefined() || !e.getJoin().equals("Left Join")).map(ForeignKey::toString).toList());
 	}
 
 	public ForeignKey getForeignKey(String toTable) {
