@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
+import application.model.HiddenColumnModel;
 import application.utils.General;
 
 public class ToolTipHeader extends JTableHeader {
@@ -20,6 +21,11 @@ public class ToolTipHeader extends JTableHeader {
 	public String getToolTipText(MouseEvent e) {
 		int col = columnAtPoint(e.getPoint());
 		int modelCol = getTable().convertColumnIndexToModel(col);
+
+		if (getTable().getModel() instanceof HiddenColumnModel hModel) {
+			modelCol = hModel.getNumber(modelCol);
+		}
+
 		String retStr;
 		try {
 			retStr = toolTips[modelCol];
@@ -27,7 +33,7 @@ public class ToolTipHeader extends JTableHeader {
 			retStr = General.EMPTY_STRING;
 		}
 
-		if (retStr.length() < 1) {
+		if (retStr.isEmpty()) {
 			retStr = super.getToolTipText(e);
 		}
 		return retStr;

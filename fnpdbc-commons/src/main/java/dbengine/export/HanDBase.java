@@ -5,8 +5,13 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+
+import application.interfaces.FieldTypes;
+import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
+import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
 
@@ -19,9 +24,12 @@ public class HanDBase extends CsvFile {
 	 */
 	private final String exportFile = System.getProperty("java.io.tmpdir") + "\\" + "handbase.csv";
 	private String pdbFile;
+	private int fileCounter;
+	private GeneralSettings generalSettings = GeneralSettings.getInstance();
 
 	public HanDBase(Profiles pref) {
 		super(pref);
+		fileCounter = 1;
 	}
 
 	@Override
@@ -42,15 +50,59 @@ public class HanDBase extends CsvFile {
 		super.openFile(helper, isInputFile);
 	}
 
+	@Override
+	public Object convertDataFields(Object dbValue, FieldDefinition field) {
+		if (dbValue instanceof ImageIcon icon) {
+			return convertImage(field.getFieldHeader(), icon, field.getFieldType() != FieldTypes.THUMBNAIL);
+		}
+
+		return super.convertDataFields(dbValue, field);
+	}
+
+	private String convertImage(String field, ImageIcon icon, boolean isScaled) {
+		String[] types = { ".bmp", ".jpg", ".png" };
+
+		if (!myPref.isExportImages()) {
+			return General.EMPTY_STRING;
+		}
+
+		StringBuilder buf = new StringBuilder(100);
+		buf.append(generalSettings.getDefaultImageFolder());
+		buf.append("/");
+		buf.append(myPref.getProfileID());
+		buf.append("_");
+		buf.append(field);
+		buf.append("_");
+		buf.append(fileCounter++);
+		buf.append(types[myPref.getImageOption()]);
+
+		try {
+			if (General.convertImage(icon, myExportFile, myPref, buf.toString(), isScaled)) {
+				if (myPref.getImageOption() != 0) { // BMP files are imported directly
+					buf.delete(0, generalSettings.getDefaultImageFolder().length());
+					if (generalSettings.isNoImagePath()) {
+						buf.delete(0, 1);
+					} else {
+						buf.insert(0, generalSettings.getDefaultPdaFolder());
+					}
+				}
+				return buf.toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return General.EMPTY_STRING;
+	}
+
 	/*
 	 * Method to run the database conversion program for HanDBase
 	 */
-	public void runConversionProgram(Profiles pref) throws Exception {
+	public void runConversionProgram() throws Exception {
 		List<String> cmd = new ArrayList<>();
 		final String outFile = pdbFile;
-		final String dbName = pref.getPdaDatabaseName();
-		final int exportOption = pref.getExportOption();
-		final int importOption = pref.getImportOption();
+		final String dbName = myPref.getPdaDatabaseName();
+		final int exportOption = myPref.getExportOption();
+		final int importOption = myPref.getImportOption();
 
 		// Read input file and convert to Ansi
 		super.closeFile();
@@ -66,7 +118,7 @@ public class HanDBase extends CsvFile {
 		cmd.add("OUTFILE:{" + outFile + "}");
 		cmd.add("DBNAME:{" + dbName + "}");
 
-		String s = pref.getAutoInstUser();
+		String s = myPref.getAutoInstUser();
 		if (s.length() > 0) {
 			cmd.add("AUTOINSTALL:{" + s + "}");
 		}
@@ -81,7 +133,7 @@ public class HanDBase extends CsvFile {
 			}
 		}
 
-		String password = pref.getExportPassword();
+		String password = myPref.getExportPassword();
 		if (!password.isEmpty()) {
 			cmd.add("PASSWORD:{" + password + "}");
 		}

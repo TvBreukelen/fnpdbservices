@@ -133,7 +133,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 	}
 
 	private void setTableColumns() {
-		General.packColumns(table);
+		General.packTable(table);
 		TableColumn col = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);
 		col.setMaxWidth(80);
 

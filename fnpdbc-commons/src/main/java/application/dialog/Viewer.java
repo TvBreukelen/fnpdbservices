@@ -5,9 +5,11 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 import application.model.ViewerModel;
 import application.table.BooleanRenderer;
@@ -33,8 +35,12 @@ public class Viewer extends BasicDialog {
 		super();
 		myModel = new ViewerModel(dbFieldList);
 		myTable = new ETable(myModel, true);
+
+		TableCellRenderer iconRenderer = myTable.getDefaultRenderer(ImageIcon.class);
+
 		myTable.setDefaultRenderer(Object.class, new ObjectRenderer());
 		myTable.setDefaultRenderer(Boolean.class, new BooleanRenderer());
+		myTable.setDefaultRenderer(ImageIcon.class, iconRenderer);
 	}
 
 	public void buildViewer() {
@@ -42,7 +48,6 @@ public class Viewer extends BasicDialog {
 		setHelpFile("xviewer");
 		buildDialog();
 		btSave.setVisible(false);
-
 		pack();
 	}
 
@@ -51,7 +56,7 @@ public class Viewer extends BasicDialog {
 		JPanel result = new JPanel(new BorderLayout());
 		myTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-		General.packColumns(myTable);
+		General.packTable(myTable);
 		result.add(new JScrollPane(myTable), BorderLayout.CENTER);
 		result.setBorder(BorderFactory
 				.createTitledBorder(GUIFactory.getTitle("noOfRecords") + General.SPACE + myModel.getRowCount()));

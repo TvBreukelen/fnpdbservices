@@ -1,9 +1,11 @@
 package dbengine;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.nio.file.FileSystems;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -24,6 +26,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
@@ -268,6 +273,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.NUMBER);
 			field.setSQLType(Types.INTEGER);
 			break;
+		case "GRAPHIC":
+			field.setFieldType(FieldTypes.IMAGE);
+			field.setSQLType(Types.BLOB);
+			break;
 		case "MEMO":
 			field.setFieldType(FieldTypes.MEMO);
 			field.setSQLType(Types.VARCHAR);
@@ -434,6 +443,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			for (FieldDefinition field : dbInfoToRead) {
 				try {
 					Object obj = getFieldValue(field.getSQLType(), index++, dbResultSet);
+					if (obj instanceof Blob blob && (field.getFieldType() == FieldTypes.IMAGE
+							|| field.getFieldType() == FieldTypes.THUMBNAIL)) {
+						obj = convertBlobToImage(blob);
+					}
+
 					result.put(field.getFieldAlias(), obj);
 				} catch (Exception e) {
 					throw new FNProgException(
@@ -445,6 +459,17 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			dbStatement.close();
 			readInputFile();
 			return readRecord();
+		}
+		return result;
+	}
+
+	private Object convertBlobToImage(Blob blob) {
+		Object result;
+		try {
+			InputStream in = blob.getBinaryStream();
+			result = new ImageIcon(ImageIO.read(in));
+		} catch (Exception e) {
+			result = General.EMPTY_STRING;
 		}
 		return result;
 	}

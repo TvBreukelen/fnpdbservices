@@ -8,6 +8,7 @@ import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -58,7 +59,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -318,62 +318,68 @@ public final class General {
 	}
 
 	/**
-	 * Converts an image in memory to a bitmap or jpeg file
+	 * Converts an image in memory to a bitmap, jpeg or png file
 	 */
-	public static boolean convertImage(BufferedImage image, ExportFile exp, Profiles pdaSetting, String fileName,
+	public static boolean convertImage(ImageIcon icon, ExportFile exp, Profiles pdaSetting, String fileName,
 			boolean isScaling) throws Exception {
-		if (image == null || !exp.isImageExport()) {
+
+		if (icon == null || !exp.isImageExport()) {
 			return false;
 		}
 
 		String type = fileName.substring(fileName.lastIndexOf('.') + 1);
+		int scaledHeight = isScaling ? pdaSetting.getImageHeight() : 0;
 		int scaledWidth = pdaSetting.getImageWidth();
-		int scaledHeight = pdaSetting.getImageHeight();
 
-		if (!isScaling && scaledHeight == 0) {
-			isScaling = false;
-		}
-
-		int imageWidth = image.getWidth(null);
-		int imageHeight = image.getHeight(null);
-
-		if (imageWidth == -1 || imageHeight == -1) {
-			// the image was not loaded.
-			return false;
-		}
-
-		if (isScaling && imageWidth < scaledWidth && imageHeight < scaledHeight) {
-			// We'll not blow up the image
-			isScaling = false;
-		}
-
-		BufferedImage scaledImage = image;
-		if (isScaling) {
-			double thumbRatio = (double) scaledWidth / (double) scaledHeight;
-			double imageRatio = (double) imageWidth / (double) imageHeight;
-
-			if (thumbRatio < imageRatio) {
-				scaledHeight = (int) (scaledWidth / imageRatio);
-			} else {
-				scaledWidth = (int) (scaledHeight * imageRatio);
-			}
-
-			scaledImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
-			Graphics2D graphics2D = scaledImage.createGraphics();
-			graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-			graphics2D.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
-			graphics2D.dispose();
-		}
+		ImageIcon scaledImage = createScaledIcon(icon, scaledHeight, scaledWidth);
 
 		File file = new File(fileName);
 		file.createNewFile();
 
 		try {
-			ImageIO.write(scaledImage, type, file);
+			ImageIO.write((BufferedImage) scaledImage.getImage(), type, file);
 		} catch (Exception ex) {
 			return false;
 		}
 		return true;
+	}
+
+	public static ImageIcon createScaledIcon(ImageIcon icon, int scaledHeight, int scaledWidth) {
+		if (scaledHeight == 0 || scaledWidth == 0) {
+			// No scaling possible
+			return icon;
+		}
+
+		Image image = icon.getImage();
+		int imageWidth = image.getWidth(null);
+		int imageHeight = image.getHeight(null);
+
+		if (imageWidth == -1 || imageHeight == -1) {
+			// the image was not loaded.
+			return icon;
+		}
+
+		if (imageWidth < scaledWidth && imageHeight < scaledHeight) {
+			// We don't want to "blow up" the image
+			return icon;
+		}
+
+		double thumbRatio = (double) scaledWidth / (double) scaledHeight;
+		double imageRatio = (double) imageWidth / (double) imageHeight;
+
+		if (thumbRatio < imageRatio) {
+			scaledHeight = (int) (scaledWidth / imageRatio);
+		} else {
+			scaledWidth = (int) (scaledHeight * imageRatio);
+		}
+
+		BufferedImage scaledImage = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics2D = scaledImage.createGraphics();
+		graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		graphics2D.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
+		graphics2D.dispose();
+
+		return new ImageIcon(scaledImage);
 	}
 
 	public static String eliminateIllegalXmlCharacters(String element) {
@@ -1001,60 +1007,45 @@ public final class General {
 	}
 
 	/**
-	 * Sets the preferred width of the visible columns in a JTable. The columns will
-	 * be just wide enough to show the column head and the widest cell in the
-	 * column. Margin pixels are added to the left and right (resulting in an
-	 * additional width of 4 pixels).
+	 * Sets the preferred width of the visible columns and cells in a JTable.
 	 */
-	public static void packColumns(JTable table) {
-		final int MAXWIDTH = 300;
+	public static void packTable(JTable table) {
 		DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
 		int maxCols = colModel.getColumnCount();
-		int maxRows = table.getRowCount();
+		table.getRowCount();
 
-		for (int vColIndex = 0; vColIndex < maxCols; vColIndex++) {
-			TableColumn col = colModel.getColumn(vColIndex);
-			int width = 0;
+		int[] colWidth = new int[maxCols]; // Max column widths
 
-			// Get width of column header
+		// Get width of column headers
+		for (int column = 0; column < maxCols; column++) {
+			TableColumn col = colModel.getColumn(column);
+
 			TableCellRenderer renderer = col.getHeaderRenderer();
 			if (renderer == null) {
 				renderer = table.getTableHeader().getDefaultRenderer();
 			}
 
 			Component comp = renderer.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
-			width = comp.getPreferredSize().width;
+			colWidth[column] = comp.getPreferredSize().width;
+		}
 
-			if (maxRows > 0) {
-				renderer = table.getCellRenderer(0, vColIndex);
-				if (renderer instanceof JCheckBox) {
-					width = Math.max(width, 25);
-				} else {
-					// Get maximum width of column data
-					for (int r = 0; r < table.getRowCount(); r++) {
-						try {
-							comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, vColIndex), false,
-									false, r, vColIndex);
-							width = Math.max(width, comp.getPreferredSize().width);
-							if (width > MAXWIDTH) {
-								break;
-							}
-						} catch (Exception e) {
-							// Row contains an invalid object
-						}
-					}
-				}
+		// Set row height
+		for (int row = 0; row < table.getRowCount(); row++) {
+			int rowHeight = table.getRowHeight();
+
+			for (int column = 0; column < maxCols; column++) {
+				Component comp = table.prepareRenderer(table.getCellRenderer(row, column), row, column);
+				rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);
+				colWidth[column] = Math.max(colWidth[column], comp.getPreferredSize().width);
 			}
 
-			// Add margin
-			width += 4;
+			table.setRowHeight(row, rowHeight);
+		}
 
-			if (width > MAXWIDTH) {
-				width = MAXWIDTH;
-			}
-
-			// Set the width
-			col.setPreferredWidth(width);
+		// Set column width
+		for (int column = 0; column < maxCols; column++) {
+			TableColumn col = colModel.getColumn(column);
+			col.setPreferredWidth(Math.min(500, colWidth[column]));
 		}
 	}
 

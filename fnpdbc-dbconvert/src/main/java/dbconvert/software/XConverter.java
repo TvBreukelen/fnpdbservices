@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -207,6 +209,17 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		// dbFieldDefinition
 		boolean isUserListError = false;
 		dbUserFields = pdaSettings.getUserList();
+
+		if (!myExportFile.isImageExport()) {
+			// Images are not supported
+			Iterator<Entry<String, FieldDefinition>> iter = dbFieldDefinition.entrySet().iterator();
+			while (iter.hasNext()) {
+				Entry<String, FieldDefinition> entry = iter.next();
+				if (entry.getValue().getFieldType() == FieldTypes.IMAGE) {
+					iter.remove();
+				}
+			}
+		}
 
 		List<String> usrList = new ArrayList<>();
 		isUserListError = verifyUserfields(usrList, null);

@@ -31,13 +31,14 @@ By activating this checkbox all images to be exported are converted to image fil
 <ol>
 <li><i><b>To Bitmap Files</b></i></li>
 Exports the images to .bmp (bitmap) files. These files are directly imported in the HanDBase database and are
-  show there as "thumbnails".<br><br>
-<li><i><b>To Jpeg Files (160x160 pixels)</b></i></li>
+  show there as black and white "thumbnails".<br><br>
+<li><i><b>To Jpeg Files</b></i></li>
 This option is only suitable in case you've got the HanDBase Image-Plugin installed. The Image-Plugin supports
-  .jpg (Jpeg) Files of 160 x 160 bytes or 320 x 320 bytes. This option creates the images files of max.160 x 160
-  pixel-size.<br><br>
-<li><i><b>To Jpeg Files (320x320 pixels)</b></i></li> 
-Same as above, but by selecing this option Jpeg files will be created that have a imagesize of max. 320 x 320 pixels.<br>
+  .jpg (Jpeg) Files of 160 x 160 or 320 x 320 pixels.<br><br>
+<li><i><b>To Png Files</b></i></li> 
+Creates Png files. This format isn't supported by HanDBase and is therefor reserved for future us.<br><br>
+<li><i><b>Height / Width</b></i></li> 
+Sets the height and width in pixes of the image files to be created<br><br>
 </ol>
 <p><b>Important:</b> the image conversion process takes a huge amount of processing time!<br>
 When you export to Jpeg file, you have to keep in mind that you'd need to copy the files manually to your PDA in
@@ -47,10 +48,10 @@ the folder specified under Config->General->Folders->PDA Image Folder.
 </ul>
 <h2>HanDBase Import</h2>
 <ul>
-<li><b>Field Order of Fields</b></li>
-Import the new records based on the field order (as in the HanDBase 'Edit Field Order' screen.
+<li><b>Field Order</b></li>
+Import the new records based on the field names (as shown on the HanDBase 'Edit Field Order' screen.
 <br><br>
-<li><b>Physical Order of Fields</b></li>
+<li><b>Physical Order</b></li>
 Import the new records data based on the field creation order, as in the HanDBase 'DB Properties' screen
 <p><b>Note</b>: The HanDBase Import options can only be used if you export to an existing database (= one
  of the Export "InTo Current Database" options).</p>

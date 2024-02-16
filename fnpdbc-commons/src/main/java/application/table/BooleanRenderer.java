@@ -21,7 +21,7 @@ public class BooleanRenderer extends JCheckBox implements TableCellRenderer {
 
 	public BooleanRenderer() {
 		setHorizontalAlignment(SwingConstants.CENTER);
-		setVerticalTextPosition(SwingConstants.TOP);
+		setVerticalAlignment(SwingConstants.TOP);
 		setBorderPainted(true);
 		setOpaque(true);
 		label.setOpaque(true);

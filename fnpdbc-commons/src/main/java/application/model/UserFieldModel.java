@@ -1,16 +1,13 @@
 package application.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.table.AbstractTableModel;
 
 import application.interfaces.ExportFile;
 import application.utils.BasisField;
 import application.utils.GUIFactory;
 
-public class UserFieldModel extends AbstractTableModel {
+public class UserFieldModel extends HiddenColumnModel {
 	private static final long serialVersionUID = -3745524495569802922L;
 
 	public static final int COL_IMPORT_FIELD = 0;
@@ -25,22 +22,15 @@ public class UserFieldModel extends AbstractTableModel {
 	private List<BasisField> tableData = new ArrayList<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
 	private ExportFile importFile;
-
-	private boolean[] columnsVisible;
 	private boolean hasTextExport;
-	private int visibleColumns;
 
 	public UserFieldModel(ExportFile exp) {
+		super(COL_UNIQUE + 1);
 		setInputFile(exp);
 	}
 
 	public void setInputFile(ExportFile exp) {
 		importFile = exp;
-
-		int totalColumns = columnNames.length;
-		columnsVisible = new boolean[totalColumns];
-		visibleColumns = totalColumns;
-		Arrays.fill(columnsVisible, true);
 
 		// Reset text fields
 		tableData.forEach(e -> e.setOutputAsText(false));
@@ -74,32 +64,6 @@ public class UserFieldModel extends AbstractTableModel {
 		fireTableStructureChanged();
 	}
 
-	/**
-	 * This function converts a column number in the table to the right number of
-	 * the data.
-	 */
-	public int getNumber(int col) {
-		int n = col; // right number to return
-		int i = 0;
-		do {
-			if (!columnsVisible[i]) {
-				n++;
-			}
-			i++;
-		} while (i < n);
-		// If we are on an invisible column,
-		// we have to go one step further
-		while (!columnsVisible[n]) {
-			n++;
-		}
-		return n;
-	}
-
-	@Override
-	public int getColumnCount() {
-		return visibleColumns;
-	}
-
 	@Override
 	public String getColumnName(int col) {
 		return columnNames[getNumber(col)];
@@ -117,10 +81,6 @@ public class UserFieldModel extends AbstractTableModel {
 		default:
 			return false;
 		}
-	}
-
-	public boolean isColumnVisible(int col) {
-		return columnsVisible[col];
 	}
 
 	@Override

@@ -116,7 +116,7 @@ public enum ExportFile {
 	}
 
 	public boolean isImageExport() {
-		return this == HANDBASE || this == ACCESS;
+		return this == HANDBASE || this == PARADOX || this == ACCESS;
 	}
 
 	public boolean isAppend() {

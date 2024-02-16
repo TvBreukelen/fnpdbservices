@@ -3,7 +3,7 @@ package fnprog2pda.software;
 import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +64,6 @@ public abstract class FNProgramvare extends BasicSoft {
 	protected String myTableID;
 
 	private boolean useCategory;
-	private boolean exportImages;
 
 	private boolean isSkipFirstFilter;
 	private boolean isSkipLastFilter;
@@ -87,15 +87,11 @@ public abstract class FNProgramvare extends BasicSoft {
 			|| field.getFieldType() == FieldTypes.FLOAT || field.getFieldType() == FieldTypes.NUMBER;
 
 	private String lastExported = General.EMPTY_STRING;
-	private String imageKey;
 
 	protected String[] personField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING };
-	private int fileCounter;
-	private int imageOption;
 
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
-	private boolean isNoImagePath = false;
 
 	protected Map<String, Map<Integer, String>> myRoles = new HashMap<>(30);
 	protected static PrefFNProg mySettings = PrefFNProg.getInstance();
@@ -111,21 +107,14 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	protected FNProgramvare() {
 		super(mySettings);
-
-		isNoImagePath = generalSettings.isNoImagePath();
 		mySoftwareVersion = dbSettings.getDatabaseVersion();
 
 		// Initialize "Global" variables
-		exportImages = mySettings.isExportImages();
 		useRoles = mySettings.isUseRoles();
 		useCategory = !mySettings.getCategoryField().isEmpty();
 		useContentsPerson = mySettings.isUseContentsPerson();
 		useContentsOrigTitle = mySettings.isUseContentsOrigTitle();
 		useContentsItemTitle = mySettings.isUseContentsItemTitle();
-
-		imageKey = mySettings.getProfileID();
-		imageOption = mySettings.getImageOption();
-		fileCounter = 0;
 
 		lastIndex = mySettings.getLastIndex();
 		lastExported = mySettings.getLastExported();
@@ -605,73 +594,47 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 	}
 
-	// If Cover field is selected check whether we have load the Image from an
+	// If image field is selected check whether we have load the image from an
 	// external file
-	private boolean check4ExternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
-			throws Exception {
-
+	private boolean check4ExternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map) {
 		String imageFilename = (String) map.get("ImageFilename");
 		if (StringUtils.isEmpty(imageFilename) || !General.existFile(imageFilename)) {
 			return false;
 		}
 
-		// Return fully qualified external filename
-		if (exportImages) {
-			// Load image from external file and create a new image file (works with JPEG
-			// and GIF files only ?)
+		if (mySettings.isExportImages()) {
+			// Load image from external file
 			try {
-				BufferedImage image = ImageIO.read(new File(imageFilename));
-				return convertImage(field, image, dbRecord);
+				dbRecord.put(field, new ImageIcon(imageFilename));
 			} catch (IllegalArgumentException e) {
 				// File format is invalid
 				return false;
 			}
 		} else {
 			dbRecord.put(field,
-					isNoImagePath ? imageFilename.substring(imageFilename.lastIndexOf('\\') + 1) : imageFilename);
+					generalSettings.isNoImagePath() ? imageFilename.substring(imageFilename.lastIndexOf('\\') + 1)
+							: imageFilename);
 		}
 		return true;
 	}
 
-	private boolean check4InternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map)
-			throws Exception {
+	private boolean check4InternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map) {
+		if (!mySettings.isExportImages()) {
+			return false;
+		}
 
-		if (exportImages) {
-			Object obj = map.get(field.startsWith(THUMB) ? "ImageThumbnail" : "Image");
-			if (obj != null) {
-				try {
-					BufferedImage image = ImageIO.read(new ByteArrayInputStream((byte[]) obj));
-					return convertImage(field, image, dbRecord);
-				} catch (IllegalArgumentException e) {
-					// Image format is not valid
-				}
+		Object obj = map.get(field.startsWith(THUMB) ? "ImageThumbnail" : "Image");
+		if (obj instanceof byte[] byteArray) {
+			try {
+				BufferedImage image = ImageIO.read(new ByteArrayInputStream(byteArray));
+				dbRecord.put(field, new ImageIcon(image));
+			} catch (IOException e) {
+				// Image format is not valid
+				return false;
 			}
 		}
-		return false;
-	}
+		return true;
 
-	private boolean convertImage(String field, BufferedImage image, Map<String, Object> dbRecord) throws Exception {
-		String[] types = { ".bmp", ".jpg", ".png" };
-
-		StringBuilder buf = new StringBuilder(100);
-		buf.append(generalSettings.getDefaultImageFolder());
-		buf.append("/");
-		buf.append(imageKey);
-		buf.append("_");
-		buf.append(field);
-		buf.append("_");
-		buf.append(fileCounter++);
-		buf.append(types[mySettings.getImageOption()]);
-
-		if (General.convertImage(image, myExportFile, mySettings, buf.toString(), field.startsWith(THUMB))) {
-			if (imageOption != 0 && myExportFile == ExportFile.HANDBASE) {
-				buf.delete(0, generalSettings.getDefaultImageFolder().length());
-				buf.insert(0, generalSettings.getDefaultPdaFolder());
-			}
-			dbRecord.put(field, buf.toString());
-			return true;
-		}
-		return false;
 	}
 
 	private void prepareFilters(Map<Integer, FieldDefinition> hFilterTable, Set<Object> idSet) throws Exception {

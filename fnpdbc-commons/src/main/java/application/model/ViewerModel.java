@@ -1,19 +1,18 @@
 package application.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JTextArea;
-import javax.swing.table.AbstractTableModel;
 
 import application.interfaces.FieldTypes;
 import application.utils.FieldDefinition;
 import application.utils.General;
 
-public class ViewerModel extends AbstractTableModel {
+public class ViewerModel extends HiddenColumnModel {
 	/**
 	 * Title: ViewerModel
 	 *
@@ -26,20 +25,9 @@ public class ViewerModel extends AbstractTableModel {
 	private List<FieldDefinition> fieldList;
 	transient List<Map<String, Object>> tableData = new ArrayList<>();
 
-	private boolean[] columnsVisible;
-	private int totalColumns;
-	private int visibleColumns;
-
 	public ViewerModel(List<FieldDefinition> dbFields) {
+		super(dbFields.size());
 		fieldList = dbFields;
-		init();
-	}
-
-	private void init() {
-		totalColumns = fieldList.size();
-		columnsVisible = new boolean[totalColumns];
-		visibleColumns = totalColumns;
-		Arrays.fill(columnsVisible, true);
 	}
 
 	public List<Map<String, Object>> getDataListMap() {
@@ -66,36 +54,6 @@ public class ViewerModel extends AbstractTableModel {
 		if (isColumnChange) {
 			fireTableStructureChanged();
 		}
-	}
-
-	public int getLastColumn() {
-		return totalColumns - 1;
-	}
-
-	/**
-	 * This function converts a column number in the table to the right number of
-	 * the data.
-	 */
-	protected int getNumber(int col) {
-		int n = col; // right number to return
-		int i = 0;
-		do {
-			if (!columnsVisible[i]) {
-				n++;
-			}
-			i++;
-		} while (i < n);
-		// If we are on an invisible column,
-		// we have to go one step further
-		while (!columnsVisible[n]) {
-			n++;
-		}
-		return n;
-	}
-
-	@Override
-	public int getColumnCount() {
-		return visibleColumns;
 	}
 
 	@Override
@@ -128,7 +86,12 @@ public class ViewerModel extends AbstractTableModel {
 		}
 
 		switch (field.getFieldType()) {
-		case BOOLEAN, IMAGE:
+		case BOOLEAN:
+			return obj;
+		case IMAGE:
+			if (obj instanceof ImageIcon icon) {
+				return General.createScaledIcon(icon, 320, 320);
+			}
 			return obj;
 		case BIG_DECIMAL, FLOAT, NUMBER:
 			return obj instanceof Number ? field.getNumberFormat().format(obj) : obj.toString();

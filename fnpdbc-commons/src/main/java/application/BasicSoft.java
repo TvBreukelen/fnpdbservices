@@ -59,6 +59,7 @@ public abstract class BasicSoft {
 	protected boolean isFilterDefined;
 	protected ExportFile myExportFile = ExportFile.EXCEL;
 	protected ExportFile myImportFile = ExportFile.EXCEL;
+
 	protected Profiles pdaSettings;
 	protected GeneralDB dbOut;
 
@@ -355,7 +356,7 @@ public abstract class BasicSoft {
 
 	public void runConversionProgram(Component parent) throws Exception {
 		if (myExportFile == ExportFile.HANDBASE) {
-			((HanDBase) dbOut).runConversionProgram(pdaSettings);
+			((HanDBase) dbOut).runConversionProgram();
 		}
 
 		if (myExportFile == ExportFile.TEXTFILE) {
