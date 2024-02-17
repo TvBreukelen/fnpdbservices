@@ -1,6 +1,12 @@
 Release Notes
 -------------
 
+Version 8.2
+-----------
+Added append option to Calc and Excel export.
+Viewer can now display images and items are shown with the correct row height.
+
+
 Version 8.1
 -----------
 Updated Java version to 17

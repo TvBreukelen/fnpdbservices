@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -47,7 +48,9 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	protected Workbook wb;
 	protected Sheet sheet;
+	protected String sheetName;
 	protected CreationHelper helper;
+	protected boolean isAppend;
 
 	protected int maxRowsInSheet;
 
@@ -57,13 +60,17 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myDatabase);
+		outFile = new File(getDbFile());
+		boolean isXlsx = getDbFile().toLowerCase().endsWith("x");
+		maxRowsInSheet = isXlsx ? 1048576 : 65536;
+		isAppend = myPref.isAppendRecords() && outFile.exists();
 
 		this.isInputFile = isInputFile;
-		if (isInputFile) {
+		if (isInputFile || isAppend) {
 			InputStream fileIn = new FileInputStream(outFile);
 			wb = WorkbookFactory.create(fileIn);
 			noOfSheets = wb.getNumberOfSheets();
+			sheetName = isAppend ? myPref.getPdaDatabaseName() : myPref.getTableName();
 
 			// Read all sheets in the workbook
 			hSheets = new HashMap<>(noOfSheets);
@@ -76,18 +83,26 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 				}
 			}
 		} else {
-			boolean isXlsx = myDatabase.toLowerCase().endsWith("x");
+			sheetName = myPref.getPdaDatabaseName();
 			wb = isXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
-			String sheetName = myPref.getPdaDatabaseName();
 			sheet = wb.createSheet(sheetName.isEmpty() ? "Sheet1" : sheetName);
-			maxRowsInSheet = isXlsx ? 1048576 : 65536;
 		}
+
+		if (isAppend) {
+			if (hSheets.containsKey(sheetName)) {
+				getCurrentSheet();
+			} else {
+				isAppend = false;
+				sheet = wb.createSheet(sheetName.isEmpty() ? "Sheet1" : sheetName);
+			}
+		}
+
 		helper = wb.getCreationHelper();
 	}
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		return hSheets.get(getCurrentSheet());
+		return hSheets.get(sheetName);
 	}
 
 	@Override
@@ -106,17 +121,14 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		return lSheets;
 	}
 
-	private String getCurrentSheet() {
-		String sheetName = myPref.getTableName();
-		for (String s : hSheets.keySet()) {
-			if (sheetName.equals(s)) {
-				sheet = wb.getSheet(sheetName);
-				return sheetName;
-			}
+	private void getCurrentSheet() {
+		Optional<Sheet> sheetOpt = Optional.ofNullable(wb.getSheet(sheetName));
+		if (sheetOpt.isPresent()) {
+			sheet = sheetOpt.get();
+		} else {
+			sheet = wb.getSheetAt(0);
 		}
-
-		sheet = wb.getSheetAt(0);
-		return sheet.getSheetName();
+		sheetName = sheet.getSheetName();
 	}
 
 	private List<FieldDefinition> getDBFieldNamesAndTypes() {
@@ -126,7 +138,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			return new ArrayList<>();
 		}
 
-		Row names = sheet.getRow(0); // Assumes that the 1st row contains the fieldnames
+		Row names = sheet.getRow(0); // Assumes that the 1st row contains the field names
 		for (Cell cell : names) {
 			dbFieldNames.add(cell.getRichStringCellValue().getString());
 		}
@@ -188,12 +200,12 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	public void readTableContents() throws Exception {
 		getCurrentSheet();
 		if (sheet == null) {
-			throw FNProgException.getException("noSheets", myDatabase);
+			throw FNProgException.getException("noSheets", getDbFile());
 		}
 
 		totalRecords = sheet.getLastRowNum() + 1; // Rows start with Row number 0
 		if (totalRecords < 2) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), myDatabase);
+			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), getDbFile());
 		}
 	}
 
@@ -278,6 +290,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	protected void createNextSheet() {
 		int numOfSheets = wb.getNumberOfSheets();
 		sheet = wb.createSheet("Page " + (numOfSheets + 1));
+		sheetName = sheet.getSheetName();
 	}
 
 	@Override

@@ -39,21 +39,21 @@ public class SQLite extends SqlDB implements IConvert {
 		// Try to obtain the database connection
 		StringBuilder url = new StringBuilder();
 		url.append("jdbc:sqlite:");
-		url.append(myDatabase);
+		url.append(getDbFile());
 
 		connection = DriverManager.getConnection(url.toString());
 		isConnected = true;
 	}
 
 	private void verifyDbHeader() throws IOException, FNProgException {
-		if (!isInputFile && !General.existFile(myDatabase)) {
+		if (!isInputFile && !General.existFile(getDbFile())) {
 			return;
 		}
 
 		String header = null;
 		ExportFile dbFile = isInputFile ? myImportFile : myExportFile;
 
-		try (RandomAccessFile raf = new RandomAccessFile(myDatabase, "r")) {
+		try (RandomAccessFile raf = new RandomAccessFile(getDbFile(), "r")) {
 			FileChannel channel = raf.getChannel();
 			int len = dbFile.getDbType().length();
 
@@ -67,7 +67,7 @@ public class SQLite extends SqlDB implements IConvert {
 		}
 
 		if (header != null && !header.equals(dbFile.getDbType())) {
-			throw FNProgException.getException("invalidDatabaseID", myDatabase, dbFile.getName(), dbFile.getDbType(),
+			throw FNProgException.getException("invalidDatabaseID", getDbFile(), dbFile.getName(), dbFile.getDbType(),
 					header);
 		}
 	}

@@ -21,6 +21,7 @@ import application.model.ViewerModel;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.utils.BasisField;
+import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -74,6 +75,7 @@ public abstract class BasicSoft {
 	}
 
 	public void addObserver(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
 		pcs.addPropertyChangeListener(listener);
 
 		timer = new Timer();
@@ -115,7 +117,7 @@ public abstract class BasicSoft {
 	}
 
 	/* Write the TableModel data into the ExportFile */
-	public void convertFromTableModel(ViewerModel tabModel, GeneralDB dbOut) throws Exception {
+	public void convertFromTableModel(ViewerModel tabModel) throws Exception {
 		List<Map<String, Object>> table = tabModel.getDataListMap();
 
 		setCurrentRecord(0);
@@ -123,6 +125,7 @@ public abstract class BasicSoft {
 		writtenRecords = 0;
 
 		try {
+			openToFile(); // Sets dbOut
 			dbOut.createDbHeader();
 			for (Map<String, Object> rowData : table) {
 				Map<String, Object> dbRecord = new HashMap<>();
@@ -131,12 +134,16 @@ public abstract class BasicSoft {
 				writtenRecords += dbOut.processData(dbRecord);
 				currentRecord++;
 			}
+		} catch (Exception e) {
+			throw FNProgException.getException("cannotWrite", dbOut.getDbFile(), e.getMessage());
 		} finally {
 			timer.cancel();
 			setCurrentRecord(totalRecords);
 			dbOut.closeData();
 		}
 	}
+
+	public abstract void openToFile() throws Exception;
 
 	public List<FieldDefinition> getDbInfoToWrite() {
 		return dbInfoToWrite;

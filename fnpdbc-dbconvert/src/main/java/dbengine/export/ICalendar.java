@@ -137,7 +137,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 		currentRecord = 0;
 		dbRecords.clear();
 
-		try (FileInputStream fin = new FileInputStream(myDatabase)) {
+		try (FileInputStream fin = new FileInputStream(getDbFile())) {
 			CalendarBuilder builder = new CalendarBuilder();
 			Calendar cal = builder.build(fin);
 			iCals = cal.getComponents();
@@ -145,7 +145,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 
 		totalRecords = iCals.size();
 		if (totalRecords == 0) {
-			throw FNProgException.getException("noFields", myDatabase);
+			throw FNProgException.getException("noFields", getDbFile());
 		}
 	}
 

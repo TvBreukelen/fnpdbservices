@@ -19,9 +19,8 @@ import dbengine.ExcelFile;
 
 public class Excel extends ExcelFile {
 	/**
-	 * Title: Excel Description: Generic Class for MS-Excel tables Copyright: (c)
-	 * 2004-2016
-	 *
+	 * @apiNote MS-Excel tables
+	 * @since 2004-2016
 	 * @author Tom van Breukelen
 	 * @version 8+
 	 */
@@ -67,6 +66,13 @@ public class Excel extends ExcelFile {
 
 		formatTimestamp = wb.createCellStyle();
 		formatTimestamp.setDataFormat(helper.createDataFormat().getFormat(General.getTimestampFormat()));
+
+		if (isAppend) {
+			validateAppend(getTableModelFields());
+			excelRow = sheet.getLastRowNum() + 1;
+			return;
+		}
+
 		excelRow = 0;
 
 		if (myPref.isUseHeader()) {
@@ -158,6 +164,7 @@ public class Excel extends ExcelFile {
 
 		if (excelRow > maxRowsInSheet) {
 			createNextSheet();
+			excelRow = 0;
 		} else {
 			excelRow++;
 		}

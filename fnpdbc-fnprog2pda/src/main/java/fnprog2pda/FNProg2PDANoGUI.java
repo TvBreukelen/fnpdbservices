@@ -146,7 +146,7 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 		loadModel = false;
 		mySoftware.checkNumberOfFields(true, tabModel); // Plausibility check 2
 		mySoftware.openToFile();
-		mySoftware.convertFromTableModel(tabModel, mySoftware.getDbOut());
+		mySoftware.convertFromTableModel(tabModel);
 		mySoftware.close();
 		System.out.println();
 		mySoftware.runConversionProgram(null);

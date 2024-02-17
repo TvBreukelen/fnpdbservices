@@ -35,7 +35,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		String memoF = myDatabase.substring(0, myDatabase.length() - 3);
+		String memoF = getDbFile().substring(0, getDbFile().length() - 3);
 
 		if (isInputFile) {
 			if (General.existFile(memoF + "fpt")) {
@@ -45,7 +45,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 			}
 		}
 
-		outFile = new File(myDatabase);
+		outFile = new File(getDbFile());
 		memoFile = new File(memoF);
 
 		if (isInputFile) {
@@ -62,14 +62,14 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		this.isInputFile = isInputFile;
 
 		if (isInputFile) {
-			in = new FileInputStream(myDatabase);
+			in = new FileInputStream(getDbFile());
 			reader = new DBFReader(in);
 			if (memoFile.exists()) {
 				reader.setMemoFile(memoFile);
 			}
 		} else {
 			if (useAppend) {
-				in = new FileInputStream(myDatabase);
+				in = new FileInputStream(getDbFile());
 				reader = new DBFReader(in);
 				in.close();
 				reader.close();
@@ -219,7 +219,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 		}
 
 		if (hasBackup) {
-			File backupFile = new File(myDatabase + ".bak");
+			File backupFile = new File(getDbFile() + ".bak");
 			backupFile.renameTo(outFile);
 
 			backupFile = new File(memoFile.getAbsoluteFile() + ".bak");
@@ -277,12 +277,12 @@ public class DBaseFile extends GeneralDB implements IConvert {
 	public void readTableContents() throws Exception {
 		numFields = reader.getFieldCount();
 		if (numFields < 1) {
-			throw FNProgException.getException("noFields", myDatabase);
+			throw FNProgException.getException("noFields", getDbFile());
 		}
 
 		totalRecords = reader.getRecordCount();
 		if (reader.getRecordCount() < 1) {
-			throw FNProgException.getException("noRecords", myDatabase);
+			throw FNProgException.getException("noRecords", getDbFile());
 		}
 
 		dbFieldNames.clear();

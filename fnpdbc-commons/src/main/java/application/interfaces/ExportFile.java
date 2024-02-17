@@ -120,7 +120,7 @@ public enum ExportFile {
 	}
 
 	public boolean isAppend() {
-		return !(this == CALC || this == EXCEL || this == JSON || this == YAML || this == TEXTFILE || this == XML);
+		return !(this == JSON || this == YAML || this == TEXTFILE || this == XML);
 	}
 
 	public boolean isConnectHost() {

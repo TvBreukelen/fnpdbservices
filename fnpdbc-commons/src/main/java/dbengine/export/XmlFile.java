@@ -62,7 +62,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myDatabase);
+		outFile = new File(getDbFile());
 		this.isInputFile = isInputFile;
 
 		if (isInputFile) {
@@ -73,7 +73,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 			SAXParser parser = parserFactory.newSAXParser();
 			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, General.EMPTY_STRING);
 			parser.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, General.EMPTY_STRING);
-			parser.parse(myDatabase, handler);
+			parser.parse(getDbFile(), handler);
 		} else {
 			outFile.delete();
 			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8));

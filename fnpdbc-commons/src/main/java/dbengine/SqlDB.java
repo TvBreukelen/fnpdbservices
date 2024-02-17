@@ -72,10 +72,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		aTables = new LinkedHashMap<>();
 		ExportFile dbFile = isInputFile ? myImportFile : myExportFile;
 
-		String db = dbFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
+		String db = dbFile.isConnectHost() ? getDbFile().substring(getDbFile().indexOf("/") + 1) : getDbFile();
 		if (dbFile == ExportFile.PARADOX) {
-			db = myDatabase.substring(myDatabase.lastIndexOf(FileSystems.getDefault().getSeparator()) + 1,
-					myDatabase.lastIndexOf("."));
+			db = getDbFile().substring(getDbFile().lastIndexOf(FileSystems.getDefault().getSeparator()) + 1,
+					getDbFile().lastIndexOf("."));
 		}
 
 		String[] types = null;
@@ -623,22 +623,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 	}
 
-	protected String getSqlFieldName(String value, boolean noDot) {
-		return noDot ? getSqlFieldName(value).replace(".", "") : getSqlFieldName(value);
-	}
-
-	protected String getSqlFieldName(String value) {
-		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
-			return value;
-		}
-
-		return "[" + value + "]";
-	}
-
-	protected boolean isNotReservedWord(String value) {
-		return !"user".equalsIgnoreCase(value);
-	}
-
 	@Override
 	public List<Object> getDbFieldValues(String field) throws Exception {
 		List<Object> result = new ArrayList<>();
@@ -786,7 +770,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return;
 		}
 
-		validateTable(table);
+		validateAppend(table.getDbFields());
 
 		if (myPref.getExportOption() == 1) {
 			executeStatement("DELETE FROM " + tableName);
@@ -794,38 +778,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		createPreparedStatement();
-	}
-
-	private void validateTable(SqlTable table) throws FNProgException {
-		int numFields = dbInfo2Write.size();
-		if (numFields != table.getDbFields().size()) {
-			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
-					Integer.toString(table.getDbFields().size()));
-		}
-
-		// Verify if fields match in type and size
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field1 = table.getDbFields().get(i);
-			FieldDefinition field2 = dbInfo2Write.get(i);
-
-			if (!field1.getFieldName().equals(getSqlFieldName(field2.getFieldHeader(), true))) {
-				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getFieldName(),
-						field2.getFieldHeader());
-			}
-
-			boolean isField1Text = field1.getFieldType() == FieldTypes.MEMO || field1.getFieldType() == FieldTypes.TEXT;
-			boolean isField2Text = field2.isOutputAsText() || field2.getFieldType() == FieldTypes.MEMO
-					|| field2.getFieldType() == FieldTypes.TEXT;
-
-			if (field1.getFieldType() != field2.getFieldType() && isField1Text != isField2Text) {
-				throw FNProgException.getException("noMatchFieldType", field1.getFieldName(), field2.getFieldHeader());
-			}
-
-			if (field1.getSize() < field2.getSize()) {
-				throw FNProgException.getException("noMatchFieldLength", field1.getFieldName(),
-						Integer.toString(field1.getSize()), Integer.toString(field2.getSize()));
-			}
-		}
 	}
 
 	protected void executeStatement(String statement) throws SQLException {

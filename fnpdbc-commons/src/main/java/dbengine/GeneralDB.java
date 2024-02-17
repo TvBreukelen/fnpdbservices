@@ -110,13 +110,13 @@ public abstract class GeneralDB {
 		}
 
 		myDatabase = helper.getRemoteDatabase();
-		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(myDatabase)) {
-			throw FNProgException.getException("noDatabaseExists", myDatabase);
+		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(getDbFile())) {
+			throw FNProgException.getException("noDatabaseExists", getDbFile());
 		}
 
 		hasBackup = false;
 		if (!isInputFile && createBackup) {
-			hasBackup = General.copyFile(myDatabase, myDatabase + ".bak");
+			hasBackup = General.copyFile(getDbFile(), getDbFile() + ".bak");
 		}
 
 		myHelper = helper;
@@ -125,10 +125,11 @@ public abstract class GeneralDB {
 		try {
 			openFile(isInputFile);
 		} catch (EOFException e) {
-			exception = FNProgException.getException("cannotOpen", myDatabase,
+			exception = FNProgException.getException(isInputFile ? "cannotOpen" : "cannotWrite", getDbFile(),
 					"Cannot read file beyond EOF (File is empty or corrupt)");
 		} catch (Exception e) {
-			exception = FNProgException.getException("cannotOpen", myDatabase, e.getMessage());
+			exception = FNProgException.getException(isInputFile ? "cannotOpen" : "cannotWrite", getDbFile(),
+					e.getMessage());
 		}
 
 		if (exception != null) {
@@ -192,6 +193,61 @@ public abstract class GeneralDB {
 		default:
 			return convertString(dbValue);
 		}
+	}
+
+	protected void validateAppend(List<FieldDefinition> dbFields) throws FNProgException {
+		int numFields = dbInfo2Write.size();
+		if (numFields != dbFields.size()) {
+			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
+					Integer.toString(dbFields.size()));
+		}
+
+		// Verify if fields match in type and size
+		for (int i = 0; i < numFields; i++) {
+			FieldDefinition field1 = dbFields.get(i);
+			FieldDefinition field2 = dbInfo2Write.get(i);
+			String fieldName = myExportFile.isSqlDatabase() ? getSqlFieldName(field2.getFieldHeader(), true)
+					: field2.getFieldHeader();
+
+			if (!field1.getFieldName().equals(fieldName)) {
+				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getFieldName(),
+						field2.getFieldHeader());
+			}
+
+			boolean isField1Text = field1.getFieldType() == FieldTypes.MEMO || field1.getFieldType() == FieldTypes.TEXT;
+			boolean isField2Text = field2.isOutputAsText() || field2.getFieldType() == FieldTypes.MEMO
+					|| field2.getFieldType() == FieldTypes.TEXT;
+
+			if (field1.getFieldType() != field2.getFieldType() && isField1Text != isField2Text) {
+				throw FNProgException.getException("noMatchFieldType", field1.getFieldName(), field2.getFieldHeader());
+			}
+
+			if (myExportFile == ExportFile.SQLITE || myExportFile.isSpreadSheet()) {
+				// No need to check the field sizes
+				return;
+			}
+
+			if (field1.getSize() < field2.getSize()) {
+				throw FNProgException.getException("noMatchFieldLength", field1.getFieldName(),
+						Integer.toString(field1.getSize()), Integer.toString(field2.getSize()));
+			}
+		}
+	}
+
+	protected String getSqlFieldName(String value, boolean noDot) {
+		return noDot ? getSqlFieldName(value).replace(".", "") : getSqlFieldName(value);
+	}
+
+	protected String getSqlFieldName(String value) {
+		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
+			return value;
+		}
+
+		return "[" + value + "]";
+	}
+
+	protected boolean isNotReservedWord(String value) {
+		return !"user".equalsIgnoreCase(value);
 	}
 
 	protected Object convertBoolean(Object dbValue, FieldDefinition field) {
@@ -272,13 +328,13 @@ public abstract class GeneralDB {
 
 	public void deleteFile() {
 		closeFile();
-		File outFile = new File(myDatabase);
+		File outFile = new File(getDbFile());
 
 		if (outFile.exists()) {
 			outFile.delete();
 		}
 		if (hasBackup) {
-			File backupFile = new File(myDatabase + ".bak");
+			File backupFile = new File(getDbFile() + ".bak");
 			backupFile.renameTo(outFile);
 		}
 	}
@@ -287,5 +343,9 @@ public abstract class GeneralDB {
 
 	public void createDbHeader() throws Exception {
 		// Nothing to do here
+	}
+
+	public String getDbFile() {
+		return myDatabase;
 	}
 }

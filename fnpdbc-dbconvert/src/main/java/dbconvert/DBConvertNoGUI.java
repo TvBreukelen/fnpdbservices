@@ -134,8 +134,7 @@ public class DBConvertNoGUI implements PropertyChangeListener {
 
 		// Start Export
 		loadModel = false;
-		mySoftware.openToFile();
-		mySoftware.convertFromTableModel(tabModel, mySoftware.getDbOut());
+		mySoftware.convertFromTableModel(tabModel);
 		mySoftware.close(); // Close export file
 		System.out.println();
 		mySoftware.runConversionProgram(null);

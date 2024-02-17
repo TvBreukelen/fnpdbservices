@@ -25,7 +25,7 @@ public class Paradox extends SqlDB {
 		url.append("jdbc:paradox:");
 
 		// URL should not point to the database file, but to the database directory
-		url.append(myDatabase.substring(0, myDatabase.lastIndexOf(FileSystems.getDefault().getSeparator())));
+		url.append(getDbFile().substring(0, getDbFile().lastIndexOf(FileSystems.getDefault().getSeparator())));
 		connection = DriverManager.getConnection(url.toString());
 		isConnected = true;
 	}

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.github.miachm.sods.OfficeCurrency;
 import com.github.miachm.sods.OfficePercentage;
@@ -32,10 +33,12 @@ public class Calc extends GeneralDB implements IConvert {
 	private int maxColumns;
 	private int calcRow = 0;
 
-	protected int noOfSheets;
+	private int noOfSheets;
+	private boolean isAppend;
 
-	protected SpreadSheet wb;
-	protected Sheet sheet;
+	private SpreadSheet wb;
+	private Sheet sheet;
+	private String sheetName;
 
 	public Calc(Profiles pref) {
 		super(pref);
@@ -43,42 +46,55 @@ public class Calc extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(myDatabase);
+		outFile = new File(getDbFile());
+		isAppend = myPref.isAppendRecords() && outFile.exists();
 
 		this.isInputFile = isInputFile;
-		if (isInputFile) {
+		if (isInputFile || isAppend) {
+			sheetName = isAppend ? myPref.getPdaDatabaseName() : myPref.getTableName();
 			wb = new SpreadSheet(outFile);
 			noOfSheets = wb.getNumSheets();
+
+			// Read all sheets in the workbook
+			hSheets = new HashMap<>(noOfSheets);
+			for (int i = 0; i < noOfSheets; i++) {
+				// Get TableModelFields for each sheet and put them in the HashMap
+				sheet = wb.getSheet(i);
+				List<FieldDefinition> temp = getDBFieldNamesAndTypes();
+				if (!temp.isEmpty()) {
+					hSheets.put(sheet.getName(), temp);
+				}
+			}
+		} else {
+			sheetName = myPref.getPdaDatabaseName();
+			createNewSheet(totalRecords, dbInfo2Write.size());
+		}
+
+		if (isAppend) {
+			if (hSheets.containsKey(sheetName)) {
+				getCurrentSheet();
+			} else {
+				isAppend = false;
+				createNewSheet(totalRecords, dbInfo2Write.size());
+			}
 		}
 	}
 
 	@Override
 	public void readTableContents() throws Exception {
-		// Read all sheets in the workbook
-		hSheets = new HashMap<>(noOfSheets);
-		for (int i = 0; i < noOfSheets; i++) {
-			// Get TableModelFields for each sheet and put them in the HashMap
-			sheet = wb.getSheet(i);
-			List<FieldDefinition> temp = getDBFieldNamesAndTypes();
-			if (!temp.isEmpty()) {
-				hSheets.put(sheet.getName(), temp);
-			}
-		}
-
 		getCurrentSheet();
 		if (sheet == null) {
-			throw FNProgException.getException("noSheets", myDatabase);
+			throw FNProgException.getException("noSheets", getDbFile());
 		}
 
 		totalRecords = sheet.getMaxRows() - 1;
 		if (totalRecords < 1) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), myDatabase);
+			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), getDbFile());
 		}
 	}
 
 	private void createNewSheet(int rows, int columns) {
 		wb = new SpreadSheet();
-		String sheetName = myPref.getPdaDatabaseName();
 		sheet = new Sheet(sheetName.isEmpty() ? "Sheet1" : sheetName, rows, columns);
 		wb.appendSheet(sheet);
 	}
@@ -178,17 +194,14 @@ public class Calc extends GeneralDB implements IConvert {
 		return lSheets;
 	}
 
-	private String getCurrentSheet() {
-		String sheetName = myPref.getTableName();
-		for (String s : hSheets.keySet()) {
-			if (sheetName.equals(s)) {
-				sheet = wb.getSheet(sheetName);
-				return sheetName;
-			}
+	private void getCurrentSheet() {
+		Optional<Sheet> sheetOpt = Optional.ofNullable(wb.getSheet(sheetName));
+		if (sheetOpt.isPresent()) {
+			sheet = sheetOpt.get();
+		} else {
+			sheet = wb.getSheet(0);
+			sheetName = sheet.getName();
 		}
-
-		sheet = wb.getSheet(0);
-		return sheet.getName();
 	}
 
 	@Override
@@ -208,7 +221,7 @@ public class Calc extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		return hSheets.get(getCurrentSheet());
+		return hSheets.get(sheetName);
 	}
 
 	@Override
@@ -224,7 +237,11 @@ public class Calc extends GeneralDB implements IConvert {
 
 	@Override
 	public void createDbHeader() throws Exception {
-		createNewSheet(totalRecords, dbInfo2Write.size());
+		if (isAppend) {
+			validateAppend(hSheets.get(sheetName));
+			calcRow = sheet.getMaxRows();
+			return;
+		}
 
 		if (myPref.isUseHeader()) {
 			sheet.appendRow();

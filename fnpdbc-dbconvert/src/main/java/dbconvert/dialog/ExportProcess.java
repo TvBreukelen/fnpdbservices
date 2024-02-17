@@ -75,10 +75,12 @@ public class ExportProcess implements Runnable, IExportProcess {
 		if (isRefresh) {
 			try {
 				mySoftware = new XConverter();
+				mySoftware.addObserver(myProgram);
 				mySoftware.connect2DB();
 				mySoftware.setupDBTranslation(true);
 				mySoftware.checkNumberOfFields();
 				mySoftware.loadInputFile();
+				myProgram.getProgressBar().setMaximum(mySoftware.getTotalRecords());
 				mySoftware.sortTableModel();
 				buildViewer();
 				mySoftware.close(); // Close input file
@@ -97,9 +99,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 
 		try {
 			// Start Export
-			mySoftware.addObserver(myProgram);
-			mySoftware.openToFile();
-			mySoftware.convertFromTableModel(xView.getTableModel(), mySoftware.getDbOut());
+			mySoftware.convertFromTableModel(xView.getTableModel());
 			mySoftware.close(); // Close export file
 			mySoftware.runConversionProgram(myProgram);
 		} catch (Exception ex) {
@@ -125,8 +125,6 @@ public class ExportProcess implements Runnable, IExportProcess {
 	private void buildViewer() throws Exception {
 		mySoftware.checkNumberOfFields();
 		xView = new Viewer(mySoftware.getTableModelFields());
-		myProgram.getProgressBar().setMaximum(mySoftware.getTotalRecords());
-		mySoftware.addObserver(myProgram);
 		mySoftware.processFiles(xView.getTableModel());
 		xView.getTableModel().resetColumnVisibility();
 		xView.buildViewer();

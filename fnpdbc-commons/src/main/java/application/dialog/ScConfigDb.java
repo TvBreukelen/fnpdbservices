@@ -159,21 +159,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
 			dbFileName.setText(pdaSettings.getPdaDatabaseName());
 
-			if (myExportFile.isSqlDatabase()) {
-				rExists[0].setText(GUIFactory.getText("intoNewTable"));
-				rExists[1].setText(GUIFactory.getText("replaceTableRecords"));
-				rExists[2].setText(GUIFactory.getText("appendTableRecords"));
-				dbFileNameLabel.setText(GUIFactory.getText("table"));
-			} else if (myExportFile.isSpreadSheet()) {
-				dbFileNameLabel.setText(GUIFactory.getText("worksheet"));
-			} else if (myExportFile == ExportFile.XML) {
-				dbFileNameLabel.setText(GUIFactory.getText("xmlRoot"));
-			} else {
-				rExists[0].setText(GUIFactory.getText("intoNewDatabase"));
-				rExists[1].setText(GUIFactory.getText("replaceDatabaseRecords"));
-				rExists[2].setText(GUIFactory.getText("appendDatabaseRecords"));
-				dbFileNameLabel.setText(GUIFactory.getText("database"));
-			}
+			setRadioButtonText();
 
 			if (myExportFile.isPasswordSupported()) {
 				fdPassword.setText(pdaSettings.getExportPassword());
@@ -225,6 +211,31 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		};
 	}
 
+	private void setRadioButtonText() {
+		String[] ids = new String[0];
+		if (myExportFile.isSqlDatabase()) {
+			ids = new String[] { "intoNewTable", "replaceTableRecords", "appendTableRecords" };
+			dbFileNameLabel.setText(GUIFactory.getText("table"));
+		} else if (myExportFile.isSpreadSheet()) {
+			ids = new String[] { "intoNewWorksheet", General.EMPTY_STRING, "appendWorksheetRecords" };
+			dbFileNameLabel.setText(GUIFactory.getText("worksheet"));
+		} else if (myExportFile == ExportFile.XML) {
+			dbFileNameLabel.setText(GUIFactory.getText("xmlRoot"));
+		} else {
+			ids = new String[] { "intoNewDatabase", "replaceDatabaseRecords", "appendDatabaseRecords" };
+			dbFileNameLabel.setText(GUIFactory.getText("database"));
+		}
+
+		if (ids.length > 0) {
+			for (int i = 0; i < ids.length; i++) {
+				if (!ids[i].isEmpty()) {
+					rExists[i].setText(GUIFactory.getText(ids[i]));
+					rExists[i].setToolTipText(GUIFactory.getToolTip(ids[i]));
+				}
+			}
+		}
+	}
+
 	public ExportFile getExportFile() {
 		return myExportFile;
 	}
@@ -267,12 +278,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
 
-		if (myExportFile.isSqlDatabase()) {
-			createRadioButtons(rExists, funcSelectExport, "intoNewTable", "replaceTableRecords", "appendTableRecords");
-		} else {
-			createRadioButtons(rExists, funcSelectExport, "intoNewDatabase", "replaceDatabaseRecords",
-					"appendDatabaseRecords");
-		}
+		createRadioButtons(rExists, funcSelectExport, General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING);
+		setRadioButtonText();
 
 		btTableSchema = GUIFactory.getJButton("funcShowSchema", funcShowSchema);
 		createRadioButtons(rImages, null, "imageToBitmap", "imageToJpeg", "imageToPng");
@@ -421,10 +428,11 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pBottomContainer.removeAll();
 
 		switch (myExportFile) {
-		case CALC, EXCEL:
+		case EXCEL:
 			pTopContainer.add(pOtherOptions);
+			pBottomContainer.add(pExport);
 			break;
-		case DBASE, SQLITE:
+		case CALC, DBASE, SQLITE:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;

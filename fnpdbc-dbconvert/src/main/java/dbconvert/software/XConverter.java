@@ -367,6 +367,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		return result;
 	}
 
+	@Override
 	public void openToFile() throws Exception {
 		dbOut = ExportProcess.getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);

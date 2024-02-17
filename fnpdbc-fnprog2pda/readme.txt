@@ -3,7 +3,8 @@ Release Notes
 
 Version 10.5
 ------------
-Viewer can now display images and items are shown with the correct row height
+Added append option to Calc and Excel export.
+Viewer can now display images and items are shown with the correct row height.
    
 
 Version 10.4

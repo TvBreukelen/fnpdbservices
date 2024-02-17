@@ -211,6 +211,7 @@ public abstract class FNProgramvare extends BasicSoft {
 		return field;
 	}
 
+	@Override
 	public void openToFile() throws Exception {
 		dbOut = ExportProcess.getDatabase(myExportFile, mySettings);
 		dbOut.setSoftware(this);
@@ -315,8 +316,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		Map<Integer, FieldDefinition> hFilterTable = new LinkedHashMap<>();
 
 		cursor = null;
-		setCurrentRecord(0);
-
 		prepareFilters(hFilterTable, keywordList);
 
 		Map<String, Object> map;
