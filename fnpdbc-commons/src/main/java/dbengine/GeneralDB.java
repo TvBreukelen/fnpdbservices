@@ -110,13 +110,13 @@ public abstract class GeneralDB {
 		}
 
 		myDatabase = helper.getRemoteDatabase();
-		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(getDbFile())) {
-			throw FNProgException.getException("noDatabaseExists", getDbFile());
+		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(myDatabase)) {
+			throw FNProgException.getException("noDatabaseExists", myDatabase);
 		}
 
 		hasBackup = false;
 		if (!isInputFile && createBackup) {
-			hasBackup = General.copyFile(getDbFile(), getDbFile() + ".bak");
+			hasBackup = General.copyFile(myDatabase, myDatabase + ".bak");
 		}
 
 		myHelper = helper;
@@ -125,10 +125,10 @@ public abstract class GeneralDB {
 		try {
 			openFile(isInputFile);
 		} catch (EOFException e) {
-			exception = FNProgException.getException(isInputFile ? "cannotOpen" : "cannotWrite", getDbFile(),
+			exception = FNProgException.getException(isInputFile ? "cannotOpen" : "cannotWrite", myDatabase,
 					"Cannot read file beyond EOF (File is empty or corrupt)");
 		} catch (Exception e) {
-			exception = FNProgException.getException(isInputFile ? "cannotOpen" : "cannotWrite", getDbFile(),
+			exception = FNProgException.getException(isInputFile ? "cannotOpen" : "cannotWrite", myDatabase,
 					e.getMessage());
 		}
 
@@ -328,13 +328,13 @@ public abstract class GeneralDB {
 
 	public void deleteFile() {
 		closeFile();
-		File outFile = new File(getDbFile());
+		File outFile = new File(myDatabase);
 
 		if (outFile.exists()) {
 			outFile.delete();
 		}
 		if (hasBackup) {
-			File backupFile = new File(getDbFile() + ".bak");
+			File backupFile = new File(myDatabase + ".bak");
 			backupFile.renameTo(outFile);
 		}
 	}

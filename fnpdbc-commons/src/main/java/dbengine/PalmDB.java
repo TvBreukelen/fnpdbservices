@@ -41,7 +41,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
-		File outFile = new File(getDbFile());
+		File outFile = new File(myDatabase);
 
 		if (isInputFile) {
 			useAppend = false;
@@ -80,7 +80,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	@Override
 	public void readTableContents() throws Exception {
 		if (pdbRaf.length() == 0) {
-			throw FNProgException.getException("noRecords", getDbFile());
+			throw FNProgException.getException("noRecords", myDatabase);
 		}
 
 		String dbType = header.getDbType();
@@ -92,16 +92,16 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 			if (!dbType.equals(myImportFile.getDbType()) || !dbCreator.equals(myImportFile.getCreator())) {
 				for (ExportFile exp : ExportFile.values()) {
 					if (dbType.equals(exp.getDbType()) && dbCreator.equals(exp.getCreator())) {
-						throw FNProgException.getException("differentDatabase", getDbFile(), exp.getName(),
+						throw FNProgException.getException("differentDatabase", myDatabase, exp.getName(),
 								myImportFile.getName());
 					}
 				}
-				throw FNProgException.getException("invalidDatabaseID", getDbFile(), myImportFile.getName(),
+				throw FNProgException.getException("invalidDatabaseID", myDatabase, myImportFile.getName(),
 						myImportFile.getDbType() + myImportFile.getCreator(), dbType + dbCreator);
 			}
 
 			if (totalRecords <= 0) {
-				throw FNProgException.getException("noRecords", getDbFile());
+				throw FNProgException.getException("noRecords", myDatabase);
 			}
 		}
 
@@ -233,7 +233,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	protected int[] setPointer2NextRecord() throws Exception {
 		currentRecord++;
 		if (currentRecord > totalRecords) {
-			throw FNProgException.getException("noMatchFieldsDBHeader", getDbFile(), Integer.toString(currentRecord),
+			throw FNProgException.getException("noMatchFieldsDBHeader", myDatabase, Integer.toString(currentRecord),
 					Integer.toString(totalRecords));
 		}
 

@@ -41,7 +41,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(getDbFile());
+		outFile = new File(myDatabase);
 		currentRecord = 0;
 
 		this.isInputFile = isInputFile;

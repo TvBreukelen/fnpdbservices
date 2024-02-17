@@ -52,9 +52,9 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(getDbFile());
+		outFile = new File(myDatabase);
 		exportFiles = new ArrayList<>();
-		exportFiles.add(getDbFile());
+		exportFiles.add(myDatabase);
 		useNoLineBreaks = !myPref.isUseLinebreak();
 
 		this.isInputFile = isInputFile;
@@ -100,7 +100,7 @@ public class CsvFile extends GeneralDB implements IConvert {
 
 			});
 		} catch (Exception ex) {
-			throw FNProgException.getException("noFields", getDbFile());
+			throw FNProgException.getException("noFields", myDatabase);
 		}
 	}
 
@@ -165,10 +165,10 @@ public class CsvFile extends GeneralDB implements IConvert {
 		// Check if we have to create a new output file
 		if (maxSize <= fileSize) {
 			StringBuilder buf = new StringBuilder();
-			buf.append(getDbFile().substring(0, getDbFile().lastIndexOf('.')));
+			buf.append(myDatabase.substring(0, myDatabase.lastIndexOf('.')));
 			buf.append("_");
 			buf.append(fileCounter++);
-			buf.append(getDbFile().substring(getDbFile().lastIndexOf('.')));
+			buf.append(myDatabase.substring(myDatabase.lastIndexOf('.')));
 
 			outFile = new File(buf.toString());
 			exportFiles.add(buf.toString());

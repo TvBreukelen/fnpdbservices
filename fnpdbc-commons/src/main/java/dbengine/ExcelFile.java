@@ -60,17 +60,17 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(getDbFile());
-		boolean isXlsx = getDbFile().toLowerCase().endsWith("x");
+		outFile = new File(myDatabase);
+		boolean isXlsx = myDatabase.toLowerCase().endsWith("x");
 		maxRowsInSheet = isXlsx ? 1048576 : 65536;
 		isAppend = myPref.isAppendRecords() && outFile.exists();
-
 		this.isInputFile = isInputFile;
-		if (isInputFile || isAppend) {
+
+		if (outFile.exists()) {
 			InputStream fileIn = new FileInputStream(outFile);
 			wb = WorkbookFactory.create(fileIn);
 			noOfSheets = wb.getNumberOfSheets();
-			sheetName = isAppend ? myPref.getPdaDatabaseName() : myPref.getTableName();
+			sheetName = isInputFile ? myPref.getTableName() : myPref.getPdaDatabaseName();
 
 			// Read all sheets in the workbook
 			hSheets = new HashMap<>(noOfSheets);
@@ -85,19 +85,27 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		} else {
 			sheetName = myPref.getPdaDatabaseName();
 			wb = isXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
-			sheet = wb.createSheet(sheetName.isEmpty() ? "Sheet1" : sheetName);
 		}
 
-		if (isAppend) {
-			if (hSheets.containsKey(sheetName)) {
-				getCurrentSheet();
-			} else {
-				isAppend = false;
-				sheet = wb.createSheet(sheetName.isEmpty() ? "Sheet1" : sheetName);
-			}
+		if (isAppend && !hSheets.containsKey(sheetName)) {
+			isAppend = false;
 		}
 
+		createNewSheet(totalRecords, dbInfo2Write.size());
 		helper = wb.getCreationHelper();
+	}
+
+	private void createNewSheet(int rows, int columns) {
+		if (isAppend) {
+			return;
+		}
+
+		Optional<Sheet> sheetOpt = Optional.ofNullable(wb.getSheet(sheetName));
+		if (sheetOpt.isPresent()) {
+			wb.removeSheetAt(wb.getSheetIndex(sheetOpt.get()));
+		}
+
+		sheet = wb.createSheet(sheetName);
 	}
 
 	@Override
@@ -200,12 +208,12 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	public void readTableContents() throws Exception {
 		getCurrentSheet();
 		if (sheet == null) {
-			throw FNProgException.getException("noSheets", getDbFile());
+			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
 		totalRecords = sheet.getLastRowNum() + 1; // Rows start with Row number 0
 		if (totalRecords < 2) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), getDbFile());
+			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), myDatabase);
 		}
 	}
 

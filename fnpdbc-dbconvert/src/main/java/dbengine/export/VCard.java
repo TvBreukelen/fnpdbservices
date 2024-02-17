@@ -83,8 +83,8 @@ public class VCard extends GeneralDB implements IConvert {
 	protected void openFile(boolean isInputFile) throws Exception {
 		currentRecord = 0;
 
-		try (BufferedReader reader = Files.newBufferedReader(Paths.get(getDbFile()), StandardCharsets.UTF_8)) {
-			switch (getDbFile().toLowerCase().substring(getDbFile().lastIndexOf("."))) {
+		try (BufferedReader reader = Files.newBufferedReader(Paths.get(myDatabase), StandardCharsets.UTF_8)) {
+			switch (myDatabase.toLowerCase().substring(myDatabase.lastIndexOf("."))) {
 			case ".html":
 				vcards = Ezvcard.parseHtml(reader).all();
 				break;
@@ -101,7 +101,7 @@ public class VCard extends GeneralDB implements IConvert {
 
 			totalRecords = vcards.size();
 			if (totalRecords == 0) {
-				throw FNProgException.getException("noFields", getDbFile());
+				throw FNProgException.getException("noFields", myDatabase);
 			}
 		}
 	}

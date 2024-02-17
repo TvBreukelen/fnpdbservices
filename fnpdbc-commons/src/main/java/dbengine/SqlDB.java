@@ -72,10 +72,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		aTables = new LinkedHashMap<>();
 		ExportFile dbFile = isInputFile ? myImportFile : myExportFile;
 
-		String db = dbFile.isConnectHost() ? getDbFile().substring(getDbFile().indexOf("/") + 1) : getDbFile();
+		String db = dbFile.isConnectHost() ? myDatabase.substring(myDatabase.indexOf("/") + 1) : myDatabase;
 		if (dbFile == ExportFile.PARADOX) {
-			db = getDbFile().substring(getDbFile().lastIndexOf(FileSystems.getDefault().getSeparator()) + 1,
-					getDbFile().lastIndexOf("."));
+			db = myDatabase.substring(myDatabase.lastIndexOf(FileSystems.getDefault().getSeparator()) + 1,
+					myDatabase.lastIndexOf("."));
 		}
 
 		String[] types = null;

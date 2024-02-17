@@ -200,7 +200,7 @@ public class PilotDB extends PalmDB {
 
 			int chunkType = getShort(fieldData);
 			if (chunkType > 512) {
-				throw FNProgException.getException("fileheaderCorrupt", getDbFile());
+				throw FNProgException.getException("fileheaderCorrupt", myDatabase);
 			}
 
 			pos += 2;
@@ -208,7 +208,7 @@ public class PilotDB extends PalmDB {
 			int dataSize = getShort(fieldData);
 
 			if (dataSize < 1 || dataSize > appInfoDataLength) {
-				throw FNProgException.getException("fileheaderCorrupt", getDbFile());
+				throw FNProgException.getException("fileheaderCorrupt", myDatabase);
 			}
 
 			pos += 2;

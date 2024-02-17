@@ -46,12 +46,12 @@ public class Calc extends GeneralDB implements IConvert {
 
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
-		outFile = new File(getDbFile());
+		outFile = new File(myDatabase);
 		isAppend = myPref.isAppendRecords() && outFile.exists();
 
 		this.isInputFile = isInputFile;
-		if (isInputFile || isAppend) {
-			sheetName = isAppend ? myPref.getPdaDatabaseName() : myPref.getTableName();
+		if (outFile.exists()) {
+			sheetName = isInputFile ? myPref.getTableName() : myPref.getPdaDatabaseName();
 			wb = new SpreadSheet(outFile);
 			noOfSheets = wb.getNumSheets();
 
@@ -67,35 +67,40 @@ public class Calc extends GeneralDB implements IConvert {
 			}
 		} else {
 			sheetName = myPref.getPdaDatabaseName();
-			createNewSheet(totalRecords, dbInfo2Write.size());
+			wb = new SpreadSheet();
 		}
 
-		if (isAppend) {
-			if (hSheets.containsKey(sheetName)) {
-				getCurrentSheet();
-			} else {
-				isAppend = false;
-				createNewSheet(totalRecords, dbInfo2Write.size());
-			}
+		if (isAppend && !hSheets.containsKey(sheetName)) {
+			isAppend = false;
 		}
+
+		createNewSheet(totalRecords, dbInfo2Write.size());
 	}
 
 	@Override
 	public void readTableContents() throws Exception {
 		getCurrentSheet();
 		if (sheet == null) {
-			throw FNProgException.getException("noSheets", getDbFile());
+			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
 		totalRecords = sheet.getMaxRows() - 1;
 		if (totalRecords < 1) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), getDbFile());
+			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), myDatabase);
 		}
 	}
 
 	private void createNewSheet(int rows, int columns) {
-		wb = new SpreadSheet();
-		sheet = new Sheet(sheetName.isEmpty() ? "Sheet1" : sheetName, rows, columns);
+		if (isAppend) {
+			return;
+		}
+
+		Optional<Sheet> sheetOpt = Optional.ofNullable(wb.getSheet(sheetName));
+		if (sheetOpt.isPresent()) {
+			wb.deleteSheet(sheetOpt.get());
+		}
+
+		sheet = new Sheet(sheetName, rows, columns);
 		wb.appendSheet(sheet);
 	}
 

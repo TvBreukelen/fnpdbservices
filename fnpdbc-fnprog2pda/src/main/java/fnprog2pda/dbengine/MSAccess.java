@@ -48,7 +48,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
 		// For the moment we only open the database file for input
-		database = DatabaseBuilder.open(new File(getDbFile()));
+		database = DatabaseBuilder.open(new File(myDatabase));
 		String error = General.EMPTY_STRING;
 
 		try {
