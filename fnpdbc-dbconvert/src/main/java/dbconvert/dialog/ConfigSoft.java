@@ -38,7 +38,6 @@ import application.model.FilterData;
 import application.model.ProfileObject;
 import application.model.ProjectModel;
 import application.model.SortData;
-import application.preferences.Databases;
 import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
@@ -87,15 +86,11 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	private ConfigTextFile textImport;
 	private ICalendarConfig calendarImport;
-	private boolean isNewProfile = false;
 
-	private static final String FUNC_NEW = "funcNew";
 	private static final String TABLE = "table";
 	private static final String WORKSHEET = "worksheet";
 
 	transient XConverter dbFactory = new XConverter();
-	transient PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
-	transient Databases dbSettings = pdaSettings.getDbSettings();
 	transient Map<String, RelationData> relationDataMap = new HashMap<>();
 
 	private ProgramDialog dialog;
@@ -109,26 +104,18 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		init(dbFactory);
 	}
 
-	@Override
-	protected void init(IDatabaseFactory factory) {
-		super.init(factory);
-		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
-				: pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
-
-		dbVerified = dbFactory.getDbInHelper();
+	private void init(IDatabaseFactory factory) {
+		super.init(factory, PrefDBConvert.getInstance());
 
 		if (isNewProfile) {
-			pdaSettings.reset();
+			profiles.reset();
 			dbFactory.getDbInHelper().setDatabase(General.EMPTY_STRING);
-			dbExport = new DatabaseHelper(General.EMPTY_STRING, ExportFile.EXCEL);
-		} else {
-			dbExport = pdaSettings.getToDatabase();
 		}
 
 		myImportFile = dbVerified.getDatabaseType();
 		myExportFile = dbExport.getDatabaseType();
 
-		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
+		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, profiles);
 
 		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
 				e -> {
@@ -141,10 +128,10 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		funcSelectImportFileType = e -> importFileTypeChanged();
 		funcSelectImportFile = e -> importFileNameChanged(false);
 
-		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
+		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : profiles.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 		profile.setPreferredSize(new Dimension(100, 30));
-		pdaSettings.setNewProfile(isNewProfile);
+		profiles.setNewProfile(isNewProfile);
 
 		buildDialog();
 		verifyDatabase();
@@ -183,8 +170,8 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createVerticalStrut(15));
 
-		textImport = new ConfigTextFile(this, pdaSettings);
-		calendarImport = new ICalendarConfig(pdaSettings);
+		textImport = new ConfigTextFile(this, profiles);
+		calendarImport = new ICalendarConfig(profiles);
 
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(true));
 		bDatabase.setSelectedItem(myImportFile.getName());
@@ -234,13 +221,13 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			p1.add(profile);
 			panel.add(p1);
 		} else {
-			myView = cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
+			myView = cbDatabases.getSelectedItem().toString() + profiles.getTableName();
 			FilterData filter = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
 			SortData sort = sortDataMap.computeIfAbsent(myView, e -> new SortData());
 			RelationData relation = relationDataMap.computeIfAbsent(myView, e -> new RelationData());
-			filter.loadProfile(pdaSettings);
-			sort.loadProfile(pdaSettings);
-			relation.loadProfile(pdaSettings);
+			filter.loadProfile(profiles);
+			sort.loadProfile(profiles);
+			relation.loadProfile(profiles);
 		}
 
 		panel.add(gPanel);
@@ -252,16 +239,16 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	private JComponent createTableAndWorksheetPanel() {
 		JPanel result = new JPanel(new GridBagLayout());
 
-		ckPagination = GUIFactory.getJCheckBox("pagination", pdaSettings.isPagination());
+		ckPagination = GUIFactory.getJCheckBox("pagination", profiles.isPagination());
 		lTablesWorkSheets = GUIFactory.getJLabel(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE);
 		bTablesWorksheets = new JComboBox<>();
 		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
 
 		lSqlLimit = GUIFactory.getJLabel("sqlLimit");
-		sModel = new SpinnerNumberModel(pdaSettings.getSqlSelectLimit(), 0, 10000, 100);
+		sModel = new SpinnerNumberModel(profiles.getSqlSelectLimit(), 0, 10000, 100);
 		spSqlLimit = new JSpinner(sModel);
 		spSqlLimit.addChangeListener(e -> ckPagination.setEnabled(sModel.getNumber().intValue() > 0));
-		ckPagination.setEnabled(pdaSettings.getSqlSelectLimit() > 0);
+		ckPagination.setEnabled(profiles.getSqlSelectLimit() > 0);
 
 		result.add(lTablesWorkSheets, c.gridCell(0, 0, 0, 0));
 		result.add(bTablesWorksheets, c.gridCell(1, 0, 2, 0));
@@ -334,7 +321,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			dbFiles.add(dbNewFile);
 			Collections.sort(dbFiles);
 		} else {
-			pdaSettings.setTableName(General.EMPTY_STRING, false);
+			profiles.setTableName(General.EMPTY_STRING, false);
 		}
 
 		if (myImportFile.isConnectHost()) {
@@ -371,8 +358,8 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	}
 
 	private void tableOrWorksheetChanged() {
-		pdaSettings.setTableName(bTablesWorksheets.getSelectedItem().toString(), false);
-		myView = cbDatabases.getSelectedItem().toString() + pdaSettings.getTableName();
+		profiles.setTableName(bTablesWorksheets.getSelectedItem().toString(), false);
+		myView = cbDatabases.getSelectedItem().toString() + profiles.getTableName();
 
 		try {
 			dbFactory.setupDBTranslation(true);
@@ -433,7 +420,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		bTablesWorksheets.setVisible(true);
 		lTablesWorkSheets.setVisible(true);
 		bTablesWorksheets.setEnabled(names.size() > 1);
-		bTablesWorksheets.setSelectedItem(pdaSettings.getTableName());
+		bTablesWorksheets.setSelectedItem(profiles.getTableName());
 
 		lTablesWorkSheets.setText(GUIFactory.getText(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
 		bTablesWorksheets.setToolTipText(GUIFactory.getToolTip(myImportFile.isSpreadSheet() ? WORKSHEET : TABLE));
@@ -441,7 +428,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		bTablesWorksheets.addActionListener(funcSelectTableOrSheet);
 
 		if (myImportFile.isSqlDatabase()) {
-			spSqlLimit.setValue(Integer.valueOf(pdaSettings.getSqlSelectLimit()));
+			spSqlLimit.setValue(Integer.valueOf(profiles.getSqlSelectLimit()));
 			lSqlLimit.setVisible(true);
 			spSqlLimit.setVisible(true);
 			ckPagination.setVisible(true);
@@ -469,20 +456,20 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		if (!isNewProfile) {
 			ProfileObject obj = model.getProfileObject();
 			if (!obj.getProjectID().equals(projectID)) {
-				if (pdaSettings.profileExists(projectID, profileID)) {
+				if (profiles.profileExists(projectID, profileID)) {
 					throw FNProgException.getException("profileExists", profileID, projectID);
 				}
 
-				pdaSettings.deleteNode(obj.getProjectID(), profileID);
+				profiles.deleteNode(obj.getProjectID(), profileID);
 				model.removeRecord(obj);
 				isNewProfile = true;
 			}
 		}
 
-		pdaSettings.setProject(projectID);
-		pdaSettings.setProfile(profileID);
-		pdaSettings.setUserList(fieldSelect.getFieldList());
-		pdaSettings.setFromDatabase(pdaSettings.setDatabase(dbVerified));
+		profiles.setProject(projectID);
+		profiles.setProfile(profileID);
+		profiles.setUserList(fieldSelect.getFieldList());
+		profiles.setFromDatabase(profiles.setDatabase(dbVerified));
 
 		if (myImportFile == ExportFile.TEXTFILE) {
 			textImport.setProperties();
@@ -490,22 +477,22 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			calendarImport.setProperties();
 		}
 
-		pdaSettings.setTableName(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet()
+		profiles.setTableName(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet()
 				? bTablesWorksheets.getSelectedItem().toString()
 				: General.EMPTY_STRING, true);
-		pdaSettings.setSqlSelectLimit(myImportFile.isSqlDatabase() ? sModel.getNumber().intValue() : 0);
-		pdaSettings.setPagination(ckPagination.isEnabled() && ckPagination.isSelected());
+		profiles.setSqlSelectLimit(myImportFile.isSqlDatabase() ? sModel.getNumber().intValue() : 0);
+		profiles.setPagination(ckPagination.isEnabled() && ckPagination.isSelected());
 
-		pdaSettings.setLastExported(General.EMPTY_STRING);
+		profiles.setLastExported(General.EMPTY_STRING);
 		configDb.setProperties();
 
-		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
-		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
-		relationDataMap.getOrDefault(myView, new RelationData()).saveProfile(pdaSettings);
+		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(profiles);
+		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(profiles);
+		relationDataMap.getOrDefault(myView, new RelationData()).saveProfile(profiles);
 
 		// SQL Server requires Pagination with Sort
-		if (myImportFile == ExportFile.SQLSERVER && pdaSettings.getSqlSelectLimit() > 0 && pdaSettings.isPagination()
-				&& !pdaSettings.isSortFieldDefined()) {
+		if (myImportFile == ExportFile.SQLSERVER && profiles.getSqlSelectLimit() > 0 && profiles.isPagination()
+				&& !profiles.isSortFieldDefined()) {
 			General.showMessage(this, GUIFactory.getText("paginationWarning"), GUIFactory.getTitle("paginationWarning"),
 					false);
 		}
@@ -539,7 +526,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			isValidProfile = !profileID.isEmpty();
 			if (isValidProfile) {
 				myExportFile = configDb.getExportFile();
-				isValidProfile = !pdaSettings.profileExists(myExportFile.getName(), profileID);
+				isValidProfile = !profiles.profileExists(myExportFile.getName(), profileID);
 			}
 		}
 

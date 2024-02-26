@@ -35,7 +35,6 @@ import application.model.FilterData;
 import application.model.ProfileObject;
 import application.model.ProjectModel;
 import application.model.SortData;
-import application.preferences.Databases;
 import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
@@ -69,19 +68,14 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	transient ActionListener funcSelectView;
 
 	private FNPSoftware myImportFile;
-	private String dbVerified = General.EMPTY_STRING;
-
-	transient ScFieldSelect fieldSelect;
+	private String dbCheck = General.EMPTY_STRING;
 	private ScConfigDb configDb;
 
-	transient Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
-	transient PrefFNProg pdaSettings = PrefFNProg.getInstance();
 	transient DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 	private ExportFile myExportFile;
 
 	transient Map<String, MiscellaneousData> miscDataMap = new HashMap<>();
 
-	private boolean isNewProfile = false;
 	private ProgramDialog dialog;
 	private ProjectModel model;
 
@@ -95,21 +89,18 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		init(dbFactory);
 	}
 
-	@Override
-	protected void init(IDatabaseFactory factory) {
-		super.init(factory);
-		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
-				: pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
+	private void init(IDatabaseFactory factory) {
+		super.init(factory, PrefFNProg.getInstance());
 
 		btMisc = GUIFactory.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
 			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
 			miscDialog.setVisible(true);
 		});
 
-		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
+		myExportFile = ExportFile.getExportFile(profiles.getProjectID());
 		myImportFile = isNewProfile ? FNPSoftware.UNDEFINED
-				: FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
-		myView = isNewProfile ? General.EMPTY_STRING : pdaSettings.getTableName();
+				: FNPSoftware.getSoftware(dbVerified.getDatabaseTypeAsString());
+		myView = isNewProfile ? General.EMPTY_STRING : profiles.getTableName();
 
 		funcSelectDbFile = e -> {
 			General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, General.EMPTY_STRING, true);
@@ -132,13 +123,13 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		fdView = new JComboBox<>(myImportFile.getViews());
 
-		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
+		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : profiles.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 
 		fieldSelect = new ScFieldSelect(dbFactory);
-		configDb = new ScConfigDb(this, fieldSelect, myExportFile, pdaSettings);
+		configDb = new ScConfigDb(this, fieldSelect, myExportFile, profiles);
 		fdView.setPreferredSize(configDb.getComboBoxSize());
-		pdaSettings.setNewProfile(isNewProfile);
+		profiles.setNewProfile(isNewProfile);
 
 		verifyDatabase(true);
 		buildDialog();
@@ -175,17 +166,17 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		XGridBagConstraints c = new XGridBagConstraints();
 
 		if (myImportFile != FNPSoftware.UNDEFINED) {
-			if (pdaSettings.getTableName().isEmpty()) {
+			if (profiles.getTableName().isEmpty()) {
 				fdView.setSelectedIndex(0);
 				myView = fdView.getSelectedItem().toString();
 			} else {
-				fdView.setSelectedItem(pdaSettings.getTableName());
+				fdView.setSelectedItem(profiles.getTableName());
 			}
 		}
 
 		fdView.addActionListener(funcSelectView);
 		fdDatabase = GUIFactory.getJTextField("fnpDatabase",
-				isNewProfile ? General.EMPTY_STRING : dbSettings.getDatabase());
+				isNewProfile ? General.EMPTY_STRING : dbVerified.getDatabaseName());
 		fdDatabase.setEditable(false);
 		JButton bt1 = GUIFactory.getJButton("browseDatabase", funcSelectDbFile);
 
@@ -204,11 +195,11 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			panel.add(p1);
 		} else {
 			MiscellaneousData misc = miscDataMap.computeIfAbsent(myView, e -> new MiscellaneousData());
-			misc.loadProfile(pdaSettings);
+			misc.loadProfile(profiles);
 			FilterData filter = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
-			filter.loadProfile(pdaSettings);
+			filter.loadProfile(profiles);
 			SortData data = sortDataMap.computeIfAbsent(myView, e -> new SortData());
-			data.loadProfile(pdaSettings);
+			data.loadProfile(profiles);
 		}
 
 		panel.add(gPanel);
@@ -243,47 +234,39 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		if (!isNewProfile) {
 			ProfileObject obj = model.getProfileObject();
 			if (!obj.getProjectID().equals(projectID)) {
-				if (pdaSettings.profileExists(projectID, profileID)) {
+				if (profiles.profileExists(projectID, profileID)) {
 					throw FNProgException.getException("profileExists", profileID, projectID);
 				}
 
-				pdaSettings.deleteNode(obj.getProjectID(), profileID);
+				profiles.deleteNode(obj.getProjectID(), profileID);
 				model.removeRecord(obj);
 				isNewProfile = true;
 			}
 		}
 
-		String dbFile = fdDatabase.getText().trim();
-		String node = dbSettings.getNodename(dbFile, myImportFile.getName());
+		dbExport.setDatabase(fdDatabase.getText().trim());
+		dbExport.setDatabaseType(myImportFile.getName());
+		dbExport.setDatabaseVersion(dbFactory.getDatabaseVersion());
+		profiles.setFromDatabase(profiles.setDatabase(dbExport));
 
-		if (node == null) {
-			node = dbSettings.getNextDatabaseID();
-		}
-
-		dbSettings.setNode(node);
-		dbSettings.setDatabase(dbFile);
 		myExportFile = configDb.getExportFile();
 
-		dbSettings.setDatabaseTypeAsString(myImportFile.getName());
-		dbSettings.setDatabaseVersion(dbFactory.getDatabaseVersion());
+		profiles.setProject(myExportFile.getName());
+		profiles.setProfile(profile.getText());
+		profiles.setTableName(myView, true);
 
-		pdaSettings.setProject(myExportFile.getName());
-		pdaSettings.setProfile(profile.getText());
-		pdaSettings.setTableName(myView, true);
-
-		pdaSettings.setUserList(fieldSelect.getFieldList());
-		pdaSettings.setFromDatabase(node);
-		pdaSettings.setLastIndex(0);
-		pdaSettings.setLastExported(General.EMPTY_STRING);
+		profiles.setUserList(fieldSelect.getFieldList());
+		profiles.setLastIndex(0);
+		profiles.setLastExported(General.EMPTY_STRING);
 		configDb.setProperties();
 
 		if (btMisc.isEnabled()) {
-			miscDataMap.getOrDefault(myView, new MiscellaneousData()).saveProfile(pdaSettings);
+			miscDataMap.getOrDefault(myView, new MiscellaneousData()).saveProfile(profiles);
 		}
 
-		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(pdaSettings);
-		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(pdaSettings);
-		pdaSettings.setLastSaved();
+		filterDataMap.getOrDefault(myView, new FilterData()).saveProfile(profiles);
+		sortDataMap.getOrDefault(myView, new SortData()).saveProfile(profiles);
+		profiles.setLastSaved();
 
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
 	}
@@ -302,15 +285,15 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	}
 
 	private void verifyDatabase(boolean isFirstRun) {
-		String db = isNewProfile ? General.EMPTY_STRING : dbSettings.getDatabase();
-		dbVerified = isFirstRun ? db : fdDatabase.getText().trim();
-		if (dbVerified.isEmpty()) {
+		String db = isNewProfile ? General.EMPTY_STRING : dbVerified.getDatabaseName();
+		dbCheck = isFirstRun ? db : fdDatabase.getText().trim();
+		if (dbCheck.isEmpty()) {
 			return;
 		}
 
 		try {
-			dbFactory.connect2DB(new DatabaseHelper(dbVerified, ExportFile.ACCESS));
-			dbFactory.verifyDatabase(dbVerified);
+			dbFactory.connect2DB(new DatabaseHelper(dbCheck, ExportFile.ACCESS));
+			dbFactory.verifyDatabase(dbCheck);
 
 			if (isFirstRun) {
 				MSAccess msAccess = (MSAccess) dbFactory.getInputFile();
@@ -363,7 +346,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		boolean isFileValid;
 
 		String docValue = fdDatabase == null ? null : fdDatabase.getText().trim();
-		if (StringUtils.isEmpty(docValue) || docValue.equals(dbVerified)) {
+		if (StringUtils.isEmpty(docValue) || docValue.equals(dbCheck)) {
 			isFileValid = dbFactory.isConnected();
 		} else {
 			isFileValid = docValue.toLowerCase().endsWith("mdb") && General.existFile(docValue);
@@ -379,7 +362,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		if (isFileValid && isNewProfile) {
 			isValidProfile = !profileID.isEmpty();
 			if (isValidProfile) {
-				isValidProfile = !pdaSettings.profileExists(profileID);
+				isValidProfile = !profiles.profileExists(profileID);
 			}
 		}
 

@@ -1,6 +1,6 @@
 package fnprog2pda.model;
 
-import fnprog2pda.preferences.PrefFNProg;
+import application.preferences.Profiles;
 
 public class MiscellaneousData {
 	private boolean useContentsIndex = false;
@@ -18,7 +18,7 @@ public class MiscellaneousData {
 	private String tableName;
 	private String profileID;
 
-	public void loadProfile(PrefFNProg profile) {
+	public void loadProfile(Profiles profile) {
 		useContentsIndex = profile.isUseContentsIndex();
 		useContentsItemTitle = profile.isUseContentsItemTitle();
 		useContentsLength = profile.isUseContentsLength();
@@ -34,7 +34,7 @@ public class MiscellaneousData {
 		profileID = profile.getProfileID();
 	}
 
-	public void saveProfile(PrefFNProg profile) {
+	public void saveProfile(Profiles profile) {
 		profile.setUseContentsIndex(useContentsIndex);
 		profile.setUseContentsItemTitle(useContentsItemTitle);
 		profile.setUseContentsLength(useContentsLength);

@@ -9,41 +9,12 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import application.interfaces.ExportFile;
-import application.interfaces.IDatabaseHelper;
 import application.interfaces.TvBSoftware;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
 
-public class Databases extends DatabaseHelper implements IDatabaseHelper {
+public class Databases extends DatabaseHelper {
 	private String databaseID = General.EMPTY_STRING;
-	private String database = General.EMPTY_STRING;
-	private String user = General.EMPTY_STRING;
-	private String password = General.EMPTY_STRING;
-	private String databaseType;
-	private String databaseVersion = General.EMPTY_STRING;
-
-	// Remote databases
-	private String host = General.EMPTY_STRING;
-	private int port = 0;
-
-	// Remote databases SSH
-	private boolean useSsh = false;
-	private String sshHost = General.EMPTY_STRING;
-	private String sshUser = General.EMPTY_STRING;
-	private String sshPassword = General.EMPTY_STRING;
-	private String privateKeyFile = General.EMPTY_STRING;
-	private int sshPort;
-
-	// Remote databases SSL/TSL
-	private boolean useSsl = false;
-	private boolean trustServerCertificate = false;
-
-	private String serverSslCert = General.EMPTY_STRING;
-	private String serverSslCaCert = General.EMPTY_STRING;
-	private String keyStore = General.EMPTY_STRING;
-	private String keyStorePassword = General.EMPTY_STRING;
-	private String hostNameInCertificate = General.EMPTY_STRING;
-	private String sslMode = General.EMPTY_STRING;
 
 	// For the import of Text files
 	private String fieldSeparator = ",";
@@ -56,7 +27,7 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	private TvBSoftware mySoftware;
 	private Map<String, String> nodes = new HashMap<>();
 
-	protected Preferences myPref;
+	private Preferences myPref;
 	private Preferences parent;
 
 	private static EnumMap<TvBSoftware, Databases> mapDB = new EnumMap<>(TvBSoftware.class);
@@ -179,30 +150,15 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public String getHost() {
-		return host;
-	}
-
-	@Override
 	public void setHost(String host) {
 		PrefUtils.writePref(myPref, "remote.host", host, this.host, General.EMPTY_STRING);
 		this.host = host;
 	}
 
 	@Override
-	public int getPort() {
-		return port;
-	}
-
-	@Override
 	public void setPort(int port) {
 		PrefUtils.writePref(myPref, "remote.port", port, this.port, 0);
 		this.port = port;
-	}
-
-	@Override
-	public String getDatabase() {
-		return database;
 	}
 
 	@Override
@@ -213,19 +169,9 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public String getPassword() {
-		return password;
-	}
-
-	@Override
 	public void setPassword(String databasePassword) {
 		PrefUtils.writePref(myPref, "database.password", databasePassword, password, General.EMPTY_STRING);
 		password = databasePassword;
-	}
-
-	@Override
-	public String getUser() {
-		return user;
 	}
 
 	@Override
@@ -235,37 +181,16 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public ExportFile getDatabaseType() {
-		return ExportFile.getExportFile(databaseType);
+	public void setDatabaseType(Object obj) {
+		String result = obj instanceof ExportFile dbType ? dbType.getName() : obj.toString();
+		PrefUtils.writePref(myPref, DB_TYPE, result, this.databaseType, General.EMPTY_STRING);
+		this.databaseType = result;
 	}
 
 	@Override
-	public void setDatabaseType(ExportFile databaseType) {
-		PrefUtils.writePref(myPref, DB_TYPE, databaseType.getName(), this.databaseType, General.EMPTY_STRING);
-		this.databaseType = databaseType.getName();
-	}
-
-	public String getDatabaseTypeAsString() {
-		return databaseType;
-	}
-
-	public void setDatabaseTypeAsString(String databaseType) {
-		PrefUtils.writePref(myPref, DB_TYPE, databaseType, this.databaseType, General.EMPTY_STRING);
-		this.databaseType = databaseType;
-	}
-
-	public String getDatabaseVersion() {
-		return databaseVersion;
-	}
-
 	public void setDatabaseVersion(String databaseVersion) {
 		PrefUtils.writePref(myPref, "database.version", databaseVersion, this.databaseVersion, General.EMPTY_STRING);
 		this.databaseVersion = databaseVersion;
-	}
-
-	@Override
-	public boolean isUseSsl() {
-		return useSsl;
 	}
 
 	@Override
@@ -275,19 +200,9 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public String getSslMode() {
-		return sslMode;
-	}
-
-	@Override
 	public void setSslMode(String sslMode) {
 		PrefUtils.writePref(myPref, "ssl.mode", sslMode, this.sslMode, General.EMPTY_STRING);
 		this.sslMode = sslMode;
-	}
-
-	@Override
-	public String getServerSslCert() {
-		return serverSslCert;
 	}
 
 	@Override
@@ -297,30 +212,15 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public String getServerSslCaCert() {
-		return serverSslCaCert;
-	}
-
-	@Override
 	public void setServerSslCaCert(String serverSslCaCert) {
 		PrefUtils.writePref(myPref, "ssl.server.ca.cert", serverSslCaCert, this.serverSslCaCert, General.EMPTY_STRING);
 		this.serverSslCaCert = serverSslCaCert;
 	}
 
 	@Override
-	public String getKeyStore() {
-		return keyStore;
-	}
-
-	@Override
 	public void setKeyStore(String keyStore) {
 		PrefUtils.writePref(myPref, "ssl.keystore", keyStore, this.keyStore, General.EMPTY_STRING);
 		this.keyStore = keyStore;
-	}
-
-	@Override
-	public String getKeyStorePassword() {
-		return keyStorePassword;
 	}
 
 	@Override
@@ -331,19 +231,9 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public boolean isUseSsh() {
-		return useSsh;
-	}
-
-	@Override
 	public void setUseSsh(boolean useSsh) {
 		PrefUtils.writePref(myPref, "use.ssh", useSsh, this.useSsh, false);
 		this.useSsh = useSsh;
-	}
-
-	@Override
-	public String getSshHost() {
-		return sshHost;
 	}
 
 	@Override
@@ -353,19 +243,9 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public String getSshUser() {
-		return sshUser;
-	}
-
-	@Override
 	public void setSshUser(String shellUser) {
 		PrefUtils.writePref(myPref, "ssh.user", shellUser, sshUser, General.EMPTY_STRING);
 		sshUser = shellUser;
-	}
-
-	@Override
-	public String getSshPassword() {
-		return sshPassword;
 	}
 
 	@Override
@@ -375,19 +255,9 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public String getPrivateKeyFile() {
-		return privateKeyFile;
-	}
-
-	@Override
 	public void setPrivateKeyFile(String privateKeyFile) {
 		PrefUtils.writePref(myPref, "ssh.key.file", privateKeyFile, this.privateKeyFile, General.EMPTY_STRING);
 		this.privateKeyFile = privateKeyFile;
-	}
-
-	@Override
-	public int getSshPort() {
-		return sshPort;
 	}
 
 	@Override
@@ -397,20 +267,10 @@ public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	}
 
 	@Override
-	public boolean isTrustServerCertificate() {
-		return trustServerCertificate;
-	}
-
-	@Override
 	public void setTrustServerCertificate(boolean trustServerCertificate) {
 		PrefUtils.writePref(myPref, "ssl.trust.server.certificate", trustServerCertificate, this.trustServerCertificate,
 				false);
 		this.trustServerCertificate = trustServerCertificate;
-	}
-
-	@Override
-	public String getHostNameInCertificate() {
-		return hostNameInCertificate;
 	}
 
 	@Override

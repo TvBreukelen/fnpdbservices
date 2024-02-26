@@ -166,7 +166,7 @@ public class ConvertOldVersion {
 						node = db.getNextDatabaseID();
 						db.setNode(node);
 						db.setDatabase(dbFile);
-						db.setDatabaseTypeAsString(project);
+						db.setDatabaseType(project);
 						db.setUser(child.get("export.user", General.EMPTY_STRING));
 						db.setPassword(child.get("export.password", General.EMPTY_STRING));
 					}
@@ -176,7 +176,5 @@ public class ConvertOldVersion {
 				});
 			}
 		});
-
 	}
-
 }

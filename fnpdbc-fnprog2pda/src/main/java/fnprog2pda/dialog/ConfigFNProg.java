@@ -6,6 +6,7 @@ import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
 import application.preferences.Databases;
 import application.utils.General;
+import dbengine.utils.DatabaseHelper;
 import fnprog2pda.FNProg2PDA;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.DatabaseFactory;
@@ -52,8 +53,9 @@ public class ConfigFNProg extends ProgramDialog {
 				pdaSettings.setTableName(myFnSoftware.getViews()[0], false);
 			}
 
-			myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
-			lSoftwareID.setText(dbSettings.getDatabaseType() + General.SPACE + dbSettings.getDatabaseVersion() + " / "
+			DatabaseHelper helper = pdaSettings.getFromDatabase();
+			myFnSoftware = FNPSoftware.getSoftware(helper.getDatabase());
+			lSoftwareID.setText(helper.getDatabaseType() + General.SPACE + helper.getDatabaseVersion() + " / "
 					+ pdaSettings.getTableName());
 		} else {
 			lSoftwareID.setText(General.EMPTY_STRING);
@@ -68,7 +70,8 @@ public class ConfigFNProg extends ProgramDialog {
 	@Override
 	public void updateProfile(Action action) {
 		super.updateProfile(action);
-		myFnSoftware = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
+		DatabaseHelper helper = pdaSettings.getFromDatabase();
+		myFnSoftware = FNPSoftware.getSoftware(helper.getDatabase());
 	}
 
 	@Override

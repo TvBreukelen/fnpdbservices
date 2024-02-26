@@ -69,6 +69,21 @@ public abstract class Profiles extends Project {
 
 	private String profileID = General.EMPTY_STRING;
 
+	// FNProg2PDA only
+	private boolean useContentsIndex;
+	private boolean useContentsItemTitle;
+	private boolean useContentsLength;
+	private boolean useContentsOrigTitle;
+	private boolean useContentsPerson;
+	private boolean useContentsSide;
+	private boolean useEntireCast;
+	private boolean useOriginalTitle;
+	private boolean useReleaseNo;
+	private boolean useSeason;
+	private boolean useRoles;
+
+	private int lastIndex;
+
 	private List<BasisField> userList = new ArrayList<>();
 
 	// Sql database options
@@ -212,6 +227,20 @@ public abstract class Profiles extends Project {
 		sqlSelectLimit = child.getInt("sql.select.limit", 0);
 		pagination = child.getBoolean("database.pagination", false);
 		onConflict = child.getInt("onconflict.action", ON_CONFLICT_REPLACE);
+
+		// FNProg2PDA
+		useContentsIndex = child.getBoolean("use.contents.index", false);
+		useContentsItemTitle = child.getBoolean("use.contents.itemtitle", false);
+		useContentsLength = child.getBoolean("use.contents.length", false);
+		useContentsOrigTitle = child.getBoolean("use.contents.origtitle", false);
+		useContentsPerson = child.getBoolean("use.contents.person", false);
+		useContentsSide = child.getBoolean("use.contents.side", false);
+		useEntireCast = child.getBoolean("use.entire.cast", false);
+		useOriginalTitle = child.getBoolean("use.original.title", false);
+		useReleaseNo = child.getBoolean("use.releaseno", false);
+		useRoles = child.getBoolean("use.roles", false);
+		useSeason = child.getBoolean("use.season", false);
+		lastIndex = child.getInt("last.index", 0);
 
 		// Files to be imported
 		if (!fromDatabase.isEmpty()) {
@@ -810,6 +839,114 @@ public abstract class Profiles extends Project {
 		this.relaxedValidation = relaxedUnfolding;
 	}
 
+	public boolean isUseContentsIndex() {
+		return useContentsIndex;
+	}
+
+	public void setUseContentsIndex(boolean useContentsIndex) {
+		PrefUtils.writePref(child, "use.contents.index", useContentsIndex, this.useContentsIndex, false);
+		this.useContentsIndex = useContentsIndex;
+	}
+
+	public boolean isUseContentsLength() {
+		return useContentsLength;
+	}
+
+	public void setUseContentsLength(boolean useContentsLength) {
+		PrefUtils.writePref(child, "use.contents.length", useContentsLength, this.useContentsLength, false);
+		this.useContentsLength = useContentsLength;
+	}
+
+	public boolean isUseContentsSide() {
+		return useContentsSide;
+	}
+
+	public void setUseContentsSide(boolean useContentsSide) {
+		PrefUtils.writePref(child, "use.contents.side", useContentsSide, this.useContentsSide, false);
+		this.useContentsSide = useContentsSide;
+	}
+
+	public boolean isUseContentsItemTitle() {
+		return useContentsItemTitle;
+	}
+
+	public void setUseContentsItemTitle(boolean useContentsItemTitle) {
+		PrefUtils.writePref(child, "use.contents.itemtitle", useContentsItemTitle, this.useContentsItemTitle, false);
+		this.useContentsItemTitle = useContentsItemTitle;
+	}
+
+	public boolean isUseContentsOrigTitle() {
+		return useContentsOrigTitle;
+	}
+
+	public void setUseContentsOrigTitle(boolean useContentsOrigTitle) {
+		PrefUtils.writePref(child, "use.contents.origtitle", useContentsOrigTitle, this.useContentsOrigTitle, false);
+		this.useContentsOrigTitle = useContentsOrigTitle;
+	}
+
+	public boolean isUseOriginalTitle() {
+		return useOriginalTitle;
+	}
+
+	public void setUseOriginalTitle(boolean useOriginalTitle) {
+		PrefUtils.writePref(child, "use.original.title", useOriginalTitle, this.useOriginalTitle, false);
+		this.useOriginalTitle = useOriginalTitle;
+	}
+
+	public boolean isUseContentsPerson() {
+		return useContentsPerson;
+	}
+
+	public void setUseContentsPerson(boolean useContentsPerson) {
+		PrefUtils.writePref(child, "use.contents.person", useContentsPerson, this.useContentsPerson, false);
+		this.useContentsPerson = useContentsPerson;
+	}
+
+	public boolean isUseEntireCast() {
+		return useEntireCast;
+	}
+
+	public void setUseEntireCast(boolean useEntireCast) {
+		PrefUtils.writePref(child, "use.entire.cast", useEntireCast, this.useEntireCast, false);
+		this.useEntireCast = useEntireCast;
+	}
+
+	public boolean isUseReleaseNo() {
+		return useReleaseNo;
+	}
+
+	public void setUseReleaseNo(boolean useReleaseNo) {
+		PrefUtils.writePref(child, "use.releaseno", useReleaseNo, this.useReleaseNo, false);
+		this.useReleaseNo = useReleaseNo;
+	}
+
+	public boolean isUseRoles() {
+		return useRoles;
+	}
+
+	public void setUseRoles(boolean useRoles) {
+		PrefUtils.writePref(child, "use.roles", useRoles, this.useRoles, false);
+		this.useRoles = useRoles;
+	}
+
+	public boolean isUseSeason() {
+		return useSeason;
+	}
+
+	public void setUseSeason(boolean useSeason) {
+		PrefUtils.writePref(child, "use.season", useSeason, this.useSeason, false);
+		this.useSeason = useSeason;
+	}
+
+	public int getLastIndex() {
+		return lastIndex;
+	}
+
+	public void setLastIndex(int lastIndex) {
+		PrefUtils.writePref(child, "last.index", lastIndex, this.lastIndex, 0);
+		this.lastIndex = lastIndex;
+	}
+
 	// General Methods
 	public void cloneCurrentProfile(String newProject, String newProfile) throws FNProgException {
 		if (profileExists(newProject, newProfile)) {
@@ -826,6 +963,7 @@ public abstract class Profiles extends Project {
 		setProfile(newProfile);
 		setLastExported(General.EMPTY_STRING);
 		setLastSaved();
+		setLastIndex(0);
 	}
 
 	public void renameCurrentNode(String newProfile) throws FNProgException {

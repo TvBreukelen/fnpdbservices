@@ -89,7 +89,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	transient IConfigDb dbConfig;
 	transient IConfigSoft dialog;
-	transient Profiles pdaSettings;
+	transient Profiles profiles;
 	transient ScFieldSelect scFieldSelect;
 	private DatabaseHelper helper;
 
@@ -97,13 +97,13 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
 		myExportFile = db;
-		pdaSettings = profiles;
 		scFieldSelect = sc;
 		this.dialog = dialog;
+		this.profiles = profiles;
 
 		support = new PropertyChangeSupport(this);
 		support.addPropertyChangeListener(scFieldSelect);
-		helper = pdaSettings.getToDatabase();
+		helper = profiles.getToDatabase();
 
 		init();
 		buildDialog();
@@ -145,9 +145,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 			SqlDB db;
 			if (myExportFile == ExportFile.SQLITE) {
-				db = new SQLite(pdaSettings);
+				db = new SQLite(profiles);
 			} else {
-				db = new PostgreSQL(pdaSettings);
+				db = new PostgreSQL(profiles);
 			}
 
 			List<FieldDefinition> fields = new ArrayList<>();
@@ -173,45 +173,45 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			support.firePropertyChange("exportfile", myExportFile, software);
 			myExportFile = software;
 
-			pdaSettings.setProject(myExportFile.getName());
+			profiles.setProject(myExportFile.getName());
 			helper.setDatabaseType(myExportFile);
 
 			dbFileName.setToolTipText(myExportFile.getFileType());
 			fdPassword.setText(General.decryptPassword(helper.getPassword()));
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
 			dbFileName.setText(getDatabaseName(true));
-			dbDatabase.setText(pdaSettings.getDatabaseName());
+			dbDatabase.setText(profiles.getDatabaseName());
 
 			setRadioButtonText();
 
 			// Restore Export Data options
-			int index = pdaSettings.isAppendRecords() ? 2 : 0;
+			int index = profiles.isAppendRecords() ? 2 : 0;
 			if (myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE) {
-				index = pdaSettings.getExportOption();
+				index = profiles.getExportOption();
 			}
 			rExists[index].setSelected(true);
 
 			// Restore Conversion options
-			cConvertImages.setSelected(
-					pdaSettings.isExportImages() && pdaSettings.getTvBSoftware() == TvBSoftware.FNPROG2PDA);
-			rImages[pdaSettings.getImageOption()].setSelected(true);
+			cConvertImages
+					.setSelected(profiles.isExportImages() && profiles.getTvBSoftware() == TvBSoftware.FNPROG2PDA);
+			rImages[profiles.getImageOption()].setSelected(true);
 
 			dbConfig = null;
 			switch (myExportFile) {
 			case HANDBASE:
-				dbConfig = new ConfigHanDBase(dialog, pdaSettings);
+				dbConfig = new ConfigHanDBase(dialog, profiles);
 				break;
 			case CALC:
-				dbConfig = new ConfigCalc(pdaSettings);
+				dbConfig = new ConfigCalc(profiles);
 				break;
 			case EXCEL:
-				dbConfig = new ConfigExcel(pdaSettings);
+				dbConfig = new ConfigExcel(profiles);
 				break;
 			case TEXTFILE:
-				dbConfig = new ConfigTextFile(pdaSettings, true, dialog.getBuddyExport());
+				dbConfig = new ConfigTextFile(profiles, true, dialog.getBuddyExport());
 				break;
 			case DBASE:
-				dbConfig = new XBaseCharsets(pdaSettings);
+				dbConfig = new XBaseCharsets(profiles);
 				break;
 			default:
 				break;
@@ -222,7 +222,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				pOtherOptions.add((JComponent) dbConfig);
 			} else if (myExportFile.isSqlDatabase()) {
 				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict));
-				rOnConflict[pdaSettings.getOnConflict()].setSelected(true);
+				rOnConflict[profiles.getOnConflict()].setSelected(true);
 				if (myExportFile == ExportFile.POSTGRESQL) {
 					rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(false);
 					rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(false);
@@ -290,8 +290,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dbDatabase = GUIFactory.getJTextField("database", General.EMPTY_STRING);
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
-		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
-		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", pdaSettings.isSkipEmptyRecords());
+		btBackup = GUIFactory.getJCheckBox("createBackup", profiles.isCreateBackup());
+		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", profiles.isSkipEmptyRecords());
 
 		Box dbNameBox = Box.createHorizontalBox();
 		dbNameBox.add(dbDatabaseLabel);
@@ -299,8 +299,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dbNameBox.add(Box.createHorizontalGlue());
 		dbNameBox.add(dbDatabase);
 
-		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
-		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
+		hModel = new SpinnerNumberModel(profiles.getImageHeight(), 0, 900, 10);
+		wModel = new SpinnerNumberModel(profiles.getImageWidth(), 0, 900, 10);
 
 		createRadioButtons(rExists, funcSelectExport, General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING);
 		setRadioButtonText();
@@ -379,7 +379,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	public void reload() {
 		if (myExportFile == ExportFile.TEXTFILE) {
-			dbConfig = new ConfigTextFile(pdaSettings, true, dialog.getBuddyExport());
+			dbConfig = new ConfigTextFile(profiles, true, dialog.getBuddyExport());
 			pOtherOptions.removeAll();
 			pOtherOptions.add((JComponent) dbConfig);
 			activateComponents();
@@ -393,46 +393,46 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		helper.setPassword(General.encryptPassword(fdPassword.getPassword()));
 
 		int index = getSelected(rExists);
-		pdaSettings.setExportOption(index);
-		pdaSettings.setAppendRecords(index == 2);
-		pdaSettings.setToDatabase(pdaSettings.setDatabase(helper));
+		profiles.setExportOption(index);
+		profiles.setAppendRecords(index == 2);
+		profiles.setToDatabase(profiles.setDatabase(helper));
 
 		if (cConvertImages.isVisible()) {
 			index = getSelected(rImages);
-			pdaSettings.setExportImages(cConvertImages.isSelected());
-			pdaSettings.setImageOption(index);
-			pdaSettings.setImageHeight(hModel.getNumber().intValue());
-			pdaSettings.setImageWidth(wModel.getNumber().intValue());
+			profiles.setExportImages(cConvertImages.isSelected());
+			profiles.setImageOption(index);
+			profiles.setImageHeight(hModel.getNumber().intValue());
+			profiles.setImageWidth(wModel.getNumber().intValue());
 		} else {
-			pdaSettings.setExportImages(false);
-			pdaSettings.setImageOption(0);
-			pdaSettings.setImageHeight(0);
-			pdaSettings.setImageWidth(0);
+			profiles.setExportImages(false);
+			profiles.setImageOption(0);
+			profiles.setImageHeight(0);
+			profiles.setImageWidth(0);
 		}
 
 		if (myExportFile.isSqlDatabase()) {
-			pdaSettings.setOnConflict(getSelected(rOnConflict));
+			profiles.setOnConflict(getSelected(rOnConflict));
 		} else {
-			pdaSettings.setOnConflict(Profiles.ON_CONFLICT_REPLACE);
+			profiles.setOnConflict(Profiles.ON_CONFLICT_REPLACE);
 		}
 
-		pdaSettings.setCreateBackup(btBackup.isEnabled() && btBackup.isSelected());
-		pdaSettings.setSkipEmptyRecords(btSkipEmpty.isEnabled() && btSkipEmpty.isSelected());
+		profiles.setCreateBackup(btBackup.isEnabled() && btBackup.isSelected());
+		profiles.setSkipEmptyRecords(btSkipEmpty.isEnabled() && btSkipEmpty.isSelected());
 
 		String dbFile = dbDatabase.getText().trim();
 		if (dbFile.isEmpty()) {
-			dbFile = pdaSettings.getProfileID();
+			dbFile = profiles.getProfileID();
 			dbDatabase.setText(dbFile);
 		}
 
-		pdaSettings.setDatabaseName(dbFile);
-		pdaSettings.setTextFileFormat(ConfigTextFile.STANDARD_CSV);
+		profiles.setDatabaseName(dbFile);
+		profiles.setTextFileFormat(ConfigTextFile.STANDARD_CSV);
 
 		if (dbConfig != null) {
 			dbConfig.setProperties();
 		}
 
-		pdaSettings.setLastSaved();
+		profiles.setLastSaved();
 	}
 
 	private int getSelected(JRadioButton[] buttons) {

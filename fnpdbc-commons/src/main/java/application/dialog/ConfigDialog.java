@@ -9,12 +9,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseFactory;
 import application.model.FilterData;
 import application.model.SortData;
+import application.preferences.Databases;
+import application.preferences.Profiles;
 import application.utils.GUIFactory;
-import application.utils.General;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class ConfigDialog extends BasicDialog {
@@ -24,14 +24,21 @@ public abstract class ConfigDialog extends BasicDialog {
 	protected JButton btSortOrder;
 	protected JTabbedPane tabPane;
 	protected ScFieldSelect fieldSelect;
-	protected DatabaseHelper dbVerified = new DatabaseHelper(General.EMPTY_STRING, ExportFile.ACCESS);
-	protected DatabaseHelper dbExport = new DatabaseHelper(General.EMPTY_STRING, ExportFile.TEXTFILE);
+
+	protected DatabaseHelper dbVerified;
+	protected DatabaseHelper dbExport;
+	protected Profiles profiles;
+	protected Databases dbSettings;
+
+	protected static final String FUNC_NEW = "funcNew";
 
 	protected Map<String, FilterData> filterDataMap = new HashMap<>();
 	protected Map<String, SortData> sortDataMap = new HashMap<>();
+
+	protected boolean isNewProfile = false;
 	protected String myView;
 
-	protected void init(IDatabaseFactory dbFactory) {
+	protected void init(IDatabaseFactory dbFactory, Profiles profiles) {
 		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
 			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.computeIfAbsent(myView, s -> new SortData()));
 			sort.setVisible(true);
@@ -44,6 +51,13 @@ public abstract class ConfigDialog extends BasicDialog {
 		});
 
 		fieldSelect = new ScFieldSelect(dbFactory);
+		this.profiles = profiles;
+
+		dbSettings = profiles.getDbSettings();
+		dbVerified = profiles.getFromDatabase();
+		dbExport = profiles.getToDatabase();
+
+		super.init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW) : dbVerified.getDatabaseName(), 6);
 	}
 
 	@Override

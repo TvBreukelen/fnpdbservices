@@ -1,45 +1,46 @@
 package dbengine.utils;
 
 import application.interfaces.ExportFile;
-import application.interfaces.IDatabaseHelper;
 import application.utils.General;
 
-public class DatabaseHelper implements IDatabaseHelper {
-	private String database;
-	private String user = General.EMPTY_STRING;
-	private String host = General.EMPTY_STRING;
-	private String password = General.EMPTY_STRING;
-	private String sslMode = General.EMPTY_STRING;
-	private String serverSslCert = General.EMPTY_STRING;
-	private String serverSslCaCert = General.EMPTY_STRING; // PostgreSQL only
-	private String keyStore = General.EMPTY_STRING;
-	private String keyStorePassword = General.EMPTY_STRING;
+public class DatabaseHelper {
+	protected String database = General.EMPTY_STRING;
+	protected String databaseVersion = General.EMPTY_STRING;
+	protected String user = General.EMPTY_STRING;
+	protected String password = General.EMPTY_STRING;
 
-	private String sshHost = General.EMPTY_STRING;
-	private String sshUser = General.EMPTY_STRING;
-	private String sshPassword = General.EMPTY_STRING;
+	// For remote databases only
+	protected String host = General.EMPTY_STRING;
+	protected String sslMode = General.EMPTY_STRING;
+	protected String serverSslCert = General.EMPTY_STRING;
+	protected String serverSslCaCert = General.EMPTY_STRING; // PostgreSQL only
+	protected String keyStore = General.EMPTY_STRING;
+	protected String keyStorePassword = General.EMPTY_STRING;
 
-	private String privateKeyFile = General.EMPTY_STRING;
-	private String hostNameInCertificate = General.EMPTY_STRING; // SQL Server only
+	protected String sshHost = General.EMPTY_STRING;
+	protected String sshUser = General.EMPTY_STRING;
+	protected String sshPassword = General.EMPTY_STRING;
 
-	private int port;
-	private int sshPort;
+	protected String privateKeyFile = General.EMPTY_STRING;
+	protected String hostNameInCertificate = General.EMPTY_STRING; // SQL Server only
 
-	private ExportFile databaseType;
-	private boolean useSsl = false;
-	private boolean useSsh = false;
-	private boolean trustServerCertificate = false; // SQLServer only
+	protected int port = 0;
+	protected int sshPort = 0;
+
+	protected String databaseType = General.EMPTY_STRING;
+	protected boolean useSsl = false;
+	protected boolean useSsh = false;
+	protected boolean trustServerCertificate = false; // SQLServer only
 
 	public DatabaseHelper(String database, ExportFile databaseType) {
 		this.database = database;
-		this.databaseType = databaseType;
+		this.databaseType = databaseType.getName();
 	}
 
-	public DatabaseHelper(IDatabaseHelper helper) {
+	public DatabaseHelper(DatabaseHelper helper) {
 		update(helper);
 	}
 
-	@Override
 	public String getHost() {
 		return host;
 	}
@@ -48,7 +49,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.host = host;
 	}
 
-	@Override
 	public int getPort() {
 		return port;
 	}
@@ -57,7 +57,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.port = port;
 	}
 
-	@Override
 	public String getUser() {
 		return user;
 	}
@@ -66,7 +65,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.user = user;
 	}
 
-	@Override
 	public String getDatabase() {
 		return database;
 	}
@@ -75,7 +73,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.database = database;
 	}
 
-	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -84,16 +81,30 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.password = password;
 	}
 
-	@Override
 	public ExportFile getDatabaseType() {
+		return ExportFile.getExportFile(databaseType);
+	}
+
+	public String getDatabaseTypeAsString() {
 		return databaseType;
 	}
 
-	public void setDatabaseType(ExportFile databaseType) {
-		this.databaseType = databaseType;
+	public void setDatabaseType(Object obj) {
+		if (obj instanceof ExportFile dbType) {
+			databaseType = dbType.getName();
+		} else {
+			databaseType = obj.toString();
+		}
 	}
 
-	@Override
+	public String getDatabaseVersion() {
+		return databaseVersion;
+	}
+
+	public void setDatabaseVersion(String databaseVersion) {
+		this.databaseVersion = databaseVersion;
+	}
+
 	public String getKeyStore() {
 		return keyStore;
 	}
@@ -102,7 +113,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.keyStore = keyStore;
 	}
 
-	@Override
 	public String getKeyStorePassword() {
 		return keyStorePassword;
 	}
@@ -111,7 +121,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.keyStorePassword = keyStorePassword;
 	}
 
-	@Override
 	public String getServerSslCert() {
 		return serverSslCert;
 	}
@@ -120,7 +129,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.serverSslCert = serverSslCert;
 	}
 
-	@Override
 	public String getServerSslCaCert() {
 		return serverSslCaCert;
 	}
@@ -129,7 +137,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.serverSslCaCert = serverSslCaCert;
 	}
 
-	@Override
 	public String getSslMode() {
 		return sslMode;
 	}
@@ -138,7 +145,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.sslMode = sslMode;
 	}
 
-	@Override
 	public boolean isUseSsl() {
 		return useSsl;
 	}
@@ -147,7 +153,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.useSsl = useSsl;
 	}
 
-	@Override
 	public String getSshHost() {
 		return sshHost;
 	}
@@ -156,7 +161,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.sshHost = sshHost;
 	}
 
-	@Override
 	public String getSshUser() {
 		return sshUser;
 	}
@@ -165,7 +169,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		sshUser = shellUser;
 	}
 
-	@Override
 	public String getSshPassword() {
 		return sshPassword;
 	}
@@ -174,7 +177,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		sshPassword = shellPassword;
 	}
 
-	@Override
 	public String getPrivateKeyFile() {
 		return privateKeyFile;
 	}
@@ -183,7 +185,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.privateKeyFile = privateKeyFile;
 	}
 
-	@Override
 	public String getHostNameInCertificate() {
 		return hostNameInCertificate;
 	}
@@ -192,7 +193,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.hostNameInCertificate = hostNameInCertificate;
 	}
 
-	@Override
 	public int getSshPort() {
 		return sshPort;
 	}
@@ -201,7 +201,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.sshPort = sshPort;
 	}
 
-	@Override
 	public boolean isUseSsh() {
 		return useSsh;
 	}
@@ -210,7 +209,6 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.useSsh = useSsh;
 	}
 
-	@Override
 	public boolean isTrustServerCertificate() {
 		return trustServerCertificate;
 	}
@@ -219,15 +217,15 @@ public class DatabaseHelper implements IDatabaseHelper {
 		this.trustServerCertificate = trustServerCertificate;
 	}
 
-	@Override
-	public void update(IDatabaseHelper helper) {
+	public void update(DatabaseHelper helper) {
 		boolean isRemoteDb = helper.getDatabaseType().isConnectHost();
 		boolean isPasswordSupported = helper.getDatabaseType().isPasswordSupported();
 		boolean isNotSsh = isRemoteDb && !helper.isUseSsh();
 		boolean isNotSsl = isRemoteDb && !helper.isUseSsl();
 
 		setDatabase(helper.getDatabase());
-		setDatabaseType(helper.getDatabaseType());
+		setDatabaseType(helper.getDatabaseTypeAsString());
+		setDatabaseVersion(helper.getDatabaseVersion());
 		setUser(helper.getUser());
 		setPassword(isPasswordSupported ? helper.getPassword() : General.EMPTY_STRING);
 
@@ -255,10 +253,9 @@ public class DatabaseHelper implements IDatabaseHelper {
 			return result;
 		}
 
-		if (databaseType.isConnectHost()) {
+		if (getDatabaseType().isConnectHost()) {
 			return getHost() + ":" + getPort() + "/" + result;
 		}
 		return result;
 	}
-
 }

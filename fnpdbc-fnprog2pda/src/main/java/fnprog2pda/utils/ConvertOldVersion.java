@@ -3,8 +3,11 @@ package fnprog2pda.utils;
 import java.util.List;
 import java.util.prefs.Preferences;
 
+import org.apache.commons.lang3.StringUtils;
+
 import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
+import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 import application.preferences.PrefUtils;
 import application.utils.General;
@@ -23,11 +26,17 @@ public class ConvertOldVersion {
 			return;
 		}
 
-		if (!version.isEmpty() && General.compareVersions("10.0", version) > 0) {
-			// Move DBase and FoxPro output files to xBase
-			convertOutputFilesToXBase();
-		}
+		if (StringUtils.isNotEmpty(version)) {
+			if (General.compareVersions("10.0", version) > 0) {
+				// Move DBase and FoxPro output files to xBase
+				convertOutputFilesToXBase();
+			}
 
+			if (General.compareVersions("10.5", version) > 0) {
+				// Move DBase and FoxPro output files to xBase
+				mergeInAndExportFiles();
+			}
+		}
 		if (!myGeneralSettings.isNoVersionCheck()) {
 			myGeneralSettings.setCheckVersionDate();
 		}
@@ -66,6 +75,35 @@ public class ConvertOldVersion {
 				}
 			});
 		}
+	}
+
+	private static void mergeInAndExportFiles() {
+		PrefFNProg pref = PrefFNProg.getInstance();
+		Databases db = pref.getDbSettings();
+
+		pref.getProjects().forEach(project -> {
+			List<String> profiles = pref.getProfiles(project);
+			if (!profiles.isEmpty()) {
+				pref.setProject(project);
+				profiles.forEach(profile -> {
+					pref.setProfile(profile);
+					Preferences child = pref.getChild();
+					String dbFile = child.get("export.file", General.EMPTY_STRING);
+					String node = db.getNodename(dbFile, project);
+					if (node == null) {
+						node = db.getNextDatabaseID();
+						db.setNode(node);
+						db.setDatabase(dbFile);
+						db.setDatabaseType(project);
+						db.setUser(child.get("export.user", General.EMPTY_STRING));
+						db.setPassword(child.get("export.password", General.EMPTY_STRING));
+					}
+					pref.setToDatabase(node);
+					child.remove("export.user");
+					child.remove("export.password");
+				});
+			}
+		});
 	}
 
 }
