@@ -7,6 +7,7 @@ import java.util.prefs.Preferences;
 
 import application.interfaces.TvBSoftware;
 import application.utils.General;
+import dbengine.utils.DatabaseHelper;
 
 public class Project {
 	private static Preferences root;
@@ -19,8 +20,6 @@ public class Project {
 	private String lastProject;
 	private String lastProfile;
 	private String projectID = General.EMPTY_STRING;
-
-	private static final String FROM_DATABASE = "database.from.file";
 
 	public Project(TvBSoftware software) {
 		this.software = software;
@@ -101,6 +100,21 @@ public class Project {
 		projectID = project;
 	}
 
+	public DatabaseHelper getDatabase(String dbFile) {
+		dbSettings.setNode(dbFile);
+		return new DatabaseHelper(dbSettings);
+	}
+
+	public String setDatabase(DatabaseHelper helper) {
+		String node = dbSettings.getNodename(helper.getDatabase(), helper.getDatabaseType());
+		if (node == null) {
+			node = dbSettings.getNextDatabaseID();
+		}
+		dbSettings.setNode(node);
+		dbSettings.update(helper);
+		return node;
+	}
+
 	public boolean projectExists(String project) {
 		try {
 			return gParent.nodeExists(project);
@@ -138,8 +152,9 @@ public class Project {
 				Preferences p1 = gParent.node(project);
 				for (String profile : p1.childrenNames()) {
 					Preferences p2 = p1.node(profile);
-					String db = p2.get(FROM_DATABASE, General.EMPTY_STRING);
-					if (db.isEmpty() || db.equals(database)) {
+					String db1 = p2.get(Profiles.FROM_DATABASE, General.EMPTY_STRING);
+					String db2 = p2.get(Profiles.TO_DATABASE, General.EMPTY_STRING);
+					if (db1.isEmpty() || db1.equals(database) || db2.isEmpty() || db2.equals(database)) {
 						p2.removeNode();
 					}
 				}
@@ -160,7 +175,9 @@ public class Project {
 				Preferences p1 = gParent.node(project);
 				for (String profile : p1.childrenNames()) {
 					Preferences p2 = p1.node(profile);
-					if (p2.get(FROM_DATABASE, General.EMPTY_STRING).equals(database)) {
+					String fromDatabase = p2.get(Profiles.FROM_DATABASE, General.EMPTY_STRING);
+					String toDatabase = p2.get(Profiles.TO_DATABASE, General.EMPTY_STRING);
+					if (fromDatabase.equals(database) || toDatabase.equals(database)) {
 						// Database is still in use
 						return;
 					}
@@ -168,7 +185,7 @@ public class Project {
 			}
 
 			// Remove Database setting since it is no longer used
-			getDbSettings().deleteNode(database);
+			dbSettings.deleteNode(database);
 		} catch (Exception e) {
 			// Should not occur
 		}
@@ -201,7 +218,7 @@ public class Project {
 			String[] profiles = p1.childrenNames();
 			for (String profile : profiles) {
 				Preferences p2 = p1.node(profile);
-				if (p2.get(FROM_DATABASE, General.EMPTY_STRING).isEmpty()) {
+				if (p2.get(Profiles.FROM_DATABASE, General.EMPTY_STRING).isEmpty()) {
 					PrefUtils.deleteNode(p1, profile);
 					if (profile.equals(lastProfile)) {
 						lastProfile = General.EMPTY_STRING;

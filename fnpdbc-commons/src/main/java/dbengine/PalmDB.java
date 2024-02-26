@@ -69,7 +69,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		gotoRecord(0);
 		appInfoId = 80 + totalRec * 8;
 
-		header.setPdaDatabase(myPref.getPdaDatabaseName());
+		header.setPdaDatabase(myPref.getDatabaseName());
 		header.setDbCreator(myExportFile.getCreator());
 		header.setDbType(myExportFile.getDbType());
 		header.setAppInfoId(appInfoId);
@@ -124,7 +124,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 		// Update header
 		header.setAppInfoId(appInfoId);
-		header.setPdaDatabase(myPref.getPdaDatabaseName());
+		header.setPdaDatabase(myPref.getDatabaseName());
 		header.setTotalRecords(totalRecords);
 		header.updateHeader();
 

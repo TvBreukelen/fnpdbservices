@@ -8,6 +8,7 @@ import java.nio.file.FileSystems;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -54,6 +55,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	protected Connection connection;
 	protected boolean isConnected;
+
+	protected PreparedStatement prepStmt;
+	private int currentRecord;
+
 	private Statement dbStatement;
 	private ResultSet dbResultSet;
 	protected String sqlQuery;
@@ -321,6 +326,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				dbStatement = null;
 			}
 
+			if (prepStmt != null && !prepStmt.isClosed()) {
+				prepStmt.close();
+				prepStmt = null;
+			}
+
 			if (connection != null) {
 				connection.close();
 				connection = null;
@@ -329,6 +339,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			// Should not occur
 		}
 		isConnected = false;
+	}
+
+	@Override
+	public void closeData() throws Exception {
+		try {
+			// commits the SQLite transaction as well
+			connection.setAutoCommit(true);
+		} catch (SQLException e) {
+			// Transaction is no longer active
+		}
 	}
 
 	@Override
@@ -387,7 +407,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	public SqlTable getSqlTable() {
-		return getSqlTable(isInputFile ? myPref.getTableName() : myPref.getPdaDatabaseName());
+		return getSqlTable(isInputFile ? myPref.getTableName() : myPref.getDatabaseName());
 	}
 
 	public SqlTable getSqlTable(String table) {
@@ -490,8 +510,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		});
 
 		sql.delete(sql.length() - 2, sql.length());
-		sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
-		sql.append(" AS A");
+
+		if (myImportFile == ExportFile.POSTGRESQL) {
+			sql.append("\nFROM \"").append(getSqlFieldName(table.getName()));
+			sql.append("\" AS A");
+		} else {
+			sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
+			sql.append(" AS A");
+		}
 
 		getJoinStatement(sql);
 		sql.append(getWhereStatement());
@@ -756,9 +782,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	@Override
 	public void createDbHeader() throws Exception {
 		readTableContents();
+		currentRecord = 0;
 
 		SqlTable table = getSqlTable();
-		String tableName = myPref.getPdaDatabaseName();
+		String tableName = myPref.getDatabaseName();
 
 		if (table == null || myPref.getExportOption() == 0) {
 			useAppend = false;
@@ -791,8 +818,34 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public int processData(Map<String, Object> dbRecord) throws Exception {
-		// To be implemented by the child classes
-		return 0;
+		currentRecord++;
+		int result = 0;
+
+		int index = 1;
+		for (FieldDefinition field : dbInfo2Write) {
+			Object obj = dbRecord.get(field.getFieldAlias());
+			if (obj == null || obj.equals("")) {
+				prepStmt.setNull(index, field.getSQLType());
+			} else {
+				prepStmt.setObject(index, convertDataFields(obj, field));
+			}
+			index++;
+		}
+
+		try {
+			result = prepStmt.executeUpdate();
+		} catch (SQLException ex) {
+			throwInsertException(ex);
+		}
+
+		return result;
+	}
+
+	protected void throwInsertException(SQLException ex) throws FNProgException {
+		String error = ex.getMessage();
+		error = error.substring(error.lastIndexOf("(") + 1, error.lastIndexOf(")"));
+		throw FNProgException.getException("tableInsertError", Integer.toString(currentRecord),
+				myPref.getDatabaseName(), error);
 	}
 
 	protected void createPreparedStatement() throws SQLException {

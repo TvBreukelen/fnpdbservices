@@ -1,6 +1,5 @@
 package fnprog2pda.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -18,14 +17,11 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 import org.apache.commons.lang3.StringUtils;
 
-import application.dialog.BasicDialog;
-import application.dialog.ConfigFilter;
-import application.dialog.ConfigSort;
+import application.dialog.ConfigDialog;
 import application.dialog.ConfigTextFile.BuddyExport;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
@@ -33,6 +29,7 @@ import application.dialog.ScConfigDb;
 import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigSoft;
+import application.interfaces.IDatabaseFactory;
 import application.interfaces.TvBSoftware;
 import application.model.FilterData;
 import application.model.ProfileObject;
@@ -52,7 +49,7 @@ import fnprog2pda.software.DatabaseFactory;
 import fnprog2pda.software.FNPSoftware;
 import fnprog2pda.software.FNProgramvare;
 
-public class ConfigSoft extends BasicDialog implements IConfigSoft {
+public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	/**
 	 * Title: ConfigSoft Description: FNProgramvare Software Configuration
 	 * Copyright: (c) 2004-2020
@@ -61,11 +58,8 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	 * @version 8
 	 */
 	private static final long serialVersionUID = -5786862663126955551L;
-	private JTabbedPane tabPane;
 	private JComboBox<String> fdView;
 
-	private JButton btSortOrder;
-	private JButton btFilter;
 	private JButton btMisc;
 
 	private JTextField profile;
@@ -76,7 +70,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 	private FNPSoftware myImportFile;
 	private String dbVerified = General.EMPTY_STRING;
-	private String myView;
 
 	transient ScFieldSelect fieldSelect;
 	private ScConfigDb configDb;
@@ -87,8 +80,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private ExportFile myExportFile;
 
 	transient Map<String, MiscellaneousData> miscDataMap = new HashMap<>();
-	transient Map<String, FilterData> filterDataMap = new HashMap<>();
-	transient Map<String, SortData> sortDataMap = new HashMap<>();
 
 	private boolean isNewProfile = false;
 	private ProgramDialog dialog;
@@ -101,22 +92,14 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		this.model = model;
 
 		isNewProfile = isNew;
-		init();
+		init(dbFactory);
 	}
 
-	private void init() {
+	@Override
+	protected void init(IDatabaseFactory factory) {
+		super.init(factory);
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
-
-		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
-			ConfigSort sortOrder = new ConfigSort(dbFactory, sortDataMap.get(myView));
-			sortOrder.setVisible(true);
-		});
-
-		btFilter = GUIFactory.createToolBarButton(GUIFactory.getTitle("filter"), "Filter.png", e -> {
-			ConfigFilter filter = new ConfigFilter(dbFactory, filterDataMap.get(myView));
-			filter.setVisible(true);
-		});
 
 		btMisc = GUIFactory.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
 			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
@@ -185,15 +168,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	}
 
 	@Override
-	protected Component createCenterPanel() {
-		tabPane = new JTabbedPane();
-		tabPane.add(GUIFactory.getText("exportFiles"), createSelectionPanel());
-		tabPane.add(GUIFactory.getText("exportFields"), createFieldPanel());
-		tabPane.setEnabledAt(1, false);
-		return tabPane;
-	}
-
-	private JPanel createSelectionPanel() {
+	protected JPanel createSelectionPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		JPanel gPanel = new JPanel(new GridBagLayout());
@@ -239,12 +214,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		panel.add(gPanel);
 		panel.add(configDb);
 		return panel;
-	}
-
-	private JPanel createFieldPanel() {
-		JPanel result = new JPanel(new BorderLayout());
-		result.add(fieldSelect.createFieldPanel(), BorderLayout.CENTER);
-		return result;
 	}
 
 	@Override
@@ -303,7 +272,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		pdaSettings.setTableName(myView, true);
 
 		pdaSettings.setUserList(fieldSelect.getFieldList());
-		pdaSettings.setDatabaseFromFile(node);
+		pdaSettings.setFromDatabase(node);
 		pdaSettings.setLastIndex(0);
 		pdaSettings.setLastExported(General.EMPTY_STRING);
 		configDb.setProperties();

@@ -180,7 +180,7 @@ public class PilotDB extends PalmDB {
 		case DURATION:
 			return General.getNullTerminatedString(General.convertDuration((Duration) dbField), null, 0);
 		default:
-			if (dbValue.length() > myExportFile.getMaxTextSize()) {
+			if (dbValue.length() > 256) {
 				return convertMemo(dbValue);
 			} else {
 				return General.getNullTerminatedString(dbValue, null, 0);

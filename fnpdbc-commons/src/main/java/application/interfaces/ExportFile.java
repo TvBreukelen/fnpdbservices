@@ -12,38 +12,36 @@ public enum ExportFile {
 	 *
 	 * @author Tom van Breukelen
 	 */
-	ACCESS("MS-Access", FileType.MDB, 255, 255, 255), //
-	EXCEL("MS-Excel", FileType.XLSX, 256, 32767, 32767), //
-	CALC("Calc", FileType.ODS, 256, 1048576, 1048576), //
-	TEXTFILE("Text File", FileType.TXT, 256, 32767, 32767), //
-	XML("Xml", FileType.XML, 32767, 32767, 32767), //
-	JSON("Json", FileType.JSON, 32767, 32767, 32767), //
-	YAML("Yaml", FileType.YAML, 32767, 32767, 32767), //
-	SQLITE("SQLite", FileType.DB, 255, 255, 255), //
-	MARIADB("MariaDB", FileType.HOST, 32767, 32767, 32767), //
-	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767, 32767), //
-	FIREBIRD("Firebird", FileType.HOST, 32767, 32767, 32767), //
-	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767, 32767), //
-	ICAL("iCalendar", FileType.ICS, 256, 3000, 256), //
-	VCARD("VCard", FileType.VCF, 256, 3000, 256), //
-	DBASE("xBase", FileType.DBF, 254, 32737, 128), //
-	PARADOX("Paradox", FileType.PARADOX, 254, 32737, 128), //
-	HANDBASE("HanDBase", FileType.PDB, 256, 2000, 100), //
-	JFILE("JFile5", FileType.PDB, 256, 10000, 50), //
-	LIST("List", FileType.PDB, 4095, 4095, 32767), //
-	MOBILEDB("MobileDB", FileType.PDB, 256, 1000, 20), //
-	PILOTDB("Pilot-DB", FileType.PDB, 256, 3000, 256);
+	ACCESS("MS-Access", FileType.MDB, 255, 255), //
+	EXCEL("MS-Excel", FileType.XLSX, 32767, 32767), //
+	CALC("Calc", FileType.ODS, 1048576, 1048576), //
+	TEXTFILE("Text File", FileType.TXT, 32767, 32767), //
+	XML("Xml", FileType.XML, 32767, 32767), //
+	JSON("Json", FileType.JSON, 32767, 32767), //
+	YAML("Yaml", FileType.YAML, 32767, 32767), //
+	SQLITE("SQLite", FileType.DB, 255, 255), //
+	MARIADB("MariaDB", FileType.HOST, 32767, 32767), //
+	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767), //
+	FIREBIRD("Firebird", FileType.HOST, 32767, 32767), //
+	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767), //
+	ICAL("iCalendar", FileType.ICS, 3000, 256), //
+	VCARD("VCard", FileType.VCF, 3000, 256), //
+	DBASE("xBase", FileType.DBF, 32737, 128), //
+	PARADOX("Paradox", FileType.PARADOX, 32737, 128), //
+	HANDBASE("HanDBase", FileType.PDB, 2000, 100), //
+	JFILE("JFile5", FileType.PDB, 10000, 50), //
+	LIST("List", FileType.PDB, 4095, 32767), //
+	MOBILEDB("MobileDB", FileType.PDB, 1000, 20), //
+	PILOTDB("Pilot-DB", FileType.PDB, 3000, 256);
 
 	private String name;
 	private FileType type;
-	private int maxTextSize;
 	private int maxMemoSize;
 	private int maxFields;
 
-	ExportFile(String name, FileType type, int maxTextSize, int maxMemoSize, int maxFields) {
+	ExportFile(String name, FileType type, int maxMemoSize, int maxFields) {
 		this.name = name;
 		this.type = type;
-		this.maxTextSize = maxTextSize;
 		this.maxMemoSize = maxMemoSize;
 		this.maxFields = maxFields;
 	}
@@ -72,7 +70,6 @@ public enum ExportFile {
 			result.remove(FIREBIRD.name);
 			result.remove(MARIADB.name);
 			result.remove(PARADOX.name);
-			result.remove(POSTGRESQL.name);
 			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
 			result.remove(ICAL.name);
@@ -217,10 +214,6 @@ public enum ExportFile {
 
 	public int getMaxSortFields() {
 		return this == ExportFile.LIST ? 2 : 4;
-	}
-
-	public int getMaxTextSize() {
-		return maxTextSize;
 	}
 
 	public String getName() {

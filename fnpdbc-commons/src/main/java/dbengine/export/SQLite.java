@@ -4,12 +4,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-
-import org.sqlite.SQLiteException;
 
 import application.interfaces.ExportFile;
 import application.preferences.Profiles;
@@ -20,9 +16,6 @@ import dbengine.IConvert;
 import dbengine.SqlDB;
 
 public class SQLite extends SqlDB implements IConvert {
-	private PreparedStatement prepStmt;
-	private int currentRecord;
-
 	public SQLite(Profiles pref) {
 		super(pref);
 	}
@@ -156,26 +149,26 @@ public class SQLite extends SqlDB implements IConvert {
 		StringBuilder buf = new StringBuilder("INSERT OR ");
 
 		switch (myPref.getOnConflict()) {
-		case 0:
+		case Profiles.ON_CONFLICT_ABORT:
 			buf.append("ABORT INTO ");
 			break;
-		case 1:
+		case Profiles.ON_CONFLICT_FAIL:
 			buf.append("FAIL INTO ");
 			break;
-		case 2:
+		case Profiles.ON_CONFLICT_IGNORE:
 			buf.append("IGNORE INTO ");
 			break;
-		case 3:
+		case Profiles.ON_CONFLICT_REPLACE:
 			buf.append("REPLACE INTO ");
 			break;
-		case 4:
+		case Profiles.ON_CONFLICT_ROLLBACK:
 			buf.append("ROLLBACK INTO ");
 			break;
 		default:
 			break;
 		}
 
-		buf.append(myPref.getPdaDatabaseName()).append(" (");
+		buf.append(myPref.getDatabaseName()).append(" (");
 		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader(), true)).append(","));
 
 		buf.deleteCharAt(buf.length() - 1);
@@ -190,59 +183,5 @@ public class SQLite extends SqlDB implements IConvert {
 
 		prepStmt = connection.prepareStatement(buf.toString());
 		connection.setAutoCommit(false);
-		currentRecord = 0;
 	}
-
-	@Override
-	public int processData(Map<String, Object> dbRecord) throws Exception {
-		currentRecord++;
-		int result = 0;
-
-		int index = 1;
-		for (FieldDefinition field : dbInfo2Write) {
-			Object obj = dbRecord.get(field.getFieldAlias());
-			if (obj == null || obj.equals("")) {
-				prepStmt.setNull(index, field.getSQLType());
-			} else {
-				prepStmt.setObject(index, convertDataFields(obj, field));
-			}
-			index++;
-		}
-
-		try {
-			result = prepStmt.executeUpdate();
-		} catch (SQLiteException ex) {
-			String error = ex.getMessage();
-			error = error.substring(error.lastIndexOf("(") + 1, error.lastIndexOf(")"));
-			throw FNProgException.getException("tableInsertError", Integer.toString(currentRecord),
-					myPref.getPdaDatabaseName(), error);
-		}
-
-		return result;
-	}
-
-	@Override
-	public void closeData() {
-		try {
-			// commits the transaction as well
-			connection.setAutoCommit(true);
-		} catch (SQLException e) {
-			// Transaction is no longer active
-		}
-	}
-
-	@Override
-	public void closeFile() {
-		try {
-			if (prepStmt != null && !prepStmt.isClosed()) {
-				prepStmt.close();
-				prepStmt = null;
-			}
-		} catch (SQLException ex) {
-			// Should not occur
-		}
-
-		super.closeFile();
-	}
-
 }

@@ -57,7 +57,7 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 				}
 
 				pdaSettings.setProfile(myProfileID);
-				dbSettings.setNode(pdaSettings.getDatabaseFromFile());
+				pdaSettings.getFromDatabase();
 				runExport();
 			}
 
@@ -77,10 +77,6 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 	}
 
 	private void runExport() throws Exception {
-		if (pdaSettings.getExportFile().isEmpty()) {
-			pdaSettings.setExportFile(General.getDefaultPDADatabase(databaseType));
-		}
-
 		ViewerModel tabModel;
 		String[] guiText = new String[5];
 		guiText[0] = GUIFactory.getText("profile");
@@ -111,11 +107,11 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 		System.out.println("--------------------------------------------------------");
 		System.out.println(guiText[0] + myProfileID);
 		System.out.println("--------------------------------------------------------");
-		System.out.println(guiText[1] + dbSettings.getRemoteDatabase());
+		System.out.println(guiText[1] + dbSettings.getDatabaseName());
 		System.out.println(guiText[2]
 				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseTypeAsString(), dbSettings.getDatabaseVersion())
 				+ "\n");
-		System.out.println(guiText[3] + pdaSettings.getExportFile());
+		System.out.println(guiText[3] + pdaSettings.getToDatabase());
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");
 

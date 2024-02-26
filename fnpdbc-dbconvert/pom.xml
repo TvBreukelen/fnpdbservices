@@ -30,11 +30,6 @@
 			<version>1.6.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>42.7.1</version>
-		</dependency>
-		<dependency>
 			<groupId>org.firebirdsql.jdbc</groupId>
 			<artifactId>jaybird</artifactId>
 			<version>5.0.3.java11</version>
@@ -43,11 +38,6 @@
 			<groupId>net.sf.ucanaccess</groupId>
 			<artifactId>ucanaccess</artifactId>
 			<version>5.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.mwiede</groupId>
-			<artifactId>jsch</artifactId>
-			<version>0.2.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>

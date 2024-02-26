@@ -56,7 +56,7 @@ public class ExportProcess implements Runnable, IExportProcess {
 
 		this.status = status;
 		isAborted = false;
-		isRefresh = !myProgram.isModelValid();
+		isRefresh = !myProgram.isModelValid() || xView == null;
 
 		if (isRefresh) {
 			myProgram.getProgressBar().setMinimum(0);

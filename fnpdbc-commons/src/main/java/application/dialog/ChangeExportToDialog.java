@@ -18,29 +18,28 @@ import application.table.ExportToTableCellEditor;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
+import dbengine.utils.DatabaseHelper;
 
 public class ChangeExportToDialog extends BasicDialog {
 	private static final long serialVersionUID = 7463448287153606221L;
 	private JTextField exportTo;
 	private JPasswordField password;
 
-	private String exportFilename;
 	private ExportFile exportFile;
 
+	transient DatabaseHelper helper;
 	transient Profiles project;
-	private ExportToTableCellEditor editor;
 
 	public ChangeExportToDialog(ProfileObject project, ExportToTableCellEditor editor) {
 		super();
 		this.project = project.getProfiles();
-		this.editor = editor;
 		init();
 	}
 
 	private void init() {
 		init(GUIFactory.getTitle("changeExportFileDialog"));
 		setHelpFile("changeExportFile");
-		exportFilename = project.getExportFile();
+		helper = project.getToDatabase();
 		exportFile = project.getExportFileEnum();
 
 		buildDialog();
@@ -53,7 +52,7 @@ public class ChangeExportToDialog extends BasicDialog {
 		JPanel result = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		exportTo = new JTextField(exportFilename);
+		exportTo = new JTextField(helper.getDatabase());
 		exportTo.getDocument().addDocumentListener(funcDocumentChange);
 
 		Dimension dim = exportTo.getPreferredSize();
@@ -63,7 +62,7 @@ public class ChangeExportToDialog extends BasicDialog {
 		JButton button = GUIFactory.getJButton("browseFile", e -> General.getSelectedFile(ChangeExportToDialog.this,
 				exportTo, exportFile, General.EMPTY_STRING, false));
 
-		password = new JPasswordField(project.getExportPassword());
+		password = new JPasswordField(General.decryptPassword(helper.getPassword()));
 		JLabel lPass = GUIFactory.getJLabel("password");
 
 		result.add(GUIFactory.getJLabel("fileName"), c.gridCell(0, 1, 0, 0));
@@ -84,7 +83,12 @@ public class ChangeExportToDialog extends BasicDialog {
 		if (!General.isFileExtensionOk(exportToFile, exportFile)) {
 			exportToFile = General.getBaseName(exportToFile, exportFile);
 		}
-		editor.setSavedValues(exportToFile, password.getPassword());
+
+		helper.setDatabase(exportToFile);
+		helper.setPassword(General.encryptPassword(password.getPassword()));
+		String node = project.setDatabase(helper);
+		project.setToDatabase(node);
+
 		setVisible(false);
 		dispose();
 	}

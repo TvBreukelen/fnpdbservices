@@ -1,6 +1,5 @@
 package dbconvert.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -23,20 +22,17 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
-import application.dialog.BasicDialog;
-import application.dialog.ConfigFilter;
-import application.dialog.ConfigSort;
+import application.dialog.ConfigDialog;
 import application.dialog.ConfigTextFile;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
-import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigSoft;
+import application.interfaces.IDatabaseFactory;
 import application.interfaces.TvBSoftware;
 import application.model.FilterData;
 import application.model.ProfileObject;
@@ -53,7 +49,7 @@ import dbconvert.software.XConverter;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.RelationData;
 
-public class ConfigSoft extends BasicDialog implements IConfigSoft {
+public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	/**
 	 * Title: ConfigXConverter Description: XConverter Configuration program
 	 * Copyright: (c) 2004-2020
@@ -62,13 +58,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	 * @version 5+
 	 */
 	private static final long serialVersionUID = -4831514718413166627L;
-	private JTabbedPane tabPane;
 
 	private JTextField profile;
 	private JTextField fdDatabase = new JTextField();
 
-	private JButton btFilter;
-	private JButton btSortOrder;
 	private JButton btRelationships;
 	private XGridBagConstraints c = new XGridBagConstraints();
 
@@ -90,52 +83,50 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
 
-	transient ScFieldSelect fieldSelect;
 	transient ScConfigDb configDb;
 
 	private ConfigTextFile textImport;
 	private ICalendarConfig calendarImport;
 	private boolean isNewProfile = false;
-	private String myView;
 
 	private static final String FUNC_NEW = "funcNew";
 	private static final String TABLE = "table";
 	private static final String WORKSHEET = "worksheet";
-	private static final String CONFIG_ERROR = GUIFactory.getTitle("configError");
 
-	transient XConverter dbFactory;
+	transient XConverter dbFactory = new XConverter();
 	transient PrefDBConvert pdaSettings = PrefDBConvert.getInstance();
 	transient Databases dbSettings = pdaSettings.getDbSettings();
-	transient Map<String, FilterData> filterDataMap = new HashMap<>();
-	transient Map<String, SortData> sortDataMap = new HashMap<>();
 	transient Map<String, RelationData> relationDataMap = new HashMap<>();
 
 	private ProgramDialog dialog;
 	private ProjectModel model;
-	transient DatabaseHelper dbVerified = new DatabaseHelper(General.EMPTY_STRING, ExportFile.ACCESS);
 
 	public ConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNew) {
 		this.dialog = dialog;
 		this.model = model;
 		isNewProfile = isNew;
 		setMinimumSize(new Dimension(500, 350));
-		init();
+		init(dbFactory);
 	}
 
-	private void init() {
+	@Override
+	protected void init(IDatabaseFactory factory) {
+		super.init(factory);
 		init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: pdaSettings.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
 
-		dbFactory = new XConverter();
+		dbVerified = dbFactory.getDbInHelper();
 
 		if (isNewProfile) {
 			pdaSettings.reset();
 			dbFactory.getDbInHelper().setDatabase(General.EMPTY_STRING);
+			dbExport = new DatabaseHelper(General.EMPTY_STRING, ExportFile.EXCEL);
+		} else {
+			dbExport = pdaSettings.getToDatabase();
 		}
 
-		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
-		myImportFile = isNewProfile ? ExportFile.ACCESS : dbSettings.getDatabaseType();
-		fieldSelect = new ScFieldSelect(dbFactory);
+		myImportFile = dbVerified.getDatabaseType();
+		myExportFile = dbExport.getDatabaseType();
 
 		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, pdaSettings);
 
@@ -146,24 +137,13 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 					relation.setVisible(true);
 				});
 
-		btSortOrder = GUIFactory.createToolBarButton(GUIFactory.getTitle("sortOrder"), "Sort.png", e -> {
-			ConfigSort sort = new ConfigSort(dbFactory, sortDataMap.computeIfAbsent(myView, s -> new SortData()));
-			sort.setVisible(true);
-		});
-
-		btFilter = GUIFactory.createToolBarButton(GUIFactory.getTitle("filter"), "Filter.png", e -> {
-			ConfigFilter filter = new ConfigFilter(dbFactory,
-					filterDataMap.computeIfAbsent(myView, f -> new FilterData()));
-			filter.setVisible(true);
-		});
-
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
 		funcSelectImportFileType = e -> importFileTypeChanged();
 		funcSelectImportFile = e -> importFileNameChanged(false);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : pdaSettings.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
-		profile.setPreferredSize(new Dimension(100, 25));
+		profile.setPreferredSize(new Dimension(100, 30));
 		pdaSettings.setNewProfile(isNewProfile);
 
 		buildDialog();
@@ -198,15 +178,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 	}
 
 	@Override
-	protected Component createCenterPanel() {
-		tabPane = new JTabbedPane();
-		tabPane.add(GUIFactory.getText("exportFiles"), createSelectionPanel());
-		tabPane.add(GUIFactory.getText("exportFields"), createFieldPanel());
-		tabPane.setEnabledAt(1, false);
-		return tabPane;
-	}
-
-	private JPanel createSelectionPanel() {
+	protected JPanel createSelectionPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createVerticalStrut(15));
@@ -300,12 +272,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		return result;
 	}
 
-	private JPanel createFieldPanel() {
-		JPanel result = new JPanel(new BorderLayout());
-		result.add(fieldSelect.createFieldPanel(), BorderLayout.CENTER);
-		return result;
-	}
-
 	private void importFileNameChanged(boolean isAddNew) {
 		dbFactory.getDbInHelper()
 				.setDatabase(isAddNew ? fdDatabase.getText() : cbDatabases.getSelectedItem().toString());
@@ -323,7 +289,7 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 
 		if (software != myImportFile && !db.isEmpty()) {
 			boolean abort = false;
-			if (!software.isConnectHost() == myImportFile.isConnectHost()) {
+			if (software.isConnectHost() != myImportFile.isConnectHost()) {
 				General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", General.EMPTY_STRING),
 						CONFIG_ERROR, true);
 				abort = true;
@@ -359,38 +325,36 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 		cbDatabases.removeAllItems();
 
 		dbVerified = dbFactory.getDbInHelper();
-		String dbFile = dbVerified.getDatabase();
+		myImportFile = dbVerified.getDatabaseType();
 
-		if (dbFile.isBlank()) {
-			if (!isNewProfile && dbFiles.size() > 1) {
-				// Take last database from the list
-				dbFile = dbFiles.get(dbFiles.size() - 1);
-			}
+		String dbFile = dbVerified.getDatabase();
+		String dbNewFile = dbFiles.size() < 2 ? dbFile : dbFiles.get(dbFiles.size() - 1);
+
+		if (General.isFileExtensionOk(dbNewFile, myImportFile) && !dbFiles.contains(dbNewFile)) {
+			dbFiles.add(dbNewFile);
+			Collections.sort(dbFiles);
 		} else {
-			if (!dbFiles.contains(dbFile)) {
-				dbFiles.add(dbFile);
-				Collections.sort(dbFiles);
-			}
+			pdaSettings.setTableName(General.EMPTY_STRING, false);
 		}
 
 		if (myImportFile.isConnectHost()) {
 			result = true;
 		} else {
-			result = !dbFile.isBlank() && General.existFile(dbFile);
+			result = !dbNewFile.isBlank() && General.existFile(dbNewFile);
 		}
 
 		dbFiles.forEach(db -> cbDatabases.addItem(db));
-		cbDatabases.setSelectedItem(dbFile);
+		cbDatabases.setSelectedItem(dbNewFile);
 
 		if (result) {
-			String node = dbSettings.getNodename(dbFile, myImportFile.getName());
+			String node = dbSettings.getNodename(dbNewFile, myImportFile);
 			if (node != null) {
 				dbSettings.setNode(node);
 				dbVerified.update(dbSettings);
 			}
 		} else {
-			if (!dbFile.isBlank()) {
-				General.showMessage(this, GUIFactory.getMessage("noDatabaseExists", dbFile), CONFIG_ERROR, true);
+			if (!dbNewFile.isBlank()) {
+				General.showMessage(this, GUIFactory.getMessage("noDatabaseExists", dbNewFile), CONFIG_ERROR, true);
 			}
 
 			btSave.setEnabled(false);
@@ -515,29 +479,10 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 			}
 		}
 
-		String node = dbSettings.getNodename(dbVerified.getDatabase(), myImportFile.getName());
-		if (node == null) {
-			node = dbSettings.getNextDatabaseID();
-		}
-
-		dbSettings.setNode(node);
-		dbSettings.setDatabaseType(myImportFile);
-		dbSettings.setDatabase(dbVerified.getDatabase());
-
-		if (myImportFile.isPasswordSupported()) {
-			dbSettings.setUser(dbVerified.getUser());
-			dbSettings.setPassword(dbVerified.getPassword());
-		}
-
-		if (myImportFile.isConnectHost()) {
-			saveRemoteDatabase();
-		}
-
 		pdaSettings.setProject(projectID);
 		pdaSettings.setProfile(profileID);
-
 		pdaSettings.setUserList(fieldSelect.getFieldList());
-		pdaSettings.setDatabaseFromFile(node);
+		pdaSettings.setFromDatabase(pdaSettings.setDatabase(dbVerified));
 
 		if (myImportFile == ExportFile.TEXTFILE) {
 			textImport.setProperties();
@@ -579,28 +524,6 @@ public class ConfigSoft extends BasicDialog implements IConfigSoft {
 				fields.add(f.getFieldHeader());
 			}
 		}
-	}
-
-	private void saveRemoteDatabase() {
-		boolean isNotSsh = !dbVerified.isUseSsh();
-		boolean isNotSsl = !dbVerified.isUseSsl();
-
-		dbSettings.setHost(dbVerified.getHost());
-		dbSettings.setPort(dbVerified.getPort());
-		dbSettings.setUseSsh(dbVerified.isUseSsh());
-		dbSettings.setSshHost(isNotSsh ? General.EMPTY_STRING : dbVerified.getSshHost());
-		dbSettings.setSshPort(isNotSsh ? 0 : dbVerified.getSshPort());
-		dbSettings.setSshUser(isNotSsh ? General.EMPTY_STRING : dbVerified.getSshUser());
-		dbSettings.setSshPassword(isNotSsh ? General.EMPTY_STRING : dbVerified.getSshPassword());
-		dbSettings.setPrivateKeyFile(isNotSsh ? General.EMPTY_STRING : dbVerified.getPrivateKeyFile());
-
-		dbSettings.setUseSsl(dbVerified.isUseSsl());
-		dbSettings.setSslMode(isNotSsl ? General.EMPTY_STRING : dbVerified.getSslMode());
-		dbSettings.setKeyStore(isNotSsl ? General.EMPTY_STRING : dbVerified.getKeyStore());
-		dbSettings.setKeyStorePassword(isNotSsl ? General.EMPTY_STRING : dbVerified.getKeyStorePassword());
-		dbSettings.setServerSslCert(isNotSsl ? General.EMPTY_STRING : dbVerified.getServerSslCert());
-		dbSettings.setHostNameInCertificate(isNotSsl ? General.EMPTY_STRING : dbVerified.getHostNameInCertificate());
-		dbSettings.setTrustServerCertificate(isNotSsl ? isNotSsl : dbVerified.isTrustServerCertificate());
 	}
 
 	@Override

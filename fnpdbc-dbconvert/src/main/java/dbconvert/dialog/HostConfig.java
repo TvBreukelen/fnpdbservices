@@ -291,6 +291,8 @@ public class HostConfig extends BasicDialog {
 			panel.add(ckTrustServerCertificate, c.gridCell(1, 5, 0, 0));
 			panel.add(GUIFactory.getJLabel("hostNameInCertificate"), c.gridCell(0, 6, 0, 0));
 			panel.add(txHostNameInCertificate, c.gridCell(1, 6, 0, 0));
+		} else {
+			ckTrustServerCertificate.setSelected(false);
 		}
 
 		return panel;

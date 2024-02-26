@@ -25,7 +25,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
@@ -70,7 +69,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			InputStream fileIn = new FileInputStream(outFile);
 			wb = WorkbookFactory.create(fileIn);
 			noOfSheets = wb.getNumberOfSheets();
-			sheetName = isInputFile ? myPref.getTableName() : myPref.getPdaDatabaseName();
+			sheetName = isInputFile ? myPref.getTableName() : myPref.getDatabaseName();
 
 			// Read all sheets in the workbook
 			hSheets = new HashMap<>(noOfSheets);
@@ -83,7 +82,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 				}
 			}
 		} else {
-			sheetName = myPref.getPdaDatabaseName();
+			sheetName = myPref.getDatabaseName();
 			wb = isXlsx ? new XSSFWorkbook() : new HSSFWorkbook();
 		}
 
@@ -91,12 +90,12 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			isAppend = false;
 		}
 
-		createNewSheet(totalRecords, dbInfo2Write.size());
+		createNewSheet();
 		helper = wb.getCreationHelper();
 	}
 
-	private void createNewSheet(int rows, int columns) {
-		if (isAppend) {
+	private void createNewSheet() {
+		if (isAppend || isInputFile) {
 			return;
 		}
 
@@ -110,6 +109,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
+		getCurrentSheet();
 		return hSheets.get(sheetName);
 	}
 
@@ -174,7 +174,7 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 			return FieldTypes.BOOLEAN;
 		case BLANK, STRING:
 			String contents = pCell.getRichStringCellValue().getString();
-			if (contents.length() > ExportFile.EXCEL.getMaxTextSize() || contents.indexOf('\n') > -1) {
+			if (contents.length() > 256 || contents.indexOf('\n') > -1) {
 				return FieldTypes.MEMO;
 			}
 			return FieldTypes.TEXT;

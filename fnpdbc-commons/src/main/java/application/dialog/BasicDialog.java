@@ -37,6 +37,7 @@ public abstract class BasicDialog extends JDialog {
 	protected ActionListener funcSave;
 
 	protected GeneralSettings generalSettings = GeneralSettings.getInstance();
+	protected static final String CONFIG_ERROR = GUIFactory.getTitle("configError");
 
 	private String myHelpFile;
 
@@ -81,10 +82,10 @@ public abstract class BasicDialog extends JDialog {
 				save();
 				close();
 			} catch (FNProgException ex) {
-				General.errorMessage(BasicDialog.this, ex, GUIFactory.getTitle("configError"), null);
+				General.errorMessage(BasicDialog.this, ex, CONFIG_ERROR, null);
 				close();
 			} catch (Exception ex) {
-				General.errorMessage(BasicDialog.this, ex, GUIFactory.getTitle("configError"), null);
+				General.errorMessage(BasicDialog.this, ex, CONFIG_ERROR, null);
 			}
 		};
 

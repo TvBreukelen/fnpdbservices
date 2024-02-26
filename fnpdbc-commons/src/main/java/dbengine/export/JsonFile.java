@@ -80,7 +80,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 				ObjectWriter writer = mapper.writer(prettyPrinter);
 
 				Map<String, List<Map<String, Object>>> map = new HashMap<>();
-				map.put(myPref.getPdaDatabaseName(), dbRecords);
+				map.put(myPref.getDatabaseName(), dbRecords);
 				writer.writeValue(outFile, map);
 			}
 		} catch (Exception e) {

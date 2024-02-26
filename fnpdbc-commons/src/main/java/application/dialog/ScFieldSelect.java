@@ -134,7 +134,8 @@ public class ScFieldSelect implements PropertyChangeListener {
 
 	private void setTableColumns() {
 		General.packTable(table);
-		TableColumn col;
+		TableColumn col = table.getColumnModel().getColumn(UserFieldModel.COL_TYPE);
+		col.setMinWidth(60);
 
 		int setColumn = UserFieldModel.COL_NOT_NULL;
 		if (userModel.getColumnCount() > setColumn) {

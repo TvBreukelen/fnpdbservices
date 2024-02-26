@@ -99,6 +99,8 @@ public class DBaseFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void createDbHeader() throws Exception {
+		final int MAX_TEXT_SIZE = 254;
+
 		numFields = dbInfo2Write.size();
 		if (useAppend && numFields != reader.getFieldCount()) {
 			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
@@ -136,7 +138,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				}
 				break;
 			case MEMO:
-				dbField.setLength(myExportFile.getMaxTextSize());
+				dbField.setLength(MAX_TEXT_SIZE);
 				break;
 			case TIMESTAMP:
 				dbField.setLength(18);
@@ -162,8 +164,7 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				dbField.setLength(5);
 				break;
 			default:
-				dbField.setLength(field.getSize() > myExportFile.getMaxTextSize() ? myExportFile.getMaxTextSize()
-						: field.getSize());
+				dbField.setLength(Math.min(MAX_TEXT_SIZE, field.getSize()));
 			}
 
 			fields[index++] = dbField;

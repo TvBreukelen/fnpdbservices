@@ -689,12 +689,15 @@ public final class General {
 	}
 
 	public static String getBaseName(String dbFile, ExportFile exp) {
+		// TODO Remote databases
 		int index = dbFile.lastIndexOf('.');
+		String extension = exp.isConnectHost() ? General.EMPTY_STRING : exp.getFileExtention().get(0);
 
 		if (index == -1) {
-			return dbFile + exp.getFileExtention().get(0);
+			return dbFile + extension;
 		}
-		return dbFile.substring(0, index) + exp.getFileExtention().get(0);
+
+		return dbFile.substring(0, index) + extension;
 	}
 
 	public static String[] getCharacterSets() {

@@ -34,7 +34,10 @@ import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
+import dbengine.SqlDB;
+import dbengine.export.PostgreSQL;
 import dbengine.export.SQLite;
+import dbengine.utils.DatabaseHelper;
 
 public class ScConfigDb extends JPanel implements IConfigDb {
 	/**
@@ -47,9 +50,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	 */
 	private static final long serialVersionUID = 8000165106403251367L;
 
-	private JTextField fdPDA;
 	private JTextField dbFileName;
-	private JLabel dbFileNameLabel = new JLabel();
+	private JTextField dbDatabase; // database, table or worksheet name
+	private JLabel dbDatabaseLabel = new JLabel();
 	private JPasswordField fdPassword;
 
 	private JComboBox<String> bDatabase;
@@ -88,6 +91,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	transient IConfigSoft dialog;
 	transient Profiles pdaSettings;
 	transient ScFieldSelect scFieldSelect;
+	private DatabaseHelper helper;
 
 	private PropertyChangeSupport support;
 
@@ -99,6 +103,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		support = new PropertyChangeSupport(this);
 		support.addPropertyChangeListener(scFieldSelect);
+		helper = pdaSettings.getToDatabase();
 
 		init();
 		buildDialog();
@@ -114,7 +119,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				boolean enableImport = !rExists[0].isSelected();
 				((ConfigHanDBase) dbConfig).setImportEnabled(enableImport);
 			} else {
-				btTableSchema.setVisible(myExportFile == ExportFile.SQLITE && rExists[0].isSelected());
+				btTableSchema.setVisible(myExportFile.isSqlDatabase() && rExists[0].isSelected());
 			}
 		};
 
@@ -127,7 +132,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		};
 
 		funcShowSchema = e -> {
-			String dbName = dbFileName.getText();
+			String dbName = dbDatabase.getText();
 			if (dbName.isBlank()) {
 				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noTableDefined"), schema, true);
 				return;
@@ -138,32 +143,46 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				return;
 			}
 
-			SQLite db = new SQLite(pdaSettings);
+			SqlDB db;
+			if (myExportFile == ExportFile.SQLITE) {
+				db = new SQLite(pdaSettings);
+			} else {
+				db = new PostgreSQL(pdaSettings);
+			}
+
 			List<FieldDefinition> fields = new ArrayList<>();
 			scFieldSelect.getFieldList().forEach(field -> fields.add(new FieldDefinition(field)));
 			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), schema, false);
 		};
 
-		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, fdPDA, myExportFile, General.EMPTY_STRING,
+		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, dbFileName, myExportFile, General.EMPTY_STRING,
 				false);
 
 		funcSelectDb = e -> {
-			ExportFile exportFile = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-			support.firePropertyChange("exportfile", myExportFile, exportFile);
-			myExportFile = exportFile;
+			ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
+
+			if (software != myExportFile && !dbDatabase.getText().isEmpty()) {
+				if (software.isConnectHost() != myExportFile.isConnectHost()) {
+					General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", General.EMPTY_STRING),
+							BasicDialog.CONFIG_ERROR, true);
+					bDatabase.setSelectedItem(myExportFile.toString());
+					return;
+				}
+			}
+
+			support.firePropertyChange("exportfile", myExportFile, software);
+			myExportFile = software;
 
 			pdaSettings.setProject(myExportFile.getName());
-			fdPDA.setToolTipText(myExportFile.getFileType());
-			fdPDA.setText(getDatabaseName(true));
+			helper.setDatabaseType(myExportFile);
 
+			dbFileName.setToolTipText(myExportFile.getFileType());
+			fdPassword.setText(General.decryptPassword(helper.getPassword()));
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
-			dbFileName.setText(pdaSettings.getPdaDatabaseName());
+			dbFileName.setText(getDatabaseName(true));
+			dbDatabase.setText(pdaSettings.getDatabaseName());
 
 			setRadioButtonText();
-
-			if (myExportFile.isPasswordSupported()) {
-				fdPassword.setText(pdaSettings.getExportPassword());
-			}
 
 			// Restore Export Data options
 			int index = pdaSettings.isAppendRecords() ? 2 : 0;
@@ -201,9 +220,14 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pOtherOptions.removeAll();
 			if (dbConfig != null) {
 				pOtherOptions.add((JComponent) dbConfig);
-			} else if (myExportFile == ExportFile.SQLITE) {
+			} else if (myExportFile.isSqlDatabase()) {
 				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict));
 				rOnConflict[pdaSettings.getOnConflict()].setSelected(true);
+				if (myExportFile == ExportFile.POSTGRESQL) {
+					rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(false);
+					rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(false);
+					rOnConflict[Profiles.ON_CONFLICT_ROLLBACK].setVisible(false);
+				}
 			}
 
 			activateComponents();
@@ -215,15 +239,15 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		String[] ids = new String[0];
 		if (myExportFile.isSqlDatabase()) {
 			ids = new String[] { "intoNewTable", "replaceTableRecords", "appendTableRecords" };
-			dbFileNameLabel.setText(GUIFactory.getText("table"));
+			dbDatabaseLabel.setText(GUIFactory.getText("table"));
 		} else if (myExportFile.isSpreadSheet()) {
 			ids = new String[] { "intoNewWorksheet", General.EMPTY_STRING, "appendWorksheetRecords" };
-			dbFileNameLabel.setText(GUIFactory.getText("worksheet"));
+			dbDatabaseLabel.setText(GUIFactory.getText("worksheet"));
 		} else if (myExportFile == ExportFile.XML) {
-			dbFileNameLabel.setText(GUIFactory.getText("xmlRoot"));
+			dbDatabaseLabel.setText(GUIFactory.getText("xmlRoot"));
 		} else {
 			ids = new String[] { "intoNewDatabase", "replaceDatabaseRecords", "appendDatabaseRecords" };
-			dbFileNameLabel.setText(GUIFactory.getText("database"));
+			dbDatabaseLabel.setText(GUIFactory.getText("database"));
 		}
 
 		if (ids.length > 0) {
@@ -240,8 +264,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		return myExportFile;
 	}
 
-	public String getDatabaseName(boolean isInitial) {
-		String result = isInitial ? pdaSettings.getExportFile() : fdPDA.getText().trim();
+	private String getDatabaseName(boolean isInitial) {
+		String result = isInitial ? helper.getDatabaseName() : dbFileName.getText().trim();
 		if (result.isEmpty()) {
 			result = General.getDefaultPDADatabase(myExportFile);
 		} else if (!General.isFileExtensionOk(result, myExportFile)) {
@@ -254,7 +278,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		setLayout(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		fdPDA = new JTextField();
+		dbFileName = new JTextField();
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(false));
 		bDatabase.setToolTipText(GUIFactory.getToolTip("pcToFile"));
 		bDatabase.addActionListener(funcSelectDb);
@@ -263,17 +287,17 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dim.setSize(dim.getWidth() + 10, dim.getHeight());
 		bDatabase.setPreferredSize(dim);
 
-		dbFileName = GUIFactory.getJTextField("database", General.EMPTY_STRING);
+		dbDatabase = GUIFactory.getJTextField("database", General.EMPTY_STRING);
 		fdPassword = new JPasswordField(8);
 		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
 		btBackup = GUIFactory.getJCheckBox("createBackup", pdaSettings.isCreateBackup());
 		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", pdaSettings.isSkipEmptyRecords());
 
 		Box dbNameBox = Box.createHorizontalBox();
-		dbNameBox.add(dbFileNameLabel);
+		dbNameBox.add(dbDatabaseLabel);
 		dbNameBox.add(Box.createHorizontalStrut(5));
 		dbNameBox.add(Box.createHorizontalGlue());
-		dbNameBox.add(dbFileName);
+		dbNameBox.add(dbDatabase);
 
 		hModel = new SpinnerNumberModel(pdaSettings.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(pdaSettings.getImageWidth(), 0, 900, 10);
@@ -336,7 +360,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		p1.add(Box.createHorizontalGlue());
 
 		add(bDatabase, c.gridCell(0, 0, 0, 0));
-		add(fdPDA, c.gridCell(1, 0, 2, 0));
+		add(dbFileName, c.gridCell(1, 0, 2, 0));
 		add(bt1, c.gridCell(2, 0, 0, 0));
 		add(p1, c.gridCell(1, 1, 0, 0));
 		add(Box.createVerticalStrut(5), c.gridCell(1, 2, 0, 0));
@@ -365,10 +389,13 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	@Override
 	public void setProperties() throws Exception {
+		helper.setDatabase(getDatabaseName(false));
+		helper.setPassword(General.encryptPassword(fdPassword.getPassword()));
+
 		int index = getSelected(rExists);
 		pdaSettings.setExportOption(index);
 		pdaSettings.setAppendRecords(index == 2);
-		pdaSettings.setExportFile(getDatabaseName(false));
+		pdaSettings.setToDatabase(pdaSettings.setDatabase(helper));
 
 		if (cConvertImages.isVisible()) {
 			index = getSelected(rImages);
@@ -383,23 +410,22 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pdaSettings.setImageWidth(0);
 		}
 
-		if (myExportFile == ExportFile.SQLITE) {
+		if (myExportFile.isSqlDatabase()) {
 			pdaSettings.setOnConflict(getSelected(rOnConflict));
 		} else {
-			pdaSettings.setOnConflict(4);
+			pdaSettings.setOnConflict(Profiles.ON_CONFLICT_REPLACE);
 		}
 
 		pdaSettings.setCreateBackup(btBackup.isEnabled() && btBackup.isSelected());
 		pdaSettings.setSkipEmptyRecords(btSkipEmpty.isEnabled() && btSkipEmpty.isSelected());
-		pdaSettings.setExportPassword(fdPassword.getPassword());
 
-		String dbFile = dbFileName.getText().trim();
+		String dbFile = dbDatabase.getText().trim();
 		if (dbFile.isEmpty()) {
 			dbFile = pdaSettings.getProfileID();
-			dbFileName.setText(dbFile);
+			dbDatabase.setText(dbFile);
 		}
 
-		pdaSettings.setPdaDatabaseName(dbFile);
+		pdaSettings.setDatabaseName(dbFile);
 		pdaSettings.setTextFileFormat(ConfigTextFile.STANDARD_CSV);
 
 		if (dbConfig != null) {
@@ -432,7 +458,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pOtherOptions);
 			pBottomContainer.add(pExport);
 			break;
-		case CALC, DBASE, SQLITE:
+		case CALC, DBASE, SQLITE, POSTGRESQL:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;
@@ -468,9 +494,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pConvert.setVisible(cConvertImages.isVisible());
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
-		dbFileName.setVisible(myExportFile != ExportFile.TEXTFILE);
-		dbFileNameLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
-		btTableSchema.setVisible(myExportFile == ExportFile.SQLITE && rExists[0].isSelected());
+		dbDatabase.setVisible(myExportFile != ExportFile.TEXTFILE);
+		dbDatabaseLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
+		btTableSchema.setVisible(myExportFile.isSqlDatabase() && rExists[0].isSelected());
 
 		if (dbConfig != null) {
 			dbConfig.activateComponents();

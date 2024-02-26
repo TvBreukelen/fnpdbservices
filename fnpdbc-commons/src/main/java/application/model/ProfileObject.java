@@ -74,8 +74,8 @@ public class ProfileObject {
 	}
 
 	public void alignTable() {
-		exportFile = profiles.getExportFile();
-		importFile = profiles.getImportFile();
+		exportFile = profiles.getToDatabase().getDatabaseName();
+		importFile = profiles.getFromDatabase().getDatabaseName();
 		importFileProgram = profiles.getImportFileProgram();
 		notes = profiles.getNotes();
 		tableName = profiles.getTableName();

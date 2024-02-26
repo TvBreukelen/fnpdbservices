@@ -15,27 +15,34 @@ import application.interfaces.TvBSoftware;
 import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.General;
+import dbengine.utils.DatabaseHelper;
 
 public abstract class Profiles extends Project {
+	public static final String FROM_DATABASE = "database.from.file";
+	public static final String TO_DATABASE = "export.file";
+	public static final String USER_LIST = "userlist";
+
+	public static final int ON_CONFLICT_ABORT = 0;
+	public static final int ON_CONFLICT_FAIL = 1;
+	public static final int ON_CONFLICT_IGNORE = 2;
+	public static final int ON_CONFLICT_REPLACE = 3;
+	public static final int ON_CONFLICT_ROLLBACK = 4;
+
 	private static final String RELATION = "relation";
 	private static final String ARIAL = "Arial";
-	private static final String FROM_DATABASE = "database.from.file";
 	private static final String FILTER = "filter";
-	public static final String USER_LIST = "userlist";
 
 	// General Settings
 	private String categoryField = General.EMPTY_STRING;
 	private String contentsFilter = General.EMPTY_STRING;
-	private String databaseFromFile;
-	private String exportFile = General.EMPTY_STRING;
-	private String exportUser;
-	private String exportPassword;
+	private String fromDatabase;
+	private String toDatabase = General.EMPTY_STRING;
 	private String filterCondition;
 	private String keywordFilter;
 	private String lastExported;
 	private String lastSaved;
 	private String notes;
-	private String pdaDatabaseName = General.EMPTY_STRING;
+	private String databaseName = General.EMPTY_STRING;
 	private String remainingField = General.EMPTY_STRING;
 	private String tableName = General.EMPTY_STRING;
 	private int languageDriver = 3; // xBase
@@ -67,10 +74,10 @@ public abstract class Profiles extends Project {
 	// Sql database options
 	private int sqlSelectLimit = 0;
 	private boolean pagination;
-	private int onConflict = 3;
+	private int onConflict = ON_CONFLICT_REPLACE;
 
 	// HanDBase Settings
-	private String autoInstUser;
+	private String autoInstUser = General.EMPTY_STRING;
 	private int exportOption;
 	private int importOption;
 
@@ -111,13 +118,11 @@ public abstract class Profiles extends Project {
 		}
 
 		child = getParent().node(profileID);
-		databaseFromFile = child.get(FROM_DATABASE, General.EMPTY_STRING);
-		pdaDatabaseName = child.get("pda.database.name", General.EMPTY_STRING);
+		fromDatabase = child.get(FROM_DATABASE, General.EMPTY_STRING);
+		databaseName = child.get("pda.database.name", General.EMPTY_STRING);
 
 		contentsFilter = child.get("contents.filter", General.EMPTY_STRING);
-		exportFile = child.get("export.file", General.EMPTY_STRING);
-		exportUser = child.get("export.user", General.EMPTY_STRING);
-		exportPassword = child.get("export.password", General.EMPTY_STRING);
+		toDatabase = child.get(TO_DATABASE, General.EMPTY_STRING);
 
 		filterCondition = child.get("filter.condition", "AND");
 		filterField[0] = child.get("filter0.field", General.EMPTY_STRING);
@@ -206,11 +211,11 @@ public abstract class Profiles extends Project {
 		// Sql Databases
 		sqlSelectLimit = child.getInt("sql.select.limit", 0);
 		pagination = child.getBoolean("database.pagination", false);
-		onConflict = child.getInt("onconflict.action", 3);
+		onConflict = child.getInt("onconflict.action", ON_CONFLICT_REPLACE);
 
 		// Files to be imported
-		if (!databaseFromFile.isEmpty()) {
-			getDbSettings().setNode(databaseFromFile);
+		if (!fromDatabase.isEmpty()) {
+			getDbSettings().setNode(fromDatabase);
 		}
 
 		try {
@@ -252,10 +257,6 @@ public abstract class Profiles extends Project {
 		this.contentsFilter = contentsFilter;
 	}
 
-	public String getExportFile() {
-		return exportFile;
-	}
-
 	public String getImportFileProgram() {
 		Databases db = getDbSettings();
 		if (db.getDatabaseVersion().isEmpty()) {
@@ -264,13 +265,17 @@ public abstract class Profiles extends Project {
 		return db.getDatabaseTypeAsString() + " (" + db.getDatabaseVersion() + ")";
 	}
 
-	public String getImportFile() {
-		return getDbSettings().getRemoteDatabase();
+	public DatabaseHelper getFromDatabase() {
+		return getDatabase(fromDatabase);
 	}
 
-	public void setExportFile(String exportFile) {
-		PrefUtils.writePref(child, "export.file", exportFile, this.exportFile, General.EMPTY_STRING);
-		this.exportFile = exportFile;
+	public DatabaseHelper getToDatabase() {
+		return getDatabase(toDatabase);
+	}
+
+	public void setToDatabase(String toDatabase) {
+		PrefUtils.writePref(child, TO_DATABASE, toDatabase, this.toDatabase, General.EMPTY_STRING);
+		this.toDatabase = toDatabase;
 	}
 
 	public void setRelation(int index, String relation) {
@@ -623,7 +628,7 @@ public abstract class Profiles extends Project {
 	}
 
 	public void setOnConflict(int onConflict) {
-		PrefUtils.writePref(child, "onconflict.action", onConflict, this.onConflict, 3);
+		PrefUtils.writePref(child, "onconflict.action", onConflict, this.onConflict, ON_CONFLICT_REPLACE);
 		this.onConflict = onConflict;
 	}
 
@@ -862,29 +867,6 @@ public abstract class Profiles extends Project {
 		return ExportFile.getExportFile(getProjectID());
 	}
 
-	public String getExportUser() {
-		return exportUser;
-	}
-
-	public void setExportUser(String exportUser) {
-		PrefUtils.writePref(child, "export.user", exportUser, this.exportUser, General.EMPTY_STRING);
-		this.exportUser = exportUser;
-	}
-
-	public String getExportPassword() {
-		return General.decryptPassword(exportPassword);
-	}
-
-	public void setExportPassword(char[] password) {
-		String expPassword = General.EMPTY_STRING;
-		if (getExportFileEnum().isPasswordSupported()) {
-			expPassword = General.encryptPassword(password);
-		}
-
-		PrefUtils.writePref(child, "export.password", expPassword, exportPassword, General.EMPTY_STRING);
-		exportPassword = expPassword;
-	}
-
 	public void deleteNode(String profileID) {
 		if (profileExists(profileID)) {
 			Preferences p = getParent().node(profileID);
@@ -928,22 +910,18 @@ public abstract class Profiles extends Project {
 		return result;
 	}
 
-	public String getDatabaseFromFile() {
-		return databaseFromFile;
+	public void setFromDatabase(String fromDatabase) {
+		child.put(FROM_DATABASE, fromDatabase);
+		this.fromDatabase = fromDatabase;
 	}
 
-	public void setDatabaseFromFile(String databaseFromFile) {
-		child.put(FROM_DATABASE, databaseFromFile);
-		this.databaseFromFile = databaseFromFile;
+	public String getDatabaseName() {
+		return databaseName;
 	}
 
-	public String getPdaDatabaseName() {
-		return pdaDatabaseName;
-	}
-
-	public void setPdaDatabaseName(String pdaDatabaseName) {
-		PrefUtils.writePref(child, "pda.database.name", pdaDatabaseName, this.pdaDatabaseName, General.EMPTY_STRING);
-		this.pdaDatabaseName = pdaDatabaseName;
+	public void setDatabaseName(String databaseName) {
+		PrefUtils.writePref(child, "pda.database.name", databaseName, this.databaseName, General.EMPTY_STRING);
+		this.databaseName = databaseName;
 	}
 
 	public String getProfileID() {
@@ -961,12 +939,6 @@ public abstract class Profiles extends Project {
 		} catch (Exception e) {
 			// Should not occur
 		}
-	}
-
-	public void updateTofile(String exportFile, String exportUser, char[] filePassword) {
-		setExportFile(exportFile);
-		setExportUser(exportUser);
-		setExportPassword(filePassword);
 	}
 
 	public int getSqlSelectLimit() {

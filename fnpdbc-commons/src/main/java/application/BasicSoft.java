@@ -373,8 +373,9 @@ public abstract class BasicSoft {
 					GUIFactory.getTitle("information"), false);
 		} else {
 			General.showMessage(parent,
-					GUIFactory.getMessage("createdFile", pdaSettings.getExportFile(), Integer.toString(totalRecords),
-							Integer.toString(writtenRecords), Integer.toString(totalRecords - writtenRecords)),
+					GUIFactory.getMessage("createdFile", pdaSettings.getToDatabase().getDatabaseName(),
+							Integer.toString(totalRecords), Integer.toString(writtenRecords),
+							Integer.toString(totalRecords - writtenRecords)),
 					GUIFactory.getTitle("information"), false);
 		}
 

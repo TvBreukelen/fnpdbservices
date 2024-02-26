@@ -109,7 +109,7 @@ public abstract class GeneralDB {
 			throw FNProgException.getException("noDatabaseDefined");
 		}
 
-		myDatabase = helper.getRemoteDatabase();
+		myDatabase = helper.getDatabase();
 		if (isInputFile && !helper.getDatabaseType().isConnectHost() && !General.existFile(myDatabase)) {
 			throw FNProgException.getException("noDatabaseExists", myDatabase);
 		}
@@ -243,7 +243,11 @@ public abstract class GeneralDB {
 			return value;
 		}
 
-		return "[" + value + "]";
+		if (myExportFile == ExportFile.ACCESS || myExportFile == ExportFile.SQLSERVER) {
+			return "[" + value + "]";
+		}
+
+		return "\"" + value + "\"";
 	}
 
 	protected boolean isNotReservedWord(String value) {

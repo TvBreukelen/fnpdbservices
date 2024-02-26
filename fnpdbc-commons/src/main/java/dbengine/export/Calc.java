@@ -51,7 +51,7 @@ public class Calc extends GeneralDB implements IConvert {
 
 		this.isInputFile = isInputFile;
 		if (outFile.exists()) {
-			sheetName = isInputFile ? myPref.getTableName() : myPref.getPdaDatabaseName();
+			sheetName = isInputFile ? myPref.getTableName() : myPref.getDatabaseName();
 			wb = new SpreadSheet(outFile);
 			noOfSheets = wb.getNumSheets();
 
@@ -66,7 +66,7 @@ public class Calc extends GeneralDB implements IConvert {
 				}
 			}
 		} else {
-			sheetName = myPref.getPdaDatabaseName();
+			sheetName = myPref.getDatabaseName();
 			wb = new SpreadSheet();
 		}
 

@@ -155,7 +155,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void createDbHeader() throws Exception {
-		String xmlRoot = eliminateIllegalXmlCharacters(myPref.getPdaDatabaseName());
+		String xmlRoot = eliminateIllegalXmlCharacters(myPref.getDatabaseName());
 		if (xmlRoot.equals(General.EMPTY_STRING)) {
 			xmlRoot = "Results";
 		}

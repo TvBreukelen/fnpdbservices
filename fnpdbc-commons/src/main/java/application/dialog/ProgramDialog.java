@@ -762,7 +762,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		generalSettings.setWidth(getWidth());
 		generalSettings.setHeight(getHeight());
-		dbSettings.cleanupNodes(pdaSettings);
+		// TODO dbSettings.cleanupNodes(pdaSettings);
 		pdaSettings.setLastProject();
 		pdaSettings.setLastProfile(pdaSettings.getProfileID());
 		System.exit(0);

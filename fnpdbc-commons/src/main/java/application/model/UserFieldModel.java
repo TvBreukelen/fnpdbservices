@@ -23,6 +23,7 @@ public class UserFieldModel extends HiddenColumnModel {
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
 	private ExportFile importFile;
 	private boolean hasTextExport;
+	private boolean isPkSet = false;
 
 	public UserFieldModel(ExportFile exp) {
 		super(COL_UNIQUE + 1);
@@ -40,6 +41,18 @@ public class UserFieldModel extends HiddenColumnModel {
 	public void setTableData(List<BasisField> tableData, boolean isTextExport) {
 		if (tableData != null) {
 			this.tableData = tableData;
+
+			// PostgresSQL allows only one primary key column
+			if (importFile == ExportFile.POSTGRESQL) {
+				List<BasisField> pkFields = tableData.stream().filter(BasisField::isPrimaryKey).toList();
+				isPkSet = !pkFields.isEmpty();
+				if (pkFields.size() > 1) {
+					for (int i = 1; i < pkFields.size(); i++) {
+						pkFields.get(i).setPrimaryKey(false);
+					}
+				}
+			}
+
 			hasTextExport = isTextExport;
 			resetColumnVisibility();
 		}
@@ -156,7 +169,13 @@ public class UserFieldModel extends HiddenColumnModel {
 			break;
 		case COL_PRIMARY_KEY:
 			boolean isPK = (Boolean) value;
+			if (isPkSet && importFile == ExportFile.POSTGRESQL) {
+				isPK = false;
+			}
+
+			isPkSet = !field.isPrimaryKey();
 			field.setPrimaryKey(isPK);
+
 			if (!isPK && field.isAutoIncrement()) {
 				field.setAutoIncrement(false);
 				fireTableDataChanged();

@@ -100,7 +100,7 @@ public class HanDBase extends CsvFile {
 	public void runConversionProgram() throws Exception {
 		List<String> cmd = new ArrayList<>();
 		final String outFile = pdbFile;
-		final String dbName = myPref.getPdaDatabaseName();
+		final String dbName = myPref.getDatabaseName();
 		final int exportOption = myPref.getExportOption();
 		final int importOption = myPref.getImportOption();
 
@@ -133,10 +133,10 @@ public class HanDBase extends CsvFile {
 			}
 		}
 
-		String password = myPref.getExportPassword();
-		if (!password.isEmpty()) {
-			cmd.add("PASSWORD:{" + password + "}");
-		}
+//TODO		String password = myPref.getExportPassword();
+//		if (!password.isEmpty()) {
+//			cmd.add("PASSWORD:{" + password + "}");
+//		}
 
 		cmd.add("HASQUOTES");
 		cmd.add("FIELDNAMES");

@@ -12,8 +12,9 @@ import application.interfaces.ExportFile;
 import application.interfaces.IDatabaseHelper;
 import application.interfaces.TvBSoftware;
 import application.utils.General;
+import dbengine.utils.DatabaseHelper;
 
-public class Databases implements IDatabaseHelper {
+public class Databases extends DatabaseHelper implements IDatabaseHelper {
 	private String databaseID = General.EMPTY_STRING;
 	private String database = General.EMPTY_STRING;
 	private String user = General.EMPTY_STRING;
@@ -65,6 +66,7 @@ public class Databases implements IDatabaseHelper {
 	}
 
 	private Databases(TvBSoftware software) {
+		super(General.EMPTY_STRING, ExportFile.ACCESS);
 		mySoftware = software;
 		parent = Preferences.userRoot().node(mySoftware.getName().toLowerCase());
 		parent = parent.node("databases");
@@ -124,8 +126,12 @@ public class Databases implements IDatabaseHelper {
 		fillNodes();
 	}
 
-	public String getNodename(String databaseFile, String databaseType) {
-		return nodes.get((databaseFile + "/" + databaseType).toUpperCase());
+	public String getNodename(String databaseFile, ExportFile type) {
+		return getNodename(databaseFile, type.getName());
+	}
+
+	public String getNodename(String databaseFile, String type) {
+		return nodes.get((databaseFile + "/" + type).toUpperCase());
 	}
 
 	public String getNextDatabaseID() {
@@ -157,7 +163,10 @@ public class Databases implements IDatabaseHelper {
 		for (String db : getDatabases()) {
 			setNode(db);
 			if (getDatabaseType() == myImportFile) {
-				result.add(getDatabase());
+				String dbase = getDatabaseName();
+				if (myImportFile.isConnectHost() || General.existFile(dbase)) {
+					result.add(dbase);
+				}
 			}
 		}
 
@@ -174,6 +183,7 @@ public class Databases implements IDatabaseHelper {
 		return host;
 	}
 
+	@Override
 	public void setHost(String host) {
 		PrefUtils.writePref(myPref, "remote.host", host, this.host, General.EMPTY_STRING);
 		this.host = host;
@@ -184,6 +194,7 @@ public class Databases implements IDatabaseHelper {
 		return port;
 	}
 
+	@Override
 	public void setPort(int port) {
 		PrefUtils.writePref(myPref, "remote.port", port, this.port, 0);
 		this.port = port;
@@ -194,6 +205,7 @@ public class Databases implements IDatabaseHelper {
 		return database;
 	}
 
+	@Override
 	public void setDatabase(String database) {
 		PrefUtils.writePref(myPref, DB_FILE, database, this.database, General.EMPTY_STRING);
 		this.database = database;
@@ -205,6 +217,7 @@ public class Databases implements IDatabaseHelper {
 		return password;
 	}
 
+	@Override
 	public void setPassword(String databasePassword) {
 		PrefUtils.writePref(myPref, "database.password", databasePassword, password, General.EMPTY_STRING);
 		password = databasePassword;
@@ -215,6 +228,7 @@ public class Databases implements IDatabaseHelper {
 		return user;
 	}
 
+	@Override
 	public void setUser(String databaseUser) {
 		PrefUtils.writePref(myPref, "database.user", databaseUser, user, General.EMPTY_STRING);
 		user = databaseUser;
@@ -225,6 +239,7 @@ public class Databases implements IDatabaseHelper {
 		return ExportFile.getExportFile(databaseType);
 	}
 
+	@Override
 	public void setDatabaseType(ExportFile databaseType) {
 		PrefUtils.writePref(myPref, DB_TYPE, databaseType.getName(), this.databaseType, General.EMPTY_STRING);
 		this.databaseType = databaseType.getName();
@@ -253,6 +268,7 @@ public class Databases implements IDatabaseHelper {
 		return useSsl;
 	}
 
+	@Override
 	public void setUseSsl(boolean useSsl) {
 		PrefUtils.writePref(myPref, "use.ssl", useSsl, this.useSsl, false);
 		this.useSsl = useSsl;
@@ -263,6 +279,7 @@ public class Databases implements IDatabaseHelper {
 		return sslMode;
 	}
 
+	@Override
 	public void setSslMode(String sslMode) {
 		PrefUtils.writePref(myPref, "ssl.mode", sslMode, this.sslMode, General.EMPTY_STRING);
 		this.sslMode = sslMode;
@@ -273,6 +290,7 @@ public class Databases implements IDatabaseHelper {
 		return serverSslCert;
 	}
 
+	@Override
 	public void setServerSslCert(String serverSslCert) {
 		PrefUtils.writePref(myPref, "ssl.server.cert", serverSslCert, this.serverSslCert, General.EMPTY_STRING);
 		this.serverSslCert = serverSslCert;
@@ -283,6 +301,7 @@ public class Databases implements IDatabaseHelper {
 		return serverSslCaCert;
 	}
 
+	@Override
 	public void setServerSslCaCert(String serverSslCaCert) {
 		PrefUtils.writePref(myPref, "ssl.server.ca.cert", serverSslCaCert, this.serverSslCaCert, General.EMPTY_STRING);
 		this.serverSslCaCert = serverSslCaCert;
@@ -293,6 +312,7 @@ public class Databases implements IDatabaseHelper {
 		return keyStore;
 	}
 
+	@Override
 	public void setKeyStore(String keyStore) {
 		PrefUtils.writePref(myPref, "ssl.keystore", keyStore, this.keyStore, General.EMPTY_STRING);
 		this.keyStore = keyStore;
@@ -303,6 +323,7 @@ public class Databases implements IDatabaseHelper {
 		return keyStorePassword;
 	}
 
+	@Override
 	public void setKeyStorePassword(String keyStorePassword) {
 		PrefUtils.writePref(myPref, "ssl.keystore.password", keyStorePassword, this.keyStorePassword,
 				General.EMPTY_STRING);
@@ -314,6 +335,7 @@ public class Databases implements IDatabaseHelper {
 		return useSsh;
 	}
 
+	@Override
 	public void setUseSsh(boolean useSsh) {
 		PrefUtils.writePref(myPref, "use.ssh", useSsh, this.useSsh, false);
 		this.useSsh = useSsh;
@@ -324,6 +346,7 @@ public class Databases implements IDatabaseHelper {
 		return sshHost;
 	}
 
+	@Override
 	public void setSshHost(String sshHost) {
 		PrefUtils.writePref(myPref, "ssh.host", sshHost, this.sshHost, General.EMPTY_STRING);
 		this.sshHost = sshHost;
@@ -334,6 +357,7 @@ public class Databases implements IDatabaseHelper {
 		return sshUser;
 	}
 
+	@Override
 	public void setSshUser(String shellUser) {
 		PrefUtils.writePref(myPref, "ssh.user", shellUser, sshUser, General.EMPTY_STRING);
 		sshUser = shellUser;
@@ -344,6 +368,7 @@ public class Databases implements IDatabaseHelper {
 		return sshPassword;
 	}
 
+	@Override
 	public void setSshPassword(String shellPassword) {
 		PrefUtils.writePref(myPref, "ssh.password", shellPassword, sshPassword, General.EMPTY_STRING);
 		sshPassword = shellPassword;
@@ -354,6 +379,7 @@ public class Databases implements IDatabaseHelper {
 		return privateKeyFile;
 	}
 
+	@Override
 	public void setPrivateKeyFile(String privateKeyFile) {
 		PrefUtils.writePref(myPref, "ssh.key.file", privateKeyFile, this.privateKeyFile, General.EMPTY_STRING);
 		this.privateKeyFile = privateKeyFile;
@@ -364,6 +390,7 @@ public class Databases implements IDatabaseHelper {
 		return sshPort;
 	}
 
+	@Override
 	public void setSshPort(int sshPort) {
 		PrefUtils.writePref(myPref, "ssh.port", sshPort, this.sshPort, 0);
 		this.sshPort = sshPort;
@@ -374,6 +401,7 @@ public class Databases implements IDatabaseHelper {
 		return trustServerCertificate;
 	}
 
+	@Override
 	public void setTrustServerCertificate(boolean trustServerCertificate) {
 		PrefUtils.writePref(myPref, "ssl.trust.server.certificate", trustServerCertificate, this.trustServerCertificate,
 				false);
@@ -385,6 +413,7 @@ public class Databases implements IDatabaseHelper {
 		return hostNameInCertificate;
 	}
 
+	@Override
 	public void setHostNameInCertificate(String hostNameInCertificate) {
 		PrefUtils.writePref(myPref, "ssl.hostname.in.certificate", hostNameInCertificate, this.hostNameInCertificate,
 				General.EMPTY_STRING);

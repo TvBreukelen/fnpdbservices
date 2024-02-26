@@ -41,16 +41,5 @@ public interface IDatabaseHelper {
 
 	boolean isUseSsh();
 
-	default String getRemoteDatabase() {
-		String database = getDatabase();
-		if (database.isEmpty()) {
-			return database;
-		}
-
-		ExportFile exp = getDatabaseType();
-		if (exp.isConnectHost()) {
-			return getHost() + ":" + getPort() + "/" + database;
-		}
-		return database;
-	}
+	void update(IDatabaseHelper helper);
 }

@@ -17,19 +17,23 @@ import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
+import dbengine.utils.DatabaseHelper;
 
 public class ConfigClone extends BasicDialog {
 	private JTextField projectName;
 	private JTextField exportToFile;
 	private JComboBox<String> cbExportFile;
+	private ProgramDialog dialog;
 
 	transient Profiles project;
-	private ProgramDialog dialog;
+	transient DatabaseHelper helper;
+
 	private static final long serialVersionUID = -6576646959544052585L;
 
 	public ConfigClone(Profiles project, ProgramDialog dialog) {
 		this.project = project;
 		this.dialog = dialog;
+		helper = project.getToDatabase();
 		init();
 	}
 
@@ -39,7 +43,7 @@ public class ConfigClone extends BasicDialog {
 
 		projectName = new JTextField(project.getProfileID());
 		projectName.getDocument().addDocumentListener(funcDocumentChange);
-		exportToFile = new JTextField(project.getExportFile());
+		exportToFile = new JTextField(helper.getDatabaseName());
 		exportToFile.getDocument().addDocumentListener(funcDocumentChange);
 
 		cbExportFile = new JComboBox<>(ExportFile.getExportFilenames(false));
@@ -93,7 +97,9 @@ public class ConfigClone extends BasicDialog {
 		}
 
 		project.cloneCurrentProfile(projectCopyTo, profileID);
-		project.setExportFile(copyToFile);
+		helper.setDatabase(copyToFile);
+		helper.setDatabaseType(exp);
+		project.setToDatabase(project.setDatabase(helper));
 
 		if (exp != ExportFile.TEXTFILE) {
 			project.setTextFileFormat(ConfigTextFile.STANDARD_CSV);

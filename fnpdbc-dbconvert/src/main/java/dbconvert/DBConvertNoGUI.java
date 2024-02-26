@@ -11,6 +11,7 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import dbconvert.preferences.PrefDBConvert;
 import dbconvert.software.XConverter;
+import dbengine.utils.DatabaseHelper;
 
 public class DBConvertNoGUI implements PropertyChangeListener {
 	private String myProfileID;
@@ -52,8 +53,7 @@ public class DBConvertNoGUI implements PropertyChangeListener {
 				}
 
 				pdaSettings.setProfile(myProfileID);
-				dbSettings.setNode(pdaSettings.getDatabaseFromFile());
-				runExport();
+				runExport(pdaSettings.getFromDatabase());
 			}
 
 		} catch (Exception e) {
@@ -71,9 +71,11 @@ public class DBConvertNoGUI implements PropertyChangeListener {
 				GUIFactory.getMessage(loadModel ? "recordsRead" : "recordsProcessed", Integer.toString(recordNo)));
 	}
 
-	private void runExport() throws Exception {
-		if (pdaSettings.getExportFile().isEmpty()) {
-			pdaSettings.setExportFile(General.getDefaultPDADatabase(databaseType));
+	private void runExport(DatabaseHelper fromDatabase) throws Exception {
+		DatabaseHelper toDatabase = pdaSettings.getToDatabase();
+		if (toDatabase.getDatabase().isEmpty()) {
+			toDatabase.setDatabase(General.getDefaultPDADatabase(databaseType));
+			dbSettings.update(toDatabase);
 		}
 
 		String[] guiText = new String[5];
@@ -104,11 +106,11 @@ public class DBConvertNoGUI implements PropertyChangeListener {
 		System.out.println("--------------------------------------------------------");
 		System.out.println(guiText[0] + myProfileID);
 		System.out.println("--------------------------------------------------------");
-		System.out.println(guiText[1] + dbSettings.getRemoteDatabase());
+		System.out.println(guiText[1] + fromDatabase.getDatabaseName());
 		System.out.println(guiText[2]
 				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseTypeAsString(), dbSettings.getDatabaseVersion())
 				+ "\n");
-		System.out.println(guiText[3] + pdaSettings.getExportFile());
+		System.out.println(guiText[3] + toDatabase.getDatabaseName());
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");
 

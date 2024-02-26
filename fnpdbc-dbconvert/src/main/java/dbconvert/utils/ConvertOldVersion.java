@@ -39,6 +39,9 @@ public class ConvertOldVersion {
 			} else if (vs < 8.0) {
 				// Move DBase and FoxPro output files to xBase
 				convertOutputFilesToXBase();
+			} else if (vs < 8.2) {
+				// Move all database files to Database preferences
+				mergeInAndExportFiles();
 			}
 		} else if (TvBSoftware.DBCONVERT.getVersion().equals("7.3")) {
 			copyOldSettings();
@@ -56,10 +59,7 @@ public class ConvertOldVersion {
 		for (String db : dbases.getDatabases()) {
 			dbases.setNode(db);
 			switch (dbases.getDatabaseTypeAsString()) {
-			case "DBase3":
-			case "DBase4":
-			case "DBase5":
-			case "FoxPro":
+			case "DBase3", "DBase4", "DBase5", "FoxPro":
 				dbases.setDatabaseType(ExportFile.DBASE);
 				break;
 			default:
@@ -148,4 +148,35 @@ public class ConvertOldVersion {
 			e.printStackTrace();
 		}
 	}
+
+	private static void mergeInAndExportFiles() {
+		PrefDBConvert pref = PrefDBConvert.getInstance();
+		Databases db = pref.getDbSettings();
+
+		pref.getProjects().forEach(project -> {
+			List<String> profiles = pref.getProfiles(project);
+			if (!profiles.isEmpty()) {
+				pref.setProject(project);
+				profiles.forEach(profile -> {
+					pref.setProfile(profile);
+					Preferences child = pref.getChild();
+					String dbFile = child.get("export.file", General.EMPTY_STRING);
+					String node = db.getNodename(dbFile, project);
+					if (node == null) {
+						node = db.getNextDatabaseID();
+						db.setNode(node);
+						db.setDatabase(dbFile);
+						db.setDatabaseTypeAsString(project);
+						db.setUser(child.get("export.user", General.EMPTY_STRING));
+						db.setPassword(child.get("export.password", General.EMPTY_STRING));
+					}
+					pref.setToDatabase(node);
+					child.remove("export.user");
+					child.remove("export.password");
+				});
+			}
+		});
+
+	}
+
 }
