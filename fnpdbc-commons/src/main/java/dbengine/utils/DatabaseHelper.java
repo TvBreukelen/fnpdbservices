@@ -70,7 +70,7 @@ public class DatabaseHelper {
 	}
 
 	public void setDatabase(String database) {
-		this.database = database;
+		this.database = extractDatabase(database);
 	}
 
 	public String getPassword() {
@@ -219,42 +219,48 @@ public class DatabaseHelper {
 
 	public void update(DatabaseHelper helper) {
 		boolean isRemoteDb = helper.getDatabaseType().isConnectHost();
-		boolean isPasswordSupported = helper.getDatabaseType().isPasswordSupported();
 		boolean isNotSsh = isRemoteDb && !helper.isUseSsh();
 		boolean isNotSsl = isRemoteDb && !helper.isUseSsl();
 
-		setDatabase(helper.getDatabase());
+		setDatabase(extractDatabase(helper.getDatabase()));
 		setDatabaseType(helper.getDatabaseTypeAsString());
 		setDatabaseVersion(helper.getDatabaseVersion());
 		setUser(helper.getUser());
-		setPassword(isPasswordSupported ? helper.getPassword() : General.EMPTY_STRING);
+		setPassword(helper.getPassword());
 
-		setHost(isRemoteDb ? General.EMPTY_STRING : helper.getHost());
-		setHostNameInCertificate(isNotSsl ? General.EMPTY_STRING : helper.getHostNameInCertificate());
-		setPort(isRemoteDb ? 0 : helper.getPort());
-		setUseSsh(isNotSsh ? !isNotSsh : helper.isUseSsh());
+		setHost(helper.getHost());
+		setHostNameInCertificate(helper.getHostNameInCertificate());
+		setPort(helper.getPort());
+		setUseSsh(helper.isUseSsh());
 		setSshHost(isNotSsh ? General.EMPTY_STRING : helper.getSshHost());
 		setSshPort(isNotSsh ? 0 : helper.getSshPort());
 		setSshUser(isNotSsh ? General.EMPTY_STRING : helper.getSshUser());
 		setSshPassword(isNotSsh ? General.EMPTY_STRING : helper.getSshPassword());
-		setPrivateKeyFile(isRemoteDb ? General.EMPTY_STRING : helper.getPrivateKeyFile());
-		setUseSsl(isNotSsl ? !isRemoteDb : helper.isUseSsl());
+		setPrivateKeyFile(helper.getPrivateKeyFile());
+		setUseSsl(helper.isUseSsl());
 		setKeyStore(isNotSsl ? General.EMPTY_STRING : helper.getKeyStore());
 		setKeyStorePassword(isNotSsl ? General.EMPTY_STRING : helper.getKeyStorePassword());
 		setServerSslCert(isNotSsl ? General.EMPTY_STRING : helper.getServerSslCert());
 		setServerSslCaCert(isNotSsl ? General.EMPTY_STRING : helper.getServerSslCaCert());
-		setTrustServerCertificate(isNotSsl ? !isRemoteDb : helper.isTrustServerCertificate());
+		setTrustServerCertificate(isNotSsl ? !isNotSsl : helper.isTrustServerCertificate());
 		setSslMode(isNotSsl ? General.EMPTY_STRING : helper.getSslMode());
 	}
 
+	public static String extractDatabase(String database) {
+		if (database.contains("/")) {
+			return database.substring(database.lastIndexOf('/') + 1);
+		}
+		return database;
+	}
+
 	public String getDatabaseName() {
-		String result = getDatabase();
+		String result = database;
 		if (result.isEmpty()) {
 			return result;
 		}
 
 		if (getDatabaseType().isConnectHost()) {
-			return getHost() + ":" + getPort() + "/" + result;
+			return host + ":" + port + "/" + result;
 		}
 		return result;
 	}

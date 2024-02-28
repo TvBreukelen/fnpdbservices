@@ -15,6 +15,7 @@ import application.model.SortData;
 import application.preferences.Databases;
 import application.preferences.Profiles;
 import application.utils.GUIFactory;
+import application.utils.General;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class ConfigDialog extends BasicDialog {
@@ -57,7 +58,8 @@ public abstract class ConfigDialog extends BasicDialog {
 		dbVerified = profiles.getFromDatabase();
 		dbExport = profiles.getToDatabase();
 
-		super.init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW) : dbVerified.getDatabaseName(), 6);
+		super.init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
+				: profiles.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);
 	}
 
 	@Override

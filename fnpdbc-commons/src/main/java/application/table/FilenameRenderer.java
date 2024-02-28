@@ -8,6 +8,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import application.utils.General;
+import dbengine.utils.DatabaseHelper;
 
 public class FilenameRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = 314536074776986014L;
@@ -17,7 +18,7 @@ public class FilenameRenderer extends DefaultTableCellRenderer {
 			int row, int column) {
 
 		String fileName = value != null ? value.toString() : General.EMPTY_STRING;
-		String shortName = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+		String shortName = DatabaseHelper.extractDatabase(fileName.substring(fileName.lastIndexOf(File.separator) + 1));
 		Component result = super.getTableCellRendererComponent(table, shortName, isSelected, hasFocus, row, column);
 
 		if (result instanceof JComponent component) {

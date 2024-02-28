@@ -2,7 +2,6 @@ package dbconvert.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
@@ -102,6 +101,7 @@ public class HostConfig extends BasicDialog {
 
 	@Override
 	protected void save() throws Exception {
+		setDatabaseHelper();
 		helper.update(verify);
 		isSaved = true;
 	}
@@ -312,7 +312,6 @@ public class HostConfig extends BasicDialog {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		btTest = GUIFactory.getJButton(TEST_CONNECTION, e -> testConnection());
 		btApply = GUIFactory.getJButton("apply", funcSave);
-		btApply.setEnabled(false);
 
 		panel.add(btTest);
 		panel.add(Box.createHorizontalStrut(2));
@@ -322,8 +321,24 @@ public class HostConfig extends BasicDialog {
 
 	private void testConnection() {
 		GeneralDB db = ExportProcess.getDatabase(helper.getDatabaseType(), null);
-		btTest.setEnabled(false);
+		General.setEnabled(this, false);
 
+		btTest.setEnabled(false);
+		setDatabaseHelper();
+		try {
+			db.openFile(verify, true);
+			db.closeFile();
+			General.setEnabled(this, true);
+			General.showMessage(this, GUIFactory.getText("testConnectionOK"), GUIFactory.getText(TEST_CONNECTION),
+					false);
+		} catch (Exception ex) {
+			General.setEnabled(this, true);
+			General.errorMessage(HostConfig.this, ex, GUIFactory.getText(TEST_CONNECTION), null);
+			activateComponents();
+		}
+	}
+
+	private void setDatabaseHelper() {
 		verify = new DatabaseHelper(txDatabase.getText(), helper.getDatabaseType());
 
 		verify.setHost(txHost.getText().trim());
@@ -348,27 +363,12 @@ public class HostConfig extends BasicDialog {
 		verify.setSslMode(cbMode.getSelectedIndex() == -1 ? General.EMPTY_STRING : cbMode.getSelectedItem().toString());
 		verify.setHostNameInCertificate(txHostNameInCertificate.getText().trim());
 		verify.setTrustServerCertificate(ckTrustServerCertificate.isSelected());
-
-		try {
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			db.openFile(verify, true);
-			db.closeFile();
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			btApply.setEnabled(true);
-			btTest.setEnabled(true);
-			General.showMessage(this, GUIFactory.getText("testConnectionOK"), GUIFactory.getText(TEST_CONNECTION),
-					false);
-		} catch (Exception ex) {
-			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			General.errorMessage(HostConfig.this, ex, GUIFactory.getText(TEST_CONNECTION), null);
-			activateComponents();
-		}
 	}
 
 	@Override
 	public void activateComponents() {
 		btTest.setEnabled(StringUtils.isNoneBlank(txHost.getText(), txDatabase.getText()));
-		btApply.setEnabled(false);
+		btApply.setEnabled(btTest.isEnabled());
 
 		// SSH
 		txSshHost.setEnabled(ckUseSsh.isSelected());

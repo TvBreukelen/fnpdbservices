@@ -109,7 +109,9 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		if (isNewProfile) {
 			profiles.reset();
-			dbFactory.getDbInHelper().setDatabase(General.EMPTY_STRING);
+			dbVerified = dbFactory.getDbInHelper();
+			dbVerified.setDatabase(General.EMPTY_STRING);
+			dbVerified.setDatabaseType(General.EMPTY_STRING);
 		}
 
 		myImportFile = dbVerified.getDatabaseType();
@@ -260,8 +262,8 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	}
 
 	private void importFileNameChanged(boolean isAddNew) {
-		dbFactory.getDbInHelper()
-				.setDatabase(isAddNew ? fdDatabase.getText() : cbDatabases.getSelectedItem().toString());
+		dbFactory.getDbInHelper().setDatabase(isAddNew ? fdDatabase.getText()
+				: DatabaseHelper.extractDatabase(cbDatabases.getSelectedItem().toString()));
 
 		if (reloadImportFiles()) {
 			verifyDatabase();
@@ -272,21 +274,13 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	private void importFileTypeChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
-		String db = dbVerified.getDatabase();
 
-		if (software != myImportFile && !db.isEmpty()) {
-			boolean abort = false;
-			if (software.isConnectHost() != myImportFile.isConnectHost()) {
-				General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", General.EMPTY_STRING),
-						CONFIG_ERROR, true);
-				abort = true;
+		if (software != myImportFile && !dbVerified.getDatabase().isEmpty()) {
+			if (General.showConfirmMessage(this,
+					GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
+					GUIFactory.getTitle("warning"))) {
+				dbVerified.setDatabase(General.EMPTY_STRING);
 			} else {
-				abort = !General.showConfirmMessage(this,
-						GUIFactory.getMessage("funcSelectDb", myImportFile.getName(), software.getName()),
-						GUIFactory.getTitle("warning"));
-			}
-
-			if (abort) {
 				bDatabase.removeActionListener(funcSelectImportFileType);
 				bDatabase.setSelectedItem(myImportFile.getName());
 				bDatabase.addActionListener(funcSelectImportFileType);
@@ -295,7 +289,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		}
 
 		myImportFile = software;
-		dbVerified = new DatabaseHelper(db, myImportFile);
+		dbVerified.setDatabaseType(myImportFile);
 		dbFactory.getTableOrSheetNames().clear();
 		dbFactory.getDbInHelper().update(dbVerified);
 		setTablesOrWorksheets();
@@ -307,41 +301,35 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	}
 
 	private boolean reloadImportFiles() {
-		boolean result = false;
 		cbDatabases.removeActionListener(funcSelectImportFile);
 		cbDatabases.removeAllItems();
 
 		dbVerified = dbFactory.getDbInHelper();
 		myImportFile = dbVerified.getDatabaseType();
 
-		String dbFile = dbVerified.getDatabase();
-		String dbNewFile = dbFiles.size() < 2 ? dbFile : dbFiles.get(dbFiles.size() - 1);
+		String dbFile = dbVerified.getDatabaseName();
+		if (dbFile.isEmpty() && dbFiles.size() > 1) {
+			dbFile = dbFiles.get(dbFiles.size() - 1);
+		}
 
-		if (General.isFileExtensionOk(dbNewFile, myImportFile) && !dbFiles.contains(dbNewFile)) {
-			dbFiles.add(dbNewFile);
+		if (General.isFileExtensionOk(dbFile, myImportFile) && !dbFiles.contains(dbFile)) {
+			dbFiles.add(dbFile);
 			Collections.sort(dbFiles);
-		} else {
-			profiles.setTableName(General.EMPTY_STRING, false);
 		}
 
-		if (myImportFile.isConnectHost()) {
-			result = true;
-		} else {
-			result = !dbNewFile.isBlank() && General.existFile(dbNewFile);
-		}
-
+		boolean result = myImportFile.isConnectHost() || !dbFile.isBlank() && General.existFile(dbFile);
 		dbFiles.forEach(db -> cbDatabases.addItem(db));
-		cbDatabases.setSelectedItem(dbNewFile);
+		cbDatabases.setSelectedItem(dbFile);
 
 		if (result) {
-			String node = dbSettings.getNodename(dbNewFile, myImportFile);
+			String node = dbSettings.getNodename(dbFile, myImportFile);
 			if (node != null) {
 				dbSettings.setNode(node);
 				dbVerified.update(dbSettings);
 			}
 		} else {
-			if (!dbNewFile.isBlank()) {
-				General.showMessage(this, GUIFactory.getMessage("noDatabaseExists", dbNewFile), CONFIG_ERROR, true);
+			if (!dbFile.isBlank()) {
+				General.showMessage(this, GUIFactory.getMessage("noDatabaseExists", dbFile), CONFIG_ERROR, true);
 			}
 
 			btSave.setEnabled(false);
@@ -383,13 +371,10 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 					fieldSelect.loadFieldPanel(dbFactory.getDbUserFields(), true);
 				} else {
 					dbFactory.close();
-					dbVerified.setDatabase(General.EMPTY_STRING);
-					cbDatabases.setSelectedItem(General.EMPTY_STRING);
-					setTablesOrWorksheets();
 				}
 			} catch (Exception e) {
-				General.errorMessage(this, e, CONFIG_ERROR, null);
 				dbFactory.close();
+				General.errorMessage(this, e, CONFIG_ERROR, null);
 			}
 		}
 		activateComponents();

@@ -97,12 +97,12 @@ public class Databases extends DatabaseHelper {
 		fillNodes();
 	}
 
-	public String getNodename(String databaseFile, ExportFile type) {
-		return getNodename(databaseFile, type.getName());
+	public String getNodename(String dbFile, ExportFile type) {
+		return getNodename(dbFile, type.getName());
 	}
 
-	public String getNodename(String databaseFile, String type) {
-		return nodes.get((databaseFile + "/" + type).toUpperCase());
+	public String getNodename(String dbFile, String type) {
+		return nodes.get((dbFile + "/" + type).toUpperCase());
 	}
 
 	public String getNextDatabaseID() {
@@ -163,6 +163,7 @@ public class Databases extends DatabaseHelper {
 
 	@Override
 	public void setDatabase(String database) {
+		database = extractDatabase(database);
 		PrefUtils.writePref(myPref, DB_FILE, database, this.database, General.EMPTY_STRING);
 		this.database = database;
 		fillNodes();

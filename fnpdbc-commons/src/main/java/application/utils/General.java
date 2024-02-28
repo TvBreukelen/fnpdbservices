@@ -4,6 +4,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.FileDialog;
 import java.awt.Graphics2D;
@@ -1107,9 +1108,7 @@ public final class General {
 		}
 
 		component.setEnabled(enable);
-		if (enable) {
-			component.setCursor(null);
-		}
+		component.setCursor(Cursor.getPredefinedCursor(enable ? Cursor.DEFAULT_CURSOR : Cursor.WAIT_CURSOR));
 
 		// Check for instance of container.
 		if (component instanceof Container container) {
