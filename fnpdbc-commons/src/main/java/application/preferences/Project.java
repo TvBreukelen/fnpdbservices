@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
@@ -101,12 +102,16 @@ public class Project {
 	}
 
 	public DatabaseHelper getDatabase(String dbFile) {
+		if (dbFile.isBlank()) {
+			return new DatabaseHelper(General.EMPTY_STRING, ExportFile.TEXTFILE);
+		}
+
 		dbSettings.setNode(dbFile);
 		return new DatabaseHelper(dbSettings);
 	}
 
 	public String setDatabase(DatabaseHelper helper) {
-		String node = dbSettings.getNodename(helper.getDatabase(), helper.getDatabaseType());
+		String node = dbSettings.getNodename(helper.getDatabase(), helper.getDatabaseTypeAsString());
 		if (node == null) {
 			node = dbSettings.getNextDatabaseID();
 		}

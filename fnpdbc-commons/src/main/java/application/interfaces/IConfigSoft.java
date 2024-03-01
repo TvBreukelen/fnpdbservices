@@ -15,5 +15,9 @@ public interface IConfigSoft {
 		return BuddyExport.NONE;
 	}
 
+	default IExportProcess getExportProcess() {
+		return null;
+	}
+
 	void activateComponents();
 }

@@ -984,6 +984,10 @@ public final class General {
 	}
 
 	public static boolean isFileExtensionOk(String dbFile, ExportFile exp) {
+		if (exp.isConnectHost()) {
+			return !dbFile.contains(".");
+		}
+
 		int index = dbFile.lastIndexOf('.');
 		String ext = "csv";
 		if (index != -1) {

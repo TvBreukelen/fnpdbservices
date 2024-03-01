@@ -103,7 +103,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			firstRecord = myImportFile == ExportFile.MOBILEDB ? 4 : 0;
 		}
 
-		dbIn = (IConvert) ExportProcess.getDatabase(myImportFile, pdaSettings);
+		dbIn = (IConvert) new ExportProcess().getDatabase(myImportFile, pdaSettings);
 		dbIn.setSoftware(this);
 		dbIn.openFile(dbInHelper, true);
 
@@ -369,7 +369,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 	@Override
 	public void openToFile() throws Exception {
-		dbOut = ExportProcess.getDatabase(myExportFile, pdaSettings);
+		dbOut = new ExportProcess().getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
 		dbOut.openFile(new DatabaseHelper(myFile[1], myExportFile), false);
 		isOutputFileOpen = true;

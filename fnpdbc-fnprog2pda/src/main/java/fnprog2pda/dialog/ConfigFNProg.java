@@ -4,7 +4,6 @@ import application.dialog.ProgramDialog;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
-import application.preferences.Databases;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
 import fnprog2pda.FNProg2PDA;
@@ -25,7 +24,6 @@ public class ConfigFNProg extends ProgramDialog {
 
 	public ConfigFNProg() {
 		super(PrefFNProg.getInstance());
-		dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 		dbFactory = DatabaseFactory.getInstance();
 		exportProcess = new ExportProcess();
 		init();

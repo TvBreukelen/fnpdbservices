@@ -30,6 +30,7 @@ import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigSoft;
 import application.interfaces.IDatabaseFactory;
+import application.interfaces.IExportProcess;
 import application.interfaces.TvBSoftware;
 import application.model.FilterData;
 import application.model.ProfileObject;
@@ -247,13 +248,13 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		dbExport.setDatabase(fdDatabase.getText().trim());
 		dbExport.setDatabaseType(myImportFile.getName());
 		dbExport.setDatabaseVersion(dbFactory.getDatabaseVersion());
-		profiles.setFromDatabase(profiles.setDatabase(dbExport));
 
 		myExportFile = configDb.getExportFile();
 
 		profiles.setProject(myExportFile.getName());
 		profiles.setProfile(profile.getText());
 		profiles.setTableName(myView, true);
+		profiles.setFromDatabase(profiles.setDatabase(dbExport));
 
 		profiles.setUserList(fieldSelect.getFieldList());
 		profiles.setLastIndex(0);
@@ -391,6 +392,11 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		if (tabPane != null) {
 			tabPane.setEnabledAt(1, isFileValid);
 		}
+	}
+
+	@Override
+	public IExportProcess getExportProcess() {
+		return new ExportProcess();
 	}
 
 	@Override

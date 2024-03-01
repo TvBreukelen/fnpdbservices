@@ -3,6 +3,7 @@ package application.dialog;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -12,9 +13,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import application.interfaces.ExportFile;
+import application.interfaces.IExportProcess;
 import application.model.ProfileObject;
 import application.preferences.Profiles;
-import application.table.ExportToTableCellEditor;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
@@ -29,10 +30,11 @@ public class ChangeExportToDialog extends BasicDialog {
 
 	transient DatabaseHelper helper;
 	transient Profiles project;
+	transient IExportProcess expProcess;
 
-	public ChangeExportToDialog(ProfileObject project, ExportToTableCellEditor editor) {
-		super();
+	public ChangeExportToDialog(ProfileObject project, IExportProcess expProcess) {
 		this.project = project.getProfiles();
+		this.expProcess = expProcess;
 		init();
 	}
 
@@ -40,11 +42,10 @@ public class ChangeExportToDialog extends BasicDialog {
 		init(GUIFactory.getTitle("changeExportFileDialog"));
 		setHelpFile("changeExportFile");
 		helper = project.getToDatabase();
-		exportFile = project.getExportFileEnum();
+		exportFile = helper.getDatabaseType();
 
 		buildDialog();
 		pack();
-		activateComponents();
 	}
 
 	@Override
@@ -52,16 +53,17 @@ public class ChangeExportToDialog extends BasicDialog {
 		JPanel result = new JPanel(new GridBagLayout());
 		XGridBagConstraints c = new XGridBagConstraints();
 
-		exportTo = new JTextField(helper.getDatabase());
+		exportTo = new JTextField(helper.getDatabaseName());
 		exportTo.getDocument().addDocumentListener(funcDocumentChange);
+		btSave.setEnabled(false);
 
 		Dimension dim = exportTo.getPreferredSize();
 		dim.setSize(dim.getWidth() < 320 ? 320 : dim.getWidth(), dim.getHeight());
 		exportTo.setPreferredSize(dim);
 
-		JButton button = GUIFactory.getJButton("browseFile", e -> General.getSelectedFile(ChangeExportToDialog.this,
-				exportTo, exportFile, General.EMPTY_STRING, false));
+		JButton button = GUIFactory.getJButton("browseFile", getBrowseListener());
 
+		exportTo.setEnabled(!exportFile.isConnectHost());
 		password = new JPasswordField(General.decryptPassword(helper.getPassword()));
 		JLabel lPass = GUIFactory.getJLabel("password");
 
@@ -77,15 +79,34 @@ public class ChangeExportToDialog extends BasicDialog {
 		return result;
 	}
 
-	@Override
-	protected void save() throws Exception {
-		String exportToFile = exportTo.getText().trim();
-		if (!General.isFileExtensionOk(exportToFile, exportFile)) {
-			exportToFile = General.getBaseName(exportToFile, exportFile);
+	private ActionListener getBrowseListener() {
+		if (exportFile.isConnectHost()) {
+			return e -> {
+				HostConfig dialog = new HostConfig(helper, expProcess);
+				dialog.setVisible(true);
+				if (dialog.isSaved()) {
+					exportTo.setText(helper.getDatabaseName());
+					btSave.setEnabled(true);
+				}
+			};
 		}
 
-		helper.setDatabase(exportToFile);
-		helper.setPassword(General.encryptPassword(password.getPassword()));
+		return e -> General.getSelectedFile(ChangeExportToDialog.this, exportTo, exportFile, General.EMPTY_STRING,
+				false);
+	}
+
+	@Override
+	protected void save() throws Exception {
+		if (!exportFile.isConnectHost()) {
+			String exportToFile = exportTo.getText().trim();
+			if (!General.isFileExtensionOk(exportToFile, exportFile)) {
+				exportToFile = General.getBaseName(exportToFile, exportFile);
+			}
+
+			helper.setDatabase(exportToFile);
+			helper.setPassword(General.encryptPassword(password.getPassword()));
+		}
+
 		String node = project.setDatabase(helper);
 		project.setToDatabase(node);
 
@@ -95,6 +116,7 @@ public class ChangeExportToDialog extends BasicDialog {
 
 	@Override
 	public void activateComponents() {
-		btSave.setEnabled(!exportTo.getText().trim().isEmpty());
+		String dbFile = exportTo.getText().trim();
+		btSave.setEnabled(!(dbFile.isEmpty() || helper.getDatabaseName().equals(dbFile)));
 	}
 }

@@ -1,7 +1,8 @@
-package dbconvert.dialog;
+package application.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
@@ -25,8 +26,8 @@ import javax.swing.text.NumberFormatter;
 import org.apache.commons.lang3.StringUtils;
 
 import application.FileType;
-import application.dialog.BasicDialog;
 import application.interfaces.ExportFile;
+import application.interfaces.IExportProcess;
 import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
@@ -76,12 +77,15 @@ public class HostConfig extends BasicDialog {
 	private boolean isPostgreSQL;
 	private boolean isSqlServer;
 
+	private IExportProcess process;
+
 	private XGridBagConstraints c = new XGridBagConstraints();
 
 	private static final String TEST_CONNECTION = "testConnection";
 
-	public HostConfig(DatabaseHelper helper) {
+	public HostConfig(DatabaseHelper helper, IExportProcess process) {
 		this.helper = helper;
+		this.process = process;
 
 		isFirebird = helper.getDatabaseType() == ExportFile.FIREBIRD;
 		isMariaDb = helper.getDatabaseType() == ExportFile.MARIADB;
@@ -320,19 +324,21 @@ public class HostConfig extends BasicDialog {
 	}
 
 	private void testConnection() {
-		GeneralDB db = ExportProcess.getDatabase(helper.getDatabaseType(), null);
-		General.setEnabled(this, false);
-
+		GeneralDB db = process.getDatabase(helper.getDatabaseType(), null);
 		btTest.setEnabled(false);
+
 		setDatabaseHelper();
 		try {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			db.openFile(verify, true);
 			db.closeFile();
-			General.setEnabled(this, true);
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			btTest.setEnabled(true);
+			btApply.setEnabled(true);
 			General.showMessage(this, GUIFactory.getText("testConnectionOK"), GUIFactory.getText(TEST_CONNECTION),
 					false);
 		} catch (Exception ex) {
-			General.setEnabled(this, true);
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			General.errorMessage(HostConfig.this, ex, GUIFactory.getText(TEST_CONNECTION), null);
 			activateComponents();
 		}
@@ -368,7 +374,7 @@ public class HostConfig extends BasicDialog {
 	@Override
 	public void activateComponents() {
 		btTest.setEnabled(StringUtils.isNoneBlank(txHost.getText(), txDatabase.getText()));
-		btApply.setEnabled(btTest.isEnabled());
+		btApply.setEnabled(false);
 
 		// SSH
 		txSshHost.setEnabled(ckUseSsh.isSelected());

@@ -11,29 +11,14 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import dbconvert.software.XConverter;
 import dbengine.GeneralDB;
-import dbengine.export.Calc;
-import dbengine.export.CsvFile;
-import dbengine.export.DBaseFile;
-import dbengine.export.Excel;
 import dbengine.export.Firebird;
-import dbengine.export.HanDBase;
 import dbengine.export.ICalendar;
-import dbengine.export.JFile;
-import dbengine.export.JsonFile;
-import dbengine.export.ListDB;
 import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
-import dbengine.export.MobileDB;
-import dbengine.export.Paradox;
-import dbengine.export.PilotDB;
-import dbengine.export.PostgreSQL;
 import dbengine.export.SQLServer;
-import dbengine.export.SQLite;
 import dbengine.export.VCard;
-import dbengine.export.XmlFile;
-import dbengine.export.YamlFile;
 
-public class ExportProcess implements Runnable, IExportProcess {
+public class ExportProcess extends IExportProcess implements Runnable {
 	Thread t;
 
 	private ExportStatus status;
@@ -130,51 +115,23 @@ public class ExportProcess implements Runnable, IExportProcess {
 		xView.buildViewer();
 	}
 
-	public static GeneralDB getDatabase(ExportFile db, Profiles profile) {
+	@Override
+	public GeneralDB getDatabase(ExportFile db, Profiles profile) {
 		switch (db) {
 		case ACCESS:
 			return new MSAccess(profile);
-		case CALC:
-			return new Calc(profile);
-		case ICAL:
-			return new ICalendar(profile);
-		case JSON:
-			return new JsonFile(profile);
 		case FIREBIRD:
 			return new Firebird(profile);
+		case ICAL:
+			return new ICalendar(profile);
 		case MARIADB:
 			return new MariaDB(profile);
-		case PARADOX:
-			return new Paradox(profile);
-		case POSTGRESQL:
-			return new PostgreSQL(profile);
 		case SQLSERVER:
 			return new SQLServer(profile);
-		case YAML:
-			return new YamlFile(profile);
-		case HANDBASE:
-			return new HanDBase(profile);
-		case JFILE:
-			return new JFile(profile);
-		case LIST:
-			return new ListDB(profile);
-		case MOBILEDB:
-			return new MobileDB(profile);
-		case PILOTDB:
-			return new PilotDB(profile);
-		case EXCEL:
-			return new Excel(profile);
-		case TEXTFILE:
-			return new CsvFile(profile);
 		case VCARD:
 			return new VCard(profile);
-		case DBASE:
-			return new DBaseFile(profile);
-		case XML:
-			return new XmlFile(profile);
-		case SQLITE:
-			return new SQLite(profile);
+		default:
+			return super.getDatabase(db, profile);
 		}
-		return null;
 	}
 }

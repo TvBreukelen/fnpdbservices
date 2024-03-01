@@ -125,7 +125,7 @@ public enum ExportFile {
 	}
 
 	public boolean isPasswordSupported() {
-		return this == HANDBASE || isConnectHost();
+		return this == HANDBASE;
 	}
 
 	public int getPort() {

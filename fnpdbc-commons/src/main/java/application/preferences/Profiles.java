@@ -35,13 +35,13 @@ public abstract class Profiles extends Project {
 	// General Settings
 	private String categoryField = General.EMPTY_STRING;
 	private String contentsFilter = General.EMPTY_STRING;
-	private String fromDatabase;
+	private String fromDatabase = General.EMPTY_STRING;
 	private String toDatabase = General.EMPTY_STRING;
-	private String filterCondition;
-	private String keywordFilter;
-	private String lastExported;
-	private String lastSaved;
-	private String notes;
+	private String filterCondition = General.EMPTY_STRING;
+	private String keywordFilter = General.EMPTY_STRING;
+	private String lastExported = General.EMPTY_STRING;
+	private String lastSaved = General.EMPTY_STRING;
+	private String notes = General.EMPTY_STRING;
 	private String databaseName = General.EMPTY_STRING;
 	private String remainingField = General.EMPTY_STRING;
 	private String tableName = General.EMPTY_STRING;
@@ -296,6 +296,11 @@ public abstract class Profiles extends Project {
 
 	public DatabaseHelper getFromDatabase() {
 		return getDatabase(fromDatabase);
+	}
+
+	public void setFromDatabase(String fromDatabase) {
+		PrefUtils.writePref(child, FROM_DATABASE, fromDatabase, this.fromDatabase, General.EMPTY_STRING);
+		this.fromDatabase = fromDatabase;
 	}
 
 	public DatabaseHelper getToDatabase() {
@@ -762,30 +767,32 @@ public abstract class Profiles extends Project {
 		this.useLinebreak = useLinebreak;
 	}
 
+	public void cleanupNodes() {
+		getDbSettings().cleanupNodes(this);
+	}
+
 	// Text import text file
 	public String getImportFieldSeparator() {
+		getDbSettings().setNode(fromDatabase);
 		return getDbSettings().getFieldSeparator();
 	}
 
 	public String getImportTextDelimiter() {
+		getDbSettings().setNode(fromDatabase);
 		return getDbSettings().getTextDelimiter();
 	}
 
 	public String getImportTextFileFormat() {
+		getDbSettings().setNode(fromDatabase);
 		return getDbSettings().getTextFileFormat();
 	}
 
 	// Text import text file
-	public void setImportFieldSeparator(String separator) {
+	public void setImportTextfields(String separator, String delimiter, String format) {
+		getDbSettings().setNode(fromDatabase);
 		getDbSettings().setFieldSeparator(separator);
-	}
-
-	public void setImportTextDelimiter(String delimiter) {
 		getDbSettings().setTextDelimiter(delimiter);
-	}
-
-	public void setImportTextFileFormat(String textFormat) {
-		getDbSettings().setTextFileFormat(textFormat);
+		getDbSettings().setTextFileFormat(format);
 	}
 
 	// iCalendar import
@@ -1001,10 +1008,6 @@ public abstract class Profiles extends Project {
 		return child;
 	}
 
-	public ExportFile getExportFileEnum() {
-		return ExportFile.getExportFile(getProjectID());
-	}
-
 	public void deleteNode(String profileID) {
 		if (profileExists(profileID)) {
 			Preferences p = getParent().node(profileID);
@@ -1046,11 +1049,6 @@ public abstract class Profiles extends Project {
 			result.add(categoryField);
 		}
 		return result;
-	}
-
-	public void setFromDatabase(String fromDatabase) {
-		child.put(FROM_DATABASE, fromDatabase);
-		this.fromDatabase = fromDatabase;
 	}
 
 	public String getDatabaseName() {

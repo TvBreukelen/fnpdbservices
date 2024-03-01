@@ -27,12 +27,14 @@ import javax.swing.SpinnerNumberModel;
 
 import application.dialog.ConfigDialog;
 import application.dialog.ConfigTextFile;
+import application.dialog.HostConfig;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
 import application.dialog.ScConfigDb;
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigSoft;
 import application.interfaces.IDatabaseFactory;
+import application.interfaces.IExportProcess;
 import application.interfaces.TvBSoftware;
 import application.model.FilterData;
 import application.model.ProfileObject;
@@ -62,7 +64,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	private JTextField fdDatabase = new JTextField();
 
 	private JButton btRelationships;
-	private XGridBagConstraints c = new XGridBagConstraints();
 
 	private JComboBox<String> bDatabase;
 	private JComboBox<String> bTablesWorksheets;
@@ -76,8 +77,8 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	private List<String> dbFiles;
 
 	transient ActionListener funcSelectTableOrSheet;
-	transient ActionListener funcSelectImportFile;
-	transient ActionListener funcSelectImportFileType;
+	transient ActionListener funcSelectFile;
+	transient ActionListener funcSelectFileType;
 
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
@@ -86,6 +87,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	private ConfigTextFile textImport;
 	private ICalendarConfig calendarImport;
+	private XGridBagConstraints c = new XGridBagConstraints();
 
 	private static final String TABLE = "table";
 	private static final String WORKSHEET = "worksheet";
@@ -100,6 +102,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		this.dialog = dialog;
 		this.model = model;
 		isNewProfile = isNew;
+
 		setMinimumSize(new Dimension(500, 350));
 		init(dbFactory);
 	}
@@ -127,8 +130,8 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 				});
 
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
-		funcSelectImportFileType = e -> importFileTypeChanged();
-		funcSelectImportFile = e -> importFileNameChanged(false);
+		funcSelectFileType = e -> fileTypeChanged();
+		funcSelectFile = e -> fileNameChanged(false);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : profiles.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
@@ -137,6 +140,11 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		buildDialog();
 		verifyDatabase();
+	}
+
+	@Override
+	public IExportProcess getExportProcess() {
+		return new ExportProcess();
 	}
 
 	@Override
@@ -177,18 +185,18 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(true));
 		bDatabase.setSelectedItem(myImportFile.getName());
-		bDatabase.addActionListener(funcSelectImportFileType);
+		bDatabase.addActionListener(funcSelectFileType);
 		bDatabase.setPreferredSize(configDb.getComboBoxSize());
 		cbDatabases = new JComboBox<>();
 		dbFiles = dbSettings.getDatabaseFiles(myImportFile);
 
 		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
 			if (myImportFile.isConnectHost()) {
-				HostConfig config = new HostConfig(dbFactory.getDbInHelper());
+				HostConfig config = new HostConfig(dbVerified, dialog.getExportProcess());
 				config.setVisible(true);
 				if (config.isSaved()) {
-					fdDatabase.setText(dbFactory.getDbInHelper().getDatabase());
-					importFileNameChanged(true);
+					fdDatabase.setText(dbVerified.getDatabase());
+					fileNameChanged(true);
 				}
 			} else {
 				String dbFile = cbDatabases.getSelectedItem() == null ? General.EMPTY_STRING
@@ -196,7 +204,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 				fdDatabase.setText(dbFile);
 				General.getSelectedFile(ConfigSoft.this, fdDatabase, myImportFile, General.EMPTY_STRING, true);
 				if (!fdDatabase.getText().isBlank()) {
-					importFileNameChanged(true);
+					fileNameChanged(true);
 				}
 			}
 		});
@@ -211,7 +219,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		gPanel.add(calendarImport, c.gridmultipleCell(1, 5, 2, 0, 3, 1));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
-		reloadImportFiles();
+		reloadFiles();
 
 		if (isNewProfile) {
 			myView = General.EMPTY_STRING;
@@ -261,18 +269,18 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		return result;
 	}
 
-	private void importFileNameChanged(boolean isAddNew) {
-		dbFactory.getDbInHelper().setDatabase(isAddNew ? fdDatabase.getText()
+	private void fileNameChanged(boolean isAddNew) {
+		dbVerified.setDatabase(isAddNew ? fdDatabase.getText()
 				: DatabaseHelper.extractDatabase(cbDatabases.getSelectedItem().toString()));
 
-		if (reloadImportFiles()) {
+		if (reloadFiles()) {
 			verifyDatabase();
 		}
 
 		setTablesOrWorksheets();
 	}
 
-	private void importFileTypeChanged() {
+	private void fileTypeChanged() {
 		ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
 
 		if (software != myImportFile && !dbVerified.getDatabase().isEmpty()) {
@@ -281,51 +289,68 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 					GUIFactory.getTitle("warning"))) {
 				dbVerified.setDatabase(General.EMPTY_STRING);
 			} else {
-				bDatabase.removeActionListener(funcSelectImportFileType);
+				bDatabase.removeActionListener(funcSelectFileType);
 				bDatabase.setSelectedItem(myImportFile.getName());
-				bDatabase.addActionListener(funcSelectImportFileType);
+				bDatabase.addActionListener(funcSelectFileType);
 				return;
 			}
 		}
 
+		// Reinitialise dbVerified
 		myImportFile = software;
-		dbVerified.setDatabaseType(myImportFile);
+		dbVerified = new DatabaseHelper(dbVerified.getDatabase(), myImportFile);
 		dbFactory.getTableOrSheetNames().clear();
-		dbFactory.getDbInHelper().update(dbVerified);
 		setTablesOrWorksheets();
 		dbFiles = dbSettings.getDatabaseFiles(myImportFile);
 
-		if (reloadImportFiles()) {
+		if (reloadFiles()) {
 			verifyDatabase();
+		} else {
+			activateComponents();
 		}
 	}
 
-	private boolean reloadImportFiles() {
-		cbDatabases.removeActionListener(funcSelectImportFile);
+	private boolean reloadFiles() {
+		boolean result = false;
+		boolean isPrevious = false;
+
+		cbDatabases.removeActionListener(funcSelectFile);
 		cbDatabases.removeAllItems();
 
-		dbVerified = dbFactory.getDbInHelper();
 		myImportFile = dbVerified.getDatabaseType();
-
 		String dbFile = dbVerified.getDatabaseName();
+
 		if (dbFile.isEmpty() && dbFiles.size() > 1) {
+			// Take the last entry in the prev. defined database list
 			dbFile = dbFiles.get(dbFiles.size() - 1);
+			result = true;
+			isPrevious = true;
 		}
 
-		if (General.isFileExtensionOk(dbFile, myImportFile) && !dbFiles.contains(dbFile)) {
+		if (!result) {
+			result = !dbFile.isBlank() && General.isFileExtensionOk(dbFile, myImportFile);
+		}
+
+		if (result && !myImportFile.isConnectHost()) {
+			result = General.existFile(dbFile);
+		}
+
+		if (result && !dbFiles.contains(dbFile)) {
 			dbFiles.add(dbFile);
 			Collections.sort(dbFiles);
 		}
 
-		boolean result = myImportFile.isConnectHost() || !dbFile.isBlank() && General.existFile(dbFile);
 		dbFiles.forEach(db -> cbDatabases.addItem(db));
 		cbDatabases.setSelectedItem(dbFile);
+		dbFile = DatabaseHelper.extractDatabase(dbFile);
 
 		if (result) {
-			String node = dbSettings.getNodename(dbFile, myImportFile);
-			if (node != null) {
-				dbSettings.setNode(node);
-				dbVerified.update(dbSettings);
+			if (isPrevious) {
+				String node = dbSettings.getNodename(dbFile, myImportFile);
+				if (node != null) {
+					dbSettings.setNode(node);
+					dbVerified.update(dbSettings);
+				}
 			}
 		} else {
 			if (!dbFile.isBlank()) {
@@ -341,7 +366,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			}
 		}
 
-		cbDatabases.addActionListener(funcSelectImportFile);
+		cbDatabases.addActionListener(funcSelectFile);
 		return result;
 	}
 
@@ -360,9 +385,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	@Override
 	public void verifyDatabase() {
-		dbVerified = dbFactory.getDbInHelper();
-		dbVerified.setDatabaseType(myImportFile);
-
 		if (!dbVerified.getDatabase().isEmpty()) {
 			try {
 				if (myImportFile.isConnectHost() || General.isFileExtensionOk(dbVerified.getDatabase(), myImportFile)) {
@@ -389,8 +411,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		spSqlLimit.setVisible(false);
 		ckPagination.setVisible(false);
 
-		if (dbFactory.getDatabaseFilename().isEmpty()
-				|| !(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet())) {
+		if (dbVerified.getDatabaseName().isEmpty() || !(myImportFile.isSqlDatabase() || myImportFile.isSpreadSheet())) {
 			// Tables and worksheets are not supported
 			return;
 		}

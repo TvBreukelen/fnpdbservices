@@ -246,7 +246,6 @@ intoNewTable.tooltip=Creëer een nieuwe tabel en schrijf daarin de gegevens (DRO
 intoNewWorksheet.text=Naar nieuw werkblad
 intoNewWorksheet.tooltip=Creëer een nieuw werkblad en schrijf daarin de gegevens
 invalidDatabaseID.mesg=Bestand %0 heeft een onjuiste Database-Id. Verwachte voor '%1' databases een id van '%2' i.p.v. '%3'.
-invalidDatabaseSwitch.mesg=Overstappen van een lokale database naar een remote database of vice versa is niet mogelijk.
 invalidKeyfile.mesg=privé sleutelbestand '%0' heeft het verkeerde formaat.\nIk verwachte een OpenSSH bestand met BEGIN en END tags.
 keywordFilter.title=Sleutelwoord filter
 keywordFilter.tooltip=Filter op sleutelwoord (leeg = filter deaktiveren)

@@ -80,7 +80,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	transient ActionListener funcSelectExport;
 	transient ActionListener funcSelectConvert;
-	transient ActionListener funcSelectFile;
 	transient ActionListener funcSelectDb;
 	transient ActionListener funcShowSchema;
 
@@ -155,31 +154,27 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), schema, false);
 		};
 
-		funcSelectFile = e -> General.getSelectedFile((JDialog) dialog, dbFileName, myExportFile, General.EMPTY_STRING,
-				false);
-
 		funcSelectDb = e -> {
 			ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
+			support.firePropertyChange("exportfile", myExportFile, software);
 
-			if (software != myExportFile && !dbDatabase.getText().isEmpty()) {
-				if (software.isConnectHost() != myExportFile.isConnectHost()) {
-					General.showMessage(this, GUIFactory.getMessage("invalidDatabaseSwitch", General.EMPTY_STRING),
-							BasicDialog.CONFIG_ERROR, true);
-					bDatabase.setSelectedItem(myExportFile.toString());
-					return;
-				}
+			myExportFile = software;
+			profiles.setProject(myExportFile.getName());
+			helper = new DatabaseHelper(helper.getDatabase(), myExportFile);
+
+			if (myExportFile.isConnectHost()) {
+				helper.setHost("localhost");
+				helper.setPort(myExportFile.getPort());
+				helper.setUser(myExportFile.getUser());
+				helper.setDatabase("public");
 			}
 
-			support.firePropertyChange("exportfile", myExportFile, software);
-			myExportFile = software;
-
-			profiles.setProject(myExportFile.getName());
-			helper.setDatabaseType(myExportFile);
-
 			dbFileName.setToolTipText(myExportFile.getFileType());
+			dbFileName.setEnabled(!myExportFile.isConnectHost());
+
 			fdPassword.setText(General.decryptPassword(helper.getPassword()));
 			fdPassword.setVisible(myExportFile.isPasswordSupported());
-			dbFileName.setText(getDatabaseName(true));
+			dbFileName.setText(helper.getDatabaseName());
 			dbDatabase.setText(profiles.getDatabaseName());
 
 			setRadioButtonText();
@@ -223,11 +218,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			} else if (myExportFile.isSqlDatabase()) {
 				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict));
 				rOnConflict[profiles.getOnConflict()].setSelected(true);
-				if (myExportFile == ExportFile.POSTGRESQL) {
-					rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(false);
-					rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(false);
-					rOnConflict[Profiles.ON_CONFLICT_ROLLBACK].setVisible(false);
-				}
+				rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(myExportFile == ExportFile.SQLITE);
+				rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(myExportFile == ExportFile.SQLITE);
+				rOnConflict[Profiles.ON_CONFLICT_ROLLBACK].setVisible(myExportFile == ExportFile.SQLITE);
 			}
 
 			activateComponents();
@@ -289,7 +282,19 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		dbDatabase = GUIFactory.getJTextField("database", General.EMPTY_STRING);
 		fdPassword = new JPasswordField(8);
-		JButton bt1 = GUIFactory.getJButton("browseFile", funcSelectFile);
+
+		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
+			if (myExportFile.isConnectHost()) {
+				HostConfig config = new HostConfig(helper, dialog.getExportProcess());
+				config.setVisible(true);
+				if (config.isSaved()) {
+					dbFileName.setText(helper.getDatabaseName());
+				}
+			} else {
+				General.getSelectedFile((JDialog) dialog, dbFileName, myExportFile, General.EMPTY_STRING, false);
+			}
+		});
+
 		btBackup = GUIFactory.getJCheckBox("createBackup", profiles.isCreateBackup());
 		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", profiles.isSkipEmptyRecords());
 
@@ -361,7 +366,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		add(bDatabase, c.gridCell(0, 0, 0, 0));
 		add(dbFileName, c.gridCell(1, 0, 2, 0));
-		add(bt1, c.gridCell(2, 0, 0, 0));
+		add(btBrowse, c.gridCell(2, 0, 0, 0));
 		add(p1, c.gridCell(1, 1, 0, 0));
 		add(Box.createVerticalStrut(5), c.gridCell(1, 2, 0, 0));
 		add(pTopContainer, c.gridCell(1, 3, 0, 0));

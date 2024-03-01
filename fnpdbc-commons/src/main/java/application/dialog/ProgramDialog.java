@@ -55,7 +55,6 @@ import application.interfaces.IDatabaseFactory;
 import application.interfaces.IExportProcess;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
-import application.preferences.Databases;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.table.ButtonRenderer;
@@ -128,7 +127,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 	private Map<String, JTable> projects = new HashMap<>();
 
 	protected Profiles pdaSettings;
-	protected Databases dbSettings;
 
 	private static final String CONFIG_ERROR = "configError";
 	private static final String FUNC_REMOVE = "funcRemove";
@@ -193,7 +191,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		funcExit = e -> close();
 
 		pdaSettings = profile;
-		dbSettings = profile.getDbSettings();
 		model = new ProjectModel(pdaSettings);
 	}
 
@@ -544,7 +541,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		importFile.setCellRenderer(new FilenameRenderer());
 
 		TableColumn exportFile = table.getColumnModel().getColumn(ProjectModel.HEADER_EXPORTFILE);
-		exportFile.setCellEditor(new ExportToTableCellEditor());
+		exportFile.setCellEditor(new ExportToTableCellEditor(exportProcess));
 		exportFile.setCellRenderer(new FilenameRenderer());
 
 		DateTimeTableEditor edit = new DateTimeTableEditor();
@@ -573,6 +570,10 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		if (conf.isRestored()) {
 			refreshScreen();
 		}
+	}
+
+	public IExportProcess getExportProcess() {
+		return exportProcess;
 	}
 
 	public JMenuBar createMenuBar() {
@@ -762,7 +763,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		generalSettings.setWidth(getWidth());
 		generalSettings.setHeight(getHeight());
-		// TODO dbSettings.cleanupNodes(pdaSettings);
+		pdaSettings.cleanupNodes();
 		pdaSettings.setLastProject();
 		pdaSettings.setLastProfile(pdaSettings.getProfileID());
 		System.exit(0);

@@ -246,7 +246,6 @@ intoNewWorksheet.text=Zum neuen Arbeitsblatt
 intoNewWorksheet.tooltip=Erstelle ein neues Arbeitsblatt und schreibe die Daten darein
 invalidKeyfile.mesg=private Schlüsseldatei '%0' hat das falsche Format.\nIch erwartete eine OpenSSH-Datei mit BEGIN- und END-Tags.
 invalidDatabaseID.mesg=Datei '%0' hat eine falsche Datenbank-Erkennung. Erwartete für '%1' Databanken die Erkennung '%2' statt '%3'.
-invalidDatabaseSwitch.mesg=Der Wechsel von einer lokalen Datenbank zu einer Remote-Datenbank oder umgekehrt ist nicht möglich.
 keywordFilter.title=Schlüsselwort Filter
 keywordFilter.tooltip=Filtern auf Schlüsselwort (leer = Filter deaktivieren)
 languageDriver.title=Zeichensatz

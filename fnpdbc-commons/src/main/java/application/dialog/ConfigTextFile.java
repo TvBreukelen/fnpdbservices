@@ -50,7 +50,17 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private static final String OTHER_CSV = "otherCsv";
 
 	public enum BuddyExport {
-		NONE, BOOK_BUDDY, MOVIE_BUDDY, MUSIC_BUDDY
+		NONE("None"), BOOK_BUDDY("BookBuddy"), MOVIE_BUDDY("MovieBuddy"), MUSIC_BUDDY("MusixBuddy");
+
+		private String name;
+
+		BuddyExport(String name) {
+			this.name = name;
+		}
+
+		public String getName() {
+			return name;
+		}
 	}
 
 	public ConfigTextFile(Profiles pref, boolean isExport, BuddyExport buddy) {
@@ -91,9 +101,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 			pdaSettings.setFieldSeparator(separatorChar);
 			pdaSettings.setTextDelimiter(delimiterChar);
 		} else {
-			pdaSettings.setImportTextFileFormat(csvType);
-			pdaSettings.setImportFieldSeparator(separatorChar);
-			pdaSettings.setImportTextDelimiter(delimiterChar);
+			pdaSettings.setImportTextfields(separatorChar, delimiterChar, csvType);
 		}
 	}
 
@@ -125,8 +133,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 				e -> activateComponents());
 
 		otherCsv = GUIFactory.getJRadioButton(OTHER_CSV, ExportFile.TEXTFILE.getName(), e -> activateComponents());
-
-		buddyCsv = GUIFactory.getJRadioButton(buddy.name(), buddy.name(), e -> activateComponents());
+		buddyCsv = GUIFactory.getJRadioButton(buddy.getName(), buddy.getName(), e -> activateComponents());
 
 		if (buddy == BuddyExport.NONE) {
 			panel.add(General.addVerticalButtons(GUIFactory.getTitle("exportFormat"), standardCsv, otherCsv));
