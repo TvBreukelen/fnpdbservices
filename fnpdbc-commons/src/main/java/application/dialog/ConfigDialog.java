@@ -27,7 +27,6 @@ public abstract class ConfigDialog extends BasicDialog {
 	protected ScFieldSelect fieldSelect;
 
 	protected DatabaseHelper dbVerified;
-	protected DatabaseHelper dbExport;
 	protected Profiles profiles;
 	protected Databases dbSettings;
 
@@ -56,7 +55,6 @@ public abstract class ConfigDialog extends BasicDialog {
 
 		dbSettings = profiles.getDbSettings();
 		dbVerified = profiles.getFromDatabase();
-		dbExport = profiles.getToDatabase();
 
 		super.init(isNewProfile ? GUIFactory.getTitle(FUNC_NEW)
 				: profiles.getProfileID() + General.SPACE + GUIFactory.getText("configuration"), 6);

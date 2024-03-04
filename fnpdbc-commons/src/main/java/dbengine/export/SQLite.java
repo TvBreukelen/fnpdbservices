@@ -14,10 +14,12 @@ import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.IConvert;
 import dbengine.SqlDB;
+import dbengine.utils.DatabaseHelper;
 
 public class SQLite extends SqlDB implements IConvert {
 	public SQLite(Profiles pref) {
 		super(pref);
+		myHelper = new DatabaseHelper(General.EMPTY_STRING, ExportFile.SQLITE);
 	}
 
 	@Override
@@ -76,7 +78,8 @@ public class SQLite extends SqlDB implements IConvert {
 
 	@Override
 	public String buildTableString(String table, List<FieldDefinition> fields) {
-		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(table).append(" (\n");
+		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(getSqlFieldName(table, true))
+				.append(" (\n");
 		StringBuilder pkBuf = new StringBuilder();
 
 		fields.forEach(field -> {
@@ -184,4 +187,13 @@ public class SQLite extends SqlDB implements IConvert {
 		prepStmt = connection.prepareStatement(buf.toString());
 		connection.setAutoCommit(false);
 	}
+
+	@Override
+	protected void throwInsertException(SQLException ex) throws FNProgException {
+		String error = ex.getMessage();
+		error = error.substring(error.lastIndexOf("(") + 1, error.lastIndexOf(")"));
+		throw FNProgException.getException("tableInsertError", Integer.toString(currentRecord),
+				myPref.getDatabaseName(), error);
+	}
+
 }

@@ -34,6 +34,7 @@ buddyInvalid4.text=<br>Field "
 buddyInvalid5.text=" could not be renamed and will therefore not be exported
 buddyInvalid6.text=<b>Expected one of the following fields instead:</b><br>
 cancel.text=Cancel
+cannotCreateTable.mesg=Table '%2' in database '%0' cannot be created, due to:\n%1.
 cannotOpen.mesg=File '%0' cannot be opened, due to:\n%1.
 cannotWrite.mesg=Cannot write to file '%0', due to:\n%1.
 category.text=Category

@@ -34,6 +34,7 @@ buddyInvalid4.text=<br>Veld "
 buddyInvalid5.text=" kan niet worden hernoemd en wordt daarom niet geëxporteerd
 buddyInvalid6.text=<b>Verwachtte in plaats daarvan een van de volgende velden:</b><br>
 cancel.text=Afbreken
+cannotCreateTable.mesg=Tabel '%2' in database '%0' kan niet worde aangemaakt, vanwege:\n%1.
 cannotOpen.mesg=Bestand '%0' kan niet geopened worden, vanwege:\n%1.
 cannotWrite.mesg=Kan niet naar bestand '%0' schrijven, vanwege:\n%1.
 category.text=Categorie

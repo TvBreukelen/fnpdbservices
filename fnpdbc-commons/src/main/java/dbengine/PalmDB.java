@@ -13,7 +13,6 @@ import application.interfaces.ExportFile;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
-import application.utils.General;
 import dbengine.utils.PilotHeader;
 
 public abstract class PalmDB extends GeneralDB implements IConvert {
@@ -55,14 +54,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 		pdbRaf = new RandomAccessFile(outFile, "rw");
 		header = new PilotHeader(pdbRaf);
-	}
-
-	@Override
-	public String getPdaDatabase() {
-		if (header != null) {
-			return header.getPdaDatabase();
-		}
-		return General.EMPTY_STRING;
 	}
 
 	protected void createPalmDB(int totalRec) throws Exception {

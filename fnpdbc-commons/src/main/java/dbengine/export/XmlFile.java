@@ -81,11 +81,6 @@ public class XmlFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public String getPdaDatabase() {
-		return handler == null ? null : handler.getRootElement();
-	}
-
-	@Override
 	public void closeFile() {
 		if (out != null) {
 			try {

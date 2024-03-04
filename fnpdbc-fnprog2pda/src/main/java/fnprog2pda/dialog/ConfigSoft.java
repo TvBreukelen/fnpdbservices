@@ -128,7 +128,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 
 		fieldSelect = new ScFieldSelect(dbFactory);
-		configDb = new ScConfigDb(this, fieldSelect, myExportFile, profiles);
+		configDb = new ScConfigDb(this, fieldSelect, profiles);
 		fdView.setPreferredSize(configDb.getComboBoxSize());
 		profiles.setNewProfile(isNewProfile);
 
@@ -245,16 +245,16 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			}
 		}
 
-		dbExport.setDatabase(fdDatabase.getText().trim());
-		dbExport.setDatabaseType(myImportFile.getName());
-		dbExport.setDatabaseVersion(dbFactory.getDatabaseVersion());
+		dbVerified.setDatabase(fdDatabase.getText().trim());
+		dbVerified.setDatabaseType(myImportFile.getName());
+		dbVerified.setDatabaseVersion(dbFactory.getDatabaseVersion());
 
 		myExportFile = configDb.getExportFile();
 
 		profiles.setProject(myExportFile.getName());
 		profiles.setProfile(profile.getText());
 		profiles.setTableName(myView, true);
-		profiles.setFromDatabase(profiles.setDatabase(dbExport));
+		profiles.setFromDatabase(profiles.setDatabase(dbVerified));
 
 		profiles.setUserList(fieldSelect.getFieldList());
 		profiles.setLastIndex(0);

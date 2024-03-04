@@ -294,11 +294,6 @@ public class MSAccess extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public String getPdaDatabase() {
-		return myPref.getTableName();
-	}
-
-	@Override
 	public List<String> getTableOrSheetNames() {
 		if (aTables == null) {
 			return new ArrayList<>();

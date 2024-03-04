@@ -114,11 +114,6 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	}
 
 	@Override
-	public String getPdaDatabase() {
-		return sheet == null ? null : sheet.getSheetName();
-	}
-
-	@Override
 	public List<String> getTableOrSheetNames() {
 		if (wb == null) {
 			return new ArrayList<>();

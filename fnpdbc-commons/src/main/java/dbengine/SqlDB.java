@@ -57,7 +57,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected boolean isConnected;
 
 	protected PreparedStatement prepStmt;
-	private int currentRecord;
+	protected int currentRecord;
 
 	private Statement dbStatement;
 	private ResultSet dbResultSet;
@@ -343,6 +343,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void closeData() throws Exception {
+		if (connection == null) {
+			// status of PostgreSQL after a commit
+			isConnected = false;
+			return;
+		}
+
 		try {
 			// commits the SQLite transaction as well
 			connection.setAutoCommit(true);
@@ -391,11 +397,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		return result;
-	}
-
-	@Override
-	public String getPdaDatabase() {
-		return myPref.getTableName();
 	}
 
 	@Override
@@ -790,7 +791,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		if (table == null || myPref.getExportOption() == 0) {
 			useAppend = false;
 			if (table != null) {
-				executeStatement("DROP TABLE " + tableName);
+				executeStatement("DROP TABLE " + getSqlFieldName(tableName));
 			}
 			executeStatement(buildTableString(tableName, dbInfo2Write));
 			createPreparedStatement();
@@ -800,7 +801,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		validateAppend(table.getDbFields());
 
 		if (myPref.getExportOption() == 1) {
-			executeStatement("DELETE FROM " + tableName);
+			executeStatement("DELETE FROM " + getSqlFieldName(tableName));
 			useAppend = true;
 		}
 
@@ -842,10 +843,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	protected void throwInsertException(SQLException ex) throws FNProgException {
-		String error = ex.getMessage();
-		error = error.substring(error.lastIndexOf("(") + 1, error.lastIndexOf(")"));
 		throw FNProgException.getException("tableInsertError", Integer.toString(currentRecord),
-				myPref.getDatabaseName(), error);
+				myPref.getDatabaseName(), ex.getMessage());
 	}
 
 	protected void createPreparedStatement() throws SQLException {

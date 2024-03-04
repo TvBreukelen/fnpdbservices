@@ -34,6 +34,7 @@ buddyInvalid4.text=<br>Feld "
 buddyInvalid5.text=" konnte nicht umbenannt werden und wird daher nicht exportiert
 buddyInvalid6.text=<b>Stattdessen wurde eines der folgenden Felder erwartet:</b><br>
 cancel.text=Abbrechen
+cannotCreateTable.mesg=Die Tabelle '%2' in der Datenbank '%0' kann aus folgendem Grund nicht erstellt werden:\n%1.
 cannotOpen.mesg='%0' kann nicht geöffnet werden, wegen:\n%1.
 cannotWrite.mesg=Es kann nicht in die '%0' Datei geschrieben werden, wegen:\n%1.
 category.text=Kategorie

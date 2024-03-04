@@ -23,8 +23,6 @@ public interface IConvert {
 
 	void openFile(DatabaseHelper helper, boolean isInputFile) throws Exception;
 
-	String getPdaDatabase();
-
 	List<FieldDefinition> getTableModelFields() throws Exception;
 
 	default List<FieldDefinition> getTableModelFields(boolean loadFromRegistry) throws Exception {

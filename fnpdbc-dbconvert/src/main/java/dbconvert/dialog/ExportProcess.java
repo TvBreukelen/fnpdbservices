@@ -15,6 +15,7 @@ import dbengine.export.Firebird;
 import dbengine.export.ICalendar;
 import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
+import dbengine.export.Paradox;
 import dbengine.export.SQLServer;
 import dbengine.export.VCard;
 
@@ -126,6 +127,8 @@ public class ExportProcess extends IExportProcess implements Runnable {
 			return new ICalendar(profile);
 		case MARIADB:
 			return new MariaDB(profile);
+		case PARADOX:
+			return new Paradox(profile);
 		case SQLSERVER:
 			return new SQLServer(profile);
 		case VCARD:

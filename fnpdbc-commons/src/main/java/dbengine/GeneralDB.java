@@ -137,11 +137,6 @@ public abstract class GeneralDB {
 		}
 	}
 
-	public String getPdaDatabase() {
-		// Valid for CSV- and xBase files
-		return null;
-	}
-
 	public List<String> getTableOrSheetNames() {
 		// valid for Calc, Excel, MS-Access and SQL based databases only
 		return new ArrayList<>();
@@ -206,10 +201,8 @@ public abstract class GeneralDB {
 		for (int i = 0; i < numFields; i++) {
 			FieldDefinition field1 = dbFields.get(i);
 			FieldDefinition field2 = dbInfo2Write.get(i);
-			String fieldName = myExportFile.isSqlDatabase() ? getSqlFieldName(field2.getFieldHeader(), true)
-					: field2.getFieldHeader();
 
-			if (!field1.getFieldName().equals(fieldName)) {
+			if (!field1.getFieldHeader().equals(field2.getFieldHeader())) {
 				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), field1.getFieldName(),
 						field2.getFieldHeader());
 			}
@@ -227,7 +220,7 @@ public abstract class GeneralDB {
 				return;
 			}
 
-			if (field1.getSize() < field2.getSize()) {
+			if (isField1Text && field1.getSize() < field2.getSize()) {
 				throw FNProgException.getException("noMatchFieldLength", field1.getFieldName(),
 						Integer.toString(field1.getSize()), Integer.toString(field2.getSize()));
 			}
@@ -239,15 +232,23 @@ public abstract class GeneralDB {
 	}
 
 	protected String getSqlFieldName(String value) {
+		String result = "\"" + value + "\"";
+
+		ExportFile exp = myHelper.getDatabaseType();
+
+		if (exp == ExportFile.POSTGRESQL) {
+			return result;
+		}
+
 		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
 			return value;
 		}
 
-		if (myExportFile == ExportFile.ACCESS || myExportFile == ExportFile.SQLSERVER) {
+		if (exp == ExportFile.ACCESS || exp == ExportFile.SQLSERVER) {
 			return "[" + value + "]";
 		}
 
-		return "\"" + value + "\"";
+		return result;
 	}
 
 	protected boolean isNotReservedWord(String value) {
@@ -349,7 +350,7 @@ public abstract class GeneralDB {
 		// Nothing to do here
 	}
 
-	public String getDbFile() {
-		return myDatabase;
+	public DatabaseHelper getDatabaseHelper() {
+		return myHelper;
 	}
 }

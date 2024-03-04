@@ -8,14 +8,17 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import application.interfaces.ExportFile;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.SqlRemote;
+import dbengine.utils.DatabaseHelper;
 
 public class PostgreSQL extends SqlRemote {
 	public PostgreSQL(Profiles pref) {
 		super(pref);
+		myHelper = new DatabaseHelper(General.EMPTY_STRING, ExportFile.POSTGRESQL);
 	}
 
 	@Override
@@ -66,7 +69,8 @@ public class PostgreSQL extends SqlRemote {
 
 	@Override
 	public String buildTableString(String table, List<FieldDefinition> fields) {
-		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS \"").append(table).append("\" (\n");
+		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(getSqlFieldName(table, true))
+				.append(" (\n");
 		StringBuilder pkBuf = new StringBuilder();
 
 		fields.forEach(field -> {
@@ -96,7 +100,7 @@ public class PostgreSQL extends SqlRemote {
 					buf.append(" TIMESTAMP");
 					break;
 				case NUMBER:
-					buf.append(" INTEGER");
+					buf.append(field.isAutoIncrement() ? " SERIAL" : " INTEGER");
 					break;
 				case FLOAT:
 					buf.append(" NUMERIC(").append(field.getSize()).append(",").append(field.getDecimalPoint())
@@ -110,9 +114,6 @@ public class PostgreSQL extends SqlRemote {
 
 			if (field.isPrimaryKey()) {
 				pkBuf.append(fieldName).append(",");
-				if (field.isAutoIncrement()) {
-					buf.append(" AUTO INCREMENT");
-				}
 			}
 
 			if (field.isNotNullable()) {
@@ -140,7 +141,8 @@ public class PostgreSQL extends SqlRemote {
 	@Override
 	protected void createPreparedStatement() throws SQLException {
 		int maxFields = dbInfo2Write.size();
-		StringBuilder buf = new StringBuilder("INSERT INTO ").append(myPref.getDatabaseName()).append(" (");
+		StringBuilder buf = new StringBuilder("INSERT INTO ").append(getSqlFieldName(myPref.getDatabaseName(), true))
+				.append(" (");
 		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader(), true)).append(","));
 
 		buf.deleteCharAt(buf.length() - 1);
@@ -183,6 +185,10 @@ public class PostgreSQL extends SqlRemote {
 
 	@Override
 	public void closeData() throws Exception {
+		if (!isConnected) {
+			return;
+		}
+
 		try {
 			connection.commit();
 		} catch (SQLException ex) {

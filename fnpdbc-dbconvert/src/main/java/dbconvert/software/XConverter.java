@@ -16,9 +16,7 @@ import application.BasicSoft;
 import application.interfaces.ExportFile;
 import application.interfaces.FieldTypes;
 import application.interfaces.IDatabaseFactory;
-import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
-import application.preferences.Databases;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
@@ -39,9 +37,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	private String[] myFile;
 	private IConvert dbIn;
 	private DatabaseHelper dbInHelper;
+	private DatabaseHelper dbOutHelper;
 
 	private boolean isInputFileOpen = false;
 	private boolean isOutputFileOpen = false;
@@ -59,13 +57,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	 */
 	public XConverter() {
 		super(PrefDBConvert.getInstance());
-		Databases dbSettings = Databases.getInstance(TvBSoftware.DBCONVERT);
-		dbInHelper = new DatabaseHelper(dbSettings);
-
-		myFile = new String[2];
-		myFile[0] = dbSettings.getDatabase();
-		myFile[1] = pdaSettings.getToDatabase().getDatabaseName();
-
+		dbInHelper = pdaSettings.getFromDatabase();
+		dbOutHelper = pdaSettings.getToDatabase();
 		dbDataRecord.clear();
 		myImportFile = dbInHelper.getDatabaseType();
 	}
@@ -74,7 +67,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void connect2DB(DatabaseHelper helper) throws Exception {
 		close();
 		dbInHelper = helper;
-		myFile[0] = helper.getDatabase();
 		myImportFile = helper.getDatabaseType();
 		connect2DB();
 	}
@@ -93,8 +85,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public void connect2DB() throws Exception {
-		if (!myImportFile.isConnectHost() && !General.existFile(myFile[0])) {
-			throw FNProgException.getException("noDatabaseExists", myFile[0]);
+		if (!(myImportFile.isConnectHost() || General.existFile(dbInHelper.getDatabase()))) {
+			throw FNProgException.getException("noDatabaseExists", dbInHelper.getDatabaseName());
 		}
 
 		if (myImportFile == ExportFile.EXCEL) {
@@ -371,21 +363,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	public void openToFile() throws Exception {
 		dbOut = new ExportProcess().getDatabase(myExportFile, pdaSettings);
 		dbOut.setSoftware(this);
-		dbOut.openFile(new DatabaseHelper(myFile[1], myExportFile), false);
+		dbOut.openFile(dbOutHelper, false);
 		isOutputFileOpen = true;
-	}
-
-	public String getPdaDatabase() {
-		if (dbIn == null) {
-			return null;
-		}
-
-		String result = dbIn.getPdaDatabase();
-		if (result == null) {
-			result = myFile[0].substring(myFile[0].lastIndexOf(System.getProperty("file.separator", "\\")) + 1,
-					myFile[0].lastIndexOf('.'));
-		}
-		return result;
 	}
 
 	public List<String> getTableOrSheetNames() {

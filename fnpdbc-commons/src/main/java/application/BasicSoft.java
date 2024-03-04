@@ -28,6 +28,7 @@ import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.export.CsvFile;
 import dbengine.export.HanDBase;
+import dbengine.utils.DatabaseHelper;
 
 public abstract class BasicSoft {
 	/**
@@ -124,9 +125,14 @@ public abstract class BasicSoft {
 		totalRecords = table.size();
 		writtenRecords = 0;
 
+		boolean isHeaderCreated = false;
+		boolean isToFileOpened = false;
+
 		try {
 			openToFile(); // Sets dbOut
+			isToFileOpened = true;
 			dbOut.createDbHeader();
+			isHeaderCreated = true;
 			for (Map<String, Object> rowData : table) {
 				Map<String, Object> dbRecord = new HashMap<>();
 				dbTableModelFields.forEach(field -> dbRecord.putIfAbsent(field.getFieldAlias(),
@@ -135,11 +141,28 @@ public abstract class BasicSoft {
 				currentRecord++;
 			}
 		} catch (Exception e) {
-			throw FNProgException.getException("cannotWrite", dbOut.getDbFile(), e.getMessage());
+			if (e instanceof FNProgException) {
+				throw e;
+			}
+
+			String mesg = "cannotOpen";
+			if (isToFileOpened) {
+				mesg = "cannotCreateTable";
+			}
+			if (isHeaderCreated) {
+				mesg = "cannotWrite";
+			}
+
+			DatabaseHelper helper = dbOut.getDatabaseHelper();
+			throw FNProgException.getException(mesg, helper.getDatabaseName(), e.getMessage(),
+					pdaSettings.getTableName());
 		} finally {
 			timer.cancel();
 			setCurrentRecord(totalRecords);
-			dbOut.closeData();
+			if (isHeaderCreated) {
+				dbOut.closeData();
+
+			}
 		}
 	}
 

@@ -29,7 +29,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 	private List<FieldDefinition> dbFields = new ArrayList<>();
 	private Map<String, String> hElements;
 
-	private String dbName;
 	private String lastElement;
 	private String remainderGroup;
 	private int currentRecord;
@@ -53,7 +52,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 		Map<String, Object> map = mapper.readValue(outFile, Map.class);
 		if (!map.isEmpty()) {
 			Entry<String, Object> entry = map.entrySet().iterator().next();
-			dbName = entry.getKey();
 			if (entry.getValue() instanceof List) {
 				dbRecords = (List<Map<String, Object>>) entry.getValue();
 				totalRecords = dbRecords.size();
@@ -255,11 +253,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 		}
 
 		remainderGroup = myPref.getRemainingField().isEmpty() ? "Values" : myPref.getRemainingField();
-	}
-
-	@Override
-	public String getPdaDatabase() {
-		return dbName;
 	}
 
 	@Override

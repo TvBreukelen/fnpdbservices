@@ -7,6 +7,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -29,6 +30,7 @@ import application.interfaces.ExportFile;
 import application.interfaces.IConfigDb;
 import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
+import application.preferences.Databases;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
 import application.utils.GUIFactory;
@@ -50,12 +52,15 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	 */
 	private static final long serialVersionUID = 8000165106403251367L;
 
-	private JTextField dbFileName;
-	private JTextField dbDatabase; // database, table or worksheet name
-	private JLabel dbDatabaseLabel = new JLabel();
 	private JPasswordField fdPassword;
+	private XGridBagConstraints c = new XGridBagConstraints();
 
+	private JTextField fdDatabase = new JTextField();
 	private JComboBox<String> bDatabase;
+	private JComboBox<String> cbDatabases;
+	private JLabel dbDatabaseLabel = new JLabel();
+	private JTextField dbDatabase; // database, table or worksheet name
+
 	private JPanel pExport;
 	private JPanel pConvert;
 	private JPanel pOtherOptions;
@@ -78,9 +83,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private JCheckBox btBackup;
 	private JCheckBox btSkipEmpty;
 
-	transient ActionListener funcSelectExport;
+	transient ActionListener funcSelectFile;
 	transient ActionListener funcSelectConvert;
-	transient ActionListener funcSelectDb;
+	transient ActionListener funcSelectFileType;
 	transient ActionListener funcShowSchema;
 
 	private ExportFile myExportFile;
@@ -91,18 +96,20 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	transient Profiles profiles;
 	transient ScFieldSelect scFieldSelect;
 	private DatabaseHelper helper;
+	transient Databases dbSettings;
 
 	private PropertyChangeSupport support;
 
-	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, ExportFile db, Profiles profiles) {
-		myExportFile = db;
+	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, Profiles profiles) {
 		scFieldSelect = sc;
 		this.dialog = dialog;
 		this.profiles = profiles;
+		dbSettings = profiles.getDbSettings();
 
 		support = new PropertyChangeSupport(this);
 		support.addPropertyChangeListener(scFieldSelect);
 		helper = profiles.getToDatabase();
+		myExportFile = helper.getDatabaseType();
 
 		init();
 		buildDialog();
@@ -113,12 +120,13 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private void init() {
 		final String schema = "Schema";
 
-		funcSelectExport = e -> {
+		funcSelectFile = e -> {
 			if (myExportFile == ExportFile.HANDBASE) {
 				boolean enableImport = !rExists[0].isSelected();
 				((ConfigHanDBase) dbConfig).setImportEnabled(enableImport);
 			} else {
 				btTableSchema.setVisible(myExportFile.isSqlDatabase() && rExists[0].isSelected());
+				dialog.pack();
 			}
 		};
 
@@ -154,27 +162,16 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), schema, false);
 		};
 
-		funcSelectDb = e -> {
+		funcSelectFileType = e -> {
 			ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
 			support.firePropertyChange("exportfile", myExportFile, software);
 
 			myExportFile = software;
 			profiles.setProject(myExportFile.getName());
+
+			// Reinitialise DatabaseHelper
 			helper = new DatabaseHelper(helper.getDatabase(), myExportFile);
-
-			if (myExportFile.isConnectHost()) {
-				helper.setHost("localhost");
-				helper.setPort(myExportFile.getPort());
-				helper.setUser(myExportFile.getUser());
-				helper.setDatabase("public");
-			}
-
-			dbFileName.setToolTipText(myExportFile.getFileType());
-			dbFileName.setEnabled(!myExportFile.isConnectHost());
-
-			fdPassword.setText(General.decryptPassword(helper.getPassword()));
-			fdPassword.setVisible(myExportFile.isPasswordSupported());
-			dbFileName.setText(helper.getDatabaseName());
+			helper.setDatabase(General.EMPTY_STRING);
 			dbDatabase.setText(profiles.getDatabaseName());
 
 			setRadioButtonText();
@@ -223,6 +220,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				rOnConflict[Profiles.ON_CONFLICT_ROLLBACK].setVisible(myExportFile == ExportFile.SQLITE);
 			}
 
+			reloadFiles();
 			activateComponents();
 			dialog.pack();
 		};
@@ -257,30 +255,19 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		return myExportFile;
 	}
 
-	private String getDatabaseName(boolean isInitial) {
-		String result = isInitial ? helper.getDatabaseName() : dbFileName.getText().trim();
-		if (result.isEmpty()) {
-			result = General.getDefaultPDADatabase(myExportFile);
-		} else if (!General.isFileExtensionOk(result, myExportFile)) {
-			result = General.getBaseName(result, myExportFile);
-		}
-		return result;
-	}
-
 	private void buildDialog() {
 		setLayout(new GridBagLayout());
-		XGridBagConstraints c = new XGridBagConstraints();
-
-		dbFileName = new JTextField();
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(false));
 		bDatabase.setToolTipText(GUIFactory.getToolTip("pcToFile"));
-		bDatabase.addActionListener(funcSelectDb);
+		bDatabase.addActionListener(funcSelectFileType);
+		cbDatabases = new JComboBox<>();
 
 		Dimension dim = bDatabase.getPreferredSize();
 		dim.setSize(dim.getWidth() + 10, dim.getHeight());
 		bDatabase.setPreferredSize(dim);
 
 		dbDatabase = GUIFactory.getJTextField("database", General.EMPTY_STRING);
+		dbDatabase.setText(profiles.getDatabaseName());
 		fdPassword = new JPasswordField(8);
 
 		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
@@ -288,26 +275,22 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				HostConfig config = new HostConfig(helper, dialog.getExportProcess());
 				config.setVisible(true);
 				if (config.isSaved()) {
-					dbFileName.setText(helper.getDatabaseName());
+					fdDatabase.setText(helper.getDatabaseName());
+					reloadFiles();
 				}
 			} else {
-				General.getSelectedFile((JDialog) dialog, dbFileName, myExportFile, General.EMPTY_STRING, false);
+				General.getSelectedFile((JDialog) dialog, fdDatabase, myExportFile, General.EMPTY_STRING, false);
+				if (!fdDatabase.getText().isBlank()) {
+					helper.setDatabase(fdDatabase.getText());
+					reloadFiles();
+				}
 			}
 		});
-
-		btBackup = GUIFactory.getJCheckBox("createBackup", profiles.isCreateBackup());
-		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", profiles.isSkipEmptyRecords());
-
-		Box dbNameBox = Box.createHorizontalBox();
-		dbNameBox.add(dbDatabaseLabel);
-		dbNameBox.add(Box.createHorizontalStrut(5));
-		dbNameBox.add(Box.createHorizontalGlue());
-		dbNameBox.add(dbDatabase);
 
 		hModel = new SpinnerNumberModel(profiles.getImageHeight(), 0, 900, 10);
 		wModel = new SpinnerNumberModel(profiles.getImageWidth(), 0, 900, 10);
 
-		createRadioButtons(rExists, funcSelectExport, General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING);
+		createRadioButtons(rExists, funcSelectFile, General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING);
 		setRadioButtonText();
 
 		btTableSchema = GUIFactory.getJButton("funcShowSchema", funcShowSchema);
@@ -340,7 +323,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		passwordBox.add(fdPassword);
 
 		pExport = General.addVerticalButtons(GUIFactory.getTitle("exportData"), rExists);
-		pExport.add(dbNameBox, c.gridCell(1, 4, 0, 0));
 		pExport.add(passwordBox, c.gridCell(1, 5, 0, 0));
 		pExport.add(btTableSchema);
 
@@ -357,18 +339,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pTopContainer = new JPanel(new GridLayout(1, 2));
 
-		JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		p1.add(dbNameBox);
-		p1.add(btSkipEmpty);
-		p1.add(Box.createHorizontalStrut(5));
-		p1.add(btBackup);
-		p1.add(Box.createHorizontalGlue());
-
 		add(bDatabase, c.gridCell(0, 0, 0, 0));
-		add(dbFileName, c.gridCell(1, 0, 2, 0));
-		add(btBrowse, c.gridCell(2, 0, 0, 0));
-		add(p1, c.gridCell(1, 1, 0, 0));
-		add(Box.createVerticalStrut(5), c.gridCell(1, 2, 0, 0));
+		add(cbDatabases, c.gridmultipleCell(1, 0, 2, 0, 3, 1));
+		add(btBrowse, c.gridCell(4, 0, 0, 0));
+		add(createDatabaseSelectionPanel(), c.gridmultipleCell(1, 1, 2, 0, 2, 2));
+
+		add(Box.createVerticalStrut(10), c.gridCell(1, 2, 0, 0));
 		add(pTopContainer, c.gridCell(1, 3, 0, 0));
 		add(pBottomContainer, c.gridCell(1, 4, 0, 0));
 
@@ -380,6 +356,64 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		for (int i = 0; i < buttons.length; i++) {
 			buttons[i] = GUIFactory.getJRadioButton(ids[i], action);
 		}
+	}
+
+	private void reloadFiles() {
+		boolean result = false;
+		boolean isPrevious = false;
+
+		cbDatabases.removeActionListener(funcSelectFile);
+		cbDatabases.removeAllItems();
+
+		myExportFile = helper.getDatabaseType();
+		String dbFile = helper.getDatabaseName();
+		List<String> dbFiles = dbSettings.getDatabaseFiles(myExportFile);
+
+		if (dbFile.isEmpty() && !dbFiles.isEmpty()) {
+			// Take the last entry in the prev. defined database list
+			dbFile = dbFiles.get(dbFiles.size() - 1);
+			result = true;
+			isPrevious = true;
+		}
+
+		if (!result) {
+			result = !dbFile.isBlank() && General.isFileExtensionOk(dbFile, myExportFile);
+		}
+
+		if (result && !dbFiles.contains(dbFile)) {
+			dbFiles.add(dbFile);
+			Collections.sort(dbFiles);
+		}
+
+		dbFiles.forEach(db -> cbDatabases.addItem(db));
+		cbDatabases.setSelectedItem(dbFile);
+		dbFile = DatabaseHelper.extractDatabase(dbFile);
+
+		if (result && isPrevious) {
+			String node = dbSettings.getNodename(dbFile, myExportFile);
+			if (node != null) {
+				dbSettings.setNode(node);
+				helper.update(dbSettings);
+			}
+		}
+
+		fdPassword.setText(General.decryptPassword(helper.getPassword()));
+		fdPassword.setVisible(myExportFile.isPasswordSupported());
+		dbDatabase.setVisible(myExportFile != ExportFile.TEXTFILE);
+		dbDatabaseLabel.setVisible(dbDatabase.isVisible());
+		cbDatabases.addActionListener(funcSelectFile);
+	}
+
+	private JComponent createDatabaseSelectionPanel() {
+		JPanel result = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		btBackup = GUIFactory.getJCheckBox("createBackup", profiles.isCreateBackup());
+		btSkipEmpty = GUIFactory.getJCheckBox("skipEmpty", profiles.isSkipEmptyRecords());
+
+		result.add(dbDatabaseLabel);
+		result.add(dbDatabase);
+		result.add(btSkipEmpty);
+		result.add(btBackup);
+		return result;
 	}
 
 	public void reload() {
@@ -394,7 +428,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	@Override
 	public void setProperties() throws Exception {
-		helper.setDatabase(getDatabaseName(false));
 		helper.setPassword(General.encryptPassword(fdPassword.getPassword()));
 
 		int index = getSelected(rExists);
@@ -499,9 +532,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		pConvert.setVisible(cConvertImages.isVisible());
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
-		dbDatabase.setVisible(myExportFile != ExportFile.TEXTFILE);
-		dbDatabaseLabel.setVisible(myExportFile != ExportFile.TEXTFILE);
 		btTableSchema.setVisible(myExportFile.isSqlDatabase() && rExists[0].isSelected());
+		btBackup.setEnabled(!myExportFile.isConnectHost());
 
 		if (dbConfig != null) {
 			dbConfig.activateComponents();

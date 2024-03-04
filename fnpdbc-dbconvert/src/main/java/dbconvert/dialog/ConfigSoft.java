@@ -53,7 +53,7 @@ import dbengine.utils.RelationData;
 public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	/**
 	 * Title: ConfigXConverter Description: XConverter Configuration program
-	 * Copyright: (c) 2004-2020
+	 * Copyright: (c) 2004-2024
 	 *
 	 * @author Tom van Breukelen
 	 * @version 5+
@@ -74,7 +74,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	private JLabel lTablesWorkSheets;
 	private JLabel lSqlLimit;
-	private List<String> dbFiles;
 
 	transient ActionListener funcSelectTableOrSheet;
 	transient ActionListener funcSelectFile;
@@ -118,9 +117,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		}
 
 		myImportFile = dbVerified.getDatabaseType();
-		myExportFile = dbExport.getDatabaseType();
-
-		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, myExportFile, profiles);
+		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, profiles);
 
 		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
 				e -> {
@@ -188,7 +185,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		bDatabase.addActionListener(funcSelectFileType);
 		bDatabase.setPreferredSize(configDb.getComboBoxSize());
 		cbDatabases = new JComboBox<>();
-		dbFiles = dbSettings.getDatabaseFiles(myImportFile);
 
 		JButton btBrowse = GUIFactory.getJButton("browseFile", e -> {
 			if (myImportFile.isConnectHost()) {
@@ -301,7 +297,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		dbVerified = new DatabaseHelper(dbVerified.getDatabase(), myImportFile);
 		dbFactory.getTableOrSheetNames().clear();
 		setTablesOrWorksheets();
-		dbFiles = dbSettings.getDatabaseFiles(myImportFile);
 
 		if (reloadFiles()) {
 			verifyDatabase();
@@ -319,8 +314,9 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		myImportFile = dbVerified.getDatabaseType();
 		String dbFile = dbVerified.getDatabaseName();
+		List<String> dbFiles = dbSettings.getDatabaseFiles(myImportFile);
 
-		if (dbFile.isEmpty() && dbFiles.size() > 1) {
+		if (dbFile.isEmpty() && !dbFiles.isEmpty()) {
 			// Take the last entry in the prev. defined database list
 			dbFile = dbFiles.get(dbFiles.size() - 1);
 			result = true;
@@ -329,10 +325,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		if (!result) {
 			result = !dbFile.isBlank() && General.isFileExtensionOk(dbFile, myImportFile);
-		}
-
-		if (result && !myImportFile.isConnectHost()) {
-			result = General.existFile(dbFile);
 		}
 
 		if (result && !dbFiles.contains(dbFile)) {
