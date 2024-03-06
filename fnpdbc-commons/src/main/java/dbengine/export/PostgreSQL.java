@@ -69,12 +69,12 @@ public class PostgreSQL extends SqlRemote {
 
 	@Override
 	public String buildTableString(String table, List<FieldDefinition> fields) {
-		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(getSqlFieldName(table, true))
+		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(getSqlFieldName(table))
 				.append(" (\n");
 		StringBuilder pkBuf = new StringBuilder();
 
 		fields.forEach(field -> {
-			String fieldName = getSqlFieldName(field.getFieldHeader(), true);
+			String fieldName = getSqlFieldName(field.getFieldHeader());
 			buf.append(fieldName);
 
 			if (field.isOutputAsText()) {
@@ -89,9 +89,6 @@ public class PostgreSQL extends SqlRemote {
 					break;
 				case IMAGE, THUMBNAIL:
 					buf.append(" BLOB");
-					break;
-				case MEMO:
-					buf.append(" MEMO");
 					break;
 				case TIME:
 					buf.append(" TIME");
@@ -141,9 +138,9 @@ public class PostgreSQL extends SqlRemote {
 	@Override
 	protected void createPreparedStatement() throws SQLException {
 		int maxFields = dbInfo2Write.size();
-		StringBuilder buf = new StringBuilder("INSERT INTO ").append(getSqlFieldName(myPref.getDatabaseName(), true))
+		StringBuilder buf = new StringBuilder("INSERT INTO ").append(getSqlFieldName(myPref.getDatabaseName()))
 				.append(" (");
-		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader(), true)).append(","));
+		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader())).append(","));
 
 		buf.deleteCharAt(buf.length() - 1);
 		buf.append(")\n");
@@ -161,13 +158,13 @@ public class PostgreSQL extends SqlRemote {
 			String pk = pkOpt.get().getFieldHeader();
 			switch (myPref.getOnConflict()) {
 			case Profiles.ON_CONFLICT_IGNORE:
-				buf.append(" ON CONFLICT (").append(getSqlFieldName(pk, true)).append(") DO NOTHING");
+				buf.append(" ON CONFLICT (").append(getSqlFieldName(pk)).append(") DO NOTHING");
 				break;
 			case Profiles.ON_CONFLICT_REPLACE:
-				buf.append(" ON CONFLICT (").append(getSqlFieldName(pk, true)).append(") DO UPDATE\nSET ");
+				buf.append(" ON CONFLICT (").append(getSqlFieldName(pk)).append(") DO UPDATE\nSET ");
 				dbInfo2Write.forEach(field -> {
 					if (!pk.equals(field.getFieldHeader())) {
-						String sqlColumn = getSqlFieldName(field.getFieldHeader(), true);
+						String sqlColumn = getSqlFieldName(field.getFieldHeader());
 						buf.append(sqlColumn).append(" =  EXCLUDED.").append(sqlColumn).append(",\n");
 					}
 				});

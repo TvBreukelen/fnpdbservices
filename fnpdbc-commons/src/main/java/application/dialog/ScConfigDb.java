@@ -17,7 +17,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -28,7 +27,6 @@ import javax.swing.SpinnerNumberModel;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigDb;
-import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.preferences.Databases;
 import application.preferences.Profiles;
@@ -92,7 +90,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private JButton btTableSchema;
 
 	transient IConfigDb dbConfig;
-	transient IConfigSoft dialog;
+	transient ConfigDialog dialog;
 	transient Profiles profiles;
 	transient ScFieldSelect scFieldSelect;
 	private DatabaseHelper helper;
@@ -100,20 +98,20 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	private PropertyChangeSupport support;
 
-	public ScConfigDb(IConfigSoft dialog, ScFieldSelect sc, Profiles profiles) {
+	public ScConfigDb(ConfigDialog dialog, ScFieldSelect sc, Profiles profiles) {
 		scFieldSelect = sc;
 		this.dialog = dialog;
 		this.profiles = profiles;
 		dbSettings = profiles.getDbSettings();
 
 		support = new PropertyChangeSupport(this);
-		support.addPropertyChangeListener(scFieldSelect);
+		support.addPropertyChangeListener("exportfile", scFieldSelect);
+
 		helper = profiles.getToDatabase();
 		myExportFile = helper.getDatabaseType();
 
 		init();
 		buildDialog();
-		activateComponents();
 		setVisible(true);
 	}
 
@@ -141,12 +139,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		funcShowSchema = e -> {
 			String dbName = dbDatabase.getText();
 			if (dbName.isBlank()) {
-				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noTableDefined"), schema, true);
+				General.showMessage(dialog, GUIFactory.getMessage("noTableDefined"), schema, true);
 				return;
 			}
 
 			if (scFieldSelect.getFieldList().isEmpty()) {
-				General.showMessage((JDialog) dialog, GUIFactory.getMessage("noFieldsDefined", dbName), "Schema", true);
+				General.showMessage(dialog, GUIFactory.getMessage("noFieldsDefined", dbName), "Schema", true);
 				return;
 			}
 
@@ -159,7 +157,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 			List<FieldDefinition> fields = new ArrayList<>();
 			scFieldSelect.getFieldList().forEach(field -> fields.add(new FieldDefinition(field)));
-			General.showMessage((JDialog) dialog, db.buildTableString(dbName, fields), schema, false);
+			General.showMessage(dialog, db.buildTableString(dbName, fields), schema, false);
 		};
 
 		funcSelectFileType = e -> {
@@ -191,7 +189,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			dbConfig = null;
 			switch (myExportFile) {
 			case HANDBASE:
-				dbConfig = new ConfigHanDBase(dialog, profiles);
+				dbConfig = new ConfigHanDBase(profiles);
 				break;
 			case CALC:
 				dbConfig = new ConfigCalc(profiles);
@@ -251,8 +249,8 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		}
 	}
 
-	public ExportFile getExportFile() {
-		return myExportFile;
+	public DatabaseHelper getDatabaseHelper() {
+		return helper;
 	}
 
 	private void buildDialog() {
@@ -275,11 +273,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				HostConfig config = new HostConfig(helper, dialog.getExportProcess());
 				config.setVisible(true);
 				if (config.isSaved()) {
-					fdDatabase.setText(helper.getDatabaseName());
 					reloadFiles();
 				}
 			} else {
-				General.getSelectedFile((JDialog) dialog, fdDatabase, myExportFile, General.EMPTY_STRING, false);
+				General.getSelectedFile(dialog, fdDatabase, myExportFile, General.EMPTY_STRING, false);
 				if (!fdDatabase.getText().isBlank()) {
 					helper.setDatabase(fdDatabase.getText());
 					reloadFiles();
@@ -402,6 +399,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		dbDatabase.setVisible(myExportFile != ExportFile.TEXTFILE);
 		dbDatabaseLabel.setVisible(dbDatabase.isVisible());
 		cbDatabases.addActionListener(funcSelectFile);
+		dialog.activateComponents();
 	}
 
 	private JComponent createDatabaseSelectionPanel() {

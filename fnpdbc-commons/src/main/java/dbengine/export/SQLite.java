@@ -78,12 +78,12 @@ public class SQLite extends SqlDB implements IConvert {
 
 	@Override
 	public String buildTableString(String table, List<FieldDefinition> fields) {
-		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(getSqlFieldName(table, true))
+		StringBuilder buf = new StringBuilder("CREATE TABLE IF NOT EXISTS ").append(getSqlFieldName(table))
 				.append(" (\n");
 		StringBuilder pkBuf = new StringBuilder();
 
 		fields.forEach(field -> {
-			String fieldName = getSqlFieldName(field.getFieldHeader(), true);
+			String fieldName = getSqlFieldName(field.getFieldHeader());
 			buf.append(fieldName);
 
 			if (field.isOutputAsText()) {
@@ -172,7 +172,7 @@ public class SQLite extends SqlDB implements IConvert {
 		}
 
 		buf.append(myPref.getDatabaseName()).append(" (");
-		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader(), true)).append(","));
+		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader())).append(","));
 
 		buf.deleteCharAt(buf.length() - 1);
 		buf.append(")\n");

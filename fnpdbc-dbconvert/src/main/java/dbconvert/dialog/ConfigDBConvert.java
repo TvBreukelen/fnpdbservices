@@ -1,7 +1,7 @@
 package dbconvert.dialog;
 
+import application.dialog.ConfigDialog;
 import application.dialog.ProgramDialog;
-import application.interfaces.IConfigSoft;
 import application.interfaces.TvBSoftware;
 import application.model.ProjectModel;
 import application.utils.General;
@@ -38,7 +38,7 @@ public class ConfigDBConvert extends ProgramDialog {
 	}
 
 	@Override
-	protected IConfigSoft getConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNewProfile) {
+	protected ConfigDialog getConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNewProfile) {
 		return new ConfigSoft(dialog, model, isNewProfile);
 	}
 }

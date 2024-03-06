@@ -13,7 +13,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import application.interfaces.IConfigDb;
-import application.interfaces.IConfigSoft;
 import application.preferences.GeneralSettings;
 import application.preferences.Profiles;
 import application.utils.GUIFactory;
@@ -36,14 +35,12 @@ public class ConfigHanDBase extends JPanel implements IConfigDb {
 	private JTextField autoInstallUser;
 
 	private JLabel userLabel;
-	transient IConfigSoft dialog;
 	private boolean isImportEnabled;
 
 	transient Profiles pdaSettings;
 	transient GeneralSettings generalSettings = GeneralSettings.getInstance();
 
-	public ConfigHanDBase(IConfigSoft dialog, Profiles pref) {
-		this.dialog = dialog;
+	public ConfigHanDBase(Profiles pref) {
 		pdaSettings = pref;
 		buildDialog();
 		activateComponents();

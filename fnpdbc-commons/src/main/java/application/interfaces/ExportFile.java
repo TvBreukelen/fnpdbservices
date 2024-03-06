@@ -52,7 +52,7 @@ public enum ExportFile {
 				return exp;
 			}
 		}
-		return TEXTFILE;
+		return ACCESS;
 	}
 
 	public static String[] getExportFilenames(boolean isImport) {

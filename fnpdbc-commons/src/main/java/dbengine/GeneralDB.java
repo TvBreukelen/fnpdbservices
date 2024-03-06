@@ -227,10 +227,6 @@ public abstract class GeneralDB {
 		}
 	}
 
-	protected String getSqlFieldName(String value, boolean noDot) {
-		return noDot ? getSqlFieldName(value).replace(".", "") : getSqlFieldName(value);
-	}
-
 	protected String getSqlFieldName(String value) {
 		String result = "\"" + value + "\"";
 

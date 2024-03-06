@@ -30,9 +30,7 @@ import application.dialog.ConfigTextFile;
 import application.dialog.HostConfig;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
-import application.dialog.ScConfigDb;
 import application.interfaces.ExportFile;
-import application.interfaces.IConfigSoft;
 import application.interfaces.IDatabaseFactory;
 import application.interfaces.IExportProcess;
 import application.interfaces.TvBSoftware;
@@ -50,9 +48,9 @@ import dbconvert.software.XConverter;
 import dbengine.utils.DatabaseHelper;
 import dbengine.utils.RelationData;
 
-public class ConfigSoft extends ConfigDialog implements IConfigSoft {
+public class ConfigSoft extends ConfigDialog {
 	/**
-	 * Title: ConfigXConverter Description: XConverter Configuration program
+	 * Title: ConfigdbFactory Description: dbFactory Configuration program
 	 * Copyright: (c) 2004-2024
 	 *
 	 * @author Tom van Breukelen
@@ -60,7 +58,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	 */
 	private static final long serialVersionUID = -4831514718413166627L;
 
-	private JTextField profile;
 	private JTextField fdDatabase = new JTextField();
 
 	private JButton btRelationships;
@@ -82,8 +79,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	private ExportFile myExportFile;
 	private ExportFile myImportFile;
 
-	transient ScConfigDb configDb;
-
 	private ConfigTextFile textImport;
 	private ICalendarConfig calendarImport;
 	private XGridBagConstraints c = new XGridBagConstraints();
@@ -102,8 +97,15 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		this.model = model;
 		isNewProfile = isNew;
 
-		setMinimumSize(new Dimension(500, 350));
+		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
+				e -> {
+					Relations relation = new Relations(dbFactory, fieldSelect,
+							relationDataMap.computeIfAbsent(myView, r -> new RelationData()));
+					relation.setVisible(true);
+				});
+
 		init(dbFactory);
+		pack();
 	}
 
 	private void init(IDatabaseFactory factory) {
@@ -113,18 +115,10 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 			profiles.reset();
 			dbVerified = dbFactory.getDbInHelper();
 			dbVerified.setDatabase(General.EMPTY_STRING);
-			dbVerified.setDatabaseType(General.EMPTY_STRING);
+			dbVerified.setDatabaseType(ExportFile.ACCESS);
 		}
 
 		myImportFile = dbVerified.getDatabaseType();
-		configDb = new ScConfigDb(ConfigSoft.this, fieldSelect, profiles);
-
-		btRelationships = GUIFactory.createToolBarButton(GUIFactory.getTitle("relationships"), "table_relationship.png",
-				e -> {
-					Relations relation = new Relations(dbFactory, fieldSelect,
-							relationDataMap.computeIfAbsent(myView, r -> new RelationData()));
-					relation.setVisible(true);
-				});
 
 		funcSelectTableOrSheet = e -> tableOrWorksheetChanged();
 		funcSelectFileType = e -> fileTypeChanged();
@@ -445,7 +439,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	@Override
 	protected void save() throws Exception {
-		myExportFile = configDb.getExportFile();
+		myExportFile = configDb.getDatabaseHelper().getDatabaseType();
 		checkDuplicatelFieldNames();
 
 		String projectID = myExportFile.getName();
@@ -513,24 +507,9 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	@Override
 	public void activateComponents() {
+		super.activateComponents();
 		boolean isTextFile = myImportFile == ExportFile.TEXTFILE;
 		boolean isICalFile = myImportFile == ExportFile.ICAL;
-		boolean isFileValid = dbFactory.isConnected();
-
-		boolean isValidProfile = true;
-		String profileID = profile.getText().trim();
-
-		if (isFileValid && isNewProfile) {
-			isValidProfile = !profileID.isEmpty();
-			if (isValidProfile) {
-				myExportFile = configDb.getExportFile();
-				isValidProfile = !profiles.profileExists(myExportFile.getName(), profileID);
-			}
-		}
-
-		btSave.setEnabled(isFileValid && isValidProfile);
-		btFilter.setEnabled(isFileValid);
-		btSortOrder.setEnabled(isFileValid);
 
 		if (btFilter.isEnabled()) {
 			FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());

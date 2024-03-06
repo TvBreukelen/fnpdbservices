@@ -19,16 +19,11 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.apache.commons.lang3.StringUtils;
-
 import application.dialog.ConfigDialog;
 import application.dialog.ConfigTextFile.BuddyExport;
 import application.dialog.ProgramDialog;
 import application.dialog.ProgramDialog.Action;
-import application.dialog.ScConfigDb;
-import application.dialog.ScFieldSelect;
 import application.interfaces.ExportFile;
-import application.interfaces.IConfigSoft;
 import application.interfaces.IDatabaseFactory;
 import application.interfaces.IExportProcess;
 import application.interfaces.TvBSoftware;
@@ -49,7 +44,7 @@ import fnprog2pda.software.DatabaseFactory;
 import fnprog2pda.software.FNPSoftware;
 import fnprog2pda.software.FNProgramvare;
 
-public class ConfigSoft extends ConfigDialog implements IConfigSoft {
+public class ConfigSoft extends ConfigDialog {
 	/**
 	 * Title: ConfigSoft Description: FNProgramvare Software Configuration
 	 * Copyright: (c) 2004-2020
@@ -61,8 +56,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 	private JComboBox<String> fdView;
 
 	private JButton btMisc;
-
-	private JTextField profile;
 	private JTextField fdDatabase;
 
 	transient ActionListener funcSelectDbFile;
@@ -70,7 +63,6 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	private FNPSoftware myImportFile;
 	private String dbCheck = General.EMPTY_STRING;
-	private ScConfigDb configDb;
 
 	transient DatabaseFactory dbFactory = DatabaseFactory.getInstance();
 	private ExportFile myExportFile;
@@ -110,7 +102,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 		funcSelectView = e -> {
 			String view = fdView.getSelectedItem().toString();
-			if (dbFactory.isConnected()) {
+			if (factory.isConnected()) {
 				try {
 					reloadFieldSelect(view);
 				} catch (Exception ex) {
@@ -123,14 +115,11 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		};
 
 		fdView = new JComboBox<>(myImportFile.getViews());
+		fdView.setPreferredSize(configDb.getComboBoxSize());
+		profiles.setNewProfile(isNewProfile);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : profiles.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
-
-		fieldSelect = new ScFieldSelect(dbFactory);
-		configDb = new ScConfigDb(this, fieldSelect, profiles);
-		fdView.setPreferredSize(configDb.getComboBoxSize());
-		profiles.setNewProfile(isNewProfile);
 
 		verifyDatabase(true);
 		buildDialog();
@@ -226,7 +215,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	@Override
 	protected void save() throws Exception {
-		myExportFile = configDb.getExportFile();
+		myExportFile = configDb.getDatabaseHelper().getDatabaseType();
 		checkDuplicatelFieldNames();
 
 		String projectID = myExportFile.getName();
@@ -249,7 +238,7 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 		dbVerified.setDatabaseType(myImportFile.getName());
 		dbVerified.setDatabaseVersion(dbFactory.getDatabaseVersion());
 
-		myExportFile = configDb.getExportFile();
+		myExportFile = configDb.getDatabaseHelper().getDatabaseType();
 
 		profiles.setProject(myExportFile.getName());
 		profiles.setProfile(profile.getText());
@@ -344,32 +333,8 @@ public class ConfigSoft extends ConfigDialog implements IConfigSoft {
 
 	@Override
 	public void activateComponents() {
-		boolean isFileValid;
+		super.activateComponents();
 
-		String docValue = fdDatabase == null ? null : fdDatabase.getText().trim();
-		if (StringUtils.isEmpty(docValue) || docValue.equals(dbCheck)) {
-			isFileValid = dbFactory.isConnected();
-		} else {
-			isFileValid = docValue.toLowerCase().endsWith("mdb") && General.existFile(docValue);
-			if (isFileValid) {
-				verifyDatabase(false);
-				return;
-			}
-		}
-
-		boolean isValidProfile = true;
-		String profileID = profile.getText().trim();
-
-		if (isFileValid && isNewProfile) {
-			isValidProfile = !profileID.isEmpty();
-			if (isValidProfile) {
-				isValidProfile = !profiles.profileExists(profileID);
-			}
-		}
-
-		btSave.setEnabled(isFileValid && isValidProfile);
-		btFilter.setEnabled(isFileValid);
-		btSortOrder.setEnabled(isFileValid);
 		btMisc.setEnabled(isFileValid && myImportFile.isUseMisc(myView));
 		fdView.setEnabled(isFileValid);
 

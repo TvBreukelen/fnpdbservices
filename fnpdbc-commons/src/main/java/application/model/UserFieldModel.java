@@ -21,17 +21,17 @@ public class UserFieldModel extends HiddenColumnModel {
 
 	private List<BasisField> tableData = new ArrayList<>();
 	private String[] columnNames = GUIFactory.getArray("exportHeaders");
-	private ExportFile importFile;
+	private ExportFile exportFile;
 	private boolean hasTextExport;
 	private boolean isPkSet = false;
 
 	public UserFieldModel(ExportFile exp) {
 		super(COL_UNIQUE + 1);
-		setInputFile(exp);
+		setOutputFile(exp);
 	}
 
-	public void setInputFile(ExportFile exp) {
-		importFile = exp;
+	public void setOutputFile(ExportFile exp) {
+		exportFile = exp;
 
 		// Reset text fields
 		tableData.forEach(e -> e.setOutputAsText(false));
@@ -43,7 +43,7 @@ public class UserFieldModel extends HiddenColumnModel {
 			this.tableData = tableData;
 
 			// PostgresSQL allows only one primary key column
-			if (importFile == ExportFile.POSTGRESQL) {
+			if (exportFile == ExportFile.POSTGRESQL) {
 				List<BasisField> pkFields = tableData.stream().filter(BasisField::isPrimaryKey).toList();
 				isPkSet = !pkFields.isEmpty();
 				if (pkFields.size() > 1) {
@@ -59,7 +59,7 @@ public class UserFieldModel extends HiddenColumnModel {
 	}
 
 	private void resetColumnVisibility() {
-		boolean enableSql = importFile.isSqlDatabase();
+		boolean enableSql = exportFile.isSqlDatabase();
 
 		columnsVisible[COL_TEXT_EXPORT] = hasTextExport;
 		columnsVisible[COL_NOT_NULL] = enableSql;
@@ -118,7 +118,7 @@ public class UserFieldModel extends HiddenColumnModel {
 
 	public void addRecord(BasisField field, int row) {
 		BasisField obj = new BasisField(field);
-		if (importFile.isSqlDatabase()) {
+		if (exportFile.isSqlDatabase()) {
 			// No dot allowed in the field name
 			obj.setFieldHeader(obj.getFieldHeader().replace(".", ""));
 		}
@@ -162,14 +162,14 @@ public class UserFieldModel extends HiddenColumnModel {
 		BasisField field = tableData.get(row);
 		switch (getNumber(col)) {
 		case COL_EXPORT_FIELD:
-			field.setFieldHeader(s);
+			field.setFieldHeader(exportFile.isSqlDatabase() ? s.replace(".", "") : s);
 			break;
 		case COL_TEXT_EXPORT:
 			field.setOutputAsText((Boolean) value);
 			break;
 		case COL_PRIMARY_KEY:
 			boolean isPK = (Boolean) value;
-			if (isPkSet && importFile == ExportFile.POSTGRESQL) {
+			if (isPkSet && exportFile == ExportFile.POSTGRESQL) {
 				isPK = false;
 			}
 

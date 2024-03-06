@@ -50,7 +50,6 @@ import com.github.lgooddatepicker.tableeditors.DateTimeTableEditor;
 
 import application.interfaces.ExportFile;
 import application.interfaces.ExportStatus;
-import application.interfaces.IConfigSoft;
 import application.interfaces.IDatabaseFactory;
 import application.interfaces.IExportProcess;
 import application.interfaces.TvBSoftware;
@@ -146,7 +145,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		funcNew = e -> {
 			try {
-				IConfigSoft configSoft = getConfigSoft(this, model, true);
+				ConfigDialog configSoft = getConfigSoft(this, model, true);
 				configSoft.setVisible(true);
 			} catch (Exception ex) {
 				General.errorMessage(this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
@@ -155,7 +154,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		funcEdit = e -> {
 			try {
-				IConfigSoft config = getConfigSoft(this, model, false);
+				ConfigDialog config = getConfigSoft(this, model, false);
 				config.setVisible(true);
 			} catch (Exception ex) {
 				General.errorMessage(this, ex, GUIFactory.getTitle(PROFILE_ERROR), null);
@@ -799,7 +798,7 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		myHelpFile = helpFile;
 	}
 
-	protected abstract IConfigSoft getConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNewProfile);
+	protected abstract ConfigDialog getConfigSoft(ProgramDialog dialog, ProjectModel model, boolean isNewProfile);
 
 	protected abstract void refreshScreen();
 }

@@ -14,7 +14,6 @@ import javax.swing.JRadioButton;
 
 import application.interfaces.ExportFile;
 import application.interfaces.IConfigDb;
-import application.interfaces.IConfigSoft;
 import application.preferences.Profiles;
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -42,7 +41,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	private boolean isExport;
 
 	transient Profiles pdaSettings;
-	transient IConfigSoft dialog;
+	transient ConfigDialog dialog;
 	private BuddyExport buddy;
 
 	public static final String STANDARD_CSV = "standardCsv";
@@ -73,7 +72,7 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 	}
 
 	// For imports only
-	public ConfigTextFile(IConfigSoft configSoft, Profiles prefText) {
+	public ConfigTextFile(ConfigDialog configSoft, Profiles prefText) {
 		this(prefText, false, BuddyExport.NONE);
 		dialog = configSoft;
 	}

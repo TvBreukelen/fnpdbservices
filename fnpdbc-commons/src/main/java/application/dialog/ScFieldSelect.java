@@ -56,19 +56,16 @@ public class ScFieldSelect implements PropertyChangeListener {
 	private IDatabaseFactory factory;
 	private JPanel fieldPanel = new JPanel();
 
-	public ScFieldSelect(IDatabaseFactory factory) {
+	public ScFieldSelect(IDatabaseFactory factory, ExportFile exp) {
 		this.factory = factory;
-		init();
-	}
 
-	private void init() {
 		fieldPanel.setLayout(new BoxLayout(fieldPanel, BoxLayout.X_AXIS));
 
 		availableModel = new DefaultListModel<>();
 		lstAvailableFields = new JList<>(availableModel);
 		lstAvailableFields.setToolTipText(GUIFactory.getToolTip("availableFields"));
 
-		userModel = new UserFieldModel(factory.getExportFile());
+		userModel = new UserFieldModel(exp);
 		table = new ETable(userModel, false);
 		table.setDefaultRenderer(Boolean.class, new BooleanRenderer());
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
@@ -265,7 +262,7 @@ public class ScFieldSelect implements PropertyChangeListener {
 			return;
 		}
 
-		userModel.setInputFile(newValue);
+		userModel.setOutputFile(newValue);
 		setTableColumns();
 	}
 }

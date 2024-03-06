@@ -72,15 +72,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 	}
 
 	public DatabaseHelper getDbInHelper() {
-		if (dbInHelper == null) {
-			dbInHelper = getNewDbInHelper(myImportFile);
-		}
-		return dbInHelper;
-	}
-
-	public DatabaseHelper getNewDbInHelper(ExportFile importFile) {
-		myImportFile = importFile;
-		dbInHelper = new DatabaseHelper(General.EMPTY_STRING, importFile);
 		return dbInHelper;
 	}
 
