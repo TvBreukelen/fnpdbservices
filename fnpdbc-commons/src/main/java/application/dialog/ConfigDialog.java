@@ -3,7 +3,9 @@ package application.dialog;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -18,6 +20,8 @@ import application.model.FilterData;
 import application.model.SortData;
 import application.preferences.Databases;
 import application.preferences.Profiles;
+import application.utils.BasisField;
+import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
 import dbengine.utils.DatabaseHelper;
@@ -120,6 +124,19 @@ public abstract class ConfigDialog extends BasicDialog {
 		btSave.setEnabled(isFileValid && isValidProfile);
 		btFilter.setEnabled(isFileValid);
 		btSortOrder.setEnabled(isFileValid);
+	}
+
+	protected void checkDuplicatelFieldNames() throws FNProgException {
+		// Check for duplicate field names
+		if (myExportFile.isSqlDatabase()) {
+			Set<String> fields = new HashSet<>();
+			for (BasisField f : fieldSelect.getFieldList()) {
+				if (fields.contains(f.getFieldHeader())) {
+					throw FNProgException.getException("duplicateField", f.getFieldHeader());
+				}
+				fields.add(f.getFieldHeader());
+			}
+		}
 	}
 
 	protected abstract IExportProcess getExportProcess();

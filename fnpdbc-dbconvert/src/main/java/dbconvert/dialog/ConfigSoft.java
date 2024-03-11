@@ -7,10 +7,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -38,7 +36,6 @@ import application.model.FilterData;
 import application.model.ProfileObject;
 import application.model.ProjectModel;
 import application.model.SortData;
-import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -246,7 +243,8 @@ public class ConfigSoft extends ConfigDialog {
 		lSqlLimit = GUIFactory.getJLabel("sqlLimit");
 		sModel = new SpinnerNumberModel(profiles.getSqlSelectLimit(), 0, 10000, 100);
 		spSqlLimit = new JSpinner(sModel);
-		spSqlLimit.addChangeListener(e -> ckPagination.setEnabled(sModel.getNumber().intValue() > 0));
+		// spSqlLimit.addChangeListener(e ->
+		// ckPagination.setEnabled(sModel.getNumber().intValue() > 0));
 		ckPagination.setEnabled(profiles.getSqlSelectLimit() > 0);
 
 		result.add(lTablesWorkSheets, c.gridCell(0, 0, 0, 0));
@@ -490,19 +488,6 @@ public class ConfigSoft extends ConfigDialog {
 		}
 
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
-	}
-
-	private void checkDuplicatelFieldNames() throws FNProgException {
-		// Check for duplicate field names
-		if (myExportFile.isSqlDatabase()) {
-			Set<String> fields = new HashSet<>();
-			for (BasisField f : fieldSelect.getFieldList()) {
-				if (fields.contains(f.getFieldHeader())) {
-					throw FNProgException.getException("duplicateField", f.getFieldHeader());
-				}
-				fields.add(f.getFieldHeader());
-			}
-		}
 	}
 
 	@Override

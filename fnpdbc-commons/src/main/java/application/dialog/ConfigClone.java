@@ -44,11 +44,15 @@ public class ConfigClone extends BasicDialog {
 		projectName = new JTextField(project.getProfileID());
 		projectName.getDocument().addDocumentListener(funcDocumentChange);
 		exportToFile = new JTextField(helper.getDatabaseName());
-		exportToFile.getDocument().addDocumentListener(funcDocumentChange);
+		exportToFile.setEnabled(false);
 
 		cbExportFile = new JComboBox<>(ExportFile.getExportFilenames(false));
 		cbExportFile.setSelectedItem(project.getProjectID());
-		cbExportFile.addActionListener(arg0 -> activateComponents());
+		cbExportFile.addActionListener(e -> {
+			exportToFile.setText(General.EMPTY_STRING);
+			helper.setDatabase(General.EMPTY_STRING);
+			activateComponents();
+		});
 
 		buildDialog();
 		activateComponents();
@@ -65,7 +69,20 @@ public class ConfigClone extends BasicDialog {
 		JButton btOpen = GUIFactory.getJButton("browseFile", e -> {
 			String projectCopyTo = cbExportFile.getSelectedItem().toString();
 			ExportFile exp = ExportFile.getExportFile(projectCopyTo);
-			General.getSelectedFile(ConfigClone.this, exportToFile, exp, General.EMPTY_STRING, false);
+
+			if (exp.isConnectHost()) {
+				helper.setDatabaseType(exp);
+				HostConfig config = new HostConfig(helper, dialog.getExportProcess());
+				config.setVisible(true);
+				if (config.isSaved()) {
+					exportToFile.setText(helper.getDatabaseName());
+				}
+			} else {
+				General.getSelectedFile(ConfigClone.this, exportToFile, exp, General.EMPTY_STRING, false);
+				if (!exportToFile.getText().isBlank()) {
+					helper = new DatabaseHelper(exportToFile.getText(), exp);
+				}
+			}
 			activateComponents();
 		});
 
@@ -86,22 +103,10 @@ public class ConfigClone extends BasicDialog {
 	@Override
 	protected void save() throws FNProgException {
 		String profileID = projectName.getText().trim();
-		String projectCopyTo = cbExportFile.getSelectedItem().toString();
-		String copyToFile = exportToFile.getText().trim();
-
-		ExportFile exp = ExportFile.getExportFile(projectCopyTo);
-		if (copyToFile.isEmpty()) {
-			copyToFile = General.getDefaultPDADatabase(exp);
-		} else if (!General.isFileExtensionOk(copyToFile, exp)) {
-			copyToFile = General.getBaseName(copyToFile, exp);
-		}
-
-		project.cloneCurrentProfile(projectCopyTo, profileID);
-		helper.setDatabase(copyToFile);
-		helper.setDatabaseType(exp);
+		project.cloneCurrentProfile(helper.getDatabaseTypeAsString(), profileID);
 		project.setToDatabase(project.setDatabase(helper));
 
-		if (exp != ExportFile.TEXTFILE) {
+		if (helper.getDatabaseType() != ExportFile.TEXTFILE) {
 			project.setTextFileFormat(ConfigTextFile.STANDARD_CSV);
 		}
 

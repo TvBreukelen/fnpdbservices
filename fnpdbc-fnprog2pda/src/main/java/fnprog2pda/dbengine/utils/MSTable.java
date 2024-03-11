@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.healthmarketscience.jackcess.Index;
 
@@ -23,7 +24,10 @@ public class MSTable {
 	private Map<String, FieldDefinition> dbFieldsHash;
 	private List<FieldDefinition> dbFields;
 	private Map<String, Object> columnValues = new HashMap<>();
-	private HashSet<String> hIndex = new HashSet<>();
+	private Set<String> hIndex = new HashSet<>();
+	private Set<String> hPrimaryKey = new HashSet<>();
+	private Set<String> hUnique = new HashSet<>();
+	private Set<String> hRequired = new HashSet<>();
 
 	private boolean isMainLine = false;
 	private boolean isVisible = true;
@@ -45,13 +49,35 @@ public class MSTable {
 			if (key.isPrimaryKey()) {
 				setIndex(key.getName());
 				isMultiColumnIndex = key.getColumns().size() > 1;
+				hPrimaryKey.add(key.getName());
 			}
+
+			if (key.isRequired()) {
+				hRequired.add(key.getName());
+			}
+
+			if (key.isUnique()) {
+				hUnique.add(key.getName());
+			}
+
 			hIndex.add(key.getName());
 		}
 	}
 
 	public boolean isIndexedColumn(String col) {
 		return hIndex.contains(col);
+	}
+
+	public boolean isUniqueColumn(String col) {
+		return hUnique.contains(col);
+	}
+
+	public boolean isPrimaryKeyColumn(String col) {
+		return hPrimaryKey.contains(col);
+	}
+
+	public boolean isRequiredColumn(String col) {
+		return hRequired.contains(col);
 	}
 
 	public boolean isMultiColumnIndex() {

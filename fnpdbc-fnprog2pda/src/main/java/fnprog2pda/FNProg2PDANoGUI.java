@@ -6,9 +6,9 @@ import java.beans.PropertyChangeListener;
 import application.interfaces.ExportFile;
 import application.interfaces.TvBSoftware;
 import application.model.ViewerModel;
-import application.preferences.Databases;
 import application.utils.GUIFactory;
 import application.utils.General;
+import dbengine.utils.DatabaseHelper;
 import fnprog2pda.preferences.PrefFNProg;
 import fnprog2pda.software.FNPSoftware;
 import fnprog2pda.software.FNProgramvare;
@@ -20,9 +20,11 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 	private ExportFile databaseType;
 
 	private PrefFNProg pdaSettings = PrefFNProg.getInstance();
-	private Databases dbSettings = Databases.getInstance(TvBSoftware.FNPROG2PDA);
 
 	private FNProgramvare mySoftware;
+	private DatabaseHelper fromDatabase;
+	private DatabaseHelper toDatabase;
+
 	private boolean loadModel;
 
 	public FNProg2PDANoGUI(String... args) {
@@ -57,7 +59,8 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 				}
 
 				pdaSettings.setProfile(myProfileID);
-				pdaSettings.getFromDatabase();
+				fromDatabase = pdaSettings.getFromDatabase();
+				toDatabase = pdaSettings.getToDatabase();
 				runExport();
 			}
 
@@ -107,15 +110,14 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 		System.out.println("--------------------------------------------------------");
 		System.out.println(guiText[0] + myProfileID);
 		System.out.println("--------------------------------------------------------");
-		System.out.println(guiText[1] + dbSettings.getDatabaseName());
-		System.out.println(guiText[2]
-				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseTypeAsString(), dbSettings.getDatabaseVersion())
-				+ "\n");
-		System.out.println(guiText[3] + pdaSettings.getToDatabase());
+		System.out.println(guiText[1] + fromDatabase.getDatabaseName());
+		System.out.println(guiText[2] + General.getSoftwareTypeVersion(fromDatabase.getDatabaseTypeAsString(),
+				fromDatabase.getDatabaseVersion()) + "\n");
+		System.out.println(guiText[3] + toDatabase.getDatabaseName());
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");
 
-		FNPSoftware soft = FNPSoftware.getSoftware(dbSettings.getDatabaseTypeAsString());
+		FNPSoftware soft = FNPSoftware.getSoftware(fromDatabase.getDatabaseTypeAsString());
 		mySoftware = FNProgramvare.getSoftware(soft);
 		if (pdaSettings.getTableName().isEmpty()) {
 			pdaSettings.setTableName(soft.getViews()[0], true);

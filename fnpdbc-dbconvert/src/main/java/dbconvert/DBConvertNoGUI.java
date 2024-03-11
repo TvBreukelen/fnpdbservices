@@ -107,9 +107,8 @@ public class DBConvertNoGUI implements PropertyChangeListener {
 		System.out.println(guiText[0] + myProfileID);
 		System.out.println("--------------------------------------------------------");
 		System.out.println(guiText[1] + fromDatabase.getDatabaseName());
-		System.out.println(guiText[2]
-				+ General.getSoftwareTypeVersion(dbSettings.getDatabaseTypeAsString(), dbSettings.getDatabaseVersion())
-				+ "\n");
+		System.out.println(guiText[2] + General.getSoftwareTypeVersion(fromDatabase.getDatabaseTypeAsString(),
+				fromDatabase.getDatabaseVersion()) + "\n");
 		System.out.println(guiText[3] + toDatabase.getDatabaseName());
 		System.out.println(guiText[4] + pdaSettings.getProjectID());
 		System.out.println("--------------------------------------------------------\n");

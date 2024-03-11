@@ -43,7 +43,6 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.XComparator;
 import dbengine.GeneralDB;
-import dbengine.utils.DatabaseHelper;
 import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.dbengine.utils.MSTable;
 import fnprog2pda.dialog.ExportProcess;
@@ -222,7 +221,7 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	/* Method to connect to the FNProgramvare Access database */
 	public void openFile() throws Exception {
-		dbFactory.connect2DB(new DatabaseHelper(dbSettings));
+		dbFactory.connect2DB(pdaSettings.getFromDatabase());
 		dbFactory.verifyDatabase(dbSettings.getDatabase());
 		dbFactory.loadConfiguration(mySettings.getTableName());
 

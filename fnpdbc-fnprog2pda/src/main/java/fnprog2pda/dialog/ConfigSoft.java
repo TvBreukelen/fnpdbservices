@@ -6,9 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -31,7 +29,6 @@ import application.model.FilterData;
 import application.model.ProfileObject;
 import application.model.ProjectModel;
 import application.model.SortData;
-import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
@@ -58,14 +55,11 @@ public class ConfigSoft extends ConfigDialog {
 	private JButton btMisc;
 	private JTextField fdDatabase;
 
-	transient ActionListener funcSelectDbFile;
+	transient ActionListener funcSelectFile;
 	transient ActionListener funcSelectView;
 
-	private FNPSoftware myImportFile;
-	private String dbCheck = General.EMPTY_STRING;
-
+	private FNPSoftware myImportFile = FNPSoftware.UNDEFINED;
 	transient DatabaseFactory dbFactory = DatabaseFactory.getInstance();
-	private ExportFile myExportFile;
 
 	transient Map<String, MiscellaneousData> miscDataMap = new HashMap<>();
 
@@ -85,19 +79,21 @@ public class ConfigSoft extends ConfigDialog {
 	private void init(IDatabaseFactory factory) {
 		super.init(factory, PrefFNProg.getInstance());
 
-		btMisc = GUIFactory.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
-			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
-			miscDialog.setVisible(true);
-		});
-
 		myExportFile = ExportFile.getExportFile(profiles.getProjectID());
 		myImportFile = isNewProfile ? FNPSoftware.UNDEFINED
 				: FNPSoftware.getSoftware(dbVerified.getDatabaseTypeAsString());
 		myView = isNewProfile ? General.EMPTY_STRING : profiles.getTableName();
 
-		funcSelectDbFile = e -> {
+		btMisc = GUIFactory.createToolBarButton(GUIFactory.getTitle("miscSettings"), "Properties.png", e -> {
+			ConfigMiscellaneous miscDialog = new ConfigMiscellaneous(myImportFile, miscDataMap.get(myView));
+			miscDialog.setVisible(true);
+		});
+
+		funcSelectFile = e -> {
 			General.getSelectedFile(ConfigSoft.this, fdDatabase, ExportFile.ACCESS, General.EMPTY_STRING, true);
-			activateComponents();
+			if (!fdDatabase.getText().isBlank()) {
+				verifyDatabase(false);
+			}
 		};
 
 		funcSelectView = e -> {
@@ -167,11 +163,11 @@ public class ConfigSoft extends ConfigDialog {
 		fdDatabase = GUIFactory.getJTextField("fnpDatabase",
 				isNewProfile ? General.EMPTY_STRING : dbVerified.getDatabaseName());
 		fdDatabase.setEditable(false);
-		JButton bt1 = GUIFactory.getJButton("browseDatabase", funcSelectDbFile);
+		JButton btBrowse = GUIFactory.getJButton("browseDatabase", funcSelectFile);
 
 		gPanel.add(fdView, c.gridCell(0, 0, 0, 0));
 		gPanel.add(fdDatabase, c.gridCell(1, 0, 2, 0));
-		gPanel.add(bt1, c.gridCell(2, 0, 0, 0));
+		gPanel.add(btBrowse, c.gridCell(2, 0, 0, 0));
 		gPanel.setBorder(BorderFactory.createTitledBorder(GUIFactory.getText("exportFrom")));
 
 		if (isNewProfile) {
@@ -260,22 +256,9 @@ public class ConfigSoft extends ConfigDialog {
 		dialog.updateProfile(isNewProfile ? Action.ADD : Action.EDIT);
 	}
 
-	private void checkDuplicatelFieldNames() throws FNProgException {
-		// Check for duplicate field names
-		if (myExportFile.isSqlDatabase()) {
-			Set<String> fields = new HashSet<>();
-			for (BasisField f : fieldSelect.getFieldList()) {
-				if (fields.contains(f.getFieldHeader())) {
-					throw FNProgException.getException("duplicateField", f.getFieldHeader());
-				}
-				fields.add(f.getFieldHeader());
-			}
-		}
-	}
-
 	private void verifyDatabase(boolean isFirstRun) {
 		String db = isNewProfile ? General.EMPTY_STRING : dbVerified.getDatabaseName();
-		dbCheck = isFirstRun ? db : fdDatabase.getText().trim();
+		String dbCheck = isFirstRun ? db : fdDatabase.getText().trim();
 		if (dbCheck.isEmpty()) {
 			return;
 		}
@@ -319,6 +302,7 @@ public class ConfigSoft extends ConfigDialog {
 		myImportFile = dbFactory.getDatabaseType();
 		fdView.removeActionListener(funcSelectView);
 		fdView.setModel(new DefaultComboBoxModel<>(myImportFile.getViews()));
+		fdView.addActionListener(funcSelectView);
 	}
 
 	private void reloadFieldSelect(String view) throws Exception {
@@ -334,26 +318,27 @@ public class ConfigSoft extends ConfigDialog {
 	public void activateComponents() {
 		super.activateComponents();
 
-		btMisc.setEnabled(isFileValid && myImportFile.isUseMisc(myView));
-		fdView.setEnabled(isFileValid);
+		// Wait till the dialog has been completely created
+		if (tabPane != null && tabPane.getTabCount() > 0) {
+			btMisc.setEnabled(isFileValid && myImportFile.isUseMisc(myView));
+			fdView.setEnabled(isFileValid);
 
-		if (btFilter.isEnabled()) {
-			FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
-			data.setTvBSoftware(TvBSoftware.FNPROG2PDA);
-			data.setProfileID(profileID);
-		}
+			if (btFilter.isEnabled()) {
+				FilterData data = filterDataMap.computeIfAbsent(myView, e -> new FilterData());
+				data.setTvBSoftware(TvBSoftware.FNPROG2PDA);
+				data.setProfileID(profileID);
+			}
 
-		if (btSortOrder.isEnabled()) {
-			sortDataMap.putIfAbsent(myView, new SortData());
-		}
+			if (btSortOrder.isEnabled()) {
+				sortDataMap.putIfAbsent(myView, new SortData());
+			}
 
-		if (btMisc.isEnabled()) {
-			MiscellaneousData data = miscDataMap.computeIfAbsent(myView, e -> new MiscellaneousData());
-			data.setTableName(myView);
-			data.setProfileID(profileID);
-		}
+			if (btMisc.isEnabled()) {
+				MiscellaneousData data = miscDataMap.computeIfAbsent(myView, e -> new MiscellaneousData());
+				data.setTableName(myView);
+				data.setProfileID(profileID);
+			}
 
-		if (tabPane != null) {
 			tabPane.setEnabledAt(1, isFileValid);
 		}
 	}

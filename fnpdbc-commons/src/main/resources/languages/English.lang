@@ -58,6 +58,7 @@ conversions.text=Conversions
 createBackup.text=Create Backup
 createBackup.tooltip=Backup already existing 'Export To' file
 createdFile.mesg=<html>File %0<br>has been created or updated.<br><br><table><tr><td>Records read</td><td>%1</td></tr><tr><td>Records written</td><td>%2</td></tr><tr><td>Records skipped</td><td>%3</td></tr></table></html>
+createdFile.plainmesg=File %0 has been created or updated.\nRecords read: %1, Records written: %2, Records skipped: %3
 createdFiles.mesg=Created Export %0
 createdWith.tooltip=Created with
 criteria.tooltip=Criteria
@@ -334,7 +335,7 @@ noMatchFieldsDatabase.mesg=The number of fields to be exported (%0) doesn't matc
 noMatchFieldsDBHeader.mesg=The number of records in file '%0' exceeds the max. total number of records of the export file. The internal structure of the file could be damaged. Current Record = %1 Total Records = %2.;
 noMatchFieldLength.mesg=Field '%0' in the export file has a smaller size (%1) than the data to be imported (%2).   
 noMatchFieldName.mesg=Field number %0. '%1' in the export file has a different name than field '%2'.   
-noMatchFieldType.mesg=Field '%0' in the exportz file, is of a different type than the field to be imported.   
+noMatchFieldType.mesg=Field '%0' in the export file, is of a different type than the field to be imported.   
 noOfRecords.title=No. of Records:
 noRecords.mesg=File '%0' doesn't contain any records.
 noRecordsFound.mesg=There were no '%0' records found to export.

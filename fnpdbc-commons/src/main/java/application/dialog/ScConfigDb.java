@@ -83,7 +83,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 	transient ActionListener funcSelectFile;
 	transient ActionListener funcSelectConvert;
-	transient ActionListener funcSelectFileType;
 	transient ActionListener funcShowSchema;
 
 	private ExportFile myExportFile;
@@ -112,6 +111,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		init();
 		buildDialog();
+		fileTypeChanged(false);
 	}
 
 	private void init() {
@@ -158,8 +158,10 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			scFieldSelect.getFieldList().forEach(field -> fields.add(new FieldDefinition(field)));
 			General.showMessage(dialog, db.buildTableString(dbName, fields), schema, false);
 		};
+	}
 
-		funcSelectFileType = e -> {
+	private void fileTypeChanged(boolean isAddNew) {
+		if (isAddNew) {
 			ExportFile software = ExportFile.getExportFile(bDatabase.getSelectedItem().toString());
 			support.firePropertyChange("exportfile", myExportFile, software);
 
@@ -169,57 +171,56 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			// Reinitialise DatabaseHelper
 			helper = new DatabaseHelper(helper.getDatabase(), myExportFile);
 			helper.setDatabase(General.EMPTY_STRING);
-			dbDatabase.setText(profiles.getDatabaseName());
+		}
 
-			setRadioButtonText();
+		dbDatabase.setText(profiles.getDatabaseName());
+		setRadioButtonText();
 
-			// Restore Export Data options
-			int index = profiles.isAppendRecords() ? 2 : 0;
-			if (myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE) {
-				index = profiles.getExportOption();
-			}
-			rExists[index].setSelected(true);
+		// Restore Export Data options
+		int index = profiles.isAppendRecords() ? 2 : 0;
+		if (myExportFile.isSqlDatabase() || myExportFile == ExportFile.HANDBASE) {
+			index = profiles.getExportOption();
+		}
+		rExists[index].setSelected(true);
 
-			// Restore Conversion options
-			cConvertImages
-					.setSelected(profiles.isExportImages() && profiles.getTvBSoftware() == TvBSoftware.FNPROG2PDA);
-			rImages[profiles.getImageOption()].setSelected(true);
+		// Restore Conversion options
+		cConvertImages.setSelected(profiles.isExportImages() && profiles.getTvBSoftware() == TvBSoftware.FNPROG2PDA);
+		rImages[profiles.getImageOption()].setSelected(true);
 
-			dbConfig = null;
-			switch (myExportFile) {
-			case HANDBASE:
-				dbConfig = new ConfigHanDBase(profiles);
-				break;
-			case CALC:
-				dbConfig = new ConfigCalc(profiles);
-				break;
-			case EXCEL:
-				dbConfig = new ConfigExcel(profiles);
-				break;
-			case TEXTFILE:
-				dbConfig = new ConfigTextFile(profiles, true, dialog.getBuddyExport());
-				break;
-			case DBASE:
-				dbConfig = new XBaseCharsets(profiles);
-				break;
-			default:
-				break;
-			}
+		dbConfig = null;
+		switch (myExportFile) {
+		case HANDBASE:
+			dbConfig = new ConfigHanDBase(profiles);
+			break;
+		case CALC:
+			dbConfig = new ConfigCalc(profiles);
+			break;
+		case EXCEL:
+			dbConfig = new ConfigExcel(profiles);
+			break;
+		case TEXTFILE:
+			dbConfig = new ConfigTextFile(profiles, true, dialog.getBuddyExport());
+			break;
+		case DBASE:
+			dbConfig = new XBaseCharsets(profiles);
+			break;
+		default:
+			break;
+		}
 
-			pOtherOptions.removeAll();
-			if (dbConfig != null) {
-				pOtherOptions.add((JComponent) dbConfig);
-			} else if (myExportFile.isSqlDatabase()) {
-				pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict));
-				rOnConflict[profiles.getOnConflict()].setSelected(true);
-				rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(myExportFile == ExportFile.SQLITE);
-				rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(myExportFile == ExportFile.SQLITE);
-			}
+		pOtherOptions.removeAll();
+		if (dbConfig != null) {
+			pOtherOptions.add((JComponent) dbConfig);
+		} else if (myExportFile.isSqlDatabase()) {
+			pOtherOptions.add(General.addVerticalButtons(GUIFactory.getTitle("onConflict"), rOnConflict));
+			rOnConflict[profiles.getOnConflict()].setSelected(true);
+			rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(myExportFile == ExportFile.SQLITE);
+			rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(myExportFile == ExportFile.SQLITE);
+		}
 
-			reloadFiles();
-			activateComponents();
-			dialog.pack();
-		};
+		reloadFiles();
+		activateComponents();
+		dialog.pack();
 	}
 
 	private void setRadioButtonText() {
@@ -254,8 +255,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	private void buildDialog() {
 		setLayout(new GridBagLayout());
 		bDatabase = new JComboBox<>(ExportFile.getExportFilenames(false));
+		bDatabase.setSelectedItem(myExportFile.getName());
 		bDatabase.setToolTipText(GUIFactory.getToolTip("pcToFile"));
-		bDatabase.addActionListener(funcSelectFileType);
+		bDatabase.addActionListener(e -> fileTypeChanged(true));
 		cbDatabases = new JComboBox<>();
 
 		Dimension dim = bDatabase.getPreferredSize();
@@ -344,7 +346,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		add(pBottomContainer, c.gridCell(1, 4, 0, 0));
 
 		setBorder(BorderFactory.createTitledBorder(GUIFactory.getTitle("exportTo")));
-		bDatabase.setSelectedItem(myExportFile.getName());
 	}
 
 	private void createRadioButtons(JRadioButton[] buttons, ActionListener action, String... ids) {

@@ -52,7 +52,7 @@ public class ConfigFNProg extends ProgramDialog {
 			}
 
 			DatabaseHelper helper = pdaSettings.getFromDatabase();
-			myFnSoftware = FNPSoftware.getSoftware(helper.getDatabase());
+			myFnSoftware = FNPSoftware.getSoftware(helper.getDatabaseTypeAsString());
 			lSoftwareID.setText(helper.getDatabaseType() + General.SPACE + helper.getDatabaseVersion() + " / "
 					+ pdaSettings.getTableName());
 		} else {

@@ -58,6 +58,7 @@ conversions.text=Conversies
 createBackup.text=Creëer Backup
 createBackup.tooltip=Backup reeds bestaande 'Export naar' bestand
 createdFile.mesg=<html>Bestand %0<br>is aangemaakt of bijgewerkt.<br><br><table><tr><td>Records gelezen</td><td>%1</td></tr><tr><td>Records geschreven</td><td>%2</td></tr><tr><td>Records overgeslagen</td><td>%3</td></tr></table></html>
+createdFile.plainmesg=Bestand %0 is aangemaakt of bijgewerkt.\nRecords gelezen: %1, Records geschreven: %2, Records overgeslagen: %3
 createdFiles.mesg=Creëerde Export %0
 createdWith.tooltip=Creëert met
 criteria.tooltip=Criteria

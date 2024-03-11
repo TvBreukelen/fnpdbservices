@@ -110,7 +110,7 @@ public final class General {
 
 	private static final Map<String, ImageIcon> ICON_MAP = new HashMap<>();
 
-	private static boolean isQuietMode = false;
+	public static boolean isQuietMode = false;
 
 	public static JPanel addVerticalButtons(String title, AbstractButton... buttons) {
 		final int max = buttons.length;

@@ -263,7 +263,14 @@ public final class GUIFactory {
 	}
 
 	public static String getMessage(String resourceID, String... parms) {
-		StringBuilder result = new StringBuilder(pScreens.getProperty(resourceID + ".mesg", resourceID));
+		String mesg = "";
+		if (General.isQuietMode && pScreens.containsKey(resourceID + ".plainmesg")) {
+			mesg = pScreens.getProperty(resourceID + ".plainmesg");
+		} else {
+			mesg = pScreens.getProperty(resourceID + ".mesg");
+		}
+
+		StringBuilder result = new StringBuilder(mesg);
 		int parmLength = parms.length;
 
 		for (int i = 0; i < parmLength; i++) {

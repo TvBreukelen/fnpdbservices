@@ -58,6 +58,7 @@ conversions.text=Konvertierungen
 createBackup.text=Erzeuge backup
 createBackup.tooltip=Backup bereits bestehende 'Export nach' Datei
 createdFile.mesg=<html>Datei %0<br>wurde erstellt oder aktualisiert.<br><br><table><tr><td>Gelesene Datensätze</td><td>%1</td></tr><tr><td>Datensätze geschrieben</td><td>%2</td></tr><tr><td>Datensätze übersprungen</td><td>%3</td></tr></table></html>
+createdFile.plainmesg=Datei %0 wurde erstellt oder aktualisiert.\nGelesene Datensätze: %1, Datensätze geschrieben: %2, Datensätze übersprungen: %3
 createdFiles.mesg=Erstellte Export %0
 createdWith.tooltip=Erstellt mit
 criteria.tooltip=Kriteria

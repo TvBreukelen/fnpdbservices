@@ -105,7 +105,13 @@ public class MSAccess extends GeneralDB implements IConvert {
 				for (Column col : table.getColumns()) {
 					String field = col.getName();
 					FieldDefinition fieldDef = new FieldDefinition(field, field, FieldTypes.TEXT);
+
 					fieldDef.setTable(s);
+					fieldDef.setSize(col.getLength());
+					fieldDef.setAutoIncrement(col.isAutoNumber());
+					fieldDef.setNotNullable(msTable.isRequiredColumn(field));
+					fieldDef.setPrimaryKey(msTable.isPrimaryKeyColumn(field));
+					fieldDef.setUnique(msTable.isUniqueColumn(field));
 
 					switch (col.getType()) {
 					case BINARY, GUID, OLE, UNKNOWN_0D, UNKNOWN_11:
@@ -282,7 +288,7 @@ public class MSAccess extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		return hTables.get(myPref.getTableName()).getDbFields();
+		return getTableModelFields(myPref.getTableName());
 	}
 
 	public List<FieldDefinition> getTableModelFields(String table) {
