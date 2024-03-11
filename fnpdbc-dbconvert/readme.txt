@@ -4,6 +4,8 @@ Release Notes
 Version 8.2
 -----------
 Added append option to Calc and Excel export.
+Added export to PostGreSQL databases.
+Removed export to Palm-OS databases (JFile, List, MobileDB and PilotDB).
 Viewer can now display images and items are shown with the correct row height.
 
 

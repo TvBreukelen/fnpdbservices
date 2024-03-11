@@ -221,8 +221,7 @@ public class CATraxx extends FNProgramvare {
 	}
 
 	@Override
-	public void setCategories() throws Exception {
-		super.setCategories();
+	public void getRoles() throws Exception {
 		if (useRoles) {
 			switch ((int) Math.floor(Double.parseDouble(mySoftwareVersion))) {
 			case 5:

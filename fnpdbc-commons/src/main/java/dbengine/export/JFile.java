@@ -1,10 +1,6 @@
 package dbengine.export;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,87 +23,6 @@ public class JFile extends PalmDB {
 
 	public JFile(Profiles pref) {
 		super(pref);
-	}
-
-	@Override
-	public void createDbHeader() throws Exception {
-		int totalRecords = mySoft.getTotalRecords();
-		final int MAX_FIELDS = myExportFile.getMaxFields();
-
-		// Check whether we are in append mode
-		if (useAppend) {
-			appendPilotDB(totalRecords, dbInfo2Write);
-			return;
-		}
-
-		numFields = dbInfo2Write.size();
-		final byte[] filler = new byte[21];
-		int[] fieldTypes = new int[MAX_FIELDS];
-		Arrays.fill(fieldTypes, 1); // Set Default Type to Normal Text Field
-
-		// Create Pilot Record Database Format
-		createPalmDB(totalRecords);
-
-		// ApplicationInfo
-		// field names (1)
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-			boolean isNoTextExport = !field.isOutputAsText();
-
-			switch (field.getFieldType()) {
-			case BOOLEAN:
-				if (isNoTextExport) {
-					fieldTypes[i] = 2;
-				}
-				break;
-			case DATE:
-				if (isNoTextExport) {
-					fieldTypes[i] = 4;
-				}
-				break;
-			case FLOAT:
-				fieldTypes[i] = 16;
-				break;
-			case NUMBER:
-				fieldTypes[i] = 8;
-				break;
-			case TIME:
-				if (isNoTextExport) {
-					fieldTypes[i] = 32;
-				}
-				break;
-			default:
-				break;
-			}
-			pdbRaf.write(General.getNullTerminatedString(field.getFieldHeader(), null, 21));
-		}
-
-		// field names (2)
-		for (int i = numFields; i < MAX_FIELDS; i++) {
-			pdbRaf.write(filler);
-		}
-
-		// Field types
-		for (int i = 0; i < MAX_FIELDS; ++i) {
-			pdbRaf.writeShort(fieldTypes[i]);
-		}
-
-		// Number of fields
-		pdbRaf.writeShort(numFields);
-
-		// Another ID?
-		pdbRaf.writeShort(576);
-
-		// Field length
-		for (int i = -1; i < MAX_FIELDS; ++i) {
-			pdbRaf.writeShort(80);
-		}
-		// Padding
-		setPadding();
-	}
-
-	protected void setPadding() throws IOException {
-		pdbRaf.write(new byte[450]);
 	}
 
 	@Override
@@ -168,45 +83,6 @@ public class JFile extends PalmDB {
 		int[] recordID = setPointer2NextRecord();
 		skipBytes(numFields * 2);
 		return recordID[2] - (recordID[0] + numFields * 2);
-	}
-
-	@Override
-	public int processData(Map<String, Object> dbRecord) throws Exception {
-		numFields = dbInfo2Write.size();
-		StringBuilder bf = new StringBuilder();
-
-		// Read the user defined list of DB fields
-		for (FieldDefinition field : dbInfo2Write) {
-			Object dbValue = dbRecord.get(field.getFieldAlias());
-			if (dbValue == null) {
-				dbValue = General.EMPTY_STRING;
-			}
-
-			if (!dbValue.equals(General.EMPTY_STRING)) {
-				switch (field.getFieldType()) {
-				case DATE:
-					dbValue = General.convertDate((LocalDate) dbValue,
-							field.isOutputAsText() ? General.getSimpleDateFormat() : General.sdInternalDate);
-					break;
-				case TIME:
-					dbValue = General.convertTime((LocalTime) dbValue,
-							field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
-					break;
-				default:
-					dbValue = convertDataFields(dbValue, field);
-				}
-			}
-
-			String dbField = dbValue.toString();
-			bf.append(dbField);
-			bf.append('\0');
-			pdbDas.writeShort(dbField.length() + 1);
-		}
-
-		pdbDas.write(General.convertStringToByteArray(bf.toString(), null));
-		writeRecord(pdbBaos.toByteArray(), 0);
-		pdbBaos.reset();
-		return 1;
 	}
 
 	@Override

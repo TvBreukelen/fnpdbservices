@@ -42,7 +42,7 @@ public abstract class GeneralDB {
 	protected ExportFile myExportFile;
 	protected ExportFile myImportFile;
 
-	private List<FieldDefinition> myDBDefinition;
+	private List<FieldDefinition> tableModelFields;
 	private boolean createBackup;
 
 	protected int totalRecords = 0;
@@ -68,7 +68,7 @@ public abstract class GeneralDB {
 	public void setSoftware(BasicSoft pSoft) {
 		dbInfo2Write = pSoft.getDbInfoToWrite();
 		mySoft = pSoft;
-		myDBDefinition = null;
+		tableModelFields = null;
 
 		myImportFile = pSoft.getImportFile();
 		myExportFile = pSoft.getExportFile();
@@ -301,14 +301,14 @@ public abstract class GeneralDB {
 	}
 
 	public List<FieldDefinition> getTableModelFields() {
-		if (myDBDefinition == null) {
+		if (tableModelFields == null) {
 			int index = 0;
-			myDBDefinition = new ArrayList<>();
+			tableModelFields = new ArrayList<>();
 			for (String name : dbFieldNames) {
-				myDBDefinition.add(new FieldDefinition(name, name, dbFieldTypes.get(index++)));
+				tableModelFields.add(new FieldDefinition(name, name, dbFieldTypes.get(index++)));
 			}
 		}
-		return myDBDefinition;
+		return tableModelFields;
 	}
 
 	public String getFileOpenWarning() {

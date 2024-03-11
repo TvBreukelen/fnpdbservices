@@ -68,8 +68,12 @@ public enum ExportFile {
 		if (!isImport) {
 			result.remove(ACCESS.name);
 			result.remove(FIREBIRD.name);
+			result.remove(JFILE.name);
+			result.remove(LIST.name);
 			result.remove(MARIADB.name);
+			result.remove(MOBILEDB.name);
 			result.remove(PARADOX.name);
+			result.remove(PILOTDB.name);
 			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
 			result.remove(ICAL.name);
@@ -113,7 +117,7 @@ public enum ExportFile {
 	}
 
 	public boolean isImageExport() {
-		return this == HANDBASE || this == PARADOX || this == ACCESS;
+		return this == HANDBASE || this == PARADOX || this == ACCESS || this == POSTGRESQL;
 	}
 
 	public boolean isAppend() {

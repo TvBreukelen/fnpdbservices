@@ -1,10 +1,7 @@
 package dbengine.export;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,118 +21,10 @@ public class MobileDB extends PalmDB {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	private static final byte[] RECORD_HEADER = new byte[] { -1, -1, -1, 1, -1, 0 };
-	private static final byte[] RECORD_FOOTER = new byte[] { 0, -1 };
-
 	private int numFields;
 
 	public MobileDB(Profiles pref) {
 		super(pref);
-	}
-
-	@Override
-	public void createDbHeader() throws Exception {
-		int totalRecords = mySoft.getTotalRecords();
-
-		// Check whether we are in append mode
-		if (useAppend) {
-			appendPilotDB(totalRecords, dbInfo2Write);
-			return;
-		}
-
-		numFields = dbInfo2Write.size();
-		String[] fieldTypes = new String[myExportFile.getMaxFields()];
-
-		Arrays.fill(fieldTypes, "T"); // Set Default Field Type to Normal Text
-
-		// Create Pilot Record Database Format
-		createPalmDB(totalRecords + 4);
-
-		// ApplicationInfo
-		pdbRaf.writeShort(0); // unsigned int renamedCategories
-		pdbRaf.write(General.getNullTerminatedString("Unfiled", null, 16));
-		pdbRaf.write(General.getNullTerminatedString("FieldLabels", null, 16));
-		pdbRaf.write(General.getNullTerminatedString("DataRecords", null, 16));
-		pdbRaf.write(General.getNullTerminatedString("DataRecordsFout", null, 16));
-		pdbRaf.write(General.getNullTerminatedString("Preferences", null, 16));
-		pdbRaf.write(General.getNullTerminatedString("DataType", null, 16));
-		pdbRaf.write(new byte[160]); // padding
-
-		// byte[16] categoryUniqIDs
-		for (int i = 0; i < 16; ++i) {
-			pdbRaf.writeByte(i);
-		}
-
-		pdbRaf.writeByte(15); // byte lastUniqID?
-		pdbRaf.writeByte(0); // byte reserved1
-		pdbRaf.writeShort(0); // short reserved2
-		pdbRaf.write(new byte[149]); // padding
-
-		// field names
-		pdbDas.write(RECORD_HEADER);
-
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-			pdbDas.writeShort(i);
-			pdbDas.writeBytes(field.getFieldHeader().isEmpty() ? field.getFieldAlias() : field.getFieldHeader());
-			boolean isNoTextExport = !field.isOutputAsText();
-
-			switch (field.getFieldType()) {
-			case BOOLEAN:
-				if (isNoTextExport) {
-					fieldTypes[i] = "B";
-				}
-				break;
-			case DATE:
-				if (isNoTextExport) {
-					fieldTypes[i] = "D";
-				}
-				break;
-			case TIME:
-				if (isNoTextExport) {
-					fieldTypes[i] = "d";
-				}
-				break;
-			default:
-				break;
-			}
-		}
-
-		pdbDas.write(RECORD_FOOTER);
-		writeRecord(pdbBaos.toByteArray(), 1 << 24); // Record 1
-		pdbBaos.reset();
-
-		// prefs (4)
-		pdbDas.write(RECORD_HEADER);
-		for (int i = 0; i < myExportFile.getMaxFields(); ++i) {
-			pdbDas.writeShort(i);
-		}
-
-		pdbDas.write(RECORD_FOOTER);
-		writeRecord(pdbBaos.toByteArray(), 4 << 24); // Record 2
-		pdbBaos.reset();
-
-		// field type (5)
-		pdbDas.write(RECORD_HEADER);
-		for (int i = 0; i < myExportFile.getMaxFields(); ++i) {
-			pdbDas.writeShort(i);
-			pdbDas.writeBytes(fieldTypes[i]);
-		}
-
-		pdbDas.write(RECORD_FOOTER);
-		writeRecord(pdbBaos.toByteArray(), 5 << 24); // Record 3
-		pdbBaos.reset();
-
-		// field widths (6)
-		pdbDas.write(RECORD_HEADER);
-		for (int i = 0; i < 19; ++i) {
-			pdbDas.writeShort(i);
-			pdbDas.writeBytes("80");
-		}
-
-		pdbDas.write(RECORD_FOOTER);
-		writeRecord(pdbBaos.toByteArray(), 6 << 24); // Record 4
-		pdbBaos.reset();
 	}
 
 	@Override
@@ -177,57 +66,6 @@ public class MobileDB extends PalmDB {
 
 		int palmDate = Integer.parseInt(pDate.trim());
 		return LocalDate.of(1904, 1, 1).plusDays(palmDate);
-	}
-
-	@Override
-	public int processData(Map<String, Object> dbRecord) throws Exception {
-		numFields = dbInfo2Write.size();
-
-		// Read the user defined list of DB fields
-		pdbDas.write(RECORD_HEADER);
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-			Object dbValue = dbRecord.get(field.getFieldAlias());
-			if (dbValue == null) {
-				dbValue = General.EMPTY_STRING;
-			}
-
-			if (!dbValue.equals(General.EMPTY_STRING)) {
-				switch (field.getFieldType()) {
-				case DATE:
-					dbValue = field.isOutputAsText() ? convertDate(dbValue, field) : convertDate((LocalDate) dbValue);
-					break;
-				case TIME:
-					dbValue = General.convertTime((LocalTime) dbValue,
-							field.isOutputAsText() ? General.getSimpleTimeFormat() : General.sdInternalTime);
-					break;
-				default:
-					dbValue = convertDataFields(dbValue, field);
-				}
-			}
-			pdbDas.writeShort(i);
-			pdbDas.write(General.convertStringToByteArray(dbValue.toString(), null));
-		}
-
-		pdbDas.write(RECORD_FOOTER);
-		// Write to Export File
-		writeRecord(pdbBaos.toByteArray(), 2 << 24);
-		pdbBaos.reset();
-		return 1;
-	}
-
-	/**
-	 * Converts a date stored in the database table a MobileDB database date
-	 */
-	protected Object convertDate(LocalDate pDate) {
-		if (pDate == null) {
-			return General.EMPTY_STRING;
-		}
-
-		// Converts a LocalDate to a MobileDB date (no. of days since 01.01.1904)
-		LocalDate palmDate = LocalDate.of(1904, 1, 1);
-
-		return String.valueOf(ChronoUnit.DAYS.between(palmDate, pDate));
 	}
 
 	@Override

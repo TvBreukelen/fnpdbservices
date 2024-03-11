@@ -5,7 +5,6 @@ import application.utils.General;
 
 public class SortData {
 
-	private String categoryField = General.EMPTY_STRING;
 	private String remainingField = General.EMPTY_STRING;
 	private String[] sortField = new String[] { General.EMPTY_STRING, General.EMPTY_STRING, General.EMPTY_STRING,
 			General.EMPTY_STRING };
@@ -15,21 +14,12 @@ public class SortData {
 			General.EMPTY_STRING };
 
 	public void loadProfile(Profiles profile) {
-		categoryField = profile.getCategoryField();
 		remainingField = profile.getRemainingField();
 		for (int i = 0; i < 4; i++) {
 			sortField[i] = profile.getSortField(i);
 			groupField[i] = profile.getGroupField(i);
 			groupingField[i] = profile.getGroupingField(i);
 		}
-	}
-
-	public String getCategoryField() {
-		return categoryField;
-	}
-
-	public void setCategoryField(String categoryField) {
-		this.categoryField = categoryField;
 	}
 
 	public String getSortField(int index) {
@@ -65,7 +55,6 @@ public class SortData {
 	}
 
 	public void saveProfile(Profiles profile) {
-		profile.setCategoryField(categoryField);
 		profile.setRemainingField(remainingField);
 		for (int i = 0; i < 4; i++) {
 			profile.setSortField(i, sortField[i]);

@@ -116,7 +116,6 @@ public class ConfigSoft extends ConfigDialog {
 
 		fdView = new JComboBox<>(myImportFile.getViews());
 		fdView.setPreferredSize(configDb.getComboBoxSize());
-		profiles.setNewProfile(isNewProfile);
 
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : profiles.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);

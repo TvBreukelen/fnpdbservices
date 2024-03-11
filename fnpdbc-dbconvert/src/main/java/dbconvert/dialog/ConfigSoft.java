@@ -127,7 +127,6 @@ public class ConfigSoft extends ConfigDialog {
 		profile = GUIFactory.getJTextField(FUNC_NEW, isNewProfile ? General.EMPTY_STRING : profiles.getProfileID());
 		profile.getDocument().addDocumentListener(funcDocumentChange);
 		profile.setPreferredSize(new Dimension(100, 30));
-		profiles.setNewProfile(isNewProfile);
 
 		buildDialog();
 		verifyDatabase();
@@ -294,9 +293,8 @@ public class ConfigSoft extends ConfigDialog {
 
 		if (reloadFiles()) {
 			verifyDatabase();
-		} else {
-			activateComponents();
 		}
+		activateComponents();
 	}
 
 	private boolean reloadFiles() {
@@ -385,7 +383,9 @@ public class ConfigSoft extends ConfigDialog {
 				General.errorMessage(this, e, CONFIG_ERROR, null);
 			}
 		}
+
 		activateComponents();
+		dialog.activateComponents();
 	}
 
 	private void setTablesOrWorksheets() {

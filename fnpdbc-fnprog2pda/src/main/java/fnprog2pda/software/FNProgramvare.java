@@ -63,8 +63,6 @@ public abstract class FNProgramvare extends BasicSoft {
 	protected String myTable;
 	protected String myTableID;
 
-	private boolean useCategory;
-
 	private boolean isSkipFirstFilter;
 	private boolean isSkipLastFilter;
 	private boolean isNewModified;
@@ -111,7 +109,6 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		// Initialize "Global" variables
 		useRoles = mySettings.isUseRoles();
-		useCategory = !mySettings.getCategoryField().isEmpty();
 		useContentsPerson = mySettings.isUseContentsPerson();
 		useContentsOrigTitle = mySettings.isUseContentsOrigTitle();
 		useContentsItemTitle = mySettings.isUseContentsItemTitle();
@@ -274,37 +271,6 @@ public abstract class FNProgramvare extends BasicSoft {
 		}
 
 		return isInputFileOpen;
-	}
-
-	public void setCategories() throws Exception {
-		if (useRoles && !msAccess.isIndexedSupported()) {
-			useRoles = false;
-		}
-
-		final int MAX_CATEGORIES = LISTDB_MAX_CATEGORIES + 1;
-		myCategories.clear();
-		myCategories.add("Unfiled");
-
-		if (!useCategory) {
-			return;
-		}
-
-		List<Object> fieldData = dbFactory.getFilterFieldValues(mySettings.getCategoryField());
-		final int MAX_RECORDS = fieldData.size();
-
-		int count = 1;
-		for (int i = 0; i < MAX_RECORDS && count < MAX_CATEGORIES; i++, count++) {
-			String category = fieldData.get(i).toString();
-			if (StringUtils.isEmpty(category)) {
-				continue;
-			}
-
-			if (category.length() > LISTDB_MAX_CATEGORY_LENGTH) {
-				category = category.substring(0, LISTDB_MAX_CATEGORY_LENGTH);
-			}
-
-			myCategories.add(category);
-		}
 	}
 
 	@Override
@@ -1058,4 +1024,8 @@ public abstract class FNProgramvare extends BasicSoft {
 
 	protected abstract void setDatabaseData(Map<String, Object> dbDataRecord,
 			Map<String, List<Map<String, Object>>> hashTable) throws Exception;
+
+	public void getRoles() throws Exception {
+		// Nothing to do on this level
+	}
 }

@@ -112,7 +112,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		init();
 		buildDialog();
-		setVisible(true);
 	}
 
 	private void init() {
@@ -215,7 +214,6 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				rOnConflict[profiles.getOnConflict()].setSelected(true);
 				rOnConflict[Profiles.ON_CONFLICT_ABORT].setVisible(myExportFile == ExportFile.SQLITE);
 				rOnConflict[Profiles.ON_CONFLICT_FAIL].setVisible(myExportFile == ExportFile.SQLITE);
-				rOnConflict[Profiles.ON_CONFLICT_ROLLBACK].setVisible(myExportFile == ExportFile.SQLITE);
 			}
 
 			reloadFiles();

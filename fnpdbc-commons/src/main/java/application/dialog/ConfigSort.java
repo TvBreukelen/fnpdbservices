@@ -34,7 +34,6 @@ public class ConfigSort extends BasicDialog {
 	 */
 	private static final long serialVersionUID = -1957596896864461526L;
 
-	private JComboBox<String> jcCategoryField;
 	private JComboBox<String>[] jcSortField;
 	private JTextField[] txGroupingField;
 	private JTextField txRemainField;
@@ -78,9 +77,6 @@ public class ConfigSort extends BasicDialog {
 		btApply = GUIFactory.getJButton("apply", funcSave);
 
 		switch (myExportFile) {
-		case LIST:
-			setHelpFile("sort_list");
-			break;
 		case JSON:
 			setHelpFile("sort_json");
 			break;
@@ -125,15 +121,9 @@ public class ConfigSort extends BasicDialog {
 
 		String guiText = "sortField";
 		isGroupBy = myExportFile.isSpecialFieldSort();
-		boolean hasCategories = myExportFile == ExportFile.LIST;
 		hasGrouping = isGroupBy;
 
 		switch (myExportFile) {
-		case LIST:
-			guiText = "sortFieldList";
-			isGroupBy = false;
-			hasGrouping = false;
-			break;
 		case XML:
 			guiText = "sortFieldXml";
 			hasGrouping = false;
@@ -145,18 +135,11 @@ public class ConfigSort extends BasicDialog {
 			break;
 		}
 
-		if (hasCategories) {
-			jcCategoryField = new JComboBox<>(dbSortFields);
-			jcCategoryField.setSelectedItem(findFilterField(pdaSettings.getCategoryField()));
-			result.add(GUIFactory.getJLabel("category"), c.gridCell(1, index, 0, 0));
-			result.add(jcCategoryField, c.gridCell(2, index++, 2, 0));
-		} else {
-			result.add(GUIFactory.getJLabel("sortby", boldFont), c.gridCell(2, index, 2, 0));
-			if (isGroupBy) {
-				result.add(GUIFactory.getJLabel("groupby", boldFont), c.gridmultipleCell(3, index, 0, 0, 2, 1));
-			}
-			index++;
+		result.add(GUIFactory.getJLabel("sortby", boldFont), c.gridCell(2, index, 2, 0));
+		if (isGroupBy) {
+			result.add(GUIFactory.getJLabel("groupby", boldFont), c.gridmultipleCell(3, index, 0, 0, 2, 1));
 		}
+		index++;
 
 		for (int i = 0; i < numSort; i++) {
 			String sortField = findFilterField(pdaSettings.getSortField(i));
@@ -249,8 +232,6 @@ public class ConfigSort extends BasicDialog {
 			}
 		}
 
-		pdaSettings.setCategoryField(
-				jcCategoryField != null ? jcCategoryField.getSelectedItem().toString() : General.EMPTY_STRING);
 		pdaSettings.setRemainingField(
 				txRemainField != null && txRemainField.isEnabled() ? txRemainField.getText() : General.EMPTY_STRING);
 	}

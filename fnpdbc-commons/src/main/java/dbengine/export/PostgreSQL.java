@@ -1,10 +1,18 @@
 package dbengine.export;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -87,21 +95,24 @@ public class PostgreSQL extends SqlRemote {
 				case DATE:
 					buf.append(" DATE");
 					break;
+				case FLOAT:
+					buf.append(" NUMERIC(").append(field.getSize()).append(",").append(field.getDecimalPoint())
+							.append(")");
+					break;
 				case IMAGE, THUMBNAIL:
-					buf.append(" BLOB");
+					buf.append(" BYTEA");
+					break;
+				case MEMO:
+					buf.append(" TEXT");
+					break;
+				case NUMBER:
+					buf.append(field.isAutoIncrement() ? " SERIAL" : " INTEGER");
 					break;
 				case TIME:
 					buf.append(" TIME");
 					break;
 				case TIMESTAMP:
 					buf.append(" TIMESTAMP");
-					break;
-				case NUMBER:
-					buf.append(field.isAutoIncrement() ? " SERIAL" : " INTEGER");
-					break;
-				case FLOAT:
-					buf.append(" NUMERIC(").append(field.getSize()).append(",").append(field.getDecimalPoint())
-							.append(")");
 					break;
 				default:
 					buf.append(" VARCHAR(").append(field.getSize()).append(")");
@@ -178,6 +189,23 @@ public class PostgreSQL extends SqlRemote {
 		}
 		prepStmt = connection.prepareStatement(buf.toString());
 		connection.setAutoCommit(false);
+	}
+
+	@Override
+	protected void setPrepStatementObject(int index, Object obj, FieldDefinition field) throws SQLException {
+		// For image fields we use the PostGreSQL bytea (byte array) datatype
+		if (obj instanceof ImageIcon icon) {
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			try {
+				ImageIO.write((BufferedImage) icon.getImage(), "jpg", os);
+				InputStream fis = new ByteArrayInputStream(os.toByteArray());
+				prepStmt.setBinaryStream(index, fis, os.size());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			super.setPrepStatementObject(index, obj, field);
+		}
 	}
 
 	@Override

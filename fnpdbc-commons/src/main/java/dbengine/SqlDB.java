@@ -266,6 +266,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.BOOLEAN);
 			field.setSQLType(Types.BOOLEAN);
 			break;
+		case "BYTEA":
+			field.setFieldType(FieldTypes.UNKNOWN);
+			field.setSQLType(Types.BINARY);
+			break;
 		case "DATE":
 			field.setFieldType(FieldTypes.DATE);
 			field.setSQLType(Types.DATE);
@@ -511,14 +515,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		});
 
 		sql.delete(sql.length() - 2, sql.length());
-
-		if (myImportFile == ExportFile.POSTGRESQL) {
-			sql.append("\nFROM \"").append(getSqlFieldName(table.getName()));
-			sql.append("\" AS A");
-		} else {
-			sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
-			sql.append(" AS A");
-		}
+		sql.append("\nFROM ").append(getSqlFieldName(table.getName()));
+		sql.append(" AS A");
 
 		getJoinStatement(sql);
 		sql.append(getWhereStatement());
@@ -828,7 +826,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			if (obj == null || obj.equals("")) {
 				prepStmt.setNull(index, field.getSQLType());
 			} else {
-				prepStmt.setObject(index, convertDataFields(obj, field));
+				setPrepStatementObject(index, obj, field);
 			}
 			index++;
 		}
@@ -840,6 +838,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		return result;
+	}
+
+	protected void setPrepStatementObject(int index, Object obj, FieldDefinition field) throws SQLException {
+		prepStmt.setObject(index, convertDataFields(obj, field));
 	}
 
 	protected void throwInsertException(SQLException ex) throws FNProgException {

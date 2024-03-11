@@ -255,10 +255,6 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 		dbFields.add(new FieldDefinition(FILTER_FIELD, FieldTypes.BOOLEAN, false));
 		myModel = new ViewerModel(dbFields);
 
-		// Get Category Field
-		String categoryField = pdaSettings.getCategoryField();
-		myCategories.clear();
-		int catCount = 0;
 		int emptyRecord = 0;
 
 		List<Map<String, Object>> result = new ArrayList<>();
@@ -293,22 +289,8 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			result.add(pRead);
 			dbInfoToWrite.stream().filter(filter)
 					.forEach(field -> field.setSize(pRead.getOrDefault(field.getFieldAlias(), General.EMPTY_STRING)));
-
-			// Check if we have to load the List categories
-			if (!categoryField.isEmpty() && catCount < LISTDB_MAX_CATEGORIES) {
-				String s = pRead.get(categoryField).toString();
-				if (s.length() > 15) {
-					s = s.substring(0, 15);
-				}
-				if (!myCategories.contains(s)) {
-					myCategories.add(s);
-					catCount++;
-				}
-			}
 		}
 
-		Collections.sort(myCategories);
-		myCategories.add(0, "Unfiled");
 		totalRecords -= emptyRecord;
 		myModel.setDataListMap(result);
 	}

@@ -48,7 +48,6 @@ import javax.swing.table.TableRowSorter;
 
 import com.github.lgooddatepicker.tableeditors.DateTimeTableEditor;
 
-import application.interfaces.ExportFile;
 import application.interfaces.ExportStatus;
 import application.interfaces.IDatabaseFactory;
 import application.interfaces.IExportProcess;
@@ -111,7 +110,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 	protected JTextField lSoftware = new JTextField();
 	protected JTextField lSoftwareID = new JTextField();
-	private ExportFile myExportFile;
 
 	protected boolean isProfileSet = true;
 	private boolean isInit = true;
@@ -203,8 +201,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 			}
 		});
 
-		myExportFile = ExportFile.getExportFile(pdaSettings.getInitialProject());
-
 		btEdit = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcEdit"), "Edit.png", funcEdit);
 
 		btClone = GUIFactory.createToolBarButton(GUIFactory.getToolTip("funcClone"), "Copy.png", e -> {
@@ -233,9 +229,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 
 		btExport = GUIFactory.getJButton("funcExport", e -> {
 			try {
-				if (myExportFile == ExportFile.LIST && !pdaSettings.isSortFieldDefined()) {
-					throw FNProgException.getException("noSortfieldDefined", myExportFile.getName());
-				}
 				enableForm(false);
 				exportProcess.init(ProgramDialog.this, ExportStatus.EXPORT);
 			} catch (Exception ex) {
@@ -783,7 +776,6 @@ public abstract class ProgramDialog extends JFrame implements PropertyChangeList
 		btRemove.setEnabled(isProfileSet);
 		btView.setEnabled(isProfileSet);
 		bNoFilter.setEnabled(isProfileSet && !pdaSettings.isNoFilters());
-		myExportFile = ExportFile.getExportFile(pdaSettings.getProjectID());
 	}
 
 	public boolean isModelValid() {

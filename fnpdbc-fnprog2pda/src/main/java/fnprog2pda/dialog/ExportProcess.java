@@ -67,7 +67,7 @@ public class ExportProcess extends IExportProcess implements Runnable {
 				xView = new Viewer(mySoftware.getTableModelFields());
 
 				mySoftware.checkNumberOfFields(false, xView.getTableModel()); // Plausibility check
-				mySoftware.setCategories(); // Obtain categories (when required)
+				mySoftware.getRoles(); // Obtain roles (when required)
 				myProgram.getProgressBar().setMaximum(mySoftware.getTotalRecords());
 
 				mySoftware.addObserver(myProgram);

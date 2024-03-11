@@ -195,8 +195,7 @@ public class BookCAT extends FNProgramvare {
 	}
 
 	@Override
-	public void setCategories() throws Exception {
-		super.setCategories();
+	public void getRoles() throws Exception {
 		if (myTable.equals("Book") || myTable.equals(CONTENTS)) {
 			switch ((int) Math.floor(Double.parseDouble(mySoftwareVersion))) {
 			case 6:
@@ -348,7 +347,6 @@ public class BookCAT extends FNProgramvare {
 	}
 
 	private void convertCreditRoles(Map<String, Object> dbDataRecord) {
-
 		StringBuilder bEditor = new StringBuilder();
 		StringBuilder bIllustrator = new StringBuilder();
 		StringBuilder bPhotographer = new StringBuilder();

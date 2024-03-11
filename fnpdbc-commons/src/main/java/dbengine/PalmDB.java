@@ -5,14 +5,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.Map;
 
 import application.interfaces.ExportFile;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
-import application.utils.FieldDefinition;
 import dbengine.utils.PilotHeader;
 
 public abstract class PalmDB extends GeneralDB implements IConvert {
@@ -41,31 +38,8 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
 		File outFile = new File(myDatabase);
-
-		if (isInputFile) {
-			useAppend = false;
-		} else {
-			if (useAppend) {
-				useAppend = outFile.exists();
-			} else {
-				outFile.delete();
-			}
-		}
-
 		pdbRaf = new RandomAccessFile(outFile, "rw");
 		header = new PilotHeader(pdbRaf);
-	}
-
-	protected void createPalmDB(int totalRec) throws Exception {
-		gotoRecord(0);
-		appInfoId = 80 + totalRec * 8;
-
-		header.setPdaDatabase(myPref.getDatabaseName());
-		header.setDbCreator(myExportFile.getCreator());
-		header.setDbType(myExportFile.getDbType());
-		header.setAppInfoId(appInfoId);
-		header.setTotalRecords(totalRec);
-		header.writeHeader();
 	}
 
 	@Override
@@ -102,81 +76,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		readAppInfo();
 	}
 
-	protected void appendPilotDB(int totalRec, List<FieldDefinition> newFields) throws Exception {
-		readTableContents();
-		compareNewFields(newFields);
-
-		// Calculate new total records
-		int oTotalRec = totalRecords;
-		totalRecords += totalRec;
-		int oAppInfoId = 80 + oTotalRec * 8;
-		appInfoId = 80 + totalRecords * 8;
-		gotoRecord(0);
-
-		// Update header
-		header.setAppInfoId(appInfoId);
-		header.setPdaDatabase(myPref.getDatabaseName());
-		header.setTotalRecords(totalRecords);
-		header.updateHeader();
-
-		// get the number of bytes that we have to move
-		int bytes2Move = (int) (pdbRaf.length() + 1 - oAppInfoId);
-		int additionalSize = appInfoId - oAppInfoId;
-
-		// Set old EOF to new EOF
-		byte[] byteArray = new byte[additionalSize];
-		pdbRaf.seek(pdbRaf.length());
-		pdbRaf.write(byteArray);
-
-		// Read old records at oAppInfoId and to move them to nAppInfoId
-		byteArray = new byte[bytes2Move];
-		pdbRaf.seek(oAppInfoId);
-		pdbRaf.read(byteArray);
-		pdbRaf.seek(appInfoId);
-		pdbRaf.write(byteArray);
-
-		// Recalculate record offsets in the Record List
-		int offset;
-		for (int i = 0; i < oTotalRec; i++) {
-			pdbRaf.seek(offsetPos);
-			offset = pdbRaf.readInt() + additionalSize;
-			pdbRaf.seek(offsetPos);
-			pdbRaf.writeInt(offset);
-			offsetPos += 8;
-		}
-	}
-
-	private void compareNewFields(List<FieldDefinition> newFields) throws FNProgException {
-		if (CollectionUtils.isEmpty(newFields)) {
-			return;
-		}
-
-		List<FieldDefinition> dbDef = getTableModelFields();
-		if (CollectionUtils.isEmpty(dbDef)) {
-			return;
-		}
-
-		final int index1 = dbDef.size();
-		final int index2 = newFields.size();
-
-		// Verify mutual size
-		if (index1 != index2) {
-			// There are more new fields than fields in the database
-			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(index1),
-					Integer.toString(index2));
-		}
-
-		// Verify field names
-		for (int i = 0; i < index1; i++) {
-			FieldDefinition dbField = dbDef.get(i);
-			FieldDefinition newField = newFields.get(i);
-			if (!dbField.getFieldName().equals(newField.getFieldHeader())) {
-				throw FNProgException.getException("noMatchFieldName", Integer.toString(i + 1), dbField.getFieldName(),
-						newField.getFieldHeader());
-			}
-		}
-	}
-
 	protected void gotoRecord(int record) {
 		currentRecord = record;
 		offsetPos = 78L + currentRecord * 8;
@@ -191,27 +90,6 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		pdbRaf.seek((long) appInfoId + offset);
 		pdbRaf.read(byteArray);
 		pdbRaf.seek(pointer); // Set file pointer back to original state
-	}
-
-	protected void writeAppInfo(int offset, byte[] byteArray) throws IOException {
-		long pointer = pdbRaf.getFilePointer();
-		pdbRaf.seek((long) appInfoId + offset);
-		pdbRaf.write(byteArray);
-		pdbRaf.seek(pointer); // Set file pointer back to original state
-	}
-
-	protected void writeRecord(byte[] parm, int recordID) throws IOException {
-		// Write record at end of file
-		pdbRaf.seek(pdbRaf.length());
-		int recordOffset = (int) pdbRaf.getFilePointer();
-		pdbRaf.write(parm);
-
-		// Write record offset position and recordID
-		pdbRaf.seek(offsetPos);
-		pdbRaf.writeInt(recordOffset);
-		pdbRaf.writeInt(recordID);
-		currentRecord++;
-		offsetPos += 8;
 	}
 
 	/**
@@ -316,4 +194,11 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	}
 
 	protected abstract void readAppInfo() throws Exception;
+
+	@Override
+	public int processData(Map<String, Object> dbRecord) throws Exception {
+		// Not used
+		return 0;
+	}
+
 }

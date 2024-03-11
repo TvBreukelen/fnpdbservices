@@ -127,7 +127,7 @@ public class FNProg2PDANoGUI implements PropertyChangeListener {
 			mySoftware.setupDBTranslation(false);
 			tabModel = new ViewerModel(mySoftware.getTableModelFields());
 			mySoftware.checkNumberOfFields(false, tabModel); // Plausibility check 1
-			mySoftware.setCategories(); // Obtain categories (when required)
+			mySoftware.getRoles(); // Obtain Roles (when required)
 
 			mySoftware.addObserver(this); // Start monitoring process
 			mySoftware.setupDbInfoToWrite();

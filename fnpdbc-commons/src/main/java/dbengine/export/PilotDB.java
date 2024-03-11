@@ -1,10 +1,7 @@
 package dbengine.export;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -31,161 +28,9 @@ public class PilotDB extends PalmDB {
 	private Map<Short, List<String>> dbList = new HashMap<>();
 
 	private int numFields;
-	private int offSet;
 
 	public PilotDB(Profiles pref) {
 		super(pref);
-	}
-
-	@Override
-	public void createDbHeader() throws Exception {
-		int totalRecords = mySoft.getTotalRecords();
-
-		// Check whether we are in append mode
-		if (useAppend) {
-			appendPilotDB(totalRecords, dbInfo2Write);
-			return;
-		}
-
-		numFields = dbInfo2Write.size();
-
-		// Create Pilot Record Database Format
-		createPalmDB(totalRecords);
-
-		// ApplicationInfo
-
-		// Pilot-DB default flag
-		pdbRaf.writeShort(1);
-		pdbRaf.writeShort(numFields);
-
-		// field names
-		int[] fieldTypes = new int[numFields];
-		StringBuilder buf = new StringBuilder(numFields * 16);
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-			boolean isNoTextExport = !field.isOutputAsText();
-
-			switch (field.getFieldType()) {
-			case BOOLEAN:
-				if (isNoTextExport) {
-					fieldTypes[i] = 1;
-				}
-				break;
-			case DATE:
-				if (isNoTextExport) {
-					fieldTypes[i] = 3;
-				}
-				break;
-			case FLOAT:
-				fieldTypes[i] = 8;
-				break;
-			case MEMO:
-				fieldTypes[i] = 5;
-				break;
-			case NUMBER:
-				fieldTypes[i] = 2;
-				break;
-			case TIME:
-				if (isNoTextExport) {
-					fieldTypes[i] = 4;
-				}
-				break;
-			default:
-				break;
-			}
-			buf.append(new String(General.getNullTerminatedString(field.getFieldHeader(), null, 0)));
-		}
-
-		pdbRaf.writeShort(0);
-		pdbRaf.writeShort(buf.length());
-		pdbRaf.writeBytes(buf.toString());
-
-		// Field types
-		pdbRaf.writeShort(1);
-		pdbRaf.writeShort(numFields * 2);
-		for (int i = 0; i < numFields; ++i) {
-			pdbRaf.writeShort(fieldTypes[i]);
-		}
-
-		// View and sort fields?
-		pdbRaf.writeShort(65);
-		pdbRaf.writeShort(4);
-		pdbRaf.write(General.getNullTerminatedString(null, null, 4));
-
-		pdbRaf.writeShort(128);
-		pdbRaf.writeShort(2);
-		pdbRaf.write(General.getNullTerminatedString(null, null, 2));
-	}
-
-	@Override
-	public int processData(Map<String, Object> dbRecord) throws Exception {
-		numFields = dbInfo2Write.size();
-		int start = numFields * 2;
-
-		ByteArrayOutputStream baoNames = new ByteArrayOutputStream();
-		DataOutputStream dasNames = new DataOutputStream(baoNames);
-
-		// Read the user defined list of DB fields
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbInfo2Write.get(i);
-			boolean isNoTextExport = !field.isOutputAsText();
-
-			offSet = dasNames.size() + start;
-			pdbDas.writeShort(offSet);
-			try {
-				dasNames.write(convertData(dbRecord.get(field.getFieldAlias()), field.getFieldType(), isNoTextExport));
-			} catch (Exception e) {
-				throw FNProgException.getException("fieldConvertError", field.getFieldAlias(), e.getMessage());
-			}
-		}
-
-		// Add temp to result and write result
-		pdbDas.write(baoNames.toByteArray());
-		writeRecord(pdbBaos.toByteArray(), 0);
-		pdbBaos.reset();
-		return 1;
-	}
-
-	private byte[] convertData(Object dbField, FieldTypes pIndex, boolean isNoTextExport) {
-		byte[] result = new byte[1];
-
-		if (dbField == null || dbField.equals(General.EMPTY_STRING)) {
-			return result;
-		}
-		String dbValue = dbField.toString();
-
-		switch (pIndex) {
-		case BOOLEAN:
-			boolean b = (Boolean) dbField;
-			if (isNoTextExport) {
-				result[0] = b ? (byte) 1 : 0;
-				return result;
-			}
-			return General.getNullTerminatedString(b ? booleanTrue : booleanFalse, null, 0);
-		case DATE:
-			return isNoTextExport ? (byte[]) convertDate((LocalDate) dbField)
-					: General.getNullTerminatedString(General.convertDate((LocalDate) dbField, General.sdInternalDate),
-							null, 0);
-		case FUSSY_DATE:
-			return General.getNullTerminatedString(General.convertFussyDate(dbValue), null, 0);
-		case FLOAT:
-			return getDouble((Double) dbField);
-		case MEMO:
-			return convertMemo(dbValue);
-		case NUMBER:
-			return getInt((Integer) dbField);
-		case TIME:
-			dbValue = General.convertTime((LocalTime) dbField, General.sdInternalTime);
-			return isNoTextExport ? convertTime(dbValue) : General.getNullTerminatedString(dbValue, null, 0);
-		case DURATION:
-			return General.getNullTerminatedString(General.convertDuration((Duration) dbField), null, 0);
-		default:
-			if (dbValue.length() > 256) {
-				return convertMemo(dbValue);
-			} else {
-				return General.getNullTerminatedString(dbValue, null, 0);
-			}
-		}
 	}
 
 	@Override
@@ -412,40 +257,12 @@ public class PilotDB extends PalmDB {
 		return General.convertDate2DB(result.toString(), General.sdInternalDate);
 	}
 
-	protected Object convertDate(LocalDate pDate) {
-		byte[] result = new byte[4];
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(bytes);
-		try {
-			out.writeShort(pDate.getYear());
-			out.writeByte(pDate.getMonthValue());
-			out.writeByte(pDate.getDayOfMonth());
-			return bytes.toByteArray();
-		} catch (Exception e) {
-			// Nothing to do
-		}
-
-		return result;
-	}
-
 	private LocalTime convertTime2DB(byte[] data) {
 		if (data == null || data[0] == 24) {
 			return null;
 		}
 
 		return LocalTime.of(data[0], data[1]);
-	}
-
-	private byte[] convertTime(String pTime) {
-		byte[] result = { 24, 0 };
-		if (pTime == null || pTime.equals(General.EMPTY_STRING)) {
-			return result;
-		}
-
-		String[] time = pTime.split(":");
-		result[0] = Byte.parseByte(time[0]);
-		result[1] = Byte.parseByte(time[1]);
-		return result;
 	}
 
 	private String convertListField2DB(byte[] data, int i) {
@@ -482,7 +299,7 @@ public class PilotDB extends PalmDB {
 			return header;
 		}
 
-		offSet = getShort(new byte[] { fieldData[index0 + 1], fieldData[index0 + 2] });
+		int offSet = getShort(new byte[] { fieldData[index0 + 1], fieldData[index0 + 2] });
 		if (offSet == 0) {
 			// No additonal memo lines were found
 			return header;
@@ -509,45 +326,6 @@ public class PilotDB extends PalmDB {
 			}
 		}
 		return General.EMPTY_STRING;
-	}
-
-	private byte[] convertMemo(String pMemo) {
-		if (pMemo.equals(General.EMPTY_STRING)) {
-			return new byte[4];
-		}
-
-		if (pMemo.length() > myExportFile.getMaxMemoSize()) {
-			// Truncate field
-			pMemo = pMemo.substring(0, myExportFile.getMaxMemoSize() - 15) + "\ntruncated...";
-		}
-
-		// Check for carriage return or next line (for memo header)
-		int textLen = pMemo.indexOf('\r');
-		if (textLen == -1) {
-			textLen = pMemo.indexOf('\n');
-			if (textLen == -1) {
-				textLen = pMemo.length();
-			}
-		}
-
-		if (textLen > 31) {
-			textLen = 31;
-		}
-
-		ByteArrayOutputStream result = new ByteArrayOutputStream();
-		DataOutputStream out = new DataOutputStream(result);
-
-		try {
-			out.write(General.convertStringToByteArray(pMemo.substring(0, textLen), null));
-			out.writeByte(0);
-			out.writeShort(offSet + out.size() + 2);
-			out.write(General.convertStringToByteArray(pMemo, null));
-			out.writeByte(0);
-			return result.toByteArray();
-		} catch (Exception e) {
-			// Log error
-		}
-		return new byte[4];
 	}
 
 	private Double convertFloat2DB(byte[] data) {

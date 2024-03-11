@@ -141,9 +141,6 @@ public class ConfigTextFile extends JPanel implements IConfigDb {
 		}
 
 		String csvType = isExport ? pdaSettings.getTextFileFormat() : pdaSettings.getImportTextFileFormat();
-		if (pdaSettings.isNewProfile() || buddy == BuddyExport.NONE) {
-			csvType = STANDARD_CSV;
-		}
 
 		switch (csvType) {
 		case OTHER_CSV:

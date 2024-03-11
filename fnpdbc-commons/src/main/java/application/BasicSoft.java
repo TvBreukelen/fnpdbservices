@@ -45,10 +45,6 @@ public abstract class BasicSoft {
 	protected int currentRecord = 0;
 	protected int writtenRecords = 0;
 
-	protected static final int LISTDB_MAX_CATEGORIES = 15;
-	protected static final int LISTDB_MAX_CATEGORY_LENGTH = 15;
-
-	protected List<String> myCategories = new ArrayList<>(); // Stores the List categories
 	protected List<FieldDefinition> dbTableModelFields = new ArrayList<>(); // All fields loaded in the TableModel
 	protected List<FieldDefinition> dbInfoToWrite = new ArrayList<>(); // Export fields for the export file
 
@@ -378,10 +374,6 @@ public abstract class BasicSoft {
 
 	public int getTotalRecords() {
 		return totalRecords;
-	}
-
-	public List<String> getCategories() {
-		return myCategories;
 	}
 
 	public void runConversionProgram(Component parent) throws Exception {

@@ -6,7 +6,6 @@ import application.preferences.Profiles;
 import application.utils.General;
 
 public class FilterData {
-	private String categoryField = General.EMPTY_STRING;
 	private String contentsFilter = General.EMPTY_STRING;
 	private String keywordFilter = General.EMPTY_STRING;
 	private String filterCondition = "AND";
@@ -20,7 +19,6 @@ public class FilterData {
 	private TvBSoftware tvbSoftware;
 
 	public void loadProfile(Profiles profile) {
-		categoryField = profile.getCategoryField();
 		contentsFilter = profile.getContentsFilter();
 		filterCondition = profile.getFilterCondition();
 		keywordFilter = profile.getKeywordFilter();
@@ -35,7 +33,6 @@ public class FilterData {
 	}
 
 	public void saveProfile(Profiles profile) {
-		profile.setCategoryField(categoryField);
 		profile.setContentsFilter(contentsFilter);
 		profile.setFilterCondition(filterCondition);
 		profile.setKeywordFilter(keywordFilter);
@@ -53,14 +50,6 @@ public class FilterData {
 
 	public void setTvBSoftware(TvBSoftware tvbSoftware) {
 		this.tvbSoftware = tvbSoftware;
-	}
-
-	public String getCategoryField() {
-		return categoryField;
-	}
-
-	public void setCategoryField(String categoryField) {
-		this.categoryField = categoryField;
 	}
 
 	public String getContentsFilter() {

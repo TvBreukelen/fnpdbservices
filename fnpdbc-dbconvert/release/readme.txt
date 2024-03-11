@@ -64,13 +64,10 @@ Calc            All platforms
 CSV             All platforms
 DBase           MS-DOS
 Foxpro          Microsoft Windows 
-JFile           Palm
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
-List            Palm 
-MobileDB        Palm/PocketPC
 MS-Excel        Microsoft Windows / Mac OS X
-Pilot-DB        Palm  
+PostgreSQL      All platforms
 SQLite          All platforms
 TSV             All platforms
 XML             All platforms
@@ -151,6 +148,14 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 8.2
+-----------
+Added append option to Calc and Excel export.
+Added export to PostGreSQL databases.
+Removed export to Palm-OS databases (JFile, List, MobileDB and PilotDB).
+Viewer can now display images and items are shown with the correct row height.
+
 
 Version 8.1
 -----------

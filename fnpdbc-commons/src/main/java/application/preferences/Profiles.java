@@ -33,7 +33,6 @@ public abstract class Profiles extends Project {
 	private static final String FILTER = "filter";
 
 	// General Settings
-	private String categoryField = General.EMPTY_STRING;
 	private String contentsFilter = General.EMPTY_STRING;
 	private String fromDatabase = General.EMPTY_STRING;
 	private String toDatabase = General.EMPTY_STRING;
@@ -61,7 +60,6 @@ public abstract class Profiles extends Project {
 	private boolean appendRecords;
 	private boolean createBackup;
 	private boolean exportImages;
-	private boolean isNewProfile;
 
 	private int imageOption;
 	private int imageHeight;
@@ -156,7 +154,6 @@ public abstract class Profiles extends Project {
 		languageDriver = child.getInt("dbf.language.driver", 3);
 
 		appendRecords = child.getBoolean("append.records", false);
-		categoryField = child.get("category.field", General.EMPTY_STRING);
 		createBackup = child.getBoolean("create.backup", false);
 		exportImages = child.getBoolean("export.images", false);
 		imageOption = child.getInt("export.image.option", 0);
@@ -396,15 +393,6 @@ public abstract class Profiles extends Project {
 	public void setSkipEmptyRecords(boolean skipEmptyRecords) {
 		PrefUtils.writePref(child, "skip.empty.records", skipEmptyRecords, this.skipEmptyRecords, false);
 		this.skipEmptyRecords = skipEmptyRecords;
-	}
-
-	public String getCategoryField() {
-		return categoryField;
-	}
-
-	public void setCategoryField(String categoryField) {
-		PrefUtils.writePref(child, "category.field", categoryField, this.categoryField, "-1");
-		this.categoryField = categoryField;
 	}
 
 	public boolean isCreateBackup() {
@@ -1037,17 +1025,13 @@ public abstract class Profiles extends Project {
 		}
 
 		// Add sort (or grouping) fields to user fieldList
-		List<String> sortList = exp == ExportFile.LIST ? getSortFields() : getGroupFields();
+		List<String> sortList = getGroupFields();
 		sortList.forEach(field -> {
 			if (!set.contains(field)) {
 				result.add(field);
 			}
 		});
 
-		// Add Category field to user fields
-		if (!categoryField.isEmpty() && !set.contains(categoryField)) {
-			result.add(categoryField);
-		}
 		return result;
 	}
 
@@ -1093,13 +1077,5 @@ public abstract class Profiles extends Project {
 	public void setPagination(boolean pagination) {
 		PrefUtils.writePref(child, "database.pagination", pagination, this.pagination, false);
 		this.pagination = pagination;
-	}
-
-	public boolean isNewProfile() {
-		return isNewProfile;
-	}
-
-	public void setNewProfile(boolean isNewProfile) {
-		this.isNewProfile = isNewProfile;
 	}
 }
