@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=DBConvert
-AppVerName=DBConvert 8.1
+AppVerName=DBConvert 8.2
 AppPublisher=TvBSoftware
 AppPublisherURL=http://sourceforge.net/projects/dbconvert
 AppSupportURL=http://sourceforge.net/projects/dbconvert
