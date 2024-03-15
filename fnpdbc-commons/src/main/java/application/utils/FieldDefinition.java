@@ -41,8 +41,8 @@ public class FieldDefinition extends BasisField {
 	}
 
 	public void setSize(Object obj) {
-		if (obj == null) {
-			return;
+		if (obj == null || obj.equals(General.EMPTY_STRING)) {
+			obj = General.SPACE;
 		}
 
 		String s = obj.toString();

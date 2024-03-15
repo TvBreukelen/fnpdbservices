@@ -25,7 +25,6 @@ import dbengine.IConvert;
 public class JsonFile extends GeneralDB implements IConvert {
 	private File outFile;
 	protected ObjectMapper mapper;
-	private List<Map<String, Object>> dbRecords = new ArrayList<>();
 	private List<FieldDefinition> dbFields = new ArrayList<>();
 	private Map<String, String> hElements;
 
@@ -42,7 +41,6 @@ public class JsonFile extends GeneralDB implements IConvert {
 	protected void openFile(boolean isInputFile) throws Exception {
 		outFile = new File(myDatabase);
 		currentRecord = 0;
-
 		this.isInputFile = isInputFile;
 	}
 
@@ -66,6 +64,10 @@ public class JsonFile extends GeneralDB implements IConvert {
 				getDBFieldNamesAndTypes();
 			}
 		}
+
+		// Set field sizes
+		dbRecords.forEach(entry -> dbFields
+				.forEach(field -> field.setSize(entry.getOrDefault(field.getFieldName(), General.EMPTY_STRING))));
 	}
 
 	@Override
@@ -128,7 +130,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 			return;
 		}
 
-		if (value instanceof Double) {
+		if (value instanceof Double || value instanceof Float) {
 			dbFields.add(new FieldDefinition(name, name, FieldTypes.FLOAT));
 			return;
 		}
@@ -257,9 +259,7 @@ public class JsonFile extends GeneralDB implements IConvert {
 
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = dbRecords.get(currentRecord);
-		currentRecord++;
-		return result;
+		return dbRecords.get(currentRecord++);
 	}
 
 	@Override

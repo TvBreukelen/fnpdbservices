@@ -65,7 +65,6 @@ public class ICalendar extends GeneralDB implements IConvert {
 	private List<CalendarComponent> iCals;
 	private Map<String, FieldTypes> fields;
 	private Map<String, Object> map;
-	private List<Map<String, Object>> dbRecords = new ArrayList<>();
 
 	private static final String ALARM = "Alarm";
 	private static final String COMPLETED = "Completed";
@@ -201,6 +200,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 		fields.keySet().forEach(field -> dbFieldNames.add(field));
 		Collections.sort(dbFieldNames);
 		dbFieldNames.forEach(field -> dbFieldTypes.add(fields.get(field)));
+		setFieldSizes();
 	}
 
 	private void processEvent(VEvent event) {
@@ -638,10 +638,10 @@ public class ICalendar extends GeneralDB implements IConvert {
 		}
 
 		LocalDateTime localTime = null;
-		if (obj instanceof LocalDateTime) {
-			localTime = (LocalDateTime) obj;
-		} else if (obj instanceof ZonedDateTime) {
-			localTime = ((ZonedDateTime) obj).toLocalDateTime();
+		if (obj instanceof LocalDateTime ldt) {
+			localTime = ldt;
+		} else if (obj instanceof ZonedDateTime zdt) {
+			localTime = zdt.toLocalDateTime();
 		} else if (obj instanceof Instant) {
 			localTime = LocalDateTime.parse(obj.toString(),
 					DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault()));

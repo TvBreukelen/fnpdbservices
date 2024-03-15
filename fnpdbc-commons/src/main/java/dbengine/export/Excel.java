@@ -132,7 +132,11 @@ public class Excel extends ExcelFile {
 				cell.setCellValue(General.convertFussyDate(dbValue.toString()));
 				break;
 			case FLOAT:
-				cell.setCellValue((Double) dbValue);
+				if (dbValue instanceof Float floatVal) {
+					cell.setCellValue(floatVal);
+				} else if (dbValue instanceof Double doubleVal) {
+					cell.setCellValue(doubleVal);
+				}
 				break;
 			case NUMBER:
 				cell.setCellValue((Integer) dbValue);

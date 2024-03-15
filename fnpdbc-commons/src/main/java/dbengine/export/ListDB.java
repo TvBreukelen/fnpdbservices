@@ -26,42 +26,46 @@ public class ListDB extends PalmDB {
 	}
 
 	@Override
-	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = new HashMap<>();
-		int[] recordID = setPointer2NextRecord();
-		int recordLength = recordID[2] - recordID[0];
-
-		byte[] bytes = new byte[recordLength];
-		int categoryID = recordID[1] >> 24;
-		if (categoryID > 63) {
-			categoryID -= 64;
-		}
-
-		readLn(bytes);
-
-		String s = General.convertByteArrayToString(bytes, null).substring(3);
-		String[] rec = new String[4];
-		Arrays.fill(rec, General.EMPTY_STRING);
-
-		for (int i = 0; i < 3; i++) {
-			int index = s.indexOf('\0');
-			if (index == -1) {
-				break;
-			}
-			rec[i] = s.substring(0, index);
-			s = s.substring(index + 1);
-		}
-
-		if (!catList.isEmpty()) {
-			rec[3] = catList.get(categoryID > catList.size() ? 0 : categoryID);
-		}
-
+	public void readTableContents() throws Exception {
+		super.readTableContents();
 		List<FieldDefinition> dbDef = getTableModelFields();
-		int i = 0;
-		for (FieldDefinition field : dbDef) {
-			result.put(field.getFieldAlias(), rec[i++]);
+
+		for (int index = 0; index < totalRecords; index++) {
+			Map<String, Object> result = new HashMap<>();
+			int[] recordID = setPointer2NextRecord();
+			int recordLength = recordID[2] - recordID[0];
+
+			byte[] bytes = new byte[recordLength];
+			int categoryID = recordID[1] >> 24;
+			if (categoryID > 63) {
+				categoryID -= 64;
+			}
+
+			readLn(bytes);
+
+			String s = General.convertByteArrayToString(bytes, null).substring(3);
+			String[] rec = new String[4];
+			Arrays.fill(rec, General.EMPTY_STRING);
+
+			for (int i = 0; i < 3; i++) {
+				int idx = s.indexOf('\0');
+				if (idx == -1) {
+					break;
+				}
+				rec[i] = s.substring(0, idx);
+				s = s.substring(idx + 1);
+			}
+
+			if (!catList.isEmpty()) {
+				rec[3] = catList.get(categoryID > catList.size() ? 0 : categoryID);
+			}
+
+			int i = 0;
+			for (FieldDefinition field : dbDef) {
+				result.put(field.getFieldAlias(), rec[i++]);
+			}
+			dbRecords.add(result);
 		}
-		return result;
 	}
 
 	private void getCategories() throws Exception {

@@ -68,8 +68,6 @@ public class VCard extends GeneralDB implements IConvert {
 	private Map<String, FieldTypes> fields;
 	private Map<String, Object> map;
 
-	private List<Map<String, Object>> dbRecords = new ArrayList<>();
-
 	public VCard(Profiles pref) {
 		super(pref);
 	}
@@ -82,6 +80,7 @@ public class VCard extends GeneralDB implements IConvert {
 	@Override
 	protected void openFile(boolean isInputFile) throws Exception {
 		currentRecord = 0;
+		dbRecords.clear();
 
 		try (BufferedReader reader = Files.newBufferedReader(Paths.get(myDatabase), StandardCharsets.UTF_8)) {
 			switch (myDatabase.toLowerCase().substring(myDatabase.lastIndexOf("."))) {
@@ -168,6 +167,7 @@ public class VCard extends GeneralDB implements IConvert {
 		fields.keySet().forEach(field -> dbFieldNames.add(field));
 		Collections.sort(dbFieldNames);
 		dbFieldNames.forEach(field -> dbFieldTypes.add(fields.get(field)));
+		setFieldSizes();
 	}
 
 	private void setAddresses(List<Address> addresses) {

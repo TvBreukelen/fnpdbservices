@@ -127,13 +127,17 @@ public class Databases extends DatabaseHelper {
 		return result.toString();
 	}
 
-	public List<String> getDatabaseFiles(ExportFile myImportFile) {
+	public List<String> getDatabaseFiles(ExportFile myImportFile, boolean mustExist) {
 		List<String> result = new ArrayList<>();
+		result.add(General.EMPTY_STRING);
 
 		for (String db : getDatabases()) {
 			setNode(db);
-			if (getDatabaseType() == myImportFile) {
-				result.add(getDatabaseName());
+			String database = getDatabaseName();
+
+			if (getDatabaseType() == myImportFile
+					&& (myImportFile.isConnectHost() || mustExist && General.existFile(database))) {
+				result.add(database);
 			}
 		}
 

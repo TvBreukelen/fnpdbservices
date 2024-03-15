@@ -1,0 +1,46 @@
+<html>
+<body>
+<h1>Export To PostgreSQL databases </h1>
+<img src="../images/ExportToPostgreSQL.png">
+<h2>Export Data</h2>
+<ul>
+<li><b>Into new table</b></li>
+This option creates a new table and writes the records into it. Should the table already exists in the
+ database then DBConvert/FNprog2PDA will overwrite it with a DROP/CREATE table.<br><br>
+<b>Schema</b><br>
+This button displays the SQL statement that will be used to create the [new] table.<br><br>
+<b>Example:</b><br><br>
+<img src="../images/Schema.png">
+<br><br>
+<li><b>Replace records in the table</b></li>
+This option erases previous existing records in the table with a DELETE statement and writes the new
+ records into it. Unlike the previous option it will keep the current table schema intact.
+<br><br>
+<li><b>Append records to the table</b></li>
+With this option DBConvert/FNProg2PDA will try to insert new records into the table, while keeping the
+ existing ones. 
+</ul>
+<h2 style="color: #ff0000">Warning</h2>
+"Into new table" should be used with extreme care. The new table is created according to the basic
+ specifications provided on the "Export Fields" tab. It doesn't respect pre-existing indices, triggers, 
+ constraints or foreign keys. So, if you want to keep the existing table structure/schema intact but
+ start with an empty table then you should use the second option instead.<br>
+<br>
+<hr WIDTH="50%" SIZE="3" NOSHADE>
+<h2>On Conflict</h2>
+In PostgreSQL you can specify what action should be taken if a conflict arises when trying to insert or update
+ data into a table.
+<ul>
+<li><b>Ignore</b></li>
+This option ignores the conflict and continues with the insertion. If a unique constraint is violated, then
+ the row with the conflict is not inserted, but the rest of the rows are inserted.
+<br><br>
+<li><b>Replace</b></li>
+This option replaces the existing row with the new row being inserted. If the row does not exist, then it
+ is inserted as usual.
+<br><br>
+<li><b>Rollback</b></li>
+This option rolls back the entire transaction if a conflict occurs.
+</ul>
+</body>
+</html>

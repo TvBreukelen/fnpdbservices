@@ -50,8 +50,6 @@ public class XmlFile extends GeneralDB implements IConvert {
 	private XmlReader handler;
 	private int currentRecord = 0;
 
-	protected List<Map<String, Object>> dbRecords;
-
 	public XmlFile(Profiles pref) {
 		super(pref);
 		hElements = new LinkedHashMap<>();
@@ -229,6 +227,7 @@ public class XmlFile extends GeneralDB implements IConvert {
 		dbFieldTypes = handler.getFieldTypes();
 		dbRecords = handler.getDbRecords();
 		totalRecords = dbRecords.size();
+		setFieldSizes();
 	}
 
 	@Override

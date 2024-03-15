@@ -26,7 +26,6 @@ public class PilotDB extends PalmDB {
 	 * @version 5.0
 	 */
 	private Map<Short, List<String>> dbList = new HashMap<>();
-
 	private int numFields;
 
 	public PilotDB(Profiles pref) {
@@ -152,68 +151,73 @@ public class PilotDB extends PalmDB {
 	}
 
 	@Override
-	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = new HashMap<>();
+	public void readTableContents() throws Exception {
+		super.readTableContents();
 		List<FieldDefinition> dbDef = getTableModelFields();
-		int[] recordID = setPointer2NextRecord();
-		byte[] data = new byte[recordID[2] - recordID[0]];
-		readLn(data);
 
-		ByteArrayInputStream bIn = new ByteArrayInputStream(data);
-		DataInputStream dIn = new DataInputStream(bIn);
+		for (int index = 0; index < totalRecords; index++) {
+			Map<String, Object> result = new HashMap<>();
 
-		int[] fieldLen = new int[numFields + 1];
-		for (int i = 0; i < numFields; i++) {
-			fieldLen[i] = dIn.readShort(); // get position of each field in the data byte array
-		}
-		fieldLen[numFields] = data.length;
+			int[] recordID = setPointer2NextRecord();
+			byte[] data = new byte[recordID[2] - recordID[0]];
+			readLn(data);
 
-		ArrayList<int[]> lenHash = new ArrayList<>(numFields * 2);
-		for (int i = 0; i < numFields; i++) {
-			lenHash.add(new int[] { fieldLen[i], fieldLen[i + 1] });
-		}
+			ByteArrayInputStream bIn = new ByteArrayInputStream(data);
+			DataInputStream dIn = new DataInputStream(bIn);
 
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbDef.get(i);
-			fieldLen = lenHash.get(i);
-
-			byte[] fieldData = new byte[fieldLen[1] - fieldLen[0]];
-			System.arraycopy(data, fieldLen[0], fieldData, 0, fieldData.length);
-
-			switch (field.getFieldType()) {
-			case TEXT:
-				result.put(field.getFieldAlias(), convertText2DB(fieldData));
-				break;
-			case BOOLEAN:
-				result.put(field.getFieldAlias(), fieldData[0] == 1);
-				break;
-			case DATE:
-				result.put(field.getFieldAlias(), convertDate2DB(fieldData));
-				break;
-			case FLOAT:
-				result.put(field.getFieldAlias(), convertFloat2DB(fieldData));
-				break;
-			case LINKED:
-				result.put(field.getFieldAlias(), convertLinkedField2DB(fieldData));
-				break;
-			case LIST:
-				result.put(field.getFieldAlias(), convertListField2DB(fieldData, i));
-				break;
-			case MEMO:
-				result.put(field.getFieldAlias(), convertMemo2DB(fieldData, data, lenHash, i));
-				break;
-			case NUMBER:
-				result.put(field.getFieldAlias(), convertNumeric2DB(fieldData));
-				break;
-			case TIME:
-				result.put(field.getFieldAlias(), convertTime2DB(fieldData));
-				break;
-			default:
-				break;
+			int[] fieldLen = new int[numFields + 1];
+			for (int i = 0; i < numFields; i++) {
+				fieldLen[i] = dIn.readShort(); // get position of each field in the data byte array
 			}
-		}
+			fieldLen[numFields] = data.length;
 
-		return result;
+			ArrayList<int[]> lenHash = new ArrayList<>(numFields * 2);
+			for (int i = 0; i < numFields; i++) {
+				lenHash.add(new int[] { fieldLen[i], fieldLen[i + 1] });
+			}
+
+			for (int i = 0; i < numFields; i++) {
+				FieldDefinition field = dbDef.get(i);
+				fieldLen = lenHash.get(i);
+
+				byte[] fieldData = new byte[fieldLen[1] - fieldLen[0]];
+				System.arraycopy(data, fieldLen[0], fieldData, 0, fieldData.length);
+
+				switch (field.getFieldType()) {
+				case TEXT:
+					result.put(field.getFieldAlias(), convertText2DB(fieldData));
+					break;
+				case BOOLEAN:
+					result.put(field.getFieldAlias(), fieldData[0] == 1);
+					break;
+				case DATE:
+					result.put(field.getFieldAlias(), convertDate2DB(fieldData));
+					break;
+				case FLOAT:
+					result.put(field.getFieldAlias(), convertFloat2DB(fieldData));
+					break;
+				case LINKED:
+					result.put(field.getFieldAlias(), convertLinkedField2DB(fieldData));
+					break;
+				case LIST:
+					result.put(field.getFieldAlias(), convertListField2DB(fieldData, i));
+					break;
+				case MEMO:
+					result.put(field.getFieldAlias(), convertMemo2DB(fieldData, data, lenHash, i));
+					break;
+				case NUMBER:
+					result.put(field.getFieldAlias(), convertNumeric2DB(fieldData));
+					break;
+				case TIME:
+					result.put(field.getFieldAlias(), convertTime2DB(fieldData));
+					break;
+				default:
+					break;
+				}
+			}
+			dbRecords.add(result);
+		}
+		setFieldSizes();
 	}
 
 	/**

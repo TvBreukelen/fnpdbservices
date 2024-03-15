@@ -73,7 +73,6 @@ public class ConfigSoft extends ConfigDialog {
 	transient ActionListener funcSelectFile;
 	transient ActionListener funcSelectFileType;
 
-	private ExportFile myExportFile;
 	private ExportFile myImportFile;
 
 	private ConfigTextFile textImport;
@@ -243,8 +242,7 @@ public class ConfigSoft extends ConfigDialog {
 		lSqlLimit = GUIFactory.getJLabel("sqlLimit");
 		sModel = new SpinnerNumberModel(profiles.getSqlSelectLimit(), 0, 10000, 100);
 		spSqlLimit = new JSpinner(sModel);
-		// spSqlLimit.addChangeListener(e ->
-		// ckPagination.setEnabled(sModel.getNumber().intValue() > 0));
+		spSqlLimit.addChangeListener(e -> ckPagination.setEnabled(sModel.getNumber().intValue() > 0));
 		ckPagination.setEnabled(profiles.getSqlSelectLimit() > 0);
 
 		result.add(lTablesWorkSheets, c.gridCell(0, 0, 0, 0));
@@ -296,26 +294,13 @@ public class ConfigSoft extends ConfigDialog {
 	}
 
 	private boolean reloadFiles() {
-		boolean result = false;
-		boolean isPrevious = false;
-
 		cbDatabases.removeActionListener(funcSelectFile);
 		cbDatabases.removeAllItems();
 
 		myImportFile = dbVerified.getDatabaseType();
 		String dbFile = dbVerified.getDatabaseName();
-		List<String> dbFiles = dbSettings.getDatabaseFiles(myImportFile);
-
-		if (dbFile.isEmpty() && !dbFiles.isEmpty()) {
-			// Take the last entry in the prev. defined database list
-			dbFile = dbFiles.get(dbFiles.size() - 1);
-			result = true;
-			isPrevious = true;
-		}
-
-		if (!result) {
-			result = !dbFile.isBlank() && General.isFileExtensionOk(dbFile, myImportFile);
-		}
+		List<String> dbFiles = dbSettings.getDatabaseFiles(myImportFile, true);
+		boolean result = !dbFile.isBlank() && General.isFileExtensionOk(dbFile, myImportFile);
 
 		if (result && !dbFiles.contains(dbFile)) {
 			dbFiles.add(dbFile);
@@ -327,12 +312,10 @@ public class ConfigSoft extends ConfigDialog {
 		dbFile = DatabaseHelper.extractDatabase(dbFile);
 
 		if (result) {
-			if (isPrevious) {
-				String node = dbSettings.getNodename(dbFile, myImportFile);
-				if (node != null) {
-					dbSettings.setNode(node);
-					dbVerified.update(dbSettings);
-				}
+			String node = dbSettings.getNodename(dbFile, myImportFile);
+			if (node != null) {
+				dbSettings.setNode(node);
+				dbVerified.update(dbSettings);
 			}
 		} else {
 			if (!dbFile.isBlank()) {

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +40,9 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 	 * @version 8+
 	 */
 	private Map<String, List<FieldDefinition>> hSheets;
-	private int currentRecord = 1;
+	private Map<String, List<Map<String, Object>>> hRecords;
+
+	private int currentRecord = 0;
 	protected int noOfSheets;
 
 	private File outFile;
@@ -73,13 +76,12 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 			// Read all sheets in the workbook
 			hSheets = new HashMap<>(noOfSheets);
+			hRecords = new HashMap<>(noOfSheets);
+
 			for (int i = 0; i < noOfSheets; i++) {
 				// Get TableModelFields for each sheet and put them in the HashMap
 				sheet = wb.getSheetAt(i);
-				List<FieldDefinition> temp = getDBFieldNamesAndTypes();
-				if (!temp.isEmpty()) {
-					hSheets.put(sheet.getSheetName(), temp);
-				}
+				getFieldDefinitonsAndRecords();
 			}
 		} else {
 			sheetName = myPref.getDatabaseName();
@@ -109,7 +111,6 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	@Override
 	public List<FieldDefinition> getTableModelFields() {
-		getCurrentSheet();
 		return hSheets.get(sheetName);
 	}
 
@@ -124,39 +125,50 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 		return lSheets;
 	}
 
-	private void getCurrentSheet() {
-		Optional<Sheet> sheetOpt = Optional.ofNullable(wb.getSheet(sheetName));
-		if (sheetOpt.isPresent()) {
-			sheet = sheetOpt.get();
-		} else {
-			sheet = wb.getSheetAt(0);
-		}
-		sheetName = sheet.getSheetName();
-	}
-
-	private List<FieldDefinition> getDBFieldNamesAndTypes() {
+	private void getFieldDefinitonsAndRecords() {
 		dbFieldNames.clear();
 
 		if (sheet.getLastRowNum() < 2) {
-			return new ArrayList<>();
+			return;
 		}
 
+		List<Map<String, Object>> records = new ArrayList<>();
 		Row names = sheet.getRow(0); // Assumes that the 1st row contains the field names
+		int maxColumns = names.getLastCellNum();
+
 		for (Cell cell : names) {
 			dbFieldNames.add(cell.getRichStringCellValue().getString());
 		}
 
-		Row types = sheet.getRow(1); // Assumes that the 2nd row contains ALL field values
-		final int index = dbFieldNames.size();
-		List<FieldDefinition> result = new ArrayList<>();
+		// Read all rows
+		int numRows = sheet.getLastRowNum() - 1;
+		Map<String, FieldDefinition> fieldMap = new LinkedHashMap<>();
 
-		for (int i = 0; i < index; i++) {
-			Cell cell = types.getCell(i, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-			String name = dbFieldNames.get(i);
-			result.add(new FieldDefinition(name, name, cell == null ? FieldTypes.TEXT : getFieldType(cell)));
+		for (int rowNo = 1; rowNo < numRows; rowNo++) {
+			Row row = sheet.getRow(rowNo);
+
+			// Read all columns in a row
+			Map<String, Object> map = new HashMap<>();
+			int index = 0;
+			for (Cell cell : row) {
+				String fieldName = dbFieldNames.get(index++);
+				FieldDefinition field = fieldMap.getOrDefault(fieldName,
+						new FieldDefinition(fieldName, fieldName, getFieldType(cell)));
+
+				Object obj = convertCell(cell, field);
+				map.put(fieldName, obj);
+				field.setSize(obj);
+				fieldMap.putIfAbsent(fieldName, field);
+
+				if (index > maxColumns) {
+					break;
+				}
+			}
+			records.add(map);
 		}
 
-		return result;
+		hSheets.put(sheet.getSheetName(), new ArrayList<>(fieldMap.values()));
+		hRecords.put(sheet.getSheetName(), records);
 	}
 
 	protected void setFreeze(int row, int col) {
@@ -201,80 +213,61 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 	@Override
 	public void readTableContents() throws Exception {
-		getCurrentSheet();
-		if (sheet == null) {
+		if (hSheets.isEmpty()) {
 			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
-		totalRecords = sheet.getLastRowNum() + 1; // Rows start with Row number 0
-		if (totalRecords < 2) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getSheetName(), myDatabase);
+		if (!hSheets.containsKey(sheetName)) {
+			// Get the first sheet
+			sheetName = hSheets.keySet().iterator().next();
+		}
+
+		sheet = wb.getSheet(sheetName);
+		totalRecords = hRecords.get(sheetName).size();
+		if (totalRecords < 1) {
+			throw FNProgException.getException("noRecordsInSheet", sheetName, myDatabase);
+		}
+	}
+
+	public Object convertCell(Cell cell, FieldDefinition field) {
+		switch (cell.getCellType()) {
+		case STRING:
+			return cell.getRichStringCellValue().getString();
+		case NUMERIC:
+			if (DateUtil.isCellDateFormatted(cell)) {
+				LocalDateTime date = new Timestamp(cell.getDateCellValue().getTime()).toLocalDateTime();
+
+				switch (field.getFieldType()) {
+				case DATE:
+					return date.toLocalDate();
+				case TIME:
+					return date.toLocalTime();
+				case TIMESTAMP:
+					return date;
+				default:
+					return date.toLocalDate();
+				}
+			} else {
+				double value = cell.getNumericCellValue();
+				if (field.getFieldType() == FieldTypes.FLOAT) {
+					return value;
+				} else {
+					return (int) value;
+				}
+			}
+		case BOOLEAN:
+			return cell.getBooleanCellValue();
+		case FORMULA:
+			return cell.getCellFormula();
+		default:
+			return cell.getRichStringCellValue().getString();
 		}
 	}
 
 	@Override
-	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = new HashMap<>();
-		Row row = sheet.getRow(currentRecord++);
-		if (row == null) {
-			// File is corrupt
-			return result;
-		}
-
-		List<FieldDefinition> dbDef = getTableModelFields();
-		final int MAX = dbDef.size();
-		int index = 0;
-
-		for (Cell cell : row) {
-			index = cell.getColumnIndex();
-			if (index > MAX) {
-				break;
-			}
-
-			FieldDefinition field = dbDef.get(index);
-
-			switch (cell.getCellType()) {
-			case STRING:
-				result.put(field.getFieldAlias(), cell.getRichStringCellValue().getString());
-				break;
-			case NUMERIC:
-				if (DateUtil.isCellDateFormatted(cell)) {
-					LocalDateTime date = new Timestamp(cell.getDateCellValue().getTime()).toLocalDateTime();
-
-					switch (field.getFieldType()) {
-					case DATE:
-						result.put(field.getFieldAlias(), date.toLocalDate());
-						break;
-					case TIME:
-						result.put(field.getFieldAlias(), date.toLocalTime());
-						break;
-					case TIMESTAMP:
-						result.put(field.getFieldAlias(), date);
-						break;
-					default:
-						result.put(field.getFieldAlias(), date.toLocalDate());
-					}
-				} else {
-					double value = cell.getNumericCellValue();
-					if (field.getFieldType() == FieldTypes.FLOAT) {
-						result.put(field.getFieldAlias(), value);
-					} else {
-						result.put(field.getFieldAlias(), (int) value);
-					}
-				}
-				break;
-			case BOOLEAN:
-				result.put(field.getFieldAlias(), cell.getBooleanCellValue());
-				break;
-			case FORMULA:
-				result.put(field.getFieldAlias(), cell.getCellFormula());
-				break;
-			default:
-				result.put(field.getFieldAlias(), cell.getRichStringCellValue().getString());
-			}
-
-		}
-		return result;
+	public Map<String, Object> readRecord() {
+		List<Map<String, Object>> records = hRecords.get(sheetName);
+		return records.get(currentRecord++);
 	}
 
 	@Override

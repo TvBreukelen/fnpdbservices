@@ -20,10 +20,11 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	 * @author Tom van Breukelen
 	 * @version 4.5
 	 */
-	private int currentRecord = 0;
+	private int recordNo = 0;
 	private int appInfoId = 0;
 	private long offsetPos = 78;
 	protected int appInfoDataLength = 0;
+	private int currentRecord = 0;
 
 	protected RandomAccessFile pdbRaf = null;
 	protected ByteArrayOutputStream pdbBaos = new ByteArrayOutputStream();
@@ -37,6 +38,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	@Override
 	public void openFile(boolean isInputFile) throws Exception {
+		dbRecords.clear();
 		File outFile = new File(myDatabase);
 		pdbRaf = new RandomAccessFile(outFile, "rw");
 		header = new PilotHeader(pdbRaf);
@@ -77,8 +79,8 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	}
 
 	protected void gotoRecord(int record) {
-		currentRecord = record;
-		offsetPos = 78L + currentRecord * 8;
+		recordNo = record;
+		offsetPos = 78L + recordNo * 8;
 	}
 
 	protected void skipBytes(int bytes) throws IOException {
@@ -100,9 +102,9 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 	 * @throws Exception
 	 */
 	protected int[] setPointer2NextRecord() throws Exception {
-		currentRecord++;
-		if (currentRecord > totalRecords) {
-			throw FNProgException.getException("noMatchFieldsDBHeader", myDatabase, Integer.toString(currentRecord),
+		recordNo++;
+		if (recordNo > totalRecords) {
+			throw FNProgException.getException("noMatchFieldsDBHeader", myDatabase, Integer.toString(recordNo),
 					Integer.toString(totalRecords));
 		}
 
@@ -112,7 +114,7 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 		recordID[1] = pdbRaf.readInt();
 		recordID[2] = pdbRaf.readInt();
 
-		if (currentRecord == totalRecords) {
+		if (recordNo == totalRecords) {
 			recordID[2] = (int) pdbRaf.length();
 		}
 
@@ -123,6 +125,11 @@ public abstract class PalmDB extends GeneralDB implements IConvert {
 
 	protected void readLn(byte[] buffer) throws IOException {
 		pdbRaf.read(buffer);
+	}
+
+	@Override
+	public Map<String, Object> readRecord() throws Exception {
+		return dbRecords.get(currentRecord++);
 	}
 
 	@Override

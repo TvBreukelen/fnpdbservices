@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,11 +30,10 @@ public class Calc extends GeneralDB implements IConvert {
 	private File outFile;
 
 	private Map<String, List<FieldDefinition>> hSheets;
-	private int currentRecord = 1;
-	private int maxColumns;
-	private int calcRow = 0;
+	private Map<String, List<Map<String, Object>>> hRecords;
 
-	private int noOfSheets;
+	private int currentRecord = 0;
+	private int calcRow = 0;
 	private boolean isAppend;
 
 	private SpreadSheet wb;
@@ -53,17 +53,16 @@ public class Calc extends GeneralDB implements IConvert {
 		if (outFile.exists()) {
 			sheetName = isInputFile ? myPref.getTableName() : myPref.getDatabaseName();
 			wb = new SpreadSheet(outFile);
-			noOfSheets = wb.getNumSheets();
+			int noOfSheets = wb.getNumSheets();
 
 			// Read all sheets in the workbook
 			hSheets = new HashMap<>(noOfSheets);
+			hRecords = new HashMap<>(noOfSheets);
+
 			for (int i = 0; i < noOfSheets; i++) {
-				// Get TableModelFields for each sheet and put them in the HashMap
+				// Get TableModelFields and records for each sheet
 				sheet = wb.getSheet(i);
-				List<FieldDefinition> temp = getDBFieldNamesAndTypes();
-				if (!temp.isEmpty()) {
-					hSheets.put(sheet.getName(), temp);
-				}
+				getFieldDefinitonsAndRecords();
 			}
 		} else {
 			sheetName = myPref.getDatabaseName();
@@ -79,19 +78,25 @@ public class Calc extends GeneralDB implements IConvert {
 
 	@Override
 	public void readTableContents() throws Exception {
-		getCurrentSheet();
-		if (sheet == null) {
+		if (hSheets.isEmpty()) {
 			throw FNProgException.getException("noSheets", myDatabase);
 		}
 
-		totalRecords = sheet.getMaxRows() - 1;
+		if (!hSheets.containsKey(sheetName)) {
+			// Get the first sheet
+			sheetName = hSheets.keySet().iterator().next();
+		}
+
+		sheet = wb.getSheet(sheetName);
+
+		totalRecords = hRecords.get(sheetName).size();
 		if (totalRecords < 1) {
-			throw FNProgException.getException("noRecordsInSheet", sheet.getName(), myDatabase);
+			throw FNProgException.getException("noRecordsInSheet", sheetName, myDatabase);
 		}
 	}
 
 	private void createNewSheet(int rows, int columns) {
-		if (isAppend) {
+		if (isAppend || isInputFile) {
 			return;
 		}
 
@@ -104,15 +109,15 @@ public class Calc extends GeneralDB implements IConvert {
 		wb.appendSheet(sheet);
 	}
 
-	private List<FieldDefinition> getDBFieldNamesAndTypes() {
-		List<FieldDefinition> result = new ArrayList<>();
+	private void getFieldDefinitonsAndRecords() {
 		dbFieldNames.clear();
-
 		if (sheet.getMaxRows() < 2) {
-			return result;
+			return;
 		}
 
-		maxColumns = sheet.getMaxColumns();
+		int maxColumns = sheet.getMaxColumns();
+		List<Map<String, Object>> records = new ArrayList<>();
+
 		Range range = sheet.getRange(0, 0, 1, maxColumns); // Assumes that the 1st row contains the fieldnames
 		Object[][] cells = range.getValues();
 		int counter = 0;
@@ -121,26 +126,32 @@ public class Calc extends GeneralDB implements IConvert {
 			dbFieldNames.add(cell == null ? "Header" + Integer.toString(counter) : cell.toString());
 		}
 
+		// Read all rows
 		int numRows = sheet.getMaxRows() - 1;
+		Map<String, FieldDefinition> fieldMap = new LinkedHashMap<>();
 
-		// Read one complete column at the time
-		for (int column = 0; column < maxColumns; column++) {
-			range = sheet.getRange(1, column, numRows);
+		for (int row = 1; row < numRows; row++) {
+			range = sheet.getRange(row, 0, 1, maxColumns);
 			cells = range.getValues();
-
-			// Read each cell in the column until a value is found
 			Object cell = null;
-			for (int row = 0; numRows > row; row++) {
-				cell = cells[row][0];
-				if (cell != null) {
-					break;
-				}
+
+			// Read all columns in a row
+			Map<String, Object> map = new HashMap<>();
+			for (int column = 0; column < maxColumns; column++) {
+				String fieldName = dbFieldNames.get(column);
+				cell = cells[0][column];
+
+				map.put(fieldName, cell);
+				FieldDefinition field = fieldMap.getOrDefault(fieldName,
+						new FieldDefinition(fieldName, fieldName, getFieldType(cell)));
+				field.setSize(cell);
+				fieldMap.putIfAbsent(fieldName, field);
 			}
-			String name = dbFieldNames.get(column);
-			result.add(new FieldDefinition(name, name, cell == null ? FieldTypes.TEXT : getFieldType(cell)));
+			records.add(map);
 		}
 
-		return result;
+		hSheets.put(sheet.getName(), new ArrayList<>(fieldMap.values()));
+		hRecords.put(sheet.getName(), records);
 	}
 
 	private FieldTypes getFieldType(Object cell) {
@@ -168,7 +179,7 @@ public class Calc extends GeneralDB implements IConvert {
 			return FieldTypes.DURATION;
 		}
 
-		if (cell instanceof Double) {
+		if (cell instanceof Float || cell instanceof Double) {
 			return FieldTypes.FLOAT;
 		}
 
@@ -194,29 +205,10 @@ public class Calc extends GeneralDB implements IConvert {
 		return lSheets;
 	}
 
-	private void getCurrentSheet() {
-		Optional<Sheet> sheetOpt = Optional.ofNullable(wb.getSheet(sheetName));
-		if (sheetOpt.isPresent()) {
-			sheet = sheetOpt.get();
-		} else {
-			sheet = wb.getSheet(0);
-			sheetName = sheet.getName();
-		}
-	}
-
 	@Override
 	public Map<String, Object> readRecord() throws Exception {
-		List<FieldDefinition> dbDef = getTableModelFields();
-		Map<String, Object> result = new HashMap<>();
-		Range row = sheet.getRange(currentRecord++, 0, 1, maxColumns);
-
-		int index = 0;
-		Object[][] cells = row.getValues();
-		for (Object cell : cells[0]) {
-			FieldDefinition field = dbDef.get(index++);
-			result.put(field.getFieldAlias(), cell);
-		}
-		return result;
+		List<Map<String, Object>> records = hRecords.get(sheetName);
+		return records.get(currentRecord++);
 	}
 
 	@Override
@@ -238,7 +230,7 @@ public class Calc extends GeneralDB implements IConvert {
 	@Override
 	public void createDbHeader() throws Exception {
 		if (isAppend) {
-			validateAppend(hSheets.get(sheetName));
+			validateAppend(getTableModelFields());
 			calcRow = sheet.getMaxRows();
 			return;
 		}

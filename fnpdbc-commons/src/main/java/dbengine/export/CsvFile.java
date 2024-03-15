@@ -102,6 +102,10 @@ public class CsvFile extends GeneralDB implements IConvert {
 		} catch (Exception ex) {
 			throw FNProgException.getException("noFields", myDatabase);
 		}
+
+		// Set the max. size of every field
+		getTableModelFields().forEach(field -> dbRecords
+				.forEach(map -> field.setSize(map.getOrDefault(field.getFieldHeader(), General.EMPTY_STRING))));
 	}
 
 	@Override

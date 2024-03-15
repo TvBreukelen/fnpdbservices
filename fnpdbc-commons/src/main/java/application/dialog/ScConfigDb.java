@@ -363,7 +363,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 		myExportFile = helper.getDatabaseType();
 		String dbFile = helper.getDatabaseName();
-		List<String> dbFiles = dbSettings.getDatabaseFiles(myExportFile);
+		List<String> dbFiles = dbSettings.getDatabaseFiles(myExportFile, false);
 
 		if (dbFile.isEmpty() && !dbFiles.isEmpty()) {
 			// Take the last entry in the prev. defined database list

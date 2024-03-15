@@ -312,5 +312,13 @@ public class DBaseFile extends GeneralDB implements IConvert {
 				dbFieldTypes.add(FieldTypes.TEXT);
 			}
 		}
+
+		int index = 0;
+		for (FieldDefinition field : getTableModelFields()) {
+			DBFField dbField = reader.getField(index++);
+			field.setSize(dbField.getLength());
+			field.setNotNullable(!dbField.isNullable());
+			field.setPrimaryKey(dbField.getIndexFieldFlag() != 0);
+		}
 	}
 }

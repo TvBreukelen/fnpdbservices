@@ -38,6 +38,7 @@ public abstract class GeneralDB {
 	protected List<FieldDefinition> dbInfo2Write = new ArrayList<>();
 	protected List<String> dbFieldNames = new ArrayList<>();
 	protected List<FieldTypes> dbFieldTypes = new ArrayList<>();
+	protected List<Map<String, Object>> dbRecords = new ArrayList<>();
 
 	protected ExportFile myExportFile;
 	protected ExportFile myImportFile;
@@ -309,6 +310,12 @@ public abstract class GeneralDB {
 			}
 		}
 		return tableModelFields;
+	}
+
+	protected void setFieldSizes() {
+		// Set the max. size of every field
+		getTableModelFields().forEach(field -> dbRecords
+				.forEach(map -> field.setSize(map.getOrDefault(field.getFieldHeader(), General.EMPTY_STRING))));
 	}
 
 	public String getFileOpenWarning() {

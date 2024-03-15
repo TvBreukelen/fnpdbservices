@@ -7,6 +7,7 @@ import java.util.Map;
 
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
+import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
 import dbengine.PalmDB;
@@ -26,57 +27,61 @@ public class JFile extends PalmDB {
 	}
 
 	@Override
-	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = new HashMap<>();
+	public void readTableContents() throws Exception {
+		super.readTableContents();
 		List<FieldDefinition> dbDef = getTableModelFields();
 
-		int dataSize = calculateFieldRecord();
-		if (dataSize < 0) {
-			// File is corrupt
-			return result;
-		}
-
-		byte[] bytes = new byte[dataSize];
-		readLn(bytes);
-
-		String s = General.convertByteArrayToString(bytes, null);
-		int[] index = new int[3];
-		index[2] = s.indexOf('\0', index[0]);
-
-		while (index[2] != -1 && index[0] < numFields) {
-			FieldDefinition field = dbDef.get(index[0]++);
-			Object dbValue = s.substring(index[1], index[2]);
-			if (!dbValue.equals(General.EMPTY_STRING)) {
-				try {
-					switch (field.getFieldType()) {
-					case BOOLEAN:
-						dbValue = Boolean.parseBoolean(dbValue.toString());
-						break;
-					case DATE:
-						dbValue = General.convertDate2DB(dbValue.toString(), General.sdInternalDate);
-						break;
-					case NUMBER:
-						dbValue = Integer.parseInt(dbValue.toString());
-						break;
-					case FLOAT:
-						dbValue = Double.parseDouble(dbValue.toString());
-						break;
-					case TIME:
-						dbValue = General.convertTime2DB(dbValue.toString(), General.sdInternalTime);
-						break;
-					default:
-						break;
-					}
-				} catch (Exception e) {
-					// dbValue could not be converted, this condition will be handled by method
-					// XConverter.loadInputFile
-				}
+		for (int index = 0; index < totalRecords; index++) {
+			Map<String, Object> result = new HashMap<>();
+			int dataSize = calculateFieldRecord();
+			if (dataSize < 0) {
+				// File is corrupt
+				throw FNProgException.getException("fileHeaderCorrupt", myDatabase);
 			}
-			result.put(field.getFieldAlias(), dbValue);
-			index[1] = index[2] + 1;
-			index[2] = s.indexOf('\0', index[1]);
+
+			byte[] bytes = new byte[dataSize];
+			readLn(bytes);
+
+			String s = General.convertByteArrayToString(bytes, null);
+			int[] idx = new int[3];
+			idx[2] = s.indexOf('\0', idx[0]);
+
+			while (idx[2] != -1 && idx[0] < numFields) {
+				FieldDefinition field = dbDef.get(idx[0]++);
+				Object dbValue = s.substring(idx[1], idx[2]);
+				if (!dbValue.equals(General.EMPTY_STRING)) {
+					try {
+						switch (field.getFieldType()) {
+						case BOOLEAN:
+							dbValue = Boolean.parseBoolean(dbValue.toString());
+							break;
+						case DATE:
+							dbValue = General.convertDate2DB(dbValue.toString(), General.sdInternalDate);
+							break;
+						case NUMBER:
+							dbValue = Integer.parseInt(dbValue.toString());
+							break;
+						case FLOAT:
+							dbValue = Double.parseDouble(dbValue.toString());
+							break;
+						case TIME:
+							dbValue = General.convertTime2DB(dbValue.toString(), General.sdInternalTime);
+							break;
+						default:
+							break;
+						}
+					} catch (Exception e) {
+						// dbValue could not be converted, this condition will be handled by method
+						// XConverter.loadInputFile
+					}
+				}
+				result.put(field.getFieldAlias(), dbValue);
+				idx[1] = idx[2] + 1;
+				idx[2] = s.indexOf('\0', idx[1]);
+			}
+			dbRecords.add(result);
 		}
-		return result;
+		setFieldSizes();
 	}
 
 	protected int calculateFieldRecord() throws Exception {

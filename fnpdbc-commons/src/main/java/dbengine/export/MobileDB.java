@@ -25,35 +25,41 @@ public class MobileDB extends PalmDB {
 
 	public MobileDB(Profiles pref) {
 		super(pref);
+		dbRecords.clear();
 	}
 
 	@Override
-	public Map<String, Object> readRecord() throws Exception {
-		Map<String, Object> result = new HashMap<>();
+	public void readTableContents() throws Exception {
+		super.readTableContents();
 		List<FieldDefinition> dbDef = getTableModelFields();
-		List<String> fields = getRecordFields(null);
 
-		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field = dbDef.get(i);
-			Object dbValue = fields.get(i);
+		for (int index = 0; index < totalRecords; index++) {
+			List<String> fields = getRecordFields(null);
+			Map<String, Object> result = new HashMap<>();
 
-			switch (field.getFieldType()) {
-			case BOOLEAN:
-				dbValue = dbValue.equals("true") || dbValue.equals("ja") || dbValue.equals("yes")
-						|| dbValue.equals("1");
-				break;
-			case DATE:
-				dbValue = convertDate2DB(dbValue.toString());
-				break;
-			case TIME:
-				dbValue = General.convertTime2DB(dbValue.toString(), General.sdInternalTime);
-				break;
-			default:
-				break;
+			for (int i = 0; i < numFields; i++) {
+				FieldDefinition field = dbDef.get(i);
+				Object dbValue = fields.get(i);
+
+				switch (field.getFieldType()) {
+				case BOOLEAN:
+					dbValue = dbValue.equals("true") || dbValue.equals("ja") || dbValue.equals("yes")
+							|| dbValue.equals("1");
+					break;
+				case DATE:
+					dbValue = convertDate2DB(dbValue.toString());
+					break;
+				case TIME:
+					dbValue = General.convertTime2DB(dbValue.toString(), General.sdInternalTime);
+					break;
+				default:
+					break;
+				}
+				result.put(field.getFieldAlias(), dbValue);
 			}
-			result.put(field.getFieldAlias(), dbValue);
+			dbRecords.add(result);
 		}
-		return result;
+		setFieldSizes();
 	}
 
 	/**
