@@ -1,4 +1,4 @@
-package dbengine;
+package dbengine.export;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -10,6 +10,8 @@ import java.util.Map;
 import application.interfaces.ExportFile;
 import application.preferences.Profiles;
 import application.utils.FNProgException;
+import dbengine.GeneralDB;
+import dbengine.IConvert;
 import dbengine.utils.PilotHeader;
 
 public abstract class PalmDB extends GeneralDB implements IConvert {

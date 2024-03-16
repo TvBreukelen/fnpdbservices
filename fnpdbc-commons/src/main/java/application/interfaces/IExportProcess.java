@@ -8,11 +8,7 @@ import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
 import dbengine.export.HanDBase;
-import dbengine.export.JFile;
 import dbengine.export.JsonFile;
-import dbengine.export.ListDB;
-import dbengine.export.MobileDB;
-import dbengine.export.PilotDB;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLite;
 import dbengine.export.XmlFile;
@@ -33,14 +29,6 @@ public abstract class IExportProcess {
 			return new HanDBase(profile);
 		case JSON:
 			return new JsonFile(profile);
-		case JFILE:
-			return new JFile(profile);
-		case LIST:
-			return new ListDB(profile);
-		case MOBILEDB:
-			return new MobileDB(profile);
-		case PILOTDB:
-			return new PilotDB(profile);
 		case POSTGRESQL:
 			return new PostgreSQL(profile);
 		case SQLITE:

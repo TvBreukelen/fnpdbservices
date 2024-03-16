@@ -15,7 +15,6 @@ import application.preferences.Profiles;
 import application.utils.FNProgException;
 import application.utils.FieldDefinition;
 import application.utils.General;
-import dbengine.PalmDB;
 
 public class PilotDB extends PalmDB {
 	/**

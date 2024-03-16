@@ -13,9 +13,13 @@ import dbconvert.software.XConverter;
 import dbengine.GeneralDB;
 import dbengine.export.Firebird;
 import dbengine.export.ICalendar;
+import dbengine.export.JFile;
+import dbengine.export.ListDB;
 import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
+import dbengine.export.MobileDB;
 import dbengine.export.Paradox;
+import dbengine.export.PilotDB;
 import dbengine.export.SQLServer;
 import dbengine.export.VCard;
 
@@ -133,6 +137,14 @@ public class ExportProcess extends IExportProcess implements Runnable {
 			return new SQLServer(profile);
 		case VCARD:
 			return new VCard(profile);
+		case JFILE:
+			return new JFile(profile);
+		case LIST:
+			return new ListDB(profile);
+		case MOBILEDB:
+			return new MobileDB(profile);
+		case PILOTDB:
+			return new PilotDB(profile);
 		default:
 			return super.getDatabase(db, profile);
 		}

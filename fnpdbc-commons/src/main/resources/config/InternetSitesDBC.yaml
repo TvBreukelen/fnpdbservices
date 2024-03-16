@@ -3,8 +3,12 @@
 Internet sites:
 - name: Other
   website:
+  - Calc: https://www.libreoffice.org/discover/calc/
+  - CSV: https://en.wikipedia.org/wiki/Comma-separated_values
+  - Excel: https://www.microsoft.com/en-us/microsoft-365/excel
   - HanDBase: https://www.reddit.com/r/handbase/
   - iCalender: https://icalendar.org/
+  - JSON: https://www.json.org/json-en.html
   - List: http://www.lowtek.ca/list
   - MariaDB: https://mariadb.com
   - MySQL: https://www.mysql.com
@@ -13,3 +17,6 @@ Internet sites:
   - Pilot-DB: http://pilot-db.sourceforge.net
   - SQL Server: https://docs.microsoft.com/en-us/sql/sql-server/
   - SQLite: https://www.sqlite.org/index.html
+  - VCard: https://devguide.calconnect.org/vCard/vcard-4/
+  - YAML: https://yaml.org/ 
+  

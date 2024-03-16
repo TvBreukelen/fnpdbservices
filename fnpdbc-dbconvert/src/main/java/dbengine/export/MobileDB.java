@@ -11,7 +11,6 @@ import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
 import application.utils.FieldDefinition;
 import application.utils.General;
-import dbengine.PalmDB;
 
 public class MobileDB extends PalmDB {
 	/**

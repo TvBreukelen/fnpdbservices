@@ -8,7 +8,12 @@ Internet sites:
 - name: Other
   website:
   - BookBuddy, MovieBuddy & MusicBuddy: https://www.kimicoapps.com/
+  - Calc: https://www.libreoffice.org/discover/calc/
+  - CSV: https://en.wikipedia.org/wiki/Comma-separated_values
+  - Excel: https://www.microsoft.com/en-us/microsoft-365/excel
   - HanDBase: https://www.reddit.com/r/handbase/
-  - List: http://www.lowtek.ca/list
+  - JSON: https://www.json.org/json-en.html
+  - PostgreSQL: https://www.postgresql.org
   - SQLite: https://www.sqlite.org/index.html
+  - YAML: https://yaml.org/ 
  
