@@ -690,9 +690,8 @@ public final class General {
 	}
 
 	public static String getBaseName(String dbFile, ExportFile exp) {
-		// TODO Remote databases
 		int index = dbFile.lastIndexOf('.');
-		String extension = exp.isConnectHost() ? General.EMPTY_STRING : exp.getFileExtention().get(0);
+		String extension = exp.getFileExtention().get(0);
 
 		if (index == -1) {
 			return dbFile + extension;
@@ -822,7 +821,7 @@ public final class General {
 		if (!isMustExist) {
 			String filename = component.getText();
 			if (!filename.isEmpty() && !isFileExtensionOk(filename, file)) {
-				component.setText(filename + "." + file.getFileExtention().get(0));
+				component.setText(filename + file.getFileExtention().get(0));
 			}
 		}
 	}

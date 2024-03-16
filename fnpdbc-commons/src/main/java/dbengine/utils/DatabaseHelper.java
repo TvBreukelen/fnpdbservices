@@ -247,7 +247,7 @@ public class DatabaseHelper {
 	}
 
 	public static String extractDatabase(String database) {
-		if (database.contains("/")) {
+		if (database.contains(":")) {
 			return database.substring(database.lastIndexOf('/') + 1);
 		}
 		return database;
