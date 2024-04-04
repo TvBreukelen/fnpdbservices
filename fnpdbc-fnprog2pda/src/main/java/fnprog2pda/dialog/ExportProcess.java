@@ -58,10 +58,11 @@ public class ExportProcess extends IExportProcess implements Runnable {
 	}
 
 	private void loadTableModel() {
+		mySoftware = FNProgramvare.getSoftware(myProgram.myFnSoftware);
+
 		if (isRefresh || !mySoftware.isConnected()) {
 			isNotLoaded = true;
 			try {
-				mySoftware = FNProgramvare.getSoftware(myProgram.myFnSoftware);
 				mySoftware.openFile(); // Connect to the FNProgramvare Access database
 				mySoftware.setupDBTranslation(false);
 				xView = new Viewer(mySoftware.getTableModelFields());
@@ -79,9 +80,7 @@ public class ExportProcess extends IExportProcess implements Runnable {
 				isNotLoaded = false;
 			} catch (Exception e) {
 				isAborted = true;
-				if (mySoftware != null) {
-					mySoftware.close();
-				}
+				mySoftware.close();
 				General.errorMessage(myProgram, e, GUIFactory.getTitle("databaseReadError"), null);
 			}
 		}

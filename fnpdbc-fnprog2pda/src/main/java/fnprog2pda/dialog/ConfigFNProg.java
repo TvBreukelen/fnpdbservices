@@ -47,14 +47,14 @@ public class ConfigFNProg extends ProgramDialog {
 		bIncremental.setEnabled(isProfileSet && (!pdaSettings.getLastExported().isEmpty() || lastIndex > 0));
 
 		if (isProfileSet) {
-			if (pdaSettings.getTableName().isEmpty()) {
-				pdaSettings.setTableName(myFnSoftware.getViews()[0], false);
-			}
-
 			DatabaseHelper helper = pdaSettings.getFromDatabase();
 			myFnSoftware = FNPSoftware.getSoftware(helper.getDatabaseTypeAsString());
 			lSoftwareID.setText(helper.getDatabaseType() + General.SPACE + helper.getDatabaseVersion() + " / "
 					+ pdaSettings.getTableName());
+
+			if (pdaSettings.getTableName().isEmpty()) {
+				pdaSettings.setTableName(myFnSoftware.getViews()[0], false);
+			}
 		} else {
 			lSoftwareID.setText(General.EMPTY_STRING);
 		}
@@ -69,7 +69,7 @@ public class ConfigFNProg extends ProgramDialog {
 	public void updateProfile(Action action) {
 		super.updateProfile(action);
 		DatabaseHelper helper = pdaSettings.getFromDatabase();
-		myFnSoftware = FNPSoftware.getSoftware(helper.getDatabase());
+		myFnSoftware = FNPSoftware.getSoftware(helper.getDatabaseTypeAsString());
 	}
 
 	@Override

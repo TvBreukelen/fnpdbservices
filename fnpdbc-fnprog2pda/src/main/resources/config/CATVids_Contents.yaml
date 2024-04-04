@@ -7,16 +7,20 @@ personColumns:
 tables:
   Audio: 'Audio,AudioLink.AudioID'
   AudioLink: AudioLink;Hide
+  AcquiredFrom: 'AcquiredFrom,Video.AcquiredFromID;ShowAll'
   Award: 'Award,AwardLink.AwardID'
   AwardLink: AwardLink;Hide
+  Borrower: 'Borrower,Video.BorrowerID;ShowAll'
   Color: Color
   CreditsLink: 'CreditsLink,ContentsID;Hide'
   Country: Country
   DialogLanguageLink: 'DialogLanguageLink,ContentsID;Hide'
   DialogLanguage: 'Language,DialogLanguageLink.LanguageID'
   FileLinks: FileLinks
+  Format: 'Format,Video.FormatID'
   Keyword: 'Keyword,KeywordLink.KeywordID'
   KeywordLink: KeywordLink;Hide
+  Location: 'Location,Video.LocationID'
   Person: 'Person,CreditsLink.PersonID'
   PersonalRating: PersonalRating
   RecordingSpeed: RecordingSpeed
@@ -27,10 +31,7 @@ tables:
   SubtitleLanguage: 'Language,SubtitleLanguageLink.LanguageID'
   Type: 'ContentsType,TypeID'
   Video: 'Video,VideoID;ShowAll'
-  AcquiredFrom: 'AcquiredFrom,Video.AcquiredFromID;ShowAll'
-  Borrower: 'Borrower,Video.BorrowerID;ShowAll'
-  Format: 'Format,Video.FormatID'
-  Location: 'Location,Video.LocationID'
+  VideoFileLink: 'VideoFileLink,ContentsID;ShowAll'
   VideoCustom: 'VideoCustom,Video.VideoID;ShowAll'
   VideoSeries: 'VideoSeries,Video.VideoSeriesID'
 tables5:
