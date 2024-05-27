@@ -149,9 +149,9 @@ public abstract class ExcelFile extends GeneralDB implements IConvert {
 
 			// Read all columns in a row
 			Map<String, Object> map = new HashMap<>();
-			int index = 0;
 			for (Cell cell : row) {
-				String fieldName = dbFieldNames.get(index++);
+				int index = cell.getColumnIndex();
+				String fieldName = dbFieldNames.get(index);
 				FieldDefinition field = fieldMap.getOrDefault(fieldName,
 						new FieldDefinition(fieldName, fieldName, getFieldType(cell)));
 

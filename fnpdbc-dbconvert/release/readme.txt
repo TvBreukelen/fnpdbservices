@@ -150,9 +150,10 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
-Version 8.4
+Version 8.3
 -----------
 Added export to Firebird databases.
+Bug fix Excel export with empty cells.
 
 
 Version 8.2
