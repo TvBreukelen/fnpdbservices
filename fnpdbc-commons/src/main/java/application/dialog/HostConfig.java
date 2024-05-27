@@ -134,7 +134,7 @@ public class HostConfig extends BasicDialog {
 		result.addTab("SSL", createSslTab());
 
 		Map<Integer, String> mapHelp = new HashMap<>();
-		mapHelp.put(0, isFirebird ? "export_firebird" : "export_hostdb");
+		mapHelp.put(0, isFirebird ? "firebirdSettings" : "hostdbSettings");
 		mapHelp.put(1, "export_ssh_hostdb");
 		mapHelp.put(2, isSqlServer ? "export_ssl_sqlserver" : "export_ssl_hostdb");
 

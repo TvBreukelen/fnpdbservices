@@ -67,7 +67,6 @@ public enum ExportFile {
 
 		if (!isImport) {
 			result.remove(ACCESS.name);
-			result.remove(FIREBIRD.name);
 			result.remove(JFILE.name);
 			result.remove(LIST.name);
 			result.remove(MARIADB.name);
@@ -201,7 +200,7 @@ public enum ExportFile {
 	}
 
 	public List<String> getFileExtention() {
-		return type.getExtention();
+		return this == FIREBIRD ? FileType.FIREBIRD.getExtention() : type.getExtention();
 	}
 
 	public String getFileType() {

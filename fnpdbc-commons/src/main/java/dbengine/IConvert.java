@@ -1,5 +1,6 @@
 package dbengine;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,11 @@ public interface IConvert {
 
 	void readTableContents() throws Exception;
 
-	default void readInputFile() throws Exception {
+	default void obtainQuery() {
+		// Do Nothing
+	}
+
+	default void executeQuery() throws SQLException {
 		// Do Nothing
 	}
 

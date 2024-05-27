@@ -67,6 +67,7 @@ Foxpro          Microsoft Windows
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
 MS-Excel        Microsoft Windows / Mac OS X
+Firebird        All platforms
 PostgreSQL      All platforms
 SQLite          All platforms
 TSV             All platforms
@@ -148,6 +149,11 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 8.4
+-----------
+Added export to Firebird databases.
+
 
 Version 8.2
 -----------

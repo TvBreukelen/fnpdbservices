@@ -7,6 +7,7 @@ import dbengine.export.Calc;
 import dbengine.export.CsvFile;
 import dbengine.export.DBaseFile;
 import dbengine.export.Excel;
+import dbengine.export.Firebird;
 import dbengine.export.HanDBase;
 import dbengine.export.JsonFile;
 import dbengine.export.PostgreSQL;
@@ -25,6 +26,8 @@ public abstract class IExportProcess {
 			return new DBaseFile(profile);
 		case EXCEL:
 			return new Excel(profile);
+		case FIREBIRD:
+			return new Firebird(profile);
 		case HANDBASE:
 			return new HanDBase(profile);
 		case JSON:

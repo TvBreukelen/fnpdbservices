@@ -36,6 +36,7 @@ xBase           Microsoft Windows
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
 MS-Excel        Microsoft Windows / Mac OS X
+Firebird        All platforms
 PostGreSQL      All platforms
 SQLite          All platforms
 TSV             All platforms
@@ -135,7 +136,7 @@ General Public License for more details.
 Version 10.5
 ------------
 Added append option to Calc and Excel export.
-Added export to PostGreSQL databases.
+Added export to Firebird and PostGreSQL databases.
 Removed export to Palm-OS databases (JFile, List, MobileDB and PilotDB).
 Viewer can now display images and items are shown with the correct row height.
 

@@ -259,7 +259,9 @@ public abstract class FNProgramvare extends BasicSoft {
 
 		if (isOutputFileOpen) {
 			dbOut.closeFile();
-			dbOut.deleteFile();
+			if (!myExportFile.isSqlDatabase()) {
+				dbOut.deleteFile();
+			}
 			isOutputFileOpen = false;
 		}
 	}

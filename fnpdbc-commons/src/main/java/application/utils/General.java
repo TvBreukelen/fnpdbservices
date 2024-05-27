@@ -983,7 +983,7 @@ public final class General {
 	}
 
 	public static boolean isFileExtensionOk(String dbFile, ExportFile exp) {
-		if (exp.isConnectHost()) {
+		if (exp != ExportFile.FIREBIRD && exp.isConnectHost()) {
 			return !dbFile.contains(".");
 		}
 

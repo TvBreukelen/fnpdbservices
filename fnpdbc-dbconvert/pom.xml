@@ -30,11 +30,6 @@
 			<version>1.6.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.firebirdsql.jdbc</groupId>
-			<artifactId>jaybird</artifactId>
-			<version>5.0.3.java11</version>
-		</dependency>
-		<dependency>
   			<groupId>io.github.spannm</groupId>
   			<artifactId>ucanaccess</artifactId>
  			<version>5.1.1</version>

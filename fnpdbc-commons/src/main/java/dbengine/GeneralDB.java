@@ -233,7 +233,7 @@ public abstract class GeneralDB {
 
 		ExportFile exp = myHelper.getDatabaseType();
 
-		if (exp == ExportFile.POSTGRESQL) {
+		if (exp == ExportFile.POSTGRESQL || exp == ExportFile.FIREBIRD) {
 			return result;
 		}
 

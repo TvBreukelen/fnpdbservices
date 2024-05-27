@@ -416,11 +416,11 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	public SqlTable getSqlTable(String table) {
-		return aTables.get(table);
+		return aTables.getOrDefault(table, aTables.get(table.toUpperCase()));
 	}
 
 	@Override
-	public void readInputFile() throws SQLException {
+	public void obtainQuery() {
 		// Extract fields to read from the table model, based on what we want to write.
 		// We do that because dbInfo2Write doesn't have the SQL types, needed for the
 		// data conversions
@@ -445,8 +445,6 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		}
 
 		getSqlQuery();
-		dbStatement = connection.createStatement();
-		dbResultSet = dbStatement.executeQuery(getPaginationSqlString());
 	}
 
 	protected String getPaginationSqlString() {
@@ -456,6 +454,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 					.append(myPref.getSqlSelectLimit()).append(" ROWS ONLY");
 		}
 		return b.toString();
+	}
+
+	@Override
+	public void executeQuery() throws SQLException {
+		dbStatement = connection.createStatement();
+		dbResultSet = dbStatement.executeQuery(getPaginationSqlString());
 	}
 
 	@Override
@@ -482,7 +486,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		} else if (myPref.isPagination() && offset < totalRecords) {
 			dbResultSet.close();
 			dbStatement.close();
-			readInputFile();
+			obtainQuery();
+			executeQuery();
 			return readRecord();
 		}
 		return result;
@@ -807,11 +812,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	protected void executeStatement(String statement) throws SQLException {
-		dbStatement = connection.createStatement();
-		try {
-			dbStatement.execute(statement);
-		} finally {
-			dbStatement.close();
+		try (Statement st = connection.createStatement()) {
+			st.execute(statement);
 		}
 	}
 

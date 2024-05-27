@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 8.4
+-----------
+Added export to Firebird databases.
+
+
 Version 8.2
 -----------
 Added append option to Calc and Excel export.

@@ -35,6 +35,7 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 import dbengine.SqlDB;
+import dbengine.export.Firebird;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLite;
 import dbengine.utils.DatabaseHelper;
@@ -148,10 +149,16 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			}
 
 			SqlDB db;
-			if (myExportFile == ExportFile.SQLITE) {
+			switch (myExportFile) {
+			case FIREBIRD:
+				db = new Firebird(profiles);
+				break;
+			case SQLITE:
 				db = new SQLite(profiles);
-			} else {
+				break;
+			default:
 				db = new PostgreSQL(profiles);
+				break;
 			}
 
 			List<FieldDefinition> fields = new ArrayList<>();
@@ -496,6 +503,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		case CALC, DBASE, SQLITE, POSTGRESQL:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
+			break;
+		case FIREBIRD:
+			pTopContainer.add(pExport);
 			break;
 		case TEXTFILE:
 			pTopContainer.add(pOtherOptions);

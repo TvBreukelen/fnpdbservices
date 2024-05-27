@@ -6,6 +6,7 @@ import java.util.List;
 import application.interfaces.ExportFile;
 import application.utils.BasisField;
 import application.utils.GUIFactory;
+import application.utils.General;
 
 public class UserFieldModel extends HiddenColumnModel {
 	private static final long serialVersionUID = -3745524495569802922L;
@@ -120,7 +121,7 @@ public class UserFieldModel extends HiddenColumnModel {
 		BasisField obj = new BasisField(field);
 		if (exportFile.isSqlDatabase()) {
 			// No dot allowed in the field name
-			obj.setFieldHeader(obj.getFieldHeader().replace(".", ""));
+			obj.setFieldHeader(obj.getFieldHeader().replace(".", General.EMPTY_STRING));
 		}
 		tableData.add(row, obj);
 		fireTableDataChanged();
