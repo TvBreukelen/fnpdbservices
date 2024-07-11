@@ -10,6 +10,7 @@ import dbengine.export.Excel;
 import dbengine.export.Firebird;
 import dbengine.export.HanDBase;
 import dbengine.export.JsonFile;
+import dbengine.export.MariaDB;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLite;
 import dbengine.export.XmlFile;
@@ -32,6 +33,8 @@ public abstract class IExportProcess {
 			return new HanDBase(profile);
 		case JSON:
 			return new JsonFile(profile);
+		case MARIADB:
+			return new MariaDB(profile);
 		case POSTGRESQL:
 			return new PostgreSQL(profile);
 		case SQLITE:

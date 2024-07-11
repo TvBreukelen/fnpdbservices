@@ -66,6 +66,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	protected int offset;
 
 	private Set<String> linkedTables = new HashSet<>();
+	protected List<FieldDefinition> prepReplace = new ArrayList<>();
 
 	protected SqlDB(Profiles pref) {
 		super(pref);
@@ -416,7 +417,13 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	public SqlTable getSqlTable(String table) {
-		return aTables.getOrDefault(table, aTables.get(table.toUpperCase()));
+		for (Entry<String, SqlTable> entry : aTables.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase(table)) {
+				return entry.getValue();
+			}
+		}
+
+		return null;
 	}
 
 	@Override
@@ -794,7 +801,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		if (table == null || myPref.getExportOption() == 0) {
 			useAppend = false;
 			if (table != null) {
-				executeStatement("DROP TABLE " + getSqlFieldName(tableName));
+				executeStatement("DROP TABLE " + table.getName());
 			}
 			executeStatement(buildTableString(tableName, dbInfo2Write));
 			createPreparedStatement();
@@ -833,6 +840,16 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			index++;
 		}
 
+		for (FieldDefinition field : prepReplace) {
+			Object obj = dbRecord.get(field.getFieldAlias());
+			if (obj == null || obj.equals("")) {
+				prepStmt.setNull(index, field.getSQLType());
+			} else {
+				setPrepStatementObject(index, obj, field);
+			}
+			index++;
+		}
+
 		try {
 			result = prepStmt.executeUpdate();
 		} catch (SQLException ex) {
@@ -858,5 +875,14 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	public String buildTableString(String table, List<FieldDefinition> fields) {
 		// To be implemented by the child classes
 		return null;
+	}
+
+	protected void getTextOrVarchar(int maxSize, StringBuilder buf) {
+		if (maxSize > 255 || maxSize == 0) {
+			buf.append(" TEXT");
+		} else {
+			buf.append(" VARCHAR(").append(maxSize).append(")");
+		}
+
 	}
 }

@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 8.4
+-----------
+Added export to MariaDB
+
+
 Version 8.3
 -----------
 Added export to Firebird databases.

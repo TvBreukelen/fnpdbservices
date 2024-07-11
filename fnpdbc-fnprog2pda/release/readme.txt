@@ -35,8 +35,9 @@ CSV             All platforms
 xBase           Microsoft Windows
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
-MS-Excel        Microsoft Windows / Mac OS X
+MS-Excel        Microsoft Windows / MacOS
 Firebird        All platforms
+MariaDB         All platforms
 PostGreSQL      All platforms
 SQLite          All platforms
 TSV             All platforms
@@ -132,6 +133,11 @@ General Public License for more details.
 ===================================================================================================
 5. What is New?
 ===================================================================================================
+
+Version 10.6
+------------
+Added export to MariaDB
+
 
 Version 10.5
 ------------

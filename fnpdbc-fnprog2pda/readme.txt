@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 10.6
+------------
+Added export to MariaDB
+
+
 Version 10.5
 ------------
 Added append option to Calc and Excel export.

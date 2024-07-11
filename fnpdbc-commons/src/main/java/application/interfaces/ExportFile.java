@@ -69,7 +69,6 @@ public enum ExportFile {
 			result.remove(ACCESS.name);
 			result.remove(JFILE.name);
 			result.remove(LIST.name);
-			result.remove(MARIADB.name);
 			result.remove(MOBILEDB.name);
 			result.remove(PARADOX.name);
 			result.remove(PILOTDB.name);

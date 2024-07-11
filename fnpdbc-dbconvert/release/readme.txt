@@ -66,7 +66,8 @@ DBase           MS-DOS
 Foxpro          Microsoft Windows 
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
-MS-Excel        Microsoft Windows / Mac OS X
+MS-Excel        Microsoft Windows / MacOS
+MariaDB         All platforms
 Firebird        All platforms
 PostgreSQL      All platforms
 SQLite          All platforms
@@ -149,6 +150,11 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 8.4
+-----------
+Added export to MariaDB
+
 
 Version 8.3
 -----------

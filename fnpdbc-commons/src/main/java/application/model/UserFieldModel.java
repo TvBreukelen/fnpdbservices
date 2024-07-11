@@ -88,8 +88,16 @@ public class UserFieldModel extends HiddenColumnModel {
 		switch (getNumber(col)) {
 		case COL_TEXT_EXPORT:
 			return getValueAt(row, col) != null;
-		case COL_EXPORT_FIELD, COL_NOT_NULL, COL_PRIMARY_KEY, COL_UNIQUE:
+		case COL_EXPORT_FIELD, COL_NOT_NULL:
 			return true;
+		case COL_PRIMARY_KEY, COL_UNIQUE:
+			String type = getValueAt(row, COL_TYPE).toString();
+			switch (type) {
+			case "Image", "Thumbnail", "Memo":
+				return false;
+			default:
+				return true;
+			}
 		case COL_AUTO_INCREMENT:
 			return getValueAt(row, COL_TYPE).toString().equals("Number");
 		default:
@@ -119,10 +127,7 @@ public class UserFieldModel extends HiddenColumnModel {
 
 	public void addRecord(BasisField field, int row) {
 		BasisField obj = new BasisField(field);
-		if (exportFile.isSqlDatabase()) {
-			// No dot allowed in the field name
-			obj.setFieldHeader(obj.getFieldHeader().replace(".", General.EMPTY_STRING));
-		}
+		setFieldHeader(field);
 		tableData.add(row, obj);
 		fireTableDataChanged();
 	}
@@ -163,7 +168,8 @@ public class UserFieldModel extends HiddenColumnModel {
 		BasisField field = tableData.get(row);
 		switch (getNumber(col)) {
 		case COL_EXPORT_FIELD:
-			field.setFieldHeader(exportFile.isSqlDatabase() ? s.replace(".", "") : s);
+			field.setFieldHeader(s);
+			setFieldHeader(field);
 			break;
 		case COL_TEXT_EXPORT:
 			field.setOutputAsText((Boolean) value);
@@ -235,5 +241,12 @@ public class UserFieldModel extends HiddenColumnModel {
 			result.add(tableData.get(i));
 		}
 		return result;
+	}
+
+	private void setFieldHeader(BasisField field) {
+		if (exportFile.isSqlDatabase()) {
+			field.setFieldHeader(field.getFieldHeader().replace(".", General.EMPTY_STRING)
+					.replace("[", General.EMPTY_STRING).replace("]", General.EMPTY_STRING));
+		}
 	}
 }

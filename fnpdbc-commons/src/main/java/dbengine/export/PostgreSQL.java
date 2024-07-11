@@ -86,7 +86,7 @@ public class PostgreSQL extends SqlRemote {
 			buf.append(fieldName);
 
 			if (field.isOutputAsText()) {
-				buf.append(" VARCHAR(").append(field.getSize()).append(")");
+				getTextOrVarchar(field.getSize(), buf);
 			} else {
 				switch (field.getFieldType()) {
 				case BOOLEAN:
@@ -115,7 +115,7 @@ public class PostgreSQL extends SqlRemote {
 					buf.append(" TIMESTAMP");
 					break;
 				default:
-					buf.append(" VARCHAR(").append(field.getSize()).append(")");
+					getTextOrVarchar(field.getSize(), buf);
 					break;
 				}
 			}
