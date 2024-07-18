@@ -72,7 +72,6 @@ public enum ExportFile {
 			result.remove(MOBILEDB.name);
 			result.remove(PARADOX.name);
 			result.remove(PILOTDB.name);
-			result.remove(SQLSERVER.name);
 			result.remove(VCARD.name);
 			result.remove(ICAL.name);
 		}
@@ -115,7 +114,7 @@ public enum ExportFile {
 	}
 
 	public boolean isImageExport() {
-		return this == HANDBASE || this == PARADOX || this == ACCESS || this == POSTGRESQL;
+		return this == HANDBASE || this == PARADOX || this == ACCESS || this == POSTGRESQL || this == SQLSERVER;
 	}
 
 	public boolean isAppend() {

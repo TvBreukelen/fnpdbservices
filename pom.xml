@@ -47,6 +47,11 @@
 			<version>3.3.2</version>
 		</dependency>
 		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>12.6.3.jre11</version>
+		</dependency>
+		<dependency>
 			<groupId>com.github.mwiede</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.2.16</version>

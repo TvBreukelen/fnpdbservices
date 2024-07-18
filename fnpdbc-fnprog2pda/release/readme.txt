@@ -39,6 +39,7 @@ MS-Excel        Microsoft Windows / MacOS
 Firebird        All platforms
 MariaDB         All platforms
 PostGreSQL      All platforms
+SQL Server      All platforms  
 SQLite          All platforms
 TSV             All platforms
 XML             All platforms
@@ -136,7 +137,7 @@ General Public License for more details.
 
 Version 10.6
 ------------
-Added export to MariaDB
+Added export to MariaDB and SQL Server
 
 
 Version 10.5

@@ -38,6 +38,7 @@ import dbengine.SqlDB;
 import dbengine.export.Firebird;
 import dbengine.export.MariaDB;
 import dbengine.export.PostgreSQL;
+import dbengine.export.SQLServer;
 import dbengine.export.SQLite;
 import dbengine.utils.DatabaseHelper;
 
@@ -159,6 +160,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 				break;
 			case SQLITE:
 				db = new SQLite(profiles);
+				break;
+			case SQLSERVER:
+				db = new SQLServer(profiles);
 				break;
 			default:
 				db = new PostgreSQL(profiles);
@@ -504,12 +508,22 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pOtherOptions);
 			pBottomContainer.add(pExport);
 			break;
-		case CALC, DBASE, MARIADB, SQLITE, POSTGRESQL:
+		case CALC, DBASE, MARIADB, SQLITE:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;
+		case POSTGRESQL:
+			pTopContainer.add(pExport);
+			pTopContainer.add(pOtherOptions);
+			pBottomContainer.add(pConvert);
+			pBottomContainer.add(Box.createRigidArea(pExport.getPreferredSize()));
+			break;
 		case FIREBIRD:
 			pTopContainer.add(pExport);
+			break;
+		case SQLSERVER:
+			pTopContainer.add(pExport);
+			pTopContainer.add(pConvert);
 			break;
 		case TEXTFILE:
 			pTopContainer.add(pOtherOptions);

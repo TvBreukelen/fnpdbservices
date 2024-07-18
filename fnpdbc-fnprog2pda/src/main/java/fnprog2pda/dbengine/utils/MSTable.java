@@ -45,25 +45,30 @@ public class MSTable {
 		setIndex(idx.getName());
 		isMultiColumnIndex = idx.getColumnCount() > 1;
 
-		lIndex.forEach(index -> {
-			if (index.isPrimaryKey()) {
-				addIndices(hPrimaryKey, index);
-			}
-
-			if (index.isRequired()) {
-				addIndices(hRequired, index);
-			}
-
-			if (index.isUnique()) {
-				addIndices(hUnique, index);
-			}
-
-			addIndices(hIndex, index);
-		});
+		if (isMultiColumnIndex) {
+			idx.getColumns().forEach(col -> {
+				hPrimaryKey.add(col.getName());
+			});
+		} else {
+			lIndex.forEach(this::addIndices);
+		}
 	}
 
-	private void addIndices(Set<String> sIndex, Index idx) {
-		idx.getColumns().forEach(col -> sIndex.add(col.getName()));
+	private void addIndices(Index index) {
+		if (index.isPrimaryKey()) {
+			setIndex(index.getName());
+			hPrimaryKey.add(index.getName());
+		}
+
+		if (index.isRequired()) {
+			hRequired.add(index.getName());
+		}
+
+		if (index.isUnique()) {
+			hUnique.add(index.getName());
+		}
+
+		hIndex.add(index.getName());
 	}
 
 	public boolean isIndexedColumn(String col) {

@@ -182,4 +182,19 @@ public class MariaDB extends SqlRemote {
 		connection.setAutoCommit(false);
 	}
 
+	@Override
+	public void closeData() throws Exception {
+		if (!isConnected) {
+			return;
+		}
+
+		try {
+			connection.commit();
+		} catch (SQLException ex) {
+			connection.rollback();
+			throwInsertException(ex);
+		} finally {
+			super.closeData();
+		}
+	}
 }

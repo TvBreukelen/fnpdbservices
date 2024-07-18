@@ -240,7 +240,7 @@ public class HostConfig extends BasicDialog {
 			break;
 		default:
 			sslOptions = new String[] { "true", "false" }; // SQL Server
-			defaultOption = "true";
+			defaultOption = "false";
 			break;
 		}
 

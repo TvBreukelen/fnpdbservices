@@ -3,7 +3,7 @@ Release Notes
 
 Version 10.6
 ------------
-Added export to MariaDB
+Added export to MariaDB and SQL Server
 
 
 Version 10.5

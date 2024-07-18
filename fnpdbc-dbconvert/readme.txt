@@ -3,7 +3,7 @@ Release Notes
 
 Version 8.4
 -----------
-Added export to MariaDB
+Added export to MariaDB and SQL Server
 
 
 Version 8.3

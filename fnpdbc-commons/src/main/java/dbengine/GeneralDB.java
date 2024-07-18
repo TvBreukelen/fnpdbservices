@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import application.BasicSoft;
 import application.interfaces.ExportFile;
@@ -193,14 +194,26 @@ public abstract class GeneralDB {
 
 	protected void validateAppend(List<FieldDefinition> dbFields) throws FNProgException {
 		int numFields = dbInfo2Write.size();
-		if (numFields != dbFields.size()) {
+		List<FieldDefinition> fields = new ArrayList<>(dbFields);
+
+		if (myExportFile.isSqlDatabase() && fields.size() - numFields == 1) {
+			// Autoincr fields are optional in dbInfo2Write
+			Optional<FieldDefinition> autoIncr = dbInfo2Write.stream().filter(FieldDefinition::isAutoIncrement)
+					.findFirst();
+			if (autoIncr.isPresent()) {
+				List<FieldDefinition> removeFields = fields.stream().filter(FieldDefinition::isAutoIncrement).toList();
+				fields.removeAll(removeFields);
+			}
+		}
+
+		if (numFields != fields.size()) {
 			throw FNProgException.getException("noMatchFieldsDatabase", Integer.toString(numFields),
-					Integer.toString(dbFields.size()));
+					Integer.toString(fields.size()));
 		}
 
 		// Verify if fields match in type and size
 		for (int i = 0; i < numFields; i++) {
-			FieldDefinition field1 = dbFields.get(i);
+			FieldDefinition field1 = fields.get(i);
 			FieldDefinition field2 = dbInfo2Write.get(i);
 
 			if (!field1.getFieldHeader().equals(field2.getFieldHeader())) {

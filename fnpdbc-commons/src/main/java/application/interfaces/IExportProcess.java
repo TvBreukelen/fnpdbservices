@@ -12,6 +12,7 @@ import dbengine.export.HanDBase;
 import dbengine.export.JsonFile;
 import dbengine.export.MariaDB;
 import dbengine.export.PostgreSQL;
+import dbengine.export.SQLServer;
 import dbengine.export.SQLite;
 import dbengine.export.XmlFile;
 import dbengine.export.YamlFile;
@@ -39,6 +40,8 @@ public abstract class IExportProcess {
 			return new PostgreSQL(profile);
 		case SQLITE:
 			return new SQLite(profile);
+		case SQLSERVER:
+			return new SQLServer(profile);
 		case TEXTFILE:
 			return new CsvFile(profile);
 		case XML:

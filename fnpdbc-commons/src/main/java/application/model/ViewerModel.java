@@ -88,7 +88,7 @@ public class ViewerModel extends HiddenColumnModel {
 		switch (field.getFieldType()) {
 		case BOOLEAN:
 			return obj;
-		case IMAGE:
+		case IMAGE, THUMBNAIL:
 			if (obj instanceof ImageIcon icon) {
 				return General.createScaledIcon(icon, 320, 320);
 			}

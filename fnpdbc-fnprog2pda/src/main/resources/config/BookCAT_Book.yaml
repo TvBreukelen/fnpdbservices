@@ -14,7 +14,7 @@ tables:
   AwardLink: 'AwardLink,BookID'
   Binding: Binding
   BookImage: 'BookImage,BookID'
-  BookType: BookType
+  BookType: BookType,TypeID
   Borrower: Borrower;ShowAll
   Contents: 'Contents,,BookID;Hide'
   ContentsLink: 'AuthorContentsLink,Contents.ContentsID;Hide'
