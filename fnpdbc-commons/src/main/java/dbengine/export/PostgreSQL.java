@@ -1,18 +1,10 @@
 package dbengine.export;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -189,23 +181,6 @@ public class PostgreSQL extends SqlRemote {
 		}
 		prepStmt = connection.prepareStatement(buf.toString());
 		connection.setAutoCommit(false);
-	}
-
-	@Override
-	protected void setPrepStatementObject(int index, Object obj, FieldDefinition field) throws SQLException {
-		// For image fields we use the PostGreSQL bytea (byte array) datatype
-		if (obj instanceof ImageIcon icon) {
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			try {
-				ImageIO.write((BufferedImage) icon.getImage(), "jpg", os);
-				InputStream fis = new ByteArrayInputStream(os.toByteArray());
-				prepStmt.setBinaryStream(index, fis, os.size());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
-			super.setPrepStatementObject(index, obj, field);
-		}
 	}
 
 	@Override

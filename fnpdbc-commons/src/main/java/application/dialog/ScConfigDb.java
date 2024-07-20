@@ -508,22 +508,12 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pOtherOptions);
 			pBottomContainer.add(pExport);
 			break;
-		case CALC, DBASE, MARIADB, SQLITE:
+		case CALC, DBASE, MARIADB, POSTGRESQL, SQLITE:
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;
-		case POSTGRESQL:
+		case FIREBIRD, SQLSERVER:
 			pTopContainer.add(pExport);
-			pTopContainer.add(pOtherOptions);
-			pBottomContainer.add(pConvert);
-			pBottomContainer.add(Box.createRigidArea(pExport.getPreferredSize()));
-			break;
-		case FIREBIRD:
-			pTopContainer.add(pExport);
-			break;
-		case SQLSERVER:
-			pTopContainer.add(pExport);
-			pTopContainer.add(pConvert);
 			break;
 		case TEXTFILE:
 			pTopContainer.add(pOtherOptions);

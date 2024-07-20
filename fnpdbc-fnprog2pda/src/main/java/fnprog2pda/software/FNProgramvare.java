@@ -585,10 +585,6 @@ public abstract class FNProgramvare extends BasicSoft {
 	}
 
 	private boolean check4InternalImage(String field, Map<String, Object> dbRecord, Map<String, Object> map) {
-		if (!mySettings.isExportImages()) {
-			return false;
-		}
-
 		Object obj = map.get(field.startsWith(THUMB) ? "ImageThumbnail" : "Image");
 		if (obj instanceof byte[] byteArray) {
 			try {

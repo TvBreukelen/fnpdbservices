@@ -90,7 +90,7 @@ public class ViewerModel extends HiddenColumnModel {
 			return obj;
 		case IMAGE, THUMBNAIL:
 			if (obj instanceof ImageIcon icon) {
-				return General.createScaledIcon(icon, 320, 320);
+				return General.createScaledIcon(icon, 200, 200);
 			}
 			return obj;
 		case BIG_DECIMAL, FLOAT, NUMBER:

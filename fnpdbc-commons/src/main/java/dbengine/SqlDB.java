@@ -1,5 +1,8 @@
 package dbengine;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -116,12 +119,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 						isOK = false;
 					}
 					break;
-				default:
-					if (tableCat != null && !tableCat.equals(db) || "trace_xe_action_map".equals(table)
-							|| "trace_xe_event_map".equals(table)) {
-						// SQL Server internal tables
+				case SQLSERVER:
+					if (table.equals("sysdiagrams") || table.startsWith("trace_xe")) {
 						isOK = false;
 					}
+					break;
+				default:
 					break;
 				}
 
@@ -267,8 +270,8 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.BOOLEAN);
 			field.setSQLType(Types.BOOLEAN);
 			break;
-		case "BYTEA":
-			field.setFieldType(FieldTypes.UNKNOWN);
+		case "BYTEA", "IMAGE":
+			field.setFieldType(FieldTypes.IMAGE);
 			field.setSQLType(Types.BINARY);
 			break;
 		case "DATE":
@@ -724,14 +727,12 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	protected Object getFieldValue(int colType, int colNo, ResultSet rs) throws SQLException, IOException {
 		switch (colType) {
-		case Types.LONGVARCHAR:
-			return readMemoField(rs, colNo);
+		case Types.BIGINT:
+			return rs.getLong(colNo);
 		case Types.BIT, Types.BOOLEAN:
 			return rs.getBoolean(colNo);
-		case Types.BLOB:
+		case Types.BINARY, Types.BLOB:
 			return rs.getBlob(colNo);
-		case Types.DOUBLE:
-			return rs.getDouble(colNo);
 		case Types.DATE:
 			try {
 				LocalDate date = rs.getObject(colNo, LocalDate.class);
@@ -740,17 +741,19 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 				// We are dealing with a Year "0000" (MariaDB)
 				return General.EMPTY_STRING;
 			}
+		case Types.DECIMAL, Types.INTEGER:
+			return rs.getInt(colNo);
+		case Types.DOUBLE:
+			return rs.getDouble(colNo);
 		case Types.FLOAT:
 			return rs.getFloat(colNo);
+		case Types.LONGVARCHAR:
+			return readMemoField(rs, colNo);
 		case Types.NUMERIC:
 			BigDecimal bd = rs.getBigDecimal(colNo);
 			return bd == null ? General.EMPTY_STRING : bd;
-		case Types.DECIMAL, Types.INTEGER:
-			return rs.getInt(colNo);
 		case Types.SMALLINT, Types.TINYINT:
 			return (int) rs.getShort(colNo);
-		case Types.BIGINT:
-			return rs.getLong(colNo);
 		case Types.TIMESTAMP:
 			LocalDateTime ts = rs.getObject(colNo, LocalDateTime.class);
 			return ts == null ? General.EMPTY_STRING : ts;
@@ -859,8 +862,22 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		return result;
 	}
 
-	protected void setPrepStatementObject(int index, Object obj, FieldDefinition field) throws SQLException {
-		prepStmt.setObject(index, convertDataFields(obj, field));
+	protected void setPrepStatementObject(int index, Object obj, FieldDefinition field) throws Exception {
+		switch (field.getFieldType()) {
+		case IMAGE, THUMBNAIL:
+			if (obj instanceof ImageIcon icon) {
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+				ImageIO.write((BufferedImage) icon.getImage(), "jpg", os);
+				InputStream fis = new ByteArrayInputStream(os.toByteArray());
+				prepStmt.setBinaryStream(index, fis, os.size());
+			} else {
+				prepStmt.setNull(index, field.getSQLType());
+			}
+			break;
+		default:
+			prepStmt.setObject(index, convertDataFields(obj, field));
+			break;
+		}
 	}
 
 	protected void throwInsertException(SQLException ex) throws FNProgException {

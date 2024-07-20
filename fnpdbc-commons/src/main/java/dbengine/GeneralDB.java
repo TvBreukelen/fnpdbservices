@@ -49,13 +49,14 @@ public abstract class GeneralDB {
 
 	protected int totalRecords = 0;
 
-	protected boolean useImages;
 	protected boolean useAppend;
 	protected boolean hasBackup;
 
 	private boolean isBooleanExport;
 	private boolean isDateExport;
 	private boolean isTimeExport;
+	private boolean isImageExport;
+
 	private String fileOpenWarning = General.EMPTY_STRING;
 
 	protected boolean isInputFile;
@@ -77,7 +78,6 @@ public abstract class GeneralDB {
 
 		createBackup = myPref.isCreateBackup();
 		useAppend = myPref.isAppendRecords();
-		useImages = myPref.isExportImages();
 
 		hasBackup = false;
 		isInputFile = false;
@@ -85,6 +85,7 @@ public abstract class GeneralDB {
 		isBooleanExport = myExportFile.isBooleanExport();
 		isDateExport = myExportFile.isDateExport();
 		isTimeExport = myExportFile.isSqlDatabase();
+		isImageExport = myExportFile.isImageExport();
 
 		GeneralSettings generalProps = GeneralSettings.getInstance();
 		booleanTrue = isBooleanExport ? myExportFile.getTrueValue() : generalProps.getCheckBoxChecked();
@@ -153,10 +154,6 @@ public abstract class GeneralDB {
 			return General.EMPTY_STRING;
 		}
 
-		if (field.getFieldType() == FieldTypes.IMAGE || field.getFieldType() == FieldTypes.TEXT) {
-			return dbValue;
-		}
-
 		String dbField = dbValue.toString();
 		switch (field.getFieldType()) {
 		case BOOLEAN:
@@ -167,7 +164,9 @@ public abstract class GeneralDB {
 			return convertDuration(dbValue, field);
 		case FUSSY_DATE:
 			return General.convertFussyDate(dbValue.toString().trim());
-		case MEMO:
+		case IMAGE, THUMBNAIL:
+			return isImageExport ? dbValue : General.EMPTY_STRING;
+		case MEMO, TEXT:
 			if (myExportFile == ExportFile.JSON) {
 				return General.convertStringToList(dbField);
 			}
