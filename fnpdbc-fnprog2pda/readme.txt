@@ -4,6 +4,9 @@ Release Notes
 Version 10.6
 ------------
 Added export to MariaDB and SQL Server
+Improved image import and export
+Updated external libraries
+Minor bug fixes and improvements
 
 
 Version 10.5
