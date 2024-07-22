@@ -58,58 +58,27 @@
 					</archive>
 				</configuration>
 			</plugin>
+			<!-- Builds a macOS App -->
+			<plugin>
+				<groupId>de.perdian.maven.plugins</groupId>
+				<artifactId>macosappbundler-maven-plugin</artifactId>
+				<version>1.20.0</version>
+				<configuration>
+					<plist>
+						<CFBundleIconFile>DBConvert.icns</CFBundleIconFile>
+						<CFBundleDisplayName>FNProg2PDA</CFBundleDisplayName>
+						<JVMMainClassName>fnprog2pda.FNProg2PDA</JVMMainClassName>
+					</plist>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-
-	<!-- Builds a macOS App and DMG file when run from a Mac PC-->
-	<profiles>
-		 <profile>
-    <id>profile-default</id>
-    <activation>
-      <activeByDefault>true</activeByDefault>
-    </activation>
-  		</profile>
-		<profile>
-			<id>MacOS</id>
-			<activation>
-				<os>
-					<family>mac</family>
-				</os>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>de.perdian.maven.plugins</groupId>
-						<artifactId>macosappbundler-maven-plugin</artifactId>
-						<version>1.20.0</version>
-						<configuration>
-							<plist>
-								<CFBundleIconFile>DBConvert.icns</CFBundleIconFile>
-								<CFBundleDisplayName>FNProg2PDA</CFBundleDisplayName>
-								<JVMMainClassName>fnprog2pda.FNProg2PDA</JVMMainClassName>
-							</plist>
-							<dmg>
-								<generate>true</generate>
-								<appendVersion>false}</appendVersion>
-								<additionalResources>
-									<additionalResource>
-										<directory>${project.basedir}/release</directory>
-										<include>**/*.txt</include>
-									</additionalResource>
-								</additionalResources>
-							</dmg>
-						</configuration>
-						<executions>
-							<execution>
-								<phase>package</phase>
-								<goals>
-									<goal>bundle</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
