@@ -32,6 +32,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import javax.sql.rowset.serial.SerialBlob;
 import javax.swing.ImageIcon;
 
 import application.interfaces.ExportFile;
@@ -213,7 +214,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			FieldDefinition fieldDef = new FieldDefinition(columnName, columnName, FieldTypes.TEXT);
 			fieldDef.setSQLType(columns.getInt("DATA_TYPE"));
 
-			String type = columns.getString(6);
+			String type = columns.getString(6).toUpperCase();
 			if (!(type.isEmpty() || type.equals("TEXT")) && !(setFieldType(fieldDef, type) || setFieldType(fieldDef))) {
 				// Non SQL compatible field
 				continue;
@@ -246,7 +247,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.DOUBLE, Types.FLOAT, Types.REAL:
 			field.setFieldType(FieldTypes.FLOAT);
 			break;
-		case Types.LONGVARCHAR:
+		case Types.LONGVARCHAR, Types.LONGNVARCHAR:
 			field.setFieldType(FieldTypes.MEMO);
 			break;
 		case Types.TIME:
@@ -255,7 +256,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 		case Types.TIMESTAMP:
 			field.setFieldType(FieldTypes.TIMESTAMP);
 			break;
-		case Types.CHAR, Types.LONGNVARCHAR, Types.VARCHAR:
+		case Types.CHAR, Types.VARCHAR:
 			return true;
 		default:
 			return false;
@@ -265,7 +266,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 
 	private boolean setFieldType(FieldDefinition field, String type) {
 		// SqLite sets the SQL Type incorrectly, but the type name correct
-		switch (type.toUpperCase()) {
+		switch (type) {
 		case "BOOL", "BOOLEAN":
 			field.setFieldType(FieldTypes.BOOLEAN);
 			field.setSQLType(Types.BOOLEAN);
@@ -306,7 +307,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			field.setFieldType(FieldTypes.BIG_DECIMAL);
 			field.setSQLType(Types.NUMERIC);
 			break;
-		case "NCHAR", "NVARCHAR", "NTEXT", "TIMESTAMPTZ", "TIMETZ":
+		case "NCHAR", "NVARCHAR", "NTEXT", "TEXT", "TIMESTAMPTZ", "TIMETZ":
 			field.setFieldType(FieldTypes.TEXT);
 			field.setSQLType(Types.VARCHAR);
 			break;
@@ -731,7 +732,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 			return rs.getLong(colNo);
 		case Types.BIT, Types.BOOLEAN:
 			return rs.getBoolean(colNo);
-		case Types.BINARY, Types.BLOB:
+		case Types.BINARY:
+			byte[] bytes = rs.getBytes(colNo);
+			return new SerialBlob(bytes);
+		case Types.BLOB:
 			return rs.getBlob(colNo);
 		case Types.DATE:
 			try {
@@ -895,7 +899,7 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	}
 
 	protected void getTextOrVarchar(int maxSize, StringBuilder buf) {
-		if (maxSize > 255 || maxSize == 0) {
+		if (maxSize > 8000 || maxSize == 0) {
 			buf.append(" TEXT");
 		} else {
 			buf.append(" VARCHAR(").append(maxSize).append(")");

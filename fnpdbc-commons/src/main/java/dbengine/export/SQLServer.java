@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,6 @@ import dbengine.utils.DatabaseHelper;
 
 public class SQLServer extends SqlRemote {
 	private Properties info;
-	private boolean insertAutoIncrement = false;
 
 	public SQLServer(Profiles pref) {
 		super(pref);
@@ -132,7 +132,6 @@ public class SQLServer extends SqlRemote {
 					buf.append(" INT");
 					if (field.isAutoIncrement()) {
 						buf.append(" IDENTITY(1,1)");
-						insertAutoIncrement = true;
 					}
 					break;
 				case TEXT, MEMO:
@@ -181,8 +180,11 @@ public class SQLServer extends SqlRemote {
 
 	@Override
 	protected void createPreparedStatement() throws SQLException {
+		// Verify is we insert an auto increment column
+		Optional<FieldDefinition> optIncr = dbInfo2Write.stream().filter(FieldDefinition::isPrimaryKey).findAny();
+
 		executeStatement(new StringBuilder("SET IDENTITY_INSERT ").append(getSqlFieldName(myPref.getDatabaseName()))
-				.append(insertAutoIncrement ? " ON" : " OFF").toString());
+				.append(optIncr.isPresent() ? " ON" : " OFF").toString());
 
 		int maxFields = dbInfo2Write.size();
 		StringBuilder buf = new StringBuilder("INSERT INTO ");
