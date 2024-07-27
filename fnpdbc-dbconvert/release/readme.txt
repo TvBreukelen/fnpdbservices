@@ -89,7 +89,7 @@ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Pub
 2. DBConvert requirements
 ============================================================
 
-To be able to use the DBConvert program you should have Java Runtime version 11.0 (or later) installed
+To be able to use the DBConvert program you should have Java Runtime version 17 (or later) installed
  
 
 Notes 
