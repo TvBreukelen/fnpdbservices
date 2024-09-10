@@ -199,7 +199,7 @@ public abstract class GeneralDB {
 			// Autoincr fields are optional in dbInfo2Write
 			Optional<FieldDefinition> autoIncr = dbInfo2Write.stream().filter(FieldDefinition::isAutoIncrement)
 					.findFirst();
-			if (autoIncr.isPresent()) {
+			if (autoIncr.isEmpty()) {
 				List<FieldDefinition> removeFields = fields.stream().filter(FieldDefinition::isAutoIncrement).toList();
 				fields.removeAll(removeFields);
 			}
@@ -367,5 +367,9 @@ public abstract class GeneralDB {
 
 	public DatabaseHelper getDatabaseHelper() {
 		return myHelper;
+	}
+
+	public boolean hasBackup() {
+		return hasBackup;
 	}
 }

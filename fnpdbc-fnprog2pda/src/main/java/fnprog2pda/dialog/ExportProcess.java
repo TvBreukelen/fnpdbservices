@@ -11,7 +11,6 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import dbengine.GeneralDB;
 import dbengine.export.CsvFile;
-import fnprog2pda.dbengine.MSAccess;
 import fnprog2pda.dbengine.export.BookBuddy;
 import fnprog2pda.dbengine.export.MovieBuddy;
 import fnprog2pda.dbengine.export.MusicBuddy;
@@ -121,8 +120,8 @@ public class ExportProcess extends IExportProcess implements Runnable {
 	@Override
 	public GeneralDB getDatabase(ExportFile db, Profiles profile) {
 		switch (db) {
-		case ACCESS:
-			return new MSAccess(profile);
+//		case ACCESS:
+//			return new MSAccess(profile);
 		case TEXTFILE:
 			String csvFormat = profile.getTextFileFormat();
 			if (csvFormat.equals("buddyCsv")) {

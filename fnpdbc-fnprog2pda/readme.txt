@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 10.7
+------------
+Added export to MS-Access
+
+
 Version 10.6
 ------------
 Added export to MariaDB and SQL Server

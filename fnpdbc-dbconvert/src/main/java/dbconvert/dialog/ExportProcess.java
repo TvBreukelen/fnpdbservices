@@ -11,16 +11,12 @@ import application.utils.GUIFactory;
 import application.utils.General;
 import dbconvert.software.XConverter;
 import dbengine.GeneralDB;
-import dbengine.export.Firebird;
 import dbengine.export.ICalendar;
 import dbengine.export.JFile;
 import dbengine.export.ListDB;
-import dbengine.export.MSAccess;
-import dbengine.export.MariaDB;
 import dbengine.export.MobileDB;
 import dbengine.export.Paradox;
 import dbengine.export.PilotDB;
-import dbengine.export.SQLServer;
 import dbengine.export.VCard;
 
 public class ExportProcess extends IExportProcess implements Runnable {
@@ -123,18 +119,10 @@ public class ExportProcess extends IExportProcess implements Runnable {
 	@Override
 	public GeneralDB getDatabase(ExportFile db, Profiles profile) {
 		switch (db) {
-		case ACCESS:
-			return new MSAccess(profile);
-		case FIREBIRD:
-			return new Firebird(profile);
 		case ICAL:
 			return new ICalendar(profile);
-		case MARIADB:
-			return new MariaDB(profile);
 		case PARADOX:
 			return new Paradox(profile);
-		case SQLSERVER:
-			return new SQLServer(profile);
 		case VCARD:
 			return new VCard(profile);
 		case JFILE:

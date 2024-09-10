@@ -267,6 +267,10 @@ public abstract class SqlDB extends GeneralDB implements IConvert {
 	private boolean setFieldType(FieldDefinition field, String type) {
 		// SqLite sets the SQL Type incorrectly, but the type name correct
 		switch (type) {
+		case "BIT":
+			field.setFieldType(FieldTypes.BOOLEAN);
+			field.setSQLType(Types.BIT);
+			break;
 		case "BOOL", "BOOLEAN":
 			field.setFieldType(FieldTypes.BOOLEAN);
 			field.setSQLType(Types.BOOLEAN);

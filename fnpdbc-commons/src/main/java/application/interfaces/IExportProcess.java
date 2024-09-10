@@ -10,6 +10,7 @@ import dbengine.export.Excel;
 import dbengine.export.Firebird;
 import dbengine.export.HanDBase;
 import dbengine.export.JsonFile;
+import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLServer;
@@ -22,6 +23,8 @@ public abstract class IExportProcess {
 
 	public GeneralDB getDatabase(ExportFile db, Profiles profile) {
 		switch (db) {
+		case ACCESS:
+			return new MSAccess(profile);
 		case CALC:
 			return new Calc(profile);
 		case DBASE:

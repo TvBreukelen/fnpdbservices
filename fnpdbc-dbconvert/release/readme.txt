@@ -152,6 +152,11 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 8.5
+-----------
+Added export to MS-Access
+
+
 Version 8.4
 -----------
 Added export to MariaDB and SQL Server.

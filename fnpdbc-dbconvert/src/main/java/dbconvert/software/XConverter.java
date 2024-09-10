@@ -413,7 +413,9 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 
 		if (isOutputFileOpen) {
 			dbOut.closeFile();
-			dbOut.deleteFile();
+			if (!myExportFile.isAppend() || dbOut.hasBackup()) {
+				dbOut.deleteFile();
+			}
 			isOutputFileOpen = false;
 		}
 	}

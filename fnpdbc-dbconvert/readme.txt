@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 8.5
+-----------
+Added export to MS-Access
+
+
 Version 8.4
 -----------
 Added export to MariaDB and SQL Server

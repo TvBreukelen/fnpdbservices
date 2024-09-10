@@ -180,16 +180,17 @@ public class SQLServer extends SqlRemote {
 
 	@Override
 	protected void createPreparedStatement() throws SQLException {
+		String table = getSqlFieldName(myPref.getDatabaseName());
+
 		// Verify is we insert an auto increment column
 		Optional<FieldDefinition> optIncr = dbInfo2Write.stream().filter(FieldDefinition::isPrimaryKey).findAny();
-
-		executeStatement(new StringBuilder("SET IDENTITY_INSERT ").append(getSqlFieldName(myPref.getDatabaseName()))
+		executeStatement(new StringBuilder("SET IDENTITY_INSERT ").append(table)
 				.append(optIncr.isPresent() ? " ON" : " OFF").toString());
 
 		int maxFields = dbInfo2Write.size();
 		StringBuilder buf = new StringBuilder("INSERT INTO ");
 
-		buf.append(getSqlFieldName(myPref.getDatabaseName())).append(" (");
+		buf.append(table).append(" (");
 		dbInfo2Write.forEach(field -> buf.append(getSqlFieldName(field.getFieldHeader())).append(","));
 
 		buf.deleteCharAt(buf.length() - 1);

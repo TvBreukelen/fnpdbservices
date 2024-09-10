@@ -36,6 +36,7 @@ import application.utils.General;
 import application.utils.gui.XGridBagConstraints;
 import dbengine.SqlDB;
 import dbengine.export.Firebird;
+import dbengine.export.MSAccess;
 import dbengine.export.MariaDB;
 import dbengine.export.PostgreSQL;
 import dbengine.export.SQLServer;
@@ -95,7 +96,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 	transient ConfigDialog dialog;
 	transient Profiles profiles;
 	transient ScFieldSelect scFieldSelect;
-	private DatabaseHelper helper;
+	transient DatabaseHelper helper;
 	transient Databases dbSettings;
 
 	private PropertyChangeSupport support;
@@ -152,6 +153,9 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 
 			SqlDB db;
 			switch (myExportFile) {
+			case ACCESS:
+				db = new MSAccess(profiles);
+				break;
 			case FIREBIRD:
 				db = new Firebird(profiles);
 				break;
@@ -512,7 +516,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 			pTopContainer.add(pExport);
 			pTopContainer.add(pOtherOptions);
 			break;
-		case FIREBIRD, SQLSERVER:
+		case ACCESS, FIREBIRD, SQLSERVER:
 			pTopContainer.add(pExport);
 			break;
 		case TEXTFILE:
@@ -548,7 +552,7 @@ public class ScConfigDb extends JPanel implements IConfigDb {
 		pConvert.setVisible(cConvertImages.isVisible());
 		pOtherOptions.setVisible(pOtherOptions.getComponentCount() > 0);
 		btTableSchema.setVisible(myExportFile.isSqlDatabase() && rExists[0].isSelected());
-		btBackup.setEnabled(!myExportFile.isConnectHost());
+		btBackup.setEnabled(!(myExportFile.isConnectHost() || myExportFile == ExportFile.ACCESS));
 
 		if (dbConfig != null) {
 			dbConfig.activateComponents();

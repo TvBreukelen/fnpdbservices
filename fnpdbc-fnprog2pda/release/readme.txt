@@ -135,6 +135,11 @@ General Public License for more details.
 5. What is New?
 ===================================================================================================
 
+Version 10.7
+------------
+Added export to MS-Access
+
+
 Version 10.6
 ------------
 Added export to MariaDB and SQL Server

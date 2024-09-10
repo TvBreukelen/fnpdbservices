@@ -66,7 +66,6 @@ public enum ExportFile {
 		}
 
 		if (!isImport) {
-			result.remove(ACCESS.name);
 			result.remove(JFILE.name);
 			result.remove(LIST.name);
 			result.remove(MOBILEDB.name);
@@ -158,7 +157,7 @@ public enum ExportFile {
 	}
 
 	public boolean isSpecialFieldSort() {
-		return this == LIST || this == JSON || this == YAML || this == XML;
+		return this == JSON || this == YAML || this == XML;
 	}
 
 	public String getDbType() {
