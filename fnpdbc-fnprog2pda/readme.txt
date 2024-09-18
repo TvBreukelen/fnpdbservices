@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 10.7.1
+--------------
+Fixed: Memo fields "truncated" bug
+
+
 Version 10.7
 ------------
 Added export to MS-Access

@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 8.5.1
+-------------
+Fixed: Memo fields "truncated" bug
+
+
 Version 8.5
 -----------
 Added export to MS-Access

@@ -42,8 +42,8 @@ JFile           Palm
 List            Palm 
 JSON            All Platforms
 MobileDB        Palm/PocketPC
-MS-Access       Microsoft Windows/MacOS
-MS-Excel        Microsoft Windows/MacOS
+MS-Access       Microsoft Windows
+MS-Excel        Microsoft Windows
 MySQL/MariaDB   All platforms 
 Paradox         PC
 Pilot-DB        Palm  
@@ -66,7 +66,8 @@ DBase           MS-DOS
 Foxpro          Microsoft Windows 
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
-MS-Excel        Microsoft Windows / MacOS
+MS-Acess        Microsoft Windows
+MS-Excel        Microsoft Windows
 MariaDB         All platforms
 Firebird        All platforms
 PostgreSQL      All platforms
@@ -151,6 +152,11 @@ Delete the DBConvert installation folder from your applications folder.
 ============================================================
 5. What is new?
 ============================================================
+
+Version 8.5.1
+-------------
+Fixed: Memo fields "truncated" bug
+
 
 Version 8.5
 -----------

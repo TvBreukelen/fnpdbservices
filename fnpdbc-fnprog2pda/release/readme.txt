@@ -35,7 +35,8 @@ CSV             All platforms
 xBase           Microsoft Windows
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
-MS-Excel        Microsoft Windows / MacOS
+MS-Access       Microsoft Windows
+MS-Excel        Microsoft Windows
 Firebird        All platforms
 MariaDB         All platforms
 PostGreSQL      All platforms
@@ -134,6 +135,11 @@ General Public License for more details.
 ===================================================================================================
 5. What is New?
 ===================================================================================================
+
+Version 10.7.1
+--------------
+Fixed: Memo fields "truncated" bug
+
 
 Version 10.7
 ------------

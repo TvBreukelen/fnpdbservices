@@ -42,7 +42,7 @@ public class ConfigSort extends BasicDialog {
 	private JButton btDelete;
 	private JButton btApply;
 
-	private final int numSort;
+	private static final int NUM_SORT = 4;
 
 	private String[] dbSortFields;
 	private ExportFile myExportFile;
@@ -57,10 +57,9 @@ public class ConfigSort extends BasicDialog {
 		myExportFile = dbFactory.getExportFile();
 		pdaSettings = data;
 		dbSortFields = dbFactory.getDbSortFields();
-		numSort = myExportFile.getMaxSortFields();
-		jcSortField = new JComboBox[numSort];
-		cbGroupField = new JCheckBox[numSort];
-		txGroupingField = new JTextField[numSort];
+		jcSortField = new JComboBox[NUM_SORT];
+		cbGroupField = new JCheckBox[NUM_SORT];
+		txGroupingField = new JTextField[NUM_SORT];
 		txRemainField = GUIFactory.getJTextField("remainderGroup", pdaSettings.getRemainingField());
 		init();
 	}
@@ -141,7 +140,7 @@ public class ConfigSort extends BasicDialog {
 		}
 		index++;
 
-		for (int i = 0; i < numSort; i++) {
+		for (int i = 0; i < NUM_SORT; i++) {
 			String sortField = findFilterField(pdaSettings.getSortField(i));
 			jcSortField[i] = new JComboBox<>(dbSortFields);
 			jcSortField[i].setSelectedItem(sortField);
@@ -215,7 +214,7 @@ public class ConfigSort extends BasicDialog {
 
 		pdaSettings.clearSortFields();
 
-		for (int i = 0; i < numSort; i++) {
+		for (int i = 0; i < NUM_SORT; i++) {
 			if (jcSortField[i].getSelectedIndex() > 0) {
 				String sortValue = jcSortField[i].getSelectedItem().toString();
 				if (!map.contains(sortValue)) {
@@ -244,7 +243,7 @@ public class ConfigSort extends BasicDialog {
 		}
 
 		boolean isShowRemainder = false;
-		for (int i = 0; i < numSort; i++) {
+		for (int i = 0; i < NUM_SORT; i++) {
 			if (jcSortField[i].getSelectedIndex() < 1) {
 				cbGroupField[i].setSelected(false);
 				cbGroupField[i].setEnabled(false);

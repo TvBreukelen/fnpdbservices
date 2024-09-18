@@ -171,10 +171,18 @@ public abstract class GeneralDB {
 				return General.convertStringToList(dbField);
 			}
 
-			if (dbField.length() > myExportFile.getMaxMemoSize()) {
-				// Truncate field
-				return dbField.substring(0, myExportFile.getMaxMemoSize() - 15) + " truncated...";
+			int maxMemoSize = -1; // unlimited
+			if (myExportFile == ExportFile.HANDBASE) {
+				maxMemoSize = 2000;
+			} else if (myExportFile == ExportFile.DBASE) {
+				maxMemoSize = 254; // only text fields are currently supported
 			}
+
+			if (maxMemoSize != -1 && dbField.length() > maxMemoSize) {
+				// Truncate field
+				return dbField.substring(0, maxMemoSize - 15) + " truncated...";
+			}
+
 			return dbField;
 		case BIG_DECIMAL, FLOAT, NUMBER:
 			return dbValue;

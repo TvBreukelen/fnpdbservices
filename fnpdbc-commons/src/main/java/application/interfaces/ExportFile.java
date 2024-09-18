@@ -12,37 +12,22 @@ public enum ExportFile {
 	 *
 	 * @author Tom van Breukelen
 	 */
-	ACCESS("MS-Access", FileType.MDB, 255, 255), //
-	EXCEL("MS-Excel", FileType.XLSX, 32767, 32767), //
-	CALC("Calc", FileType.ODS, 1048576, 1048576), //
-	TEXTFILE("Text File", FileType.TXT, 32767, 32767), //
-	XML("Xml", FileType.XML, 32767, 32767), //
-	JSON("Json", FileType.JSON, 32767, 32767), //
-	YAML("Yaml", FileType.YAML, 32767, 32767), //
-	SQLITE("SQLite", FileType.DB, 255, 255), //
-	MARIADB("MariaDB", FileType.HOST, 32767, 32767), //
-	POSTGRESQL("PostgreSQL", FileType.HOST, 32767, 32767), //
-	FIREBIRD("Firebird", FileType.HOST, 32767, 32767), //
-	SQLSERVER("SQL Server", FileType.HOST, 32767, 32767), //
-	ICAL("iCalendar", FileType.ICS, 3000, 256), //
-	VCARD("VCard", FileType.VCF, 3000, 256), //
-	DBASE("xBase", FileType.DBF, 32737, 128), //
-	PARADOX("Paradox", FileType.PARADOX, 32737, 128), //
-	HANDBASE("HanDBase", FileType.PDB, 2000, 100), //
-	JFILE("JFile5", FileType.PDB, 10000, 50), //
-	LIST("List", FileType.PDB, 4095, 32767), //
-	MOBILEDB("MobileDB", FileType.PDB, 1000, 20), //
-	PILOTDB("Pilot-DB", FileType.PDB, 3000, 256);
+	ACCESS("MS-Access", FileType.MDB, 255), EXCEL("MS-Excel", FileType.XLSX, 16384), CALC("Calc", FileType.ODS, 16384),
+	TEXTFILE("Text File", FileType.TXT, 32767), XML("Xml", FileType.XML, 32767), JSON("Json", FileType.JSON, 32767),
+	YAML("Yaml", FileType.YAML, 32767), SQLITE("SQLite", FileType.DB, 2000), MARIADB("MariaDB", FileType.HOST, 4096),
+	POSTGRESQL("PostgreSQL", FileType.HOST, 1600), FIREBIRD("Firebird", FileType.HOST, 16000),
+	SQLSERVER("SQL Server", FileType.HOST, 1024), ICAL("iCalendar", FileType.ICS, 32767),
+	VCARD("VCard", FileType.VCF, 32767), DBASE("xBase", FileType.DBF, 254), PARADOX("Paradox", FileType.PARADOX, 128),
+	HANDBASE("HanDBase", FileType.PDB, 100), JFILE("JFile5", FileType.PDB, 50), LIST("List", FileType.PDB, 5),
+	MOBILEDB("MobileDB", FileType.PDB, 20), PILOTDB("Pilot-DB", FileType.PDB, 256);
 
 	private String name;
 	private FileType type;
-	private int maxMemoSize;
 	private int maxFields;
 
-	ExportFile(String name, FileType type, int maxMemoSize, int maxFields) {
+	ExportFile(String name, FileType type, int maxFields) {
 		this.name = name;
 		this.type = type;
-		this.maxMemoSize = maxMemoSize;
 		this.maxFields = maxFields;
 	}
 
@@ -206,14 +191,6 @@ public enum ExportFile {
 
 	public int getMaxFields() {
 		return maxFields;
-	}
-
-	public int getMaxMemoSize() {
-		return maxMemoSize;
-	}
-
-	public int getMaxSortFields() {
-		return this == ExportFile.LIST ? 2 : 4;
 	}
 
 	public String getName() {
