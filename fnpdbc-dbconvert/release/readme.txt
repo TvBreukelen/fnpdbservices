@@ -153,6 +153,11 @@ Delete the DBConvert installation folder from your applications folder.
 5. What is new?
 ============================================================
 
+Version 8.5.2
+-------------
+Issue a warning in case the SQL field name you are exporting to is a reserved word 
+
+
 Version 8.5.1
 -------------
 Fixed: Memo fields "truncated" bug

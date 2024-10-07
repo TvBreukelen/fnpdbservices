@@ -24,6 +24,13 @@ import application.utils.BasisField;
 import application.utils.FNProgException;
 import application.utils.GUIFactory;
 import application.utils.General;
+import dbengine.GeneralDB;
+import dbengine.export.Firebird;
+import dbengine.export.MSAccess;
+import dbengine.export.MariaDB;
+import dbengine.export.PostgreSQL;
+import dbengine.export.SQLServer;
+import dbengine.export.SQLite;
 import dbengine.utils.DatabaseHelper;
 
 public abstract class ConfigDialog extends BasicDialog {
@@ -135,6 +142,46 @@ public abstract class ConfigDialog extends BasicDialog {
 					throw FNProgException.getException("duplicateField", f.getFieldHeader());
 				}
 				fields.add(f.getFieldHeader());
+			}
+		}
+	}
+
+	protected void checkReservedWordFieldNames() {
+		// Check for duplicate field names
+		if (myExportFile.isSqlDatabase()) {
+			switch (myExportFile) {
+			case ACCESS:
+				new MSAccess(profiles);
+				break;
+			case FIREBIRD:
+				new Firebird(profiles);
+				break;
+			case MARIADB:
+				new MariaDB(profiles);
+				break;
+			case SQLITE:
+				new SQLite(profiles);
+				break;
+			case SQLSERVER:
+				new SQLServer(profiles);
+				break;
+			default:
+				new PostgreSQL(profiles);
+				break;
+			}
+
+			StringBuilder reservedNames = new StringBuilder();
+			for (BasisField f : fieldSelect.getFieldList()) {
+				if (GeneralDB.isReservedWord(f.getFieldHeader())) {
+					reservedNames.append(f.getFieldHeader()).append(", ");
+				}
+			}
+
+			if (!reservedNames.isEmpty()) {
+				reservedNames.delete(reservedNames.length() - 2, reservedNames.length());
+				General.showMessage(this,
+						GUIFactory.getMessage("reservedWord", myExportFile.getName(), reservedNames.toString()),
+						"Warning", false);
 			}
 		}
 	}

@@ -1,6 +1,12 @@
 Release Notes
 -------------
 
+Version 10.7.2
+--------------
+Added Copyright and Producers to the CATraxx track export
+Issue a warning in case the SQL field name you are exporting to is a reserved word 
+
+
 Version 10.7.1
 --------------
 Fixed: Memo fields "truncated" bug

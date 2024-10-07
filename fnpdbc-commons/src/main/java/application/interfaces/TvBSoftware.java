@@ -8,8 +8,8 @@ public enum TvBSoftware {
 	 * @author Tom van Breukelen
 	 */
 
-	DBCONVERT("DBConvert", "8.5.1", "dbconvert", "dbconvert/files", "dbconvert/best_release.json"),
-	FNPROG2PDA("FNProg2PDA", "10.7.1", "fnprog2pda", "fnprog2pda/files", "fnprog2pda/best_release.json");
+	DBCONVERT("DBConvert", "8.5.2", "dbconvert", "dbconvert/files", "dbconvert/best_release.json"),
+	FNPROG2PDA("FNProg2PDA", "10.7.2", "fnprog2pda", "fnprog2pda/files", "fnprog2pda/best_release.json");
 
 	private static final String SOURCEFORGE = "https://sourceforge.net/projects/";
 	private static final String COPYRIGHT = "Copyright 2003-2024 Tom van Breukelen.";

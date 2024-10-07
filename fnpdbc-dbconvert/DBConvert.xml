@@ -26,12 +26,12 @@
     <maxHeapSize>1024</maxHeapSize>
   </jre>
   <versionInfo>
-    <fileVersion>8.5.0.0</fileVersion>
-    <txtFileVersion>Version 8.5</txtFileVersion>
+    <fileVersion>8.5.2.0</fileVersion>
+    <txtFileVersion>Version 8.5.2</txtFileVersion>
     <fileDescription>DBConvert</fileDescription>
     <copyright>Tom van Breukelen 2004-2024</copyright>
-    <productVersion>8.5.0.0</productVersion>
-    <txtProductVersion>Version 8.5</txtProductVersion>
+    <productVersion>8.5.2.0</productVersion>
+    <txtProductVersion>Version 8.5.2</txtProductVersion>
     <productName>DBConvert</productName>
     <companyName>TvBSoftware</companyName>
     <internalName>DBConvert</internalName>

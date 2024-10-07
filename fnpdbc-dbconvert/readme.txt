@@ -1,6 +1,11 @@
 Release Notes
 -------------
 
+Version 8.5.2
+-------------
+Issue a warning in case the SQL field name you are exporting to is a reserved word 
+
+
 Version 8.5.1
 -------------
 Fixed: Memo fields "truncated" bug

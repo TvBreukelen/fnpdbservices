@@ -33,8 +33,10 @@ public class CATraxx extends FNProgramvare {
 	private boolean useCategory = false;
 	private boolean useComposers = false;
 	private boolean useConductors = false;
+	private boolean useCopyright = false;
 	private boolean useGenresAndStyles = false;
 	private boolean useOrchestras = false;
+	private boolean usePublishers = false;
 	private boolean useWriters = false;
 	private boolean useRating = false;
 	private boolean useReleaseYear = false;
@@ -56,12 +58,14 @@ public class CATraxx extends FNProgramvare {
 	private static final String COMPOSERS = "Composers";
 	private static final String CONDUCTORS = "Conductors";
 	private static final String CONTENTS_PERSON = "ContentsPerson";
+	private static final String COPYRIGHT = "Copyright";
 	private static final String FORMAT = "Format";
 	private static final String GENRES = "PrimaryGenre.MainGenre";
 	private static final String INSTRUMENT = "Instrument";
 	private static final String INSTRUMENT_ID = "InstrumentID";
 	private static final String ORCHESTRAS = "Orchestras";
 	private static final String PERFORMERS = "Performers";
+	private static final String PUBLISHERS = "Publishers";
 	private static final String RATING = "PersonalRating";
 	private static final String RELEASED = "Released";
 	private static final String RELEASE_YEAR = "ReleaseYear";
@@ -171,11 +175,13 @@ public class CATraxx extends FNProgramvare {
 		useCategory = userFields.contains(CATEGORY);
 		useComposers = userFields.contains(COMPOSERS);
 		useConductors = userFields.contains(CONDUCTORS);
+		useCopyright = userFields.contains(COPYRIGHT);
 		useOrchestras = userFields.contains(ORCHESTRAS);
 
 		useReleaseYear = userFields.contains(RELEASE_YEAR);
 		useRating = userFields.contains(RATING);
 		usePerformers = userFields.contains(PERFORMERS);
+		usePublishers = userFields.contains(PUBLISHERS);
 		useWriters = userFields.contains(WRITERS);
 		useGenresAndStyles = useMusicBuddy;
 
@@ -207,7 +213,7 @@ public class CATraxx extends FNProgramvare {
 			useRoles = true;
 		}
 
-		if (useComposers || useWriters) {
+		if (useComposers || usePublishers || useWriters) {
 			result.add("AuthorTrackLink.RoleID");
 			result.add("ArtistAuthor");
 		}
@@ -359,7 +365,7 @@ public class CATraxx extends FNProgramvare {
 			getPerformers(dbDataRecord, hashTable);
 		}
 
-		if (useWriters || useComposers) {
+		if (useWriters || usePublishers || useComposers || useCopyright) {
 			getAuthors(dbDataRecord, hashTable);
 		}
 
@@ -427,6 +433,8 @@ public class CATraxx extends FNProgramvare {
 
 	private void getAuthors(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
 		dbDataRecord.put(COMPOSERS, General.EMPTY_STRING);
+		dbDataRecord.put(COPYRIGHT, General.EMPTY_STRING);
+		dbDataRecord.put(PUBLISHERS, General.EMPTY_STRING);
 		dbDataRecord.put(WRITERS, General.EMPTY_STRING);
 
 		List<Map<String, Object>> authorTrackList = hashTable.getOrDefault("AuthorTrackLink", new ArrayList<>());
@@ -442,8 +450,10 @@ public class CATraxx extends FNProgramvare {
 		// Remove duplicate persons
 		Map<Integer, String> mapAuthor = mapPersons(author);
 
-		StringBuilder bComposers = new StringBuilder();
 		StringBuilder bAuthors = new StringBuilder();
+		StringBuilder bComposers = new StringBuilder();
+		StringBuilder bCopyright = new StringBuilder();
+		StringBuilder bPublishers = new StringBuilder();
 
 		mapAuthor.entrySet().forEach(entry -> {
 			Set<Integer> list = authorTrackList.stream()
@@ -456,8 +466,14 @@ public class CATraxx extends FNProgramvare {
 					case 2:
 						bComposers.append(entry.getValue()).append("\n");
 						break;
+					case 3:
+						bCopyright.append(entry.getValue()).append("\n");
+						break;
 					case 1, 4, 5, 7, 8:
 						bAuthors.append(entry.getValue()).append("\n");
+						break;
+					case 6:
+						bPublishers.append(entry.getValue()).append("\n");
 						break;
 					default:
 						break;
@@ -467,6 +483,8 @@ public class CATraxx extends FNProgramvare {
 		});
 
 		dbDataRecord.put(COMPOSERS, bComposers.toString().trim());
+		dbDataRecord.put(COPYRIGHT, bCopyright.toString().trim());
+		dbDataRecord.put(PUBLISHERS, bPublishers.toString().trim());
 		dbDataRecord.put(WRITERS, bAuthors.toString().trim());
 	}
 

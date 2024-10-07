@@ -422,6 +422,7 @@ public class ConfigSoft extends ConfigDialog {
 	protected void save() throws Exception {
 		myExportFile = configDb.getDatabaseHelper().getDatabaseType();
 		checkDuplicatelFieldNames();
+		checkReservedWordFieldNames();
 
 		String projectID = myExportFile.getName();
 		String profileID = profile.getText().trim();

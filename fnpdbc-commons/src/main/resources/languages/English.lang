@@ -408,6 +408,7 @@ replaceDatabaseRecords.text=Replace records in the database
 replaceDatabaseRecords.tooltip=Use the structure of the current database, but replace all existing records
 replaceTableRecords.text=Replace records in the table
 replaceTableRecords.tooltip=Use the structure of the current table, but replace all existing records
+reservedWord.mesg=The following Export Field names are reserved words in %0: '%1'.\nIt is recommended to use alternative Export Field names instead.
 restoreCompleted.text=All data have been restored from the Backup file
 restoreText.text=<html>To restore a system backup, click on "Open" to select the backup<br>file. Then press the "Save" button</html>
 select.text=Select...

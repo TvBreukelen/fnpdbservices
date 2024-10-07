@@ -119,10 +119,7 @@ public class ExportProcess extends IExportProcess implements Runnable {
 
 	@Override
 	public GeneralDB getDatabase(ExportFile db, Profiles profile) {
-		switch (db) {
-//		case ACCESS:
-//			return new MSAccess(profile);
-		case TEXTFILE:
+		if (db == ExportFile.TEXTFILE) {
 			String csvFormat = profile.getTextFileFormat();
 			if (csvFormat.equals("buddyCsv")) {
 				switch (FNProgramvare.whoAmI()) {
@@ -138,8 +135,7 @@ public class ExportProcess extends IExportProcess implements Runnable {
 				}
 			}
 			return new CsvFile(profile);
-		default:
-			return super.getDatabase(db, profile);
 		}
+		return super.getDatabase(db, profile);
 	}
 }

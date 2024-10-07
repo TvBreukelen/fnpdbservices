@@ -40,7 +40,6 @@ tables8:
   ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID;Hide'
-  AuthorPublisherRole: 'AuthorPublisherRole,AuthorTrackLink.RoleID,AuthorPublisherRoleID;Hide'
   AuthorTrackLink: 'AuthorTrackLink,TrackID,TrackID;Hide'
   Instrument: 'Instrument,MusicianTrackLink.InstrumentID;Hide'
   OriginalBy: 'ArtistPerson,OriginalByID'
@@ -96,7 +95,9 @@ userfields8:
   LastPlayed: 'LastPlayed,S'
   Composers: 'Dummy,Memo'
   Conductors: 'Dummy,Memo'
+  Copyright: 'Dummy,Memo'
   Orchestras: 'Dummy,Memo'
+  Publishers: 'Dummy,Memo'
   Writers: 'Dummy,Memo'
 userfields9:
   PrimaryGenre: PrimaryGenre.Genre

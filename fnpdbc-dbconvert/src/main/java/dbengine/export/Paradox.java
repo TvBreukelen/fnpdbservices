@@ -11,6 +11,7 @@ public class Paradox extends SqlDB {
 
 	public Paradox(Profiles pref) {
 		super(pref);
+		reservedWords.clear();
 	}
 
 	@Override
@@ -32,7 +33,7 @@ public class Paradox extends SqlDB {
 
 	@Override
 	protected String getSqlFieldName(String value) {
-		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
+		if (value.matches("^[a-zA-Z0-9_.]*$")) {
 			return value;
 		}
 

@@ -7,9 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import application.BasicSoft;
 import application.interfaces.ExportFile;
@@ -40,6 +42,7 @@ public abstract class GeneralDB {
 	protected List<String> dbFieldNames = new ArrayList<>();
 	protected List<FieldTypes> dbFieldTypes = new ArrayList<>();
 	protected List<Map<String, Object>> dbRecords = new ArrayList<>();
+	protected static Set<String> reservedWords = new HashSet<>();
 
 	protected ExportFile myExportFile;
 	protected ExportFile myImportFile;
@@ -253,15 +256,11 @@ public abstract class GeneralDB {
 
 		ExportFile exp = myHelper.getDatabaseType();
 
-		if (exp == ExportFile.POSTGRESQL || exp == ExportFile.FIREBIRD) {
-			return result;
-		}
-
 		if (isNotReservedWord(value) && value.matches("^[a-zA-Z0-9_.]*$")) {
 			return value;
 		}
 
-		if (exp == ExportFile.ACCESS || exp == ExportFile.SQLSERVER) {
+		if (exp == ExportFile.ACCESS || exp == ExportFile.SQLSERVER || exp == ExportFile.SQLITE) {
 			return "[" + value + "]";
 		}
 
@@ -269,7 +268,11 @@ public abstract class GeneralDB {
 	}
 
 	protected boolean isNotReservedWord(String value) {
-		return !"user".equalsIgnoreCase(value);
+		return !isReservedWord(value);
+	}
+
+	public static boolean isReservedWord(String value) {
+		return reservedWords.contains(value.toUpperCase());
 	}
 
 	protected Object convertBoolean(Object dbValue, FieldDefinition field) {

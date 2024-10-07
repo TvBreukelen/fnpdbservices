@@ -409,6 +409,7 @@ replaceDatabaseRecords.text=Bestaande database gegevens overschrijven
 replaceDatabaseRecords.tooltip=Gebruik de structuur van de huidige database, maar vervang alle bestaande records
 replaceTableRecords.text=Bestaande tabel gegevens overschrijven
 replaceTableRecords.tooltip=Gebruik de structuur van de huidige tabel, maar vervang alle bestaande records
+reservedWord.mesg=De volgende exportveldnamen zijn gereserveerde woorden in %0: '%1'.\nHet wordt aanbevolen om in plaats daarvan alternatieve exportveldnamen te gebruiken.
 restoreCompleted.text=Backup van alle gegevens is herstelt
 restoreText.text=<html>Voor het terugsteller van een systeem backup, drukt u op "Openen" om een<br>backup bestand te selekteren en daarna op "Opslaan".</html>
 select.text=Selekteer...

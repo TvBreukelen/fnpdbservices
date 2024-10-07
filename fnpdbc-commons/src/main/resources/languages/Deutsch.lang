@@ -408,6 +408,7 @@ replaceDatabaseRecords.text=Alte Datenbank Daten überschreiben
 replaceDatabaseRecords.tooltip=Behalte die Struktur der Datenbank, aber ersetze jedoch alle vorhandenen Datensätze.
 replaceTableRecords.text=Alte Tabellendaten überschreiben
 replaceTableRecords.tooltip=Behalte die Struktur der Tabelle, aber ersetze jedoch alle vorhandenen Datensätze.
+reservedWord.mesg=Die folgenden Exportfeldnamen sind reservierte Wörter in %0: '%1'.\nEs wird empfohlen, stattdessen alternative Exportfeldnamen zu verwenden.
 restoreCompleted.text=Alle Daten sind geladen aus der Sicherheitskopie
 restoreText.text=<html>Um eine System-Backup wieder zu herstellen, drucken Sie auf "Öffnen" um die<br>Backup-Datei zu selektieren und danach auf "Speichern".</html>
 select.text=Selektier..
