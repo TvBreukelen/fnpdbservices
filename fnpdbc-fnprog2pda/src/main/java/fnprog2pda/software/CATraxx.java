@@ -37,10 +37,15 @@ public class CATraxx extends FNProgramvare {
 	private boolean useGenresAndStyles = false;
 	private boolean useOrchestras = false;
 	private boolean usePublishers = false;
-	private boolean useWriters = false;
 	private boolean useRating = false;
 	private boolean useReleaseYear = false;
 	private boolean usePerformers = false;
+	private boolean useEngineers = false;
+	private boolean useMastering = false;
+	private boolean useMixing = false;
+	private boolean useProgramming = false;
+	private boolean useProducers = false;
+	private boolean useWriters = false;
 
 	private boolean isPlaylist = false;
 	private boolean isBoxSet = false;
@@ -58,17 +63,25 @@ public class CATraxx extends FNProgramvare {
 	private static final String COMPOSERS = "Composers";
 	private static final String CONDUCTORS = "Conductors";
 	private static final String CONTENTS_PERSON = "ContentsPerson";
+	private static final String ENGINEERS = "Engineers";
 	private static final String COPYRIGHT = "Copyright";
 	private static final String FORMAT = "Format";
 	private static final String GENRES = "PrimaryGenre.MainGenre";
 	private static final String INSTRUMENT = "Instrument";
 	private static final String INSTRUMENT_ID = "InstrumentID";
+	private static final String MASTERING = "Mastering";
+	private static final String MIXING = "Mixing";
 	private static final String ORCHESTRAS = "Orchestras";
 	private static final String PERFORMERS = "Performers";
+	private static final String PRODUCERS = "Producers";
+	private static final String PRODUCTION_PERSON = "ProductionPerson";
+	private static final String PROGRAMMING = "Programming";
+	private static final String PUBLISHER_PERSON = "PublisherPerson";
 	private static final String PUBLISHERS = "Publishers";
 	private static final String RATING = "PersonalRating";
 	private static final String RELEASED = "Released";
 	private static final String RELEASE_YEAR = "ReleaseYear";
+	private static final String ROLE_ID = "RoleID";
 	private static final String STYLES = "Genre";
 	private static final String TITLE = "Title";
 	private static final String TITLE_SORT = "TitleSort";
@@ -183,6 +196,13 @@ public class CATraxx extends FNProgramvare {
 		usePerformers = userFields.contains(PERFORMERS);
 		usePublishers = userFields.contains(PUBLISHERS);
 		useWriters = userFields.contains(WRITERS);
+
+		useEngineers = userFields.contains(ENGINEERS);
+		useMastering = userFields.contains(MASTERING);
+		useMixing = userFields.contains(MIXING);
+		useProducers = userFields.contains(PRODUCERS);
+		useProgramming = userFields.contains(PROGRAMMING);
+
 		useGenresAndStyles = useMusicBuddy;
 
 		if (useCategory) {
@@ -213,9 +233,14 @@ public class CATraxx extends FNProgramvare {
 			useRoles = true;
 		}
 
-		if (useComposers || usePublishers || useWriters) {
+		if (useWriters || useComposers || usePublishers) {
 			result.add("AuthorTrackLink.RoleID");
-			result.add("ArtistAuthor");
+			result.add(PUBLISHER_PERSON);
+		}
+
+		if (useEngineers || useMastering || useMixing || useProducers || useProgramming) {
+			result.add("ProductionTrackLink.RoleID");
+			result.add(PRODUCTION_PERSON);
 		}
 
 		if (useMusicBuddy) {
@@ -236,38 +261,14 @@ public class CATraxx extends FNProgramvare {
 				personMap.put(1, "feat.");
 				personMap.put(2, "vs.");
 				personMap.put(3, "with");
-				getProductionRoles();
 				break;
 			case 6:
 				getVersion6Roles();
-				getProductionRoles();
 				break;
 			default:
 				getVersion7Roles();
 			}
 		}
-	}
-
-	private void getProductionRoles() {
-		Map<Integer, String> personMap = new HashMap<>();
-		myRoles.put("ProductionPerson", personMap);
-		personMap.put(1, "Assistent Engineer");
-		personMap.put(2, "Associate Producer");
-		personMap.put(3, "Co Producer");
-		personMap.put(4, "Engineer");
-		personMap.put(5, "Executive Producer");
-		personMap.put(6, "Mastering");
-		personMap.put(7, "Mixing");
-		personMap.put(8, "Producer");
-		personMap.put(9, "Programming");
-		personMap.put(10, "Remixing");
-
-		Map<Integer, String> studioMap = new HashMap<>();
-		myRoles.put("Studio", studioMap);
-
-		studioMap.put(1, "Mastering Location");
-		studioMap.put(2, "Mixing Location");
-		studioMap.put(3, "Recording Location");
 	}
 
 	private void getVersion6Roles() throws Exception {
@@ -304,7 +305,8 @@ public class CATraxx extends FNProgramvare {
 
 	private void getVersion7Roles() throws Exception {
 		getRoles(ARTIST, "ArtistRole", "ArtistRoleID");
-		getRoles("ProductionPerson", "ProductionRole", "ProductionRoleID");
+		getRoles(PRODUCTION_PERSON, "ProductionRole", "ProductionRoleID");
+		getRoles(PUBLISHER_PERSON, "AuthorPublisherRole", "AuthorPublisherRoleID");
 		getRoles("Studio", "StudioRole", "StudioRoleID");
 	}
 
@@ -365,8 +367,12 @@ public class CATraxx extends FNProgramvare {
 			getPerformers(dbDataRecord, hashTable);
 		}
 
-		if (useWriters || usePublishers || useComposers || useCopyright) {
-			getAuthors(dbDataRecord, hashTable);
+		if (useComposers || useCopyright || usePublishers || useWriters) {
+			getPublishers(dbDataRecord, hashTable);
+		}
+
+		if (useEngineers || useMastering || useMixing || useProducers || useProgramming) {
+			getProduction(dbDataRecord, hashTable);
 		}
 
 		if (useRating && useMusicBuddy) {
@@ -404,8 +410,7 @@ public class CATraxx extends FNProgramvare {
 		}
 
 		// Get the arranger(s)
-		List<Integer> arrangers = arrangerTrackList.stream()
-				.filter(map -> (Integer) map.getOrDefault("RoleID", -1) == 2)
+		List<Integer> arrangers = arrangerTrackList.stream().filter(map -> (Integer) map.getOrDefault(ROLE_ID, -1) == 2)
 				.map(x -> (Integer) x.getOrDefault(ARTIST_PERSON_ID, -1)).toList();
 		if (arrangers.isEmpty()) {
 			return;
@@ -431,7 +436,7 @@ public class CATraxx extends FNProgramvare {
 		dbDataRecord.put(CONDUCTORS, result.toString());
 	}
 
-	private void getAuthors(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
+	private void getPublishers(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
 		dbDataRecord.put(COMPOSERS, General.EMPTY_STRING);
 		dbDataRecord.put(COPYRIGHT, General.EMPTY_STRING);
 		dbDataRecord.put(PUBLISHERS, General.EMPTY_STRING);
@@ -442,23 +447,23 @@ public class CATraxx extends FNProgramvare {
 			return;
 		}
 
-		List<Map<String, Object>> author = hashTable.getOrDefault("ArtistAuthor", new ArrayList<>());
-		if (author.isEmpty()) {
+		List<Map<String, Object>> publisher = hashTable.getOrDefault(PUBLISHER_PERSON, new ArrayList<>());
+		if (publisher.isEmpty()) {
 			return;
 		}
 
 		// Remove duplicate persons
-		Map<Integer, String> mapAuthor = mapPersons(author);
+		Map<Integer, String> mapPublisher = mapPersons(publisher);
 
-		StringBuilder bAuthors = new StringBuilder();
 		StringBuilder bComposers = new StringBuilder();
 		StringBuilder bCopyright = new StringBuilder();
 		StringBuilder bPublishers = new StringBuilder();
+		StringBuilder bWriters = new StringBuilder();
 
-		mapAuthor.entrySet().forEach(entry -> {
+		mapPublisher.entrySet().forEach(entry -> {
 			Set<Integer> list = authorTrackList.stream()
 					.filter(artist -> artist.getOrDefault(ARTIST_PERSON_ID, -1).equals(entry.getKey()))
-					.map(x -> (Integer) x.get("RoleID")).collect(Collectors.toSet());
+					.map(x -> (Integer) x.get(ROLE_ID)).collect(Collectors.toSet());
 
 			if (!list.isEmpty()) {
 				list.forEach(id -> {
@@ -470,7 +475,8 @@ public class CATraxx extends FNProgramvare {
 						bCopyright.append(entry.getValue()).append("\n");
 						break;
 					case 1, 4, 5, 7, 8:
-						bAuthors.append(entry.getValue()).append("\n");
+						String role = useRoles ? getPersonRole(PUBLISHER_PERSON, id, true) : General.EMPTY_STRING;
+						bWriters.append(entry.getValue()).append(role).append("\n");
 						break;
 					case 6:
 						bPublishers.append(entry.getValue()).append("\n");
@@ -485,7 +491,7 @@ public class CATraxx extends FNProgramvare {
 		dbDataRecord.put(COMPOSERS, bComposers.toString().trim());
 		dbDataRecord.put(COPYRIGHT, bCopyright.toString().trim());
 		dbDataRecord.put(PUBLISHERS, bPublishers.toString().trim());
-		dbDataRecord.put(WRITERS, bAuthors.toString().trim());
+		dbDataRecord.put(WRITERS, bWriters.toString().trim());
 	}
 
 	private void getPerformers(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
@@ -533,6 +539,72 @@ public class CATraxx extends FNProgramvare {
 		});
 
 		dbDataRecord.put(PERFORMERS, result.toString());
+	}
+
+	private void getProduction(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {
+		dbDataRecord.put(ENGINEERS, General.EMPTY_STRING);
+		dbDataRecord.put(MASTERING, General.EMPTY_STRING);
+		dbDataRecord.put(MIXING, General.EMPTY_STRING);
+		dbDataRecord.put(PRODUCERS, General.EMPTY_STRING);
+		dbDataRecord.put(PROGRAMMING, General.EMPTY_STRING);
+
+		List<Map<String, Object>> productionTrackList = hashTable.getOrDefault("ProductionTrackLink",
+				new ArrayList<>());
+		if (productionTrackList.isEmpty()) {
+			return;
+		}
+
+		List<Map<String, Object>> productionArtist = hashTable.getOrDefault(PRODUCTION_PERSON, new ArrayList<>());
+		if (productionArtist.isEmpty()) {
+			return;
+		}
+
+		// Remove duplicate persons
+		Map<Integer, String> mapProduction = mapPersons(productionArtist);
+
+		StringBuilder bEngineers = new StringBuilder();
+		StringBuilder bMastering = new StringBuilder();
+		StringBuilder bMixing = new StringBuilder();
+		StringBuilder bProducers = new StringBuilder();
+		StringBuilder bProgramming = new StringBuilder();
+
+		mapProduction.entrySet().forEach(entry -> {
+			Set<Integer> list = productionTrackList.stream()
+					.filter(artist -> artist.getOrDefault(ARTIST_PERSON_ID, -1).equals(entry.getKey()))
+					.map(x -> (Integer) x.get(ROLE_ID)).collect(Collectors.toSet());
+
+			if (!list.isEmpty()) {
+				list.forEach(id -> {
+					String role = useRoles ? getPersonRole(PRODUCTION_PERSON, id, true) : General.EMPTY_STRING;
+
+					switch (id) {
+					case 1, 4:
+						bEngineers.append(entry.getValue()).append(role).append("\n");
+						break;
+					case 2, 3, 5, 8:
+						bProducers.append(entry.getValue()).append(role).append("\n");
+						break;
+					case 6:
+						bMastering.append(entry.getValue()).append("\n");
+						break;
+					case 7, 10:
+						bMixing.append(entry.getValue()).append(role).append("\n");
+						break;
+					case 9:
+						bProgramming.append(entry.getValue()).append("\n");
+						break;
+					default:
+						break;
+					}
+				});
+			}
+		});
+
+		dbDataRecord.put(ENGINEERS, bEngineers.toString().trim());
+		dbDataRecord.put(MASTERING, bMastering.toString().trim());
+		dbDataRecord.put(MIXING, bMixing.toString().trim());
+		dbDataRecord.put(PRODUCERS, bProducers.toString().trim());
+		dbDataRecord.put(PROGRAMMING, bProgramming.toString().trim());
 	}
 
 	private void getOrchestras(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable) {

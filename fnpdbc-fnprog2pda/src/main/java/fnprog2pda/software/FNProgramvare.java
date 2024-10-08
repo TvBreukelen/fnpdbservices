@@ -396,7 +396,8 @@ public abstract class FNProgramvare extends BasicSoft {
 						String s = msAccess.convertObject(lObj, field).toString();
 						if (isPersonRoles) {
 							Number roleID = (Number) lObj.getOrDefault(ROLE_ID, -1);
-							String role = getPersonRole(field.getTable(), roleID);
+							String role = getPersonRole(field.getTable(), roleID,
+									"ProductionPerson, PublisherPerson".contains(field.getTable()));
 							if (role.isEmpty()) {
 								buf.append(s).append(separator);
 							} else {
@@ -854,13 +855,16 @@ public abstract class FNProgramvare extends BasicSoft {
 		list.forEach(map -> personMap.put((Integer) map.get(roleID), map.get(roleTable).toString()));
 	}
 
-	public String getPersonRole(String table, Number pRoleID) {
+	public String getPersonRole(String table, Number pRoleID, boolean dashSeparator) {
 		if (pRoleID != null && pRoleID.intValue() > 0) {
 			Map<Integer, String> map = myRoles.get(table);
 			if (map != null) {
 				String role = map.get(pRoleID.intValue());
 				if (role != null) {
-					return table.equals("Artist") ? role : "[" + role + "]";
+					if (table.equals("Artist")) {
+						return role;
+					}
+					return dashSeparator ? " - " + role : "[" + role + "]";
 				}
 			}
 		}
@@ -897,7 +901,7 @@ public abstract class FNProgramvare extends BasicSoft {
 			String persons = (String) mapPerson.get(useSort ? "SortBy" : "Name");
 			if (StringUtils.isNotEmpty(persons)) {
 				if (useRoles) {
-					String role = getPersonRole(personField[0], (Number) mapPerson.get(ROLE_ID));
+					String role = getPersonRole(personField[0], (Number) mapPerson.get(ROLE_ID), false);
 					if (role.isEmpty()) {
 						sb.append(persons).append(" & ");
 					} else {

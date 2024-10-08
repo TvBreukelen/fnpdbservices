@@ -39,12 +39,12 @@ tables8:
   Artist: 'ArtistPerson,ArtistTrackLink.ArtistPersonID'
   ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID;Hide'
-  ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   AuthorTrackLink: 'AuthorTrackLink,TrackID,TrackID;Hide'
   Instrument: 'Instrument,MusicianTrackLink.InstrumentID;Hide'
   OriginalBy: 'ArtistPerson,OriginalByID'
   MusicianTrackLink: 'MusicianTrackLink,TrackID,TrackID;Hide'
-  ProductionPerson: 'ArtistPerson,ProductionTrackLink.ArtistPersonID;Hide'
+  ProductionPerson: 'ArtistPerson,ProductionTrackLink.ArtistPersonID'
+  PublisherPerson: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID'
   PersonalRating: PersonalRating
 tables9:
   AudioFileLink: AudioFileLink;ShowAll
@@ -68,10 +68,11 @@ userfields:
   EmailReminderDate: 'Album.EmailReminderDate,Date'
   EmailReservedDate: 'Album.EmailReservedDate,Date'
   PlayingTime: 'Album.PlayingTime,time'
+  ProductionPerson: 'ProductionPerson.ProductionPerson,Memo'
+  PublisherPerson: 'PublisherPerson.PublisherPerson,Memo'
   Registered: 'Album.Registered,Date'
   ReissueDate: 'Album.ReissueDate,date'
   ReservedDate: 'Album.ReservedDate,Date'
-  ProductionPerson: 'ProductionPerson.ProductionPerson,Memo'
 userfields5:
   Custom01: UserDef01
   Custom02: UserDef02
@@ -96,7 +97,12 @@ userfields8:
   Composers: 'Dummy,Memo'
   Conductors: 'Dummy,Memo'
   Copyright: 'Dummy,Memo'
+  Engineers: 'Dummy,Memo'
+  Mastering: 'Dummy,Memo'
+  Mixing: 'Dummy,Memo'
   Orchestras: 'Dummy,Memo'
+  Programming: 'Dummy,Memo'
+  Producers: 'Dummy,Memo'
   Publishers: 'Dummy,Memo'
   Writers: 'Dummy,Memo'
 userfields9:
