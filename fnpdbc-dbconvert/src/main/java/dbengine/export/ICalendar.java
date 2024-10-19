@@ -24,8 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-
-import com.microsoft.sqlserver.jdbc.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import application.interfaces.FieldTypes;
 import application.preferences.Profiles;
@@ -409,7 +408,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 
 		Optional<Parameter> typeOpt = freeBusy.getParameter(Parameter.FBTYPE);
 		if (typeOpt.isPresent()) {
-			map.put(fbTypeField, General.capitalizeFirstLetter(typeOpt.get().getValue()));
+			map.put(fbTypeField, capitalizeFirstLetter(typeOpt.get().getValue()));
 			fields.putIfAbsent(fbTypeField, FieldTypes.TEXT);
 		}
 
@@ -446,7 +445,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 	private void getCategories(Categories list, String textField) {
 		String[] elements = list.getValue().split(",");
 		for (int i = 0; i < elements.length; i++) {
-			elements[i] = General.capitalizeFirstLetter(elements[i]);
+			elements[i] = capitalizeFirstLetter(elements[i]);
 		}
 
 		map.put(textField, General.convertListToString(Arrays.asList(elements)));
@@ -523,7 +522,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 		RRule<?> rrule = (RRule<?>) propRule;
 		Recur<?> recur = rrule.getRecur();
 
-		map.put(prefix + "RecurFreq", General.capitalizeFirstLetter(recur.getFrequency().toString()));
+		map.put(prefix + "RecurFreq", capitalizeFirstLetter(recur.getFrequency().toString()));
 		getLocalDateOrTime(prefix + "RecurEndBy", null, recur.getUntil(), false);
 
 		// Get Weekday(s)
@@ -562,7 +561,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 			if (buf.length() > 0) {
 				buf.append(General.SPACE).append(frequency.get(recur.getFrequency()));
 			} else {
-				buf.append(General.capitalizeFirstLetter(recur.getFrequency().toString()));
+				buf.append(capitalizeFirstLetter(recur.getFrequency().toString()));
 			}
 		}
 
@@ -593,7 +592,7 @@ public class ICalendar extends GeneralDB implements IConvert {
 			value = value.substring(value.indexOf(":") + 1);
 		}
 
-		map.put(textField, isUppercase ? General.capitalizeFirstLetter(value) : value);
+		map.put(textField, isUppercase ? capitalizeFirstLetter(value) : value);
 		boolean isMemo = value.contains("\n");
 
 		FieldTypes type = fields.getOrDefault(textField, FieldTypes.TEXT);
@@ -661,6 +660,14 @@ public class ICalendar extends GeneralDB implements IConvert {
 				fields.putIfAbsent(timeField, FieldTypes.TIME);
 			}
 		}
+	}
+
+	private String capitalizeFirstLetter(String text) {
+		if (StringUtils.isBlank(text) || text.length() < 2) {
+			return text;
+		}
+
+		return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
 	}
 
 	@Override

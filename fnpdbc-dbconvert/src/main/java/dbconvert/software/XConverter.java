@@ -80,11 +80,7 @@ public class XConverter extends BasicSoft implements IDatabaseFactory {
 			throw FNProgException.getException("noDatabaseExists", dbInHelper.getDatabaseName());
 		}
 
-		if (myImportFile == ExportFile.EXCEL) {
-			firstRecord = 1;
-		} else {
-			firstRecord = myImportFile == ExportFile.MOBILEDB ? 4 : 0;
-		}
+		firstRecord = myImportFile == ExportFile.EXCEL ? 1 : 0;
 
 		dbIn = (IConvert) new ExportProcess().getDatabase(myImportFile, pdaSettings);
 		dbIn.setSoftware(this);

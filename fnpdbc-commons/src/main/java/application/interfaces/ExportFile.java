@@ -18,8 +18,7 @@ public enum ExportFile {
 	POSTGRESQL("PostgreSQL", FileType.HOST, 1600), FIREBIRD("Firebird", FileType.HOST, 16000),
 	SQLSERVER("SQL Server", FileType.HOST, 1024), ICAL("iCalendar", FileType.ICS, 32767),
 	VCARD("VCard", FileType.VCF, 32767), DBASE("xBase", FileType.DBF, 254), PARADOX("Paradox", FileType.PARADOX, 128),
-	HANDBASE("HanDBase", FileType.PDB, 100), JFILE("JFile5", FileType.PDB, 50), LIST("List", FileType.PDB, 5),
-	MOBILEDB("MobileDB", FileType.PDB, 20), PILOTDB("Pilot-DB", FileType.PDB, 256);
+	HANDBASE("HanDBase", FileType.PDB, 100);
 
 	private String name;
 	private FileType type;
@@ -51,11 +50,7 @@ public enum ExportFile {
 		}
 
 		if (!isImport) {
-			result.remove(JFILE.name);
-			result.remove(LIST.name);
-			result.remove(MOBILEDB.name);
 			result.remove(PARADOX.name);
-			result.remove(PILOTDB.name);
 			result.remove(VCARD.name);
 			result.remove(ICAL.name);
 		}
@@ -77,7 +72,7 @@ public enum ExportFile {
 	}
 
 	public boolean isBooleanExport() {
-		return !(this == LIST || this == TEXTFILE || this == VCARD || this == XML);
+		return !(this == TEXTFILE || this == VCARD || this == XML);
 	}
 
 	public boolean isDurationExport() {
@@ -85,12 +80,12 @@ public enum ExportFile {
 	}
 
 	public boolean isDateExport() {
-		return !(this == HANDBASE || this == JSON || this == LIST || this == TEXTFILE || this == ICAL || this == VCARD
-				|| this == XML || this == YAML);
+		return !(this == HANDBASE || this == JSON || this == TEXTFILE || this == ICAL || this == VCARD || this == XML
+				|| this == YAML);
 	}
 
 	public boolean isTimeExport() {
-		return this == JFILE || this == MOBILEDB || this == PILOTDB || isTimestampExport();
+		return isTimestampExport();
 	}
 
 	public boolean isTimestampExport() {
@@ -151,14 +146,6 @@ public enum ExportFile {
 			return "SQLite";
 		case HANDBASE:
 			return "DATA";
-		case JFILE:
-			return "JfD5";
-		case LIST:
-			return "DATA";
-		case MOBILEDB:
-			return "Mdb1";
-		case PILOTDB:
-			return "DB00";
 		default:
 			return General.EMPTY_STRING;
 		}
@@ -168,14 +155,6 @@ public enum ExportFile {
 		switch (this) {
 		case HANDBASE:
 			return "HanD";
-		case JFILE:
-			return "JFi5";
-		case LIST:
-			return "LSdb";
-		case MOBILEDB:
-			return "Mdb1";
-		case PILOTDB:
-			return "DBOS";
 		default:
 			return General.EMPTY_STRING;
 		}
@@ -201,7 +180,7 @@ public enum ExportFile {
 		switch (this) {
 		case DBASE, PARADOX:
 			return "T";
-		case SQLITE, HANDBASE, JFILE, PILOTDB:
+		case SQLITE, HANDBASE:
 			return "1";
 		default:
 			return "true";
@@ -212,7 +191,7 @@ public enum ExportFile {
 		switch (this) {
 		case DBASE, PARADOX:
 			return "F";
-		case SQLITE, HANDBASE, JFILE, PILOTDB:
+		case SQLITE, HANDBASE:
 			return "0";
 		default:
 			return "false";

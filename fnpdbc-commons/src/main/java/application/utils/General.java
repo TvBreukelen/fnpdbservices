@@ -13,7 +13,6 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,9 +25,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -49,7 +45,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
@@ -65,7 +60,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableColumnModel;
@@ -383,21 +380,6 @@ public final class General {
 		return new ImageIcon(scaledImage);
 	}
 
-	public static String eliminateIllegalXmlCharacters(String element) {
-		StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < element.length(); i++) {
-			char c = element.charAt(i);
-			if (Character.isLetterOrDigit(c)) {
-				buf.append(element.charAt(i));
-			} else {
-				if (c == ' ') {
-					buf.append("_");
-				}
-			}
-		}
-		return buf.toString();
-	}
-
 	public static List<String> convertStringToList(String dbValue, String separator) {
 		return new ArrayList<>(Arrays.asList(dbValue.split(separator)));
 	}
@@ -700,16 +682,6 @@ public final class General {
 		return dbFile.substring(0, index) + extension;
 	}
 
-	public static String[] getCharacterSets() {
-		SortedMap<String, Charset> charSets = Charset.availableCharsets();
-		List<String> charList = new ArrayList<>(100);
-		charList.add(SPACE);
-		charSets.keySet().forEach(charList::add);
-		String[] result = new String[charList.size()];
-		charList.toArray(result);
-		return result;
-	}
-
 	public static long getChecksum(byte[] bytes) {
 		Checksum checksumEngine = new CRC32();
 		checksumEngine.update(bytes, 0, bytes.length);
@@ -748,14 +720,6 @@ public final class General {
 		}
 
 		return map;
-	}
-
-	public static String capitalizeFirstLetter(String text) {
-		if (StringUtils.isBlank(text) || text.length() < 2) {
-			return text;
-		}
-
-		return text.substring(0, 1).toUpperCase() + text.substring(1).toLowerCase();
 	}
 
 	public static String ordinal(int i) {
@@ -978,10 +942,6 @@ public final class General {
 		}
 	}
 
-	public static int intLittleEndian(byte[] buf) {
-		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getInt();
-	}
-
 	public static boolean isFileExtensionOk(String dbFile, ExportFile exp) {
 		if (exp != ExportFile.FIREBIRD && exp.isConnectHost()) {
 			return !dbFile.contains(".");
@@ -1007,10 +967,6 @@ public final class General {
 		}
 
 		return str.matches("-?\\d+(\\.\\d+)?");
-	}
-
-	public static long longLittleEndian(byte[] buf) {
-		return ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).getLong();
 	}
 
 	/**
@@ -1068,8 +1024,22 @@ public final class General {
 		return result;
 	}
 
-	public static String setDialogText(String text) {
-		return setDialogText(text, 120);
+	private static Object setDialogText(String text) {
+		String mesg = setDialogText(text, 120);
+
+		if (mesg.length() > 254) {
+			// create a JTextArea
+			JTextArea textArea = new JTextArea(20, 25);
+			textArea.setText(mesg);
+			textArea.setEditable(false);
+
+			// wrap a scrollpane around it
+			JScrollPane scrollPane = new JScrollPane(textArea);
+			textArea.setCaretPosition(0);
+			return scrollPane;
+		}
+
+		return mesg;
 	}
 
 	public static String setDialogText(String text, int maxLen) {
@@ -1145,39 +1115,6 @@ public final class General {
 		}
 		JOptionPane.showMessageDialog(parent, setDialogText(mesg), title,
 				isError ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE);
-	}
-
-	/**
-	 * Convert a byte array containing null terminated Strings to a ArrayList of
-	 * strings
-	 *
-	 * @see getNullTerminatedString
-	 */
-	public static List<String> splitNullTerminatedString(byte[] fields, int fieldLen) throws Exception {
-		List<String> result = null;
-		if (fields == null || fields.length == 0) {
-			return result;
-		}
-
-		final int max = fields.length / fieldLen;
-		ByteArrayInputStream bytes = new ByteArrayInputStream(fields);
-		byte[] field = new byte[fieldLen];
-
-		result = new ArrayList<>(max);
-		String s = null;
-
-		for (int i = 0; i < max; i++) {
-			bytes.read(field);
-			if (field[0] == 0) {
-				break;
-			}
-
-			s = new String(field);
-			int index = s.indexOf('\0');
-			result.add(index != -1 ? s.substring(0, index) : s);
-		}
-
-		return result;
 	}
 
 	public static boolean writeObjectToDisk(Object myObject) {

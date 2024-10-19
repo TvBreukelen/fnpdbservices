@@ -38,15 +38,11 @@ dBase           Microsoft Windows
 Firebird        All Platforms
 Foxpro          Microsoft Windows 
 iCalendar       All Platforms
-JFile           Palm
-List            Palm 
 JSON            All Platforms
-MobileDB        Palm/PocketPC
 MS-Access       Microsoft Windows
 MS-Excel        Microsoft Windows
 MySQL/MariaDB   All platforms 
 Paradox         PC
-Pilot-DB        Palm  
 PostgreSQL      All platforms
 SQL Server      All platforms  
 SQLite          All platforms
@@ -66,7 +62,7 @@ DBase           MS-DOS
 Foxpro          Microsoft Windows 
 JSON            All Platforms
 HanDBase        Palm/Pocket PC/iPhone/iPad
-MS-Acess        Microsoft Windows
+MS-Access       Microsoft Windows
 MS-Excel        Microsoft Windows
 MariaDB         All platforms
 Firebird        All platforms
@@ -156,6 +152,7 @@ Delete the DBConvert installation folder from your applications folder.
 Version 8.5.2
 -------------
 Issue a warning in case the SQL field name you are exporting to is a reserved word 
+Removed Palm database support.
 
 
 Version 8.5.1
