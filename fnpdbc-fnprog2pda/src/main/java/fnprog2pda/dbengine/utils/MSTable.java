@@ -278,6 +278,12 @@ public class MSTable {
 
 			if (type != null) {
 				field.setFieldType(FieldTypes.getField(type.charAt(0)));
+				if (field.getFieldType() != FieldTypes.NUMBER) {
+					field.setAutoIncrement(false);
+					if (field.getFieldType() == FieldTypes.MEMO) {
+						field.setPrimaryKey(false);
+					}
+				}
 			}
 			dbFieldsHash.put(newAlias, field);
 		} else if (oldAlias.equals("Dummy")) {

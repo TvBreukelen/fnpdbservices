@@ -10,7 +10,7 @@ tables:
   AcquiredFrom: AcquiredFrom;ShowAll
   AlbumImage: 'AlbumImage,AlbumID'
   Appraiser: Appraiser;ShowAll
-  ArtistAlbumLink: ArtistAlbumLink;Hide
+  ArtistAlbumLink: ArtistAlbumLink
   Borrower: Borrower;ShowAll
   Company: Company;ShowAll
   ConditionRecord: ConditionRecord
@@ -55,11 +55,12 @@ tables7:
   Media: 'Media,,AlbumID;Hide'
 tables8:
   ArrangerTrackLink: 'ArrangerTrackLink,Tracks.TrackID,TrackID;Hide'
-  Artist: 'ArtistPerson,ArtistAlbumLink.ArtistPersonID'
+  Artist: 'ArtistPerson,ArtistAlbumLink.ArtistPersonID;ShowAll'
   ArtistPerformer: 'ArtistPerson,MusicianTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   ArtistArranger: 'ArtistPerson,ArrangerTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   ArtistAuthor: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID;Hide'
   AuthorTrackLink: 'AuthorTrackLink,Tracks.TrackID,TrackID;Hide'
+  PublisherPerson: 'ArtistPerson,AuthorTrackLink.ArtistPersonID,ArtistPersonID'
   ContentsPerson: 'ArtistPerson,ContentsLink.ArtistPersonID;Hide'
   Instrument: 'Instrument,MusicianTrackLink.InstrumentID;Hide'
   MusicianTrackLink: 'MusicianTrackLink,Tracks.TrackID,TrackID;Hide'
@@ -145,6 +146,7 @@ userfields8:
   Artist: ArtistPerson.Name
   LastModified: 'LastModified,S'
   LastPlayed: 'LastPlayed,S'
+  ArtistAlbumLink.ArtistPersonID: 'ArtistPersonID,Memo'
 userfields9:
   Tracks.Item: Tracks.DiscNo
   Media.Item: Media.DiscNo

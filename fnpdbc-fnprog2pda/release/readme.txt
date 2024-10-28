@@ -136,6 +136,12 @@ General Public License for more details.
 5. What is New?
 ===================================================================================================
 
+Version 10.7.3
+--------------
+Added ArtistPersonID to CATraxx Album and Track export
+Activated Writers export for CATraxx Album export
+
+
 Version 10.7.2
 --------------
 Added Copyright, Engineers, Mastering, Mixing, Programming, Producers, 

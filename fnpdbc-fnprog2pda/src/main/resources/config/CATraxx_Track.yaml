@@ -9,7 +9,7 @@ personColumns:
   Studio: 'Studio,SortBy'
 tables:
   Album: 'Album,AlbumID;ShowAll'
-  ArtistTrackLink: 'ArtistTrackLink,TrackID,TrackID;Hide'
+  ArtistTrackLink: 'ArtistTrackLink,TrackID,TrackID'
   Genre: Genre
   ProductionTrackLink: 'ProductionTrackLink,TrackID,TrackID;Hide'
   Rating: 'TrackRating,TrackRatingID'
@@ -93,6 +93,7 @@ userfields6:
   Keyword: 'Keyword.Keyword,Memo'
   Performers: 'Dummy,Memo'
 userfields8:
+  Artist.ArtistPersonID: 'ArtistPersonID,Memo'
   LastPlayed: 'LastPlayed,S'
   Composers: 'Dummy,Memo'
   Conductors: 'Dummy,Memo'

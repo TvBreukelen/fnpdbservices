@@ -475,8 +475,14 @@ public class CATraxx extends FNProgramvare {
 						bCopyright.append(entry.getValue()).append("\n");
 						break;
 					case 1, 4, 5, 7, 8:
-						String role = useRoles ? getPersonRole(PUBLISHER_PERSON, id, true) : General.EMPTY_STRING;
-						bWriters.append(entry.getValue()).append(role).append("\n");
+						if (!useRoles) {
+							if (!bWriters.toString().contains(entry.getValue())) {
+								bWriters.append(entry.getValue()).append("\n");
+							}
+						} else {
+							bWriters.append(entry.getValue()).append(getPersonRole(PUBLISHER_PERSON, id, true))
+									.append("\n");
+						}
 						break;
 					case 6:
 						bPublishers.append(entry.getValue()).append("\n");
