@@ -214,8 +214,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 	public void loadConfiguration(String view) throws FNProgException {
 		// Load software properties
 		fnpMap = loadYamlFile("config/" + databaseType.getName() + "_" + view + ".yaml");
-
 		currentTable = view;
+
 		dbFieldDefinition.clear();
 		dbSelectFields.clear();
 		dbTables.clear();
@@ -227,14 +227,8 @@ public final class DatabaseFactory implements IDatabaseFactory {
 		sortFields.add(General.EMPTY_STRING);
 		hShowFields.clear();
 
-		MSTable table = msAccess.getMSTable(currentTable);
-		if (table == null) {
-			Map<String, String> tableHash = getSectionHash("table");
-			if (tableHash.containsKey("Name")) {
-				table = msAccess.getMSTable(tableHash.get("Name"));
-			}
-		}
-
+		Map<String, String> tableHash = getSectionHash("table");
+		MSTable table = msAccess.getMSTable(tableHash.get("Name"));
 		if (table == null) {
 			throw FNProgException.getException("noTable", currentTable);
 		}

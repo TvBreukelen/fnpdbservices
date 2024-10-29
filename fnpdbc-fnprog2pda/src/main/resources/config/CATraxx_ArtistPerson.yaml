@@ -5,7 +5,7 @@ table:
 tables5:
   ArtistImage: ArtistImage
   ArtistRelation: ArtistRelation;NoDup
-  ArtistType: 'ArtistType,ArtistTypeID'
+  ArtistType: 'ArtistType,ArtistTypeID;ShowAll'
   Country: Country
   FileLinks: ArtistFileLinks;ShowAll
   RelatedTo: 'Artist,ArtistRelation.RelatedTo'
@@ -27,6 +27,7 @@ hideColumns:
   columns: 'Custom03ID,Custom04ID,MarkedQS'
 userfields:
   AltName: Alt
+  ArtistID: ArtistPersonID
   BirthName: Birth
   Image[1]: 'ArtistImage.Image,Image;Index=1'
   Image[2]: 'ArtistImage.Image,Image;Index=2'
@@ -52,6 +53,4 @@ userfields:
   Thumbnail[9]: 'ArtistImage.ImageThumbnail,X;Index=9'
 userfields8:
   IsArtist: Artist
-  Artist: ArtistPerson
-  ArtistSort: ArtistPersonSort
   RelatedToSort: RelatedTo.ArtistPersonSort

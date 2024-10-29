@@ -1,10 +1,12 @@
 Release Notes
 -------------
 
-Version 10.7.3
---------------
+Version 10.8
+------------
 Added ArtistPersonID to CATraxx Album and Track export
 Activated Writers export for CATraxx Album export
+Renamed CATraxx "Artist" view to "ArtistPerson"
+Added ArtistID and some other fields to "ArtistPerson"
 
 Version 10.7.2
 --------------

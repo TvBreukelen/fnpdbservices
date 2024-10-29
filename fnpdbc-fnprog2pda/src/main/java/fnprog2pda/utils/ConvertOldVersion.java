@@ -36,6 +36,10 @@ public class ConvertOldVersion {
 				// Move DBase and FoxPro output files to xBase
 				mergeInAndExportFiles();
 			}
+
+			if (General.compareVersions("10.8", version) > 0) {
+				renameArtistView();
+			}
 		}
 		if (!myGeneralSettings.isNoVersionCheck()) {
 			myGeneralSettings.setCheckVersionDate();
@@ -104,6 +108,23 @@ public class ConvertOldVersion {
 				});
 			}
 		});
+	}
+
+	private static void renameArtistView() {
+		PrefFNProg pref = PrefFNProg.getInstance();
+		pref.getProjects().forEach(project -> {
+			List<String> profiles = pref.getProfiles(project);
+			if (!profiles.isEmpty()) {
+				pref.setProject(project);
+				profiles.forEach(profile -> {
+					pref.setProfile(profile);
+					if (pref.getTableName().equals("Artist")) {
+						pref.setTableName("ArtistPerson", true);
+					}
+				});
+			}
+		});
+
 	}
 
 }

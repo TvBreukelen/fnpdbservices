@@ -303,6 +303,7 @@ public class ConfigSoft extends ConfigDialog {
 		myImportFile = dbFactory.getDatabaseType();
 		fdView.removeActionListener(funcSelectView);
 		fdView.setModel(new DefaultComboBoxModel<>(myImportFile.getViews()));
+		fdView.setSelectedItem(myView);
 		fdView.addActionListener(funcSelectView);
 	}
 

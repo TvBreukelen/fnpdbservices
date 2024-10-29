@@ -10,7 +10,7 @@ public enum FNPSoftware {
 
 	ASSETCAT("AssetCAT", "Asset"), //
 	BOOKCAT("BookCAT", "Book", "Contents", "Person", "WantList"), //
-	CATRAXX("CATraxx", "Album", "Artist", "BoxSet", "Playlist", "Track", "WantList"), //
+	CATRAXX("CATraxx", "Album", "ArtistPerson", "BoxSet", "Playlist", "Track", "WantList"), //
 	CATVIDS("CATVids", "Contents", "Video", "WantList"), //
 	SOFTCAT("SoftCAT", "App"), //
 	STAMPCAT("StampCAT", "Stamp"), //

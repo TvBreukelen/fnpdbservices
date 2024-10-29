@@ -26,6 +26,7 @@ public class CATraxx extends FNProgramvare {
 	 * @version 8
 	 */
 	private String myPerson = "[None]";
+	private boolean useAlbum = true;
 	private boolean useContentsLength = true;
 	private boolean useContentsSide = true;
 	private boolean useContentsIndex = true;
@@ -143,6 +144,7 @@ public class CATraxx extends FNProgramvare {
 		List<String> result = new ArrayList<>();
 
 		isBoxSet = myTable.equals("BoxSet");
+		useAlbum = !myTable.equals("ArtistPerson");
 		useContentsPerson = useContentsPerson || isBoxSet;
 		useContents = userFields.contains(TRACKS) || isBoxSet;
 		isPlaylist = myTable.equals("Playlist");
@@ -322,7 +324,7 @@ public class CATraxx extends FNProgramvare {
 	protected void setDatabaseData(Map<String, Object> dbDataRecord, Map<String, List<Map<String, Object>>> hashTable)
 			throws Exception {
 
-		int myAlbumID = (Integer) dbDataRecord.get(myTableID);
+		int myAlbumID = useAlbum ? (Integer) dbDataRecord.get(myTableID) : -1;
 		lastIndex = Math.max(lastIndex, myAlbumID);
 
 		if (isPlaylist) {
